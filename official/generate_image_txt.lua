@@ -20,7 +20,7 @@
 --  * enable showing of the txt file (plugins/lighttable/draw_custom_metadata) if this script is enabled
 --  * make filenames with double quotes (") work
 
-dt = require "darktable"
+local dt = require "darktable"
 require "darktable.debug"
 
 -- version check to make sure that we have the new callback to register to
