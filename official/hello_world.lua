@@ -16,6 +16,20 @@
     along with darktable.  If not, see <http://www.gnu.org/licenses/>.
 ]]
 
+--[[
+HELLO WORLD
+prints "hello world when DT starts
+
+
+USAGE
+* require this file from your main lua config file:
+
+
+]]
 local dt = require "darktable"
+dt.configuration.check_version(...,{2,0,0})
 
 dt.print("hello, world")
+
+--
+-- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
