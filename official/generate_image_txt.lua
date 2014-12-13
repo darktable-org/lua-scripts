@@ -15,20 +15,28 @@
     You should have received a copy of the GNU General Public License
     along with darktable.  If not, see <http://www.gnu.org/licenses/>.
 ]]
+--[[
+GENERATE IMAGE TEXT
+A script to run a command on images to generate text metadata
+
+The medata will be displayed as an overlay on the image in lighttable mode
+
+USAGE
+* require this script from your main lua file
+* set a command to run on all image, this command should output text on stdout
+* enable image file generation
+
+
+]]
 
 -- TODO:
 --  * enable showing of the txt file (plugins/lighttable/draw_custom_metadata) if this script is enabled
+--  * maybe allow a lua command returning text instead of a command line call ? both ?
 --  * make filenames with double quotes (") work
 
 local dt = require "darktable"
 require "darktable.debug"
-
--- version check to make sure that we have the new callback to register to
-local min_api_version = "2.1.0-dev"
-if dt.configuration.api_version_string < min_api_version then
-  dt.print_error("[generate_image_txt] lua api too old, at least "..min_api_version.." is required, but "..dt.configuration.api_version_string.." was found")
-  return
-end
+dt.configuration.check_version(...,{2,1,0})
 
 dt.preferences.register("generate_image_txt",
                         "enabled",
