@@ -15,8 +15,21 @@
     You should have received a copy of the GNU General Public License
     along with darktable.  If not, see <http://www.gnu.org/licenses/>.
 ]]
+--[[
+DELETE LONG TAGS
+A simple script that will automatically delete all tag longer than a set length
+
+USAGE
+* require this script from your main lua file
+* set the the maximum length in darktable's preference
+* restart darktable
+
+all tags longer than the given length will be automatically deleted at every restart
+
+]]
 
 local dt = require "darktable"
+dt.configuration.check_version(...,{2,0,0})
 
 dt.preferences.register("delete_long_tags", "length", "integer",
                         "maximum length of tags to keep",
