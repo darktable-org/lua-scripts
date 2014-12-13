@@ -97,10 +97,7 @@ dt.register_event("mouse-over-image-changed", function(event, img)
     local command = command_setting:gsub("%$%(FILE_NAME%)", '"'..img_filename..'"')..' > "'..txt_filename..'"'
 
     -- finally, run it
-    -- I am using os.execute here since we are in our own thread anyway, and for some reason coroutine.yield doesn't work reliable for me
-    os.execute(command)
---     coroutine.yield("RUN_COMMAND", command)
---     coroutine.yield("RUN_COMMAND", "echo foo") -- only gets fired once
+     coroutine.yield("RUN_COMMAND", command)
   end
 )
 
