@@ -26,10 +26,12 @@ dt.configuration.check_version(...,{2,0,0})
 local image_tags = {}
 
 local function mcopy_tags()
-local sel_images = dt.gui.selection()
-local tag_list_tmp = {}
-local hash = {}
+  local sel_images = dt.gui.selection()
+  local tag_list_tmp = {}
+  local hash = {}
 
+  -- empty tag table before copy new tags
+  image_tags = {}
   for _,image in ipairs(sel_images) do
       local image_tags_tmp = {}
       image_tags_tmp = dt.tags.get_tags(image)
