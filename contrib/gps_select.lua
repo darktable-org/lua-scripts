@@ -27,12 +27,10 @@ local dt = require "darktable"
 dt.configuration.check_version(...,{2,0,1})
 table = require "table"
 
-function isnan(x) return x ~= x end
-
 local function selectWithGPS()
    local selection = {}
    for _,image in ipairs(dt.database) do
-      if (not isnan(image.longitude) and not isnan(image.latitude)) then
+      if (image.longitude and image.latitude) then
          table.insert(selection,image)
       end
    end
@@ -42,7 +40,7 @@ end
 local function selectWithoutGPS()
    local selection = {}
    for _,image in ipairs(dt.database) do
-      if (isnan(image.longitude) and isnan(image.latitude)) then
+      if (not image.longitude and not image.latitude) then
          table.insert(selection,image)
       end
    end

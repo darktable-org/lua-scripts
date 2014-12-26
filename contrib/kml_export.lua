@@ -35,8 +35,6 @@ USAGE
 local dt = require "darktable"
 dt.configuration.check_version(...,{2,0,1})
 
-local function isnan(x) return x ~= x end
-
 local function spairs(_table, order) -- Code copied from http://stackoverflow.com/questions/15706270/sort-a-table-in-lua
     -- collect the keys
     local keys = {}
@@ -147,7 +145,7 @@ local function create_kml_file(storage, image_table, extra_data)
     for image,_ in pairs(image_table) do
 	filename = string.upper(string.gsub(image.filename,"%.", "_"))
 
-	if ((not isnan(image.longitude) and not isnan(image.latitude)) and 
+	if ((image.longitude and image.latitude) and 
             (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
            ) then
             kml_file = kml_file.."  <Placemark>\n"
@@ -196,7 +194,7 @@ local function create_kml_file(storage, image_table, extra_data)
       kml_file = kml_file.."      <coordinates>\n"
       
       for image,_ in spairs(image_table, function(t,a,b) return t[b] < t[a] end) do
-	  if ((not isnan(image.longitude) and not isnan(image.latitude)) and 
+	  if ((image.longitude and image.latitude) and 
               (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
              ) then
               kml_file = kml_file.."        "..string.gsub(tostring(image.longitude),",", ".")..","..string.gsub(tostring(image.latitude),",", ".")..",0\n"
