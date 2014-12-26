@@ -21,7 +21,7 @@ darktable script to show the Lua API version in the preferences
 USAGE
 * require this script from your main lua file
 ]] 
-dt = require "darktable"
+local dt = require "darktable"
 
 local result = dt.configuration.api_version_string
 dt.print_error("API Version: "..result)
