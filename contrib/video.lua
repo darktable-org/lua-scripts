@@ -30,7 +30,7 @@ USAGE
 * require this script from your main lua file
 ]]
 
-dt = require "darktable"
+local dt = require "darktable"
 dt.configuration.check_version(...,{2,0,1})
 
 local function show_status(storage, image, format, filename, number, total, high_quality, extra_data)
