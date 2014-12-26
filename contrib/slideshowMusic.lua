@@ -25,31 +25,38 @@ USAGE
 ]]
    
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,1})
+dt.configuration.check_version(...,{2,0,2})
 
 local function playSlideshowMusic(_, old_view, new_view)
-  local filename
+  local filename, playMusic
 
   filename = dt.preferences.read("slideshowMusic","SlideshowMusic","string")
+  playMusic = dt.preferences.read("slideshowMusic","PlaySlideshowMusic","bool")
 
-  local playCommand, stopCommand
 
-  if (new_view.id == "slideshow") then
-    playCommand = 'rhythmbox-client --play-uri="'..filename..'"'
+  if (playMusic) then
+    local playCommand, stopCommand
+
+    if (new_view.id == "slideshow") then
+      playCommand = 'rhythmbox-client --play-uri="'..filename..'"'
 		
-    dt.print_error(playCommand)
-    os.execute(playCommand)
-    --coroutine.yield("RUN_COMMAND", playCommand) 
-  else
-    stopCommand = "rhythmbox-client --pause"
-    dt.print_error(stopCommand)
-    os.execute(stopCommand)
-    --coroutine.yield("RUN_COMMAND", stopCommand) 
+      --dt.print_error(playCommand)
+      coroutine.yield("RUN_COMMAND", playCommand) 
+    else
+      stopCommand = "rhythmbox-client --pause"
+      --dt.print_error(stopCommand)
+      coroutine.yield("RUN_COMMAND", stopCommand) 
+    end
   end
 end
 
 -- Preferences
 dt.preferences.register("slideshowMusic", "SlideshowMusic", "file", "Slideshow background music file", "", "")
-
+dt.preferences.register("slideshowMusic",  
+                        "PlaySlideshowMusic",
+                        "bool",
+                        "Play slideshow background music",
+                        "Plays music with rhythmbox if a slideshow starts",
+                        true)
 -- Register
 dt.register_event("view-changed",playSlideshowMusic)
