@@ -27,12 +27,28 @@ USAGE
 local dt = require "darktable"
 dt.configuration.check_version(...,{2,0,2})
 
+local function checkIfBinExists(bin)
+  local handle = io.popen("which "..bin)
+  local result = handle:read()
+  local ret
+  handle:close()
+  if (not result) then
+    dt.print_error(bin.." not found")
+    ret = false
+  end
+  ret = true
+  return ret
+end
+
 local function playSlideshowMusic(_, old_view, new_view)
   local filename, playMusic
 
   filename = dt.preferences.read("slideshowMusic","SlideshowMusic","string")
   playMusic = dt.preferences.read("slideshowMusic","PlaySlideshowMusic","bool")
 
+  if not checkIfBinExists("rhythmbox-client") then
+    return
+  end
 
   if (playMusic) then
     local playCommand, stopCommand
