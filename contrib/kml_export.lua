@@ -32,7 +32,7 @@ USAGE
 * require this script from your main lua file
 ]]
    
-dt = require "darktable"
+local dt = require "darktable"
 dt.configuration.check_version(...,{2,0,1})
 
 function isnan(x) return x ~= x end
