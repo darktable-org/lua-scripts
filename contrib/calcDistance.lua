@@ -73,7 +73,7 @@ local function calcDistance()
     local angle = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a)); 
     local distance = earthRadius * angle; -- Distance in km  
 
-    dt.print(distance)
+    dt.print(distance.." km")
 
 
 end
