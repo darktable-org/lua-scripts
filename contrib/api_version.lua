@@ -24,5 +24,4 @@ USAGE
 dt = require "darktable"
 
 local result = dt.configuration.api_version_string
-dt.preferences.register("API_TEST", "API Version"..result, "string", "API Version String", "", result)
-
+dt.print_error("API Version: "..result)
