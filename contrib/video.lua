@@ -37,7 +37,29 @@ local function show_status(storage, image, format, filename, number, total, high
     dt.print("Export Image "..tostring(number).."/"..tostring(total))
 end
 
+local function checkIfBinExists(bin)
+    local handle = io.popen("which "..bin)
+    local result = handle:read()
+    local ret
+    handle:close()
+    if (not result) then
+        dt.print_error(bin.." not found")
+        ret = false
+    end
+    ret = true
+    return ret
+end
+
 local function create_video(storage, image_table, extra_data)
+    if not checkIfBinExists("mencoder") then
+        return
+    end
+    if not checkIfBinExists("xdg-open") then
+        return
+    end
+    if not checkIfBinExists("xdg-user-dir") then
+        return
+    end
 
     exportDirectory = dt.preferences.read("video","ExportDirectory","string")
     exportFilename = "output.avi"
