@@ -21,7 +21,7 @@ darktable script to show the different prefference types that are possible with 
 USAGE
 * require this script from your main lua file
 ]] 
-dt = require "darktable"
+local dt = require "darktable"
 dt.configuration.check_version(...,{2,0,1})
 
 dt.preferences.register("preferenceExamples",        -- script: This is a string used to avoid name collision in preferences (i.e namespace). Set it to something unique, usually the name of the script handling the preference.
