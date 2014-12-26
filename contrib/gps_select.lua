@@ -23,7 +23,7 @@ USAGE
 * register a shortcuts
 ]]
    
-dt = require "darktable"
+local dt = require "darktable"
 dt.configuration.check_version(...,{2,0,1})
 table = require "table"
 
