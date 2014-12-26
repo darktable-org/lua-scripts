@@ -28,8 +28,6 @@ USAGE
 local dt = require "darktable"
 dt.configuration.check_version(...,{2,0,1})
 
-function isnan(x) return x ~= x end
-
 local function calcDistance()
 	local sel_images = dt.gui.selection()
 
@@ -42,7 +40,7 @@ local function calcDistance()
     local sel_images = dt.gui.selection()
 
     for _,image in ipairs(sel_images) do
-	if ((not isnan(image.longitude) and not isnan(image.latitude)) and 
+	if ((image.longitude and image.latitude) and 
             (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
            ) then
           
