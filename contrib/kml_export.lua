@@ -35,9 +35,9 @@ USAGE
 local dt = require "darktable"
 dt.configuration.check_version(...,{2,0,1})
 
-function isnan(x) return x ~= x end
+local function isnan(x) return x ~= x end
 
-function spairs(_table, order) -- Code copied from http://stackoverflow.com/questions/15706270/sort-a-table-in-lua
+local function spairs(_table, order) -- Code copied from http://stackoverflow.com/questions/15706270/sort-a-table-in-lua
     -- collect the keys
     local keys = {}
     for _key in pairs(_table) do keys[#keys + 1] = _key end
@@ -66,7 +66,6 @@ end
 
 local function create_kml_file(storage, image_table, extra_data)
 
-    
 
     dt.print_error("Will try to export KML file now")
 
