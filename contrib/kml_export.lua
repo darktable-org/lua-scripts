@@ -64,12 +64,40 @@ local function show_status(storage, image, format, filename, number, total, high
     dt.print("Export Image "..tostring(number).."/"..tostring(total))
 end
 
+local function checkIfBinExists(bin)
+    local handle = io.popen("which "..bin)
+    local result = handle:read()
+    local ret
+    handle:close()
+    if (not result) then
+        dt.print_error(bin.." not found")
+        ret = false
+    end
+    ret = true
+    return ret
+end
+
 local function create_kml_file(storage, image_table, extra_data)
 
+    if not checkIfBinExists("mkdir") then
+        return
+    end
+    if not checkIfBinExists("convert") then
+        return
+    end
+    if not checkIfBinExists("xdg-open") then
+        return
+    end
+    if not checkIfBinExists("xdg-user-dir") then
+        return
+    end
 
     dt.print_error("Will try to export KML file now")
 
     if ( dt.preferences.read("kml_export","CreateKMZ","bool") == true ) then
+        if not checkIfBinExists("zip") then
+            return
+        end
         exportDirectory = dt.configuration.tmp_dir
         imageFoldername = ""
     else
