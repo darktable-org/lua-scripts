@@ -49,9 +49,18 @@ function autostyle_apply_one_image (image)
   local tag,value,style_name=string.match(darktable.preferences.read("autostyle","exif_tag","string"),"(%g+)%s*=%s*(%g+)%s*=>%s*(%g+)")
 
   -- check they all exist (correct syntax)
-  assert (tag,"EXIF TAG not found in " .. darktable.preferences.read("autostyle","exif_tag","string"));
-  assert (value,"value to match not found in " .. darktable.preferences.read("autostyle","exif_tag","string"));
-  assert (style_name,"style name not found in " .. darktable.preferences.read("autostyle","exif_tag","string"));
+  if (not tag) then
+	  darktable.print("EXIF TAG not found in " .. darktable.preferences.read("autostyle","exif_tag","string"))
+	  return
+  end
+  if (not value) then
+	  darktable.print("value to match not found in " .. darktable.preferences.read("autostyle","exif_tag","string"))
+	  return
+  end
+  if (not style_name) then
+	  darktable.print("style name not found in " .. darktable.preferences.read("autostyle","exif_tag","string"))
+	  return
+  end
 
   -- First find the style (we have its name)
   local styles= darktable.styles
@@ -60,6 +69,9 @@ function autostyle_apply_one_image (image)
 	  if s.name == style_name then
 		  style=s
 	  end
+  end
+  if (not style) then
+	  darktable.print("style not found for autostyle: " .. style_name)
   end
 
   -- Apply the style to image, if it is tagged
@@ -92,6 +104,8 @@ end
 function get_stdout(cmd)
   -- Open the command, for reading
   local fd = assert(io.popen(cmd, 'r'))
+  -- yield to other lua threads until data is ready to be read
+  coroutine.yield("FILE_READABLE",fd)
   -- slurp the whole file
   local data = assert(fd:read('*a'))
 
