@@ -80,7 +80,11 @@ function autostyle_apply_one_image (image)
   end
 
   -- Apply the style to image, if it is tagged
-  local auto_dr_attr= exiftool_attribute(image.path .. '/' .. image.filename,tag);
+  local ok,auto_dr_attr= pcall(exiftool_attribute,image.path .. '/' .. image.filename,tag)
+  -- If the lookup fails, stop here
+  if (not ok) then
+    return
+  end
   if auto_dr_attr==value then
 --	  darktable.print("Image " .. image.filename .. ": autostyle automatically applied " .. darktable.preferences.read("autostyle","exif_tag","string") )
 	  darktable.styles.apply(style,image)
@@ -101,7 +105,12 @@ end
 function exiftool_attribute(path,attr)
   local cmd="exiftool -" .. attr .. " '" ..path.. "'";
   local exifresult=get_stdout(cmd)
-  local attribute= assert(string.match(exifresult,": (.*)"), "Could not find the attribute " .. attr .. " using the command: <" .. cmd .. ">")
+  local attribute=string.match(exifresult,": (.*)")
+  if (attribute == nil) then
+    darktable.print( "Could not find the attribute " .. attr .. " using the command: <" .. cmd .. ">")
+    -- Raise an error to the caller
+    error( "Could not find the attribute " .. attr .. " using the command: <" .. cmd .. ">");
+  end
   return attribute
 end
 
