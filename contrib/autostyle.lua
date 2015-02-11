@@ -38,10 +38,15 @@ local darktable = require "darktable"
 
 
 -- Forward declare the functions
-local autostyle_apply_one_image,autostyle_apply,exiftool_attribute,capture
+local autostyle_apply_one_image,autostyle_apply_one_image_event,autostyle_apply,exiftool_attribute,capture
 
 -- Tested it with darktable 1.6.1 and darktable git from 2014-01-25
 darktable.configuration.check_version(...,{2,0,2},{2,1,0})
+
+-- Receive the event triggered
+function autostyle_apply_one_image_event(event,image)
+  autostyle_apply_one_image(image)
+end
 
 -- Apply the style to an image, if it matches the tag condition
 function autostyle_apply_one_image (image)
@@ -125,6 +130,6 @@ darktable.register_event("shortcut",autostyle_apply,
 
 darktable.preferences.register("autostyle","exif_tag","string","Autostyle: EXIF_tag=value=>style","apply a style automatically if an EXIF_tag matches value. Find the tag with exiftool","")
 
-darktable.register_event("post-import-image",autostyle_apply_one_image)
+darktable.register_event("post-import-image",autostyle_apply_one_image_event)
 
 
