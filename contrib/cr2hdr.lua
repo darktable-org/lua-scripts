@@ -23,12 +23,13 @@ shortcut "cr2hdr" provided by Magic Lantern is run on the selected
 images. The processed files are imported. They are also made group
 leaders to hide the original files.
 
-ADDITIANAL SOFTWARE NEEDED FOR THIS SCRIPT
+ADDITIONAL SOFTWARE NEEDED FOR THIS SCRIPT
 * cr2hdr (sources can be obtained through the Magic Lantern repository)
 
 USAGE
 * require this script from your main lua file
-* …
+* trigger conversion on selected/hovered images by shortcut (set shortcut in settings dialog)
+* it is also possible to have the script run after importing a collection (optin, since it is not that fast)
 ]]
 
 local darktable = require "darktable"
@@ -36,6 +37,7 @@ local darktable = require "darktable"
 -- Tested with darktable 1.6.2
 darktable.configuration.check_version(...,{2,0,2})
 
+local queue = {}
 local processed_files = {}
 local job
 
@@ -44,6 +46,10 @@ function file_imported(event, image)
     if processed_files[filename] then
         image.make_group_leader(image)
         processed_files[filename] = false
+    else
+        if darktable.preferences.read("cr2hdr", "onimport", "bool") then
+            table.insert(queue, image)
+        end
     end
 end
 
@@ -69,22 +75,39 @@ function convert_image(image)
     end
 end
 
-function convert_action_images(shortcut)
+function convert_images()
+    if next(queue) == nil then return end
+
     job = darktable.gui.create_job("Dual ISO conversion", true, stop_conversion)
-    local images = darktable.gui.action_images
-    for key,image in pairs(images) do
+    for key,image in pairs(queue) do
         if job.valid then
-            job.percent = (key-1)/#images
+            job.percent = (key-1)/#queue
             convert_image(image)
         else
-            return
+            break
         end
     end
     local success_count = 0
     for _ in pairs(processed_files) do success_count = success_count + 1 end
-    darktable.print("Dual ISO conversion successful on " .. success_count .. "/" .. #images .. " images.")
+    darktable.print("Dual ISO conversion successful on " .. success_count .. "/" .. #queue .. " images.")
     job.valid = false
+    processed_files = {}
+    queue = {}
 end
 
-darktable.register_event("shortcut", convert_action_images, "Run cr2hdr (Magic Lantern DualISO converter) on ... images")
+function film_imported(event, film)
+    if darktable.preferences.read("cr2hdr", "onimport", "bool") then
+        convert_images()
+    end
+end
+
+function convert_action_images(shortcut)
+    queue = darktable.gui.action_images
+    convert_images()
+end
+
+darktable.register_event("shortcut", convert_action_images, "Run cr2hdr (Magic Lantern DualISO converter) on selected images")
 darktable.register_event("post-import-image", file_imported)
+darktable.register_event("post-import-film", film_imported)
+
+darktable.preferences.register("cr2hdr", "onimport", "bool", "Invoke on import", "If true then cr2hdr will try to proccess every file during importing. Warning: cr2hdr is quite slow even in figuring out on whether the file is Dual ISO or not.", false)
