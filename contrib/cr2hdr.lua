@@ -43,7 +43,7 @@ function file_imported(event, image)
     local filename = image.path .. "/" .. image.filename
     if processed_files[filename] then
         image.make_group_leader(image)
-        processed_files[filename] = nil
+        processed_files[filename] = false
     end
 end
 
@@ -80,6 +80,9 @@ function convert_action_images(shortcut)
             return
         end
     end
+    local success_count = 0
+    for _ in pairs(processed_files) do success_count = success_count + 1 end
+    darktable.print("Dual ISO conversion successful on " .. success_count .. "/" .. #images .. " images.")
     job.valid = false
 end
 
