@@ -51,20 +51,10 @@ function stop_conversion(job)
     job.valid = false
 end
 
--- Source: http://lua-users.org/wiki/SplitJoin
-function lines(str)
-  local t = {}
-  local function helper(line) table.insert(t, line) return "" end
-  helper((str:gsub("(.-)\r?\n", helper)))
-  return t
-end
-
 function convert_image(image)
     if string.sub(image.filename, -3) == "CR2" then
         local filename = image.path .. "/" .. image.filename
-        local handle = io.popen("cr2hdr " .. filename)
-        local result = handle:read("*a")
-        handle:close()
+        local result = coroutine.yield("RUN_COMMAND", "cr2hdr " .. filename)
         local out_filename = string.gsub(filename, ".CR2", ".DNG")
         local file = io.open(out_filename)
         if file then
@@ -72,8 +62,7 @@ function convert_image(image)
             processed_files[out_filename] = true
             darktable.database.import(out_filename)
         else
-            result = lines(result)
-            darktable.print_error(image.filename .. ": cr2hdr failed: " .. result[#result-1])
+            darktable.print_error(filename .. ": cr2hdr failed.")
         end
     else
         darktable.print_error(image.filename .. " is not a Canon RAW.")
