@@ -15,9 +15,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]]
 --[[
-cr2hdr …
+cr2hdr Magic Lantern Dual ISO processing.
 
-This script …
+This script automates the steps involved to process an image created
+with the Magic Lantern Dual ISO module. Upon invoking the script with a
+shortcut "cr2hdr" provided by Magic Lantern is run on the selected
+images. The processed files are imported. They are also made group
+leaders to hide the original files.
+
+ADDITIANAL SOFTWARE NEEDED FOR THIS SCRIPT
+* cr2hdr (sources can be obtained through the Magic Lantern repository)
 
 USAGE
 * require this script from your main lua file
@@ -30,6 +37,7 @@ local darktable = require "darktable"
 darktable.configuration.check_version(...,{2,0,2})
 
 local processed_files = {}
+local job
 
 function file_imported(event, image)
     local filename = image.path .. "/" .. image.filename
@@ -37,6 +45,10 @@ function file_imported(event, image)
         image.make_group_leader(image)
         processed_files[filename] = nil
     end
+end
+
+function stop_conversion(job)
+    job.valid = false
 end
 
 -- Source: http://lua-users.org/wiki/SplitJoin
@@ -69,10 +81,17 @@ function convert_image(image)
 end
 
 function convert_action_images(shortcut)
+    job = darktable.gui.create_job("Dual ISO conversion", true, stop_conversion)
     local images = darktable.gui.action_images
-    for _,image in pairs(images) do
-        convert_image(image)
+    for key,image in pairs(images) do
+        if job.valid then
+            job.percent = (key-1)/#images
+            convert_image(image)
+        else
+            return
+        end
     end
+    job.valid = false
 end
 
 darktable.register_event("shortcut", convert_action_images, "Run cr2hdr (Magic Lantern DualISO converter) on ... images")
