@@ -41,7 +41,7 @@ local queue = {}
 local processed_files = {}
 local job
 
-function file_imported(event, image)
+local function file_imported(event, image)
     local filename = image.path .. "/" .. image.filename
     if processed_files[filename] then
         image.make_group_leader(image)
@@ -53,11 +53,11 @@ function file_imported(event, image)
     end
 end
 
-function stop_conversion(job)
+local function stop_conversion(job)
     job.valid = false
 end
 
-function convert_image(image)
+local function convert_image(image)
     if string.sub(image.filename, -3) == "CR2" then
         local filename = image.path .. "/" .. image.filename
         local result = coroutine.yield("RUN_COMMAND", "cr2hdr " .. filename)
@@ -75,7 +75,7 @@ function convert_image(image)
     end
 end
 
-function convert_images()
+local function convert_images()
     if next(queue) == nil then return end
 
     job = darktable.gui.create_job("Dual ISO conversion", true, stop_conversion)
@@ -95,13 +95,13 @@ function convert_images()
     queue = {}
 end
 
-function film_imported(event, film)
+local function film_imported(event, film)
     if darktable.preferences.read("cr2hdr", "onimport", "bool") then
         convert_images()
     end
 end
 
-function convert_action_images(shortcut)
+local function convert_action_images(shortcut)
     queue = darktable.gui.action_images
     convert_images()
 end
