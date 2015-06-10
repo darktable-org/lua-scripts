@@ -48,7 +48,7 @@ end
 
 main_label.reset_callback = reset_widget
 
-dt.register_lib("image_path_no_ui","Selected Images path",true,{
+dt.register_lib("image_path_no_ui","Selected Images path",true,false,{
     [dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_CENTER",300}
     }, main_label
   );
