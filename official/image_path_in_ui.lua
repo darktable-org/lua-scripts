@@ -41,7 +41,11 @@ local function reset_widget()
     array[img.path] = true
   end
   for path in pairs(array) do
-    result = result.."\n"..path
+    if result == "" then
+      result = path
+    else
+      result = result.."\n"..path
+    end
   end
   main_label.label = result
 end
