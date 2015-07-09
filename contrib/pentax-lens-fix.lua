@@ -40,6 +40,8 @@ local function fix_lens_info (event, shortcut)
       v.exif_lens = "smc PENTAX-DA L 55-300mm F4-5.8 ED"
     elseif (v.exif_lens == "Unknown (0x0804)") then
       v.exif_lens = "Sigma 50mm F1.4 EX DG HSM"
+    elseif ((v.exif_lens == "smc PENTAX-F 35-70mm F3.5-4.5") and (v.exif_focal_length == 400)) then
+      v.exif_lens = "Tokina AT-X AF 400mm F5.6"
     end
   end
 end
