@@ -59,9 +59,11 @@ local function playSlideshowMusic(_, old_view, new_view)
       --dt.print_error(playCommand)
       coroutine.yield("RUN_COMMAND", playCommand) 
     else
-      stopCommand = "rhythmbox-client --pause"
-      --dt.print_error(stopCommand)
-      coroutine.yield("RUN_COMMAND", stopCommand) 
+      if (old_view.id == "slideshow") then
+        stopCommand = "rhythmbox-client --pause"
+        --dt.print_error(stopCommand)
+        coroutine.yield("RUN_COMMAND", stopCommand) 
+      end
     end
   end
 end
