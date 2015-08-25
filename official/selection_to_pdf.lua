@@ -19,6 +19,9 @@
 SELECTION_TO_PDF
 Generates a PDF file (via Latex) containing all selected images
 
+ADDITIANAL SOFTWARE NEEDED FOR THIS SCRIPT
+* a PDF-Viewer
+* pdflatex (Latex)
 
 USAGE
 * require this file from your main lua config file:
