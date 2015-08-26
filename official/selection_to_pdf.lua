@@ -34,7 +34,7 @@ dt.preferences.register
    ("selection_to_pdf","Open with","string",
     "a pdf viewer",
     "Can be an absolute pathname or the tool may be in the PATH",
-    "evince")
+    "xdg-open")
 
 local title_widget = dt.new_widget("entry") {
   placeholder="Title"
