@@ -4,6 +4,9 @@ Pentax lens fixes
 Fixes EXIF lens description for:
 - Tokina AT-X Pro AF 28-70mm f/2.8 (from "smc PENTAX-F 28-80mm F3.5-4.5")
 - Sigma 30mm f/1.4 EX DC (from "Sigma Lens")
+- smc PENTAX-DA L 55-300mm F4-5.8 ED (from "Unknown (0x07d8)")
+- Sigma 50mm F1.4 EX DG HSM (from "Unknown (0x0804)")
+- Tokina AT-X AF 400mm F5.6 (from "smc PENTAX-F 35-70mm F3.5-4.5", thanks to Tom)
 
 AUTHOR
 Sebastian Witt (se.witt@gmx.net)
