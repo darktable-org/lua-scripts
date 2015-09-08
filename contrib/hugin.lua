@@ -23,6 +23,9 @@ HUGIN
 Add a new storage option to send images to hugin. 
 Images are exported to darktable tmp dir first. 
 
+ADDITIANAL SOFTWARE NEEDED FOR THIS SCRIPT
+* hugin
+
 USAGE
 * require this file from your main luarc config file.
 
@@ -31,18 +34,18 @@ This plugin will add a new storage option and calls hugin after export.
 
 dt = require "darktable"
 
--- should work with lua version 2.0.0
+-- should work with darktable API version 2.0.0
 dt.configuration.check_version(...,{2,0,0})
 
--- list of exported images 
-local img_list
- 
 dt.register_storage("module_hugin","Hugin panorama",
    function(storage, image, format, filename,
         number,total,high_quality,extra_data)
         dt.print("Export to hugin " .. tostring(number).."/"..tostring(total))
    end,
    function(storage,image_table,extra_data) --finalize
+       -- list of exported images 
+        local img_list
+        
         -- reset and create image list
         img_list = ""
                 
