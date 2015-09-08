@@ -90,14 +90,14 @@ local function create_video(storage, image_table, extra_data)
 
     dt.print_error("this is the command: "..command)
     -- USE coroutine.yield. It does not block the UI
-    coroutine.yield("run_command", command)
+    coroutine.yield("RUN_COMMAND", command)
 
     dt.print("Video created in "..exportDirectory)
     
     if ( dt.preferences.read("video","OpenVideo","bool") == true ) then
         -- USE coroutine.yield. It does not block the UI
         local playVideoCommand = "xdg-open "..exportDirectory.."/"..exportFilename
-        coroutine.yield("run_command", playVideoCommand) 
+        coroutine.yield("RUN_COMMAND", playVideoCommand) 
     end
 end
 
@@ -115,4 +115,3 @@ dt.preferences.register("video", "Codec", "enum", "Video exort: Codec","Video co
 
 -- Register
 dt.register_storage("video", "Video Export", show_status, create_video)
-

@@ -104,7 +104,7 @@ local function create_kml_file(storage, image_table, extra_data)
         -- Creates dir if not exsists
         imageFoldername = "files/"
         local mkdirCommand = "mkdir -p "..exportDirectory.."/"..imageFoldername
-        coroutine.yield("run_command", mkdirCommand) 
+        coroutine.yield("RUN_COMMAND", mkdirCommand) 
     end
 
 
@@ -122,9 +122,9 @@ local function create_kml_file(storage, image_table, extra_data)
 
         local concertToThumbCommand = "convert -size 96x96 "..image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory.."/"..imageFoldername.."thumb_"..filename..".jpg"
         -- USE coroutine.yield. It does not block the UI
-        coroutine.yield("run_command", concertToThumbCommand)
+        coroutine.yield("RUN_COMMAND", concertToThumbCommand)
         local concertCommand = "convert -size 438x438 "..image.." -resize 438x438 +profile \"*\" "..exportDirectory.."/"..imageFoldername..filename..".jpg"
-        coroutine.yield("run_command", concertCommand)
+        coroutine.yield("RUN_COMMAND", concertCommand)
 
         local pattern = "[/]?([^/]+)$"
         filmName = string.match(_.film.path, pattern)
@@ -222,7 +222,7 @@ local function create_kml_file(storage, image_table, extra_data)
         local createKMZCommand = "zip --test --move --junk-paths "
         createKMZCommand = createKMZCommand .."\""..exportDirectory.."/"..exportKMZFilename.."\" "
         createKMZCommand = createKMZCommand .."\""..dt.configuration.tmp_dir.."/"..exportKMLFilename.."\" \""..dt.configuration.tmp_dir.."/"..imageFoldername.."\"*"
-	coroutine.yield("run_command", createKMZCommand) 
+	coroutine.yield("RUN_COMMAND", createKMZCommand) 
     end
 
 -- Open the file with the standard programm    
@@ -234,7 +234,7 @@ local function create_kml_file(storage, image_table, extra_data)
         else
             kmlFileOpenCommand = "xdg-open "..exportDirectory.."/\""..exportKMLFilename.."\""
 	end
-        coroutine.yield("run_command", kmlFileOpenCommand) 
+        coroutine.yield("RUN_COMMAND", kmlFileOpenCommand) 
     end
 
 
@@ -253,4 +253,3 @@ dt.preferences.register("kml_export", "CreateKMZ", "bool", "KML export: Create K
 
 -- Register
 dt.register_storage("kml_export", "KML/KMZ Export", nil, create_kml_file)
-
