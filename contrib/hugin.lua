@@ -37,33 +37,32 @@ dt = require "darktable"
 -- should work with darktable API version 2.0.0
 dt.configuration.check_version(...,{2,0,0})
 
-dt.register_storage("module_hugin","Hugin panorama",
-   function(storage, image, format, filename,
-        number,total,high_quality,extra_data)
-        dt.print("Export to hugin " .. tostring(number).."/"..tostring(total))
-   end,
-   function(storage,image_table,extra_data) --finalize
-       -- list of exported images 
-        local img_list
+-- Register
+dt.register_storage("module_hugin", "Hugin panorama", show_status, create_panorama, nil, nil)
+
+local function show_status(storage, image, format, filename,
+  number, total, high_quality, extra_data)
+  dt.print("Export to hugin "..tostring(number).."/"..tostring(total))
+end
+
+local function create_panorama(storage, image_table, extra_data) --finalize
+  -- list of exported images 
+  local img_list
+
+  -- reset and create image list
+  img_list = ""
         
-        -- reset and create image list
-        img_list = ""
-                
-        for _,v in pairs(image_table) do
-         img_list = img_list ..v.. " "
-        end
-       
-        dt.print("Will try to stitch now")
-       
-        if coroutine.yield("RUN_COMMAND","hugin "..img_list)
-           then
-           dt.print("Command hugin failed ...")
-        end
-	
-    end,
-    nil,
-    nil
-)
+  for _,v in pairs(image_table) do
+    img_list = img_list ..v.. " "
+  end
+
+  dt.print("Will try to stitch now")
+
+  if coroutine.yield("RUN_COMMAND","hugin "..img_list)
+    then
+    dt.print("Command hugin failed ...")
+  end
+end
 
 --
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
