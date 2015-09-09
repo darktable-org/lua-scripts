@@ -3,6 +3,7 @@
 
   copyright (c) 2014  Wolfgang Goetz
   copyright (c) 2015  Christian Kanzian
+  copyright (c) 2015  Tobias Jakobs
   
   darktable is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -40,18 +41,35 @@ dt.configuration.check_version(...,{2,0,0})
 -- Register
 dt.register_storage("module_hugin", "Hugin panorama", show_status, create_panorama, nil, nil)
 
+local function checkIfBinExists(bin)
+  local handle = io.popen("which "..bin)
+  local result = handle:read()
+  local ret
+  handle:close()
+  if (not result) then
+    dt.print_error(bin.." not found")
+    ret = false
+  end
+  ret = true
+  return ret
+end
+
 local function show_status(storage, image, format, filename,
   number, total, high_quality, extra_data)
   dt.print("Export to hugin "..tostring(number).."/"..tostring(total))
 end
 
 local function create_panorama(storage, image_table, extra_data) --finalize
+  if not checkIfBinExists("hugin") then
+    return
+  end
+
   -- list of exported images 
   local img_list
 
   -- reset and create image list
   img_list = ""
-        
+
   for _,v in pairs(image_table) do
     img_list = img_list ..v.. " "
   end
