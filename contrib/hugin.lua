@@ -64,6 +64,16 @@ local function create_panorama(storage, image_table, extra_data) --finalize
     return
   end
 
+-- Since Hugin 2015.0.0 hugin provides a command line tool to start the assistant
+-- http://wiki.panotools.org/Hugin_executor
+-- We need pto_gen to create pto file for hugin_executor
+-- http://hugin.sourceforge.net/docs/manual/Pto_gen.html
+
+  local hugin_executor = false
+  if (checkIfBinExists("hugin_executor") and checkIfBinExists("pto_gen")) then
+    hugin_executor = true
+  end
+
   -- list of exported images 
   local img_list
 
@@ -76,7 +86,14 @@ local function create_panorama(storage, image_table, extra_data) --finalize
 
   dt.print("Will try to stitch now")
 
-  if coroutine.yield("RUN_COMMAND","hugin "..img_list)
+  local huginStartCommand
+  if (hugin_executor) then
+    huginStartCommand = "pto_gen "..img_list.." -o project.pto | hugin_executor --assistant project.pto"
+  else
+    huginStartCommand = "hugin "..img_list
+  end
+  
+  if coroutine.yield("RUN_COMMAND", huginStartCommand)
     then
     dt.print("Command hugin failed ...")
   end
