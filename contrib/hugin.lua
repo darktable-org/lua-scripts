@@ -88,7 +88,7 @@ local function create_panorama(storage, image_table, extra_data) --finalize
 
   local huginStartCommand
   if (hugin_executor) then
-    huginStartCommand = "pto_gen "..img_list.." -o project.pto | hugin_executor --assistant project.pto"
+    huginStartCommand = "pto_gen "..img_list.." -o "..dt.configuration.tmp_dir.."/project.pto | hugin_executor --assistant "..dt.configuration.tmp_dir.."/project.pto"
   else
     huginStartCommand = "hugin "..img_list
   end
