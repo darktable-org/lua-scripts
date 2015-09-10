@@ -33,34 +33,36 @@ USAGE
 This plugin will add a new storage option and calls hugin after export.
 ]]
 
-dt = require "darktable"
+local dt = require "darktable"
 
 -- should work with darktable API version 2.0.0
 dt.configuration.check_version(...,{2,0,0})
-
--- Register
-dt.register_storage("module_hugin", "Hugin panorama", show_status, create_panorama, nil, nil)
 
 local function checkIfBinExists(bin)
   local handle = io.popen("which "..bin)
   local result = handle:read()
   local ret
   handle:close()
-  if (not result) then
+  if (result) then
+    dt.print_error("true checkIfBinExists: "..bin)
+    ret = true
+  else
     dt.print_error(bin.." not found")
     ret = false
   end
-  ret = true
+
+
   return ret
 end
 
 local function show_status(storage, image, format, filename,
   number, total, high_quality, extra_data)
-  dt.print("Export to hugin "..tostring(number).."/"..tostring(total))
+  dt.print("Export to Hugin "..tostring(number).."/"..tostring(total))
 end
 
 local function create_panorama(storage, image_table, extra_data) --finalize
   if not checkIfBinExists("hugin") then
+    darktable.print_error("hugin not found")
     return
   end
 
@@ -88,16 +90,30 @@ local function create_panorama(storage, image_table, extra_data) --finalize
 
   local huginStartCommand
   if (hugin_executor) then
-    huginStartCommand = "pto_gen "..img_list.." -o "..dt.configuration.tmp_dir.."/project.pto | hugin_executor --assistant "..dt.configuration.tmp_dir.."/project.pto"
+    huginStartCommand = "pto_gen "..img_list.." -o "..dt.configuration.tmp_dir.."/project.pto"
+    dt.print("Creating pto file")
+    coroutine.yield("RUN_COMMAND", huginStartCommand)
+
+    dt.print("Running Assistent")
+    huginStartCommand = "hugin_executor --assistant "..dt.configuration.tmp_dir.."/project.pto"
+    coroutine.yield("RUN_COMMAND", huginStartCommand)
+
+    huginStartCommand = "hugin "..dt.configuration.tmp_dir.."/project.pto"
   else
     huginStartCommand = "hugin "..img_list
   end
   
+  dt.print_error(huginStartCommand)
+
   if coroutine.yield("RUN_COMMAND", huginStartCommand)
     then
     dt.print("Command hugin failed ...")
   end
+
 end
+
+-- Register
+dt.register_storage("module_hugin", "Hugin Panorama", show_status, create_panorama)
 
 --
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
