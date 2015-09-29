@@ -42,15 +42,18 @@ local function checkIfBinExists(bin)
     local result = handle:read()
     local ret
     handle:close()
-    if (not result) then
+    if (result) then
+        --dt.print_error("true checkIfBinExists: "..bin)
+        ret = true
+    else
         dt.print_error(bin.." not found")
         ret = false
     end
-    ret = true
+  
     return ret
 end
 
-local function create_video(storage, image_table, extra_data)
+local function create_video_mencoder(storage, image_table, extra_data)
     if not checkIfBinExists("mencoder") then
         return
     end
@@ -61,16 +64,16 @@ local function create_video(storage, image_table, extra_data)
         return
     end
 
-    exportDirectory = dt.preferences.read("video","ExportDirectory","string")
+    exportDirectory = dt.preferences.read("video_mencoder","ExportDirectory","string")
     exportFilename = "output.avi"
-    framsePerSecond = dt.preferences.read("video","FramesPerSecond","integer")
+    framsePerSecond = dt.preferences.read("video_mencoder","FramesPerSecond","integer")
     
     dt.print_error("Will try to create video now")
     -- Set the codec    
     local codec = ""
     local codecPreferences = ""
     
-    codecPreferences = dt.preferences.read("video","Codec","string")
+    codecPreferences = dt.preferences.read("video_mencoder","Codec","string")
     if (codecPreferences == "H.264 encoding") then
 	codec = 'x264'
     end    
@@ -94,7 +97,7 @@ local function create_video(storage, image_table, extra_data)
 
     dt.print("Video created in "..exportDirectory)
     
-    if ( dt.preferences.read("video","OpenVideo","bool") == true ) then
+    if ( dt.preferences.read("video_mencoder","OpenVideo","bool") == true ) then
         -- USE coroutine.yield. It does not block the UI
         local playVideoCommand = "xdg-open "..exportDirectory.."/"..exportFilename
         coroutine.yield("RUN_COMMAND", playVideoCommand) 
@@ -102,16 +105,16 @@ local function create_video(storage, image_table, extra_data)
 end
 
 -- Preferences
-dt.preferences.register("video", "FramesPerSecond", "float", "Video exort: Frames per second", "Frames per Second in the Video export", 15, 1, 99, 0.1 )
-dt.preferences.register("video", "OpenVideo", "bool", "Video exort: Open video after export", "Opens the Video after the export with the standard video player", false )
+dt.preferences.register("video_mencoder", "FramesPerSecond", "float", "Video exort (MEncoder): Frames per second", "Frames per Second in the Video export", 15, 1, 99, 0.1 )
+dt.preferences.register("video_mencoder", "OpenVideo", "bool", "Video exort (MEncoder): Open video after export", "Opens the Video after the export with the standard video player", false )
 
 local handle = io.popen("xdg-user-dir VIDEOS")
 local result = handle:read()
 handle:close()
-dt.preferences.register("video", "ExportDirectory", "directory", "Video exort: Video export directory","A directory that will be used to export a Video",result)
+dt.preferences.register("video_mencoder", "ExportDirectory", "directory", "Video exort (MEncoder): Video export directory","A directory that will be used to export a Video",result)
 
 -- Get the MEncoder codec list with: mencoder -ovc help
-dt.preferences.register("video", "Codec", "enum", "Video exort: Codec","Video codec","H.264 encoding","H.264 encoding","XviD encoding") 
+dt.preferences.register("video_mencoder", "Codec", "enum", "Video exort (MEncoder): Codec","Video codec","H.264 encoding","H.264 encoding","XviD encoding") 
 
 -- Register
-dt.register_storage("video", "Video Export", show_status, create_video)
+dt.register_storage("video_mencoder", "Video Export (MEncoder)", show_status, create_video)
