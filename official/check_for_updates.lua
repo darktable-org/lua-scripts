@@ -37,9 +37,25 @@ dt.configuration.check_version(...,{2,0,0})
 -- returns -1, 0, 1 if the first version is smaller, equal, greater than the second version,
 -- or nil if one or both are of the wrong format
 -- strings like "release-1.2.3" and "1.2.3+456~gb00b5" are fine, too
+local function parse_version(s)
+  local rc = 0
+  local major, minor, patch = s:match("(%d+)%.(%d+)%.(%d+)")
+  if not major then
+    patch = 0
+    major, minor, rc = s:match("(%d+)%.(%d+)rc(%d+)")
+  end
+  if not major then
+    patch = 0
+    rc = 0
+    major, minor = s:match("(%d+)%.(%d+)")
+  end
+  return tonumber(major), tonumber(minor), tonumber(patch), tonumber(rc)
+end
+
 local function compare_versions(a, b)
-  local a_major, a_minor, a_patch = a:match("(%d+)%.(%d+)%.(%d+)")
-  local b_major, b_minor, b_patch = b:match("(%d+)%.(%d+)%.(%d+)")
+  local a_major, a_minor, a_patch, a_rc = parse_version(a)
+  local b_major, b_minor, b_patch, b_rc = parse_version(b)
+
   if a_major and a_minor and a_patch and b_major and b_minor and b_patch then
     if a_major < b_major then return -1 end
     if a_major > b_major then return 1 end
@@ -50,11 +66,41 @@ local function compare_versions(a, b)
     if a_patch < b_patch then return -1 end
     if a_patch > b_patch then return 1 end
 
+    -- when rc == 0 then it's a proper release and newer than the rcs
+    local m = math.max(a_rc, b_rc) + 1
+    if a_rc == 0 then a_rc = m end
+    if b_rc == 0 then b_rc = m end
+    if a_rc < b_rc then return -1 end
+    if a_rc > b_rc then return 1 end
+
     return 0
   else
     return
   end
 end
+
+
+-- local function test(a, b, r)
+--   local cmp = compare_versions(a, b)
+--   if(not cmp) then
+--     print(a .. " ./. " .. b .. " => MALFORMED INPUT")
+--   elseif(cmp == r) then
+--     print(a .. " ./. " .. b .. " => PASSED")
+--   else
+--     print(a .. " ./. " .. b .. " => FAILED")
+--   end
+-- end
+--
+-- test("malformed", "1.0.0", 0)
+-- test("2.0rc1+135~ge456b2b-dirty", "release-1.6.9", 1)
+-- test("release-1.6.9", "2.0rc1+135~ge456b2b-dirty", -1)
+-- test("2.0rc1+135~ge456b2b-dirty", "2.0rc2+135~ge456b2b-dirty", -1)
+-- test("2.0rc2+135~ge456b2b-dirty", "2.0rc1+135~ge456b2b-dirty", 1)
+-- test("2.0rc3+135~ge456b2b-dirty", "release-2.0", -1)
+-- test("2.0rc3+135~ge456b2b-dirty", "release-2.0.0", -1)
+-- test("1.0.0", "2.0.0", -1)
+-- test("2.0.0", "1.0.0", 1)
+-- test("3.0.0", "3.0.0", 0)
 
 
 -- check stored timestamp and skip the check if the last time was not too long ago
