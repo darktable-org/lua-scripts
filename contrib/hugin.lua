@@ -36,7 +36,7 @@ This plugin will add a new storage option and calls hugin after export.
 local dt = require "darktable"
 
 -- should work with darktable API version 2.0.0
-dt.configuration.check_version(...,{2,0,0})
+dt.configuration.check_version(...,{3,0,0})
 
 local function checkIfBinExists(bin)
   local handle = io.popen("which "..bin)
