@@ -18,13 +18,13 @@
 --[[
 darktable video export script
 
-ADDITIANAL SOFTWARE NEEDED FOR THIS SCRIPT
+ADDITIONAL SOFTWARE NEEDED FOR THIS SCRIPT
 * mencoder (MEncoder is from the MPlayer Team)
 * xdg-open
 * xdg-user-dir
 
 WARNING
-This script is only testet with Linux
+This script is only tested with Linux
 
 USAGE
 * require this script from your main lua file

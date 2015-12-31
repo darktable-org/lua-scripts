@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]]
 --[[
-darktable script to show the different prefference types that are possible with the Lua
+darktable script to show the different preference types that are possible with Lua
 
 USAGE
 * require this script from your main lua file
