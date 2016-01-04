@@ -25,7 +25,7 @@ USAGE
 ]]
    
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,2})
+dt.configuration.check_version(...,{2,0,2},{3,0,0})
 
 local function checkIfBinExists(bin)
   local handle = io.popen("which "..bin)
