@@ -75,6 +75,7 @@ dt.register_import_filter("prefer raw over jpeg", function(event, images)
     end
 
   end
+  table.remove(images)
 end)
 
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent
