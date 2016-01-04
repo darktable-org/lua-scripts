@@ -24,7 +24,7 @@ HUGIN
 Add a new storage option to send images to hugin. 
 Images are exported to darktable tmp dir first. 
 
-ADDITIANAL SOFTWARE NEEDED FOR THIS SCRIPT
+ADDITIONAL SOFTWARE NEEDED FOR THIS SCRIPT
 * hugin
 
 USAGE

@@ -1,17 +1,17 @@
 --[[
   This file is part of darktable,
   copyright (c) 2014 Jérémy Rosen
-  
+
   darktable is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
-  
+
   darktable is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with darktable.  If not, see <http://www.gnu.org/licenses/>.
 ]]
@@ -31,9 +31,9 @@ This plugin will add a widget at the bottom of the left column in lighttable mod
 local dt = require "darktable"
 dt.configuration.check_version(...,{2,0,0})
 
-local main_label = dt.new_widget("label"){selectable = true}
+local main_label = dt.new_widget("label"){selectable = true, ellipsize = "middle", halign = "start"}
 
-local function reset_widget() 
+local function reset_widget()
   local selection = dt.gui.selection()
   local result = ""
   local array = {}
