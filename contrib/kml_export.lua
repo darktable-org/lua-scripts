@@ -33,7 +33,7 @@ USAGE
 ]]
    
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,1})
+dt.configuration.check_version(...,{2,0,1},{3,0,0})
 
 local function spairs(_table, order) -- Code copied from http://stackoverflow.com/questions/15706270/sort-a-table-in-lua
     -- collect the keys
