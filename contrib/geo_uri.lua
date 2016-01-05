@@ -1,6 +1,6 @@
 --[[
     This file is part of darktable,
-    Copyright 2014 by Tobias Jakobs.
+    Copyright 2016 by Tobias Jakobs.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ USAGE
 ]]
 
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,1})
+dt.configuration.check_version(...,{3,0,0})
 
 local function checkIfBinExists(bin)
   local handle = io.popen("which "..bin)
@@ -57,34 +57,25 @@ local function openLocationInGnomeMaps()
   local lon1 = 0;
   local i = 0;
   
-  local sel_images = dt.gui.selection()
-  
   -- Use the first image with geo information
   for _,image in ipairs(sel_images) do
     if ((image.longitude and image.latitude) and 
         (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
        ) then
-        
-        i = i + 1;
-        
-        if (i == 1) then
-          lat1 = image.latitude;
-          lon1 = image.longitude;
-        end
-  
+        lat1 = image.latitude;
+        lon1 = image.longitude;
+        break
       end
     end
 
-    if (lat1 and lon1) then
-      local startCommand
-      startCommand = "gnome-maps \"geo:" .. lat1 .. "," .. lon1 .."\""
-      dt.print_error(startCommand)
+    local startCommand
+    startCommand = "gnome-maps \"geo:" .. lat1 .. "," .. lon1 .."\""
+    dt.print_error(startCommand)
     
-      if coroutine.yield("RUN_COMMAND", startCommand) then
-        dt.print("Command failed ...")
-      end
+    if coroutine.yield("RUN_COMMAND", startCommand) then
+      dt.print("Command failed ...")
     end
-  
+
   end
 end
 
