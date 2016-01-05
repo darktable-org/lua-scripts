@@ -21,9 +21,6 @@ darktable script to open a geo uri in gnome-maps
 ADDITIANAL SOFTWARE NEEDED FOR THIS SCRIPT
 * gnome-maps >= 3.20
 
-WARNING
-This script is not testet.
-
 USAGE
 * require this script from your main lua file
 * register a shortcut
