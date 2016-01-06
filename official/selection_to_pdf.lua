@@ -31,7 +31,7 @@ This plugin will add a new exporter that will allow you to generate the pdf file
 
 ]]
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,0})
+dt.configuration.check_version(...,{2,0,0},{3,0,0})
 
 dt.preferences.register
    ("selection_to_pdf","Open with","string",
