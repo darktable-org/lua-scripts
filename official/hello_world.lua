@@ -27,7 +27,7 @@ USAGE
 
 ]]
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,0})
+dt.configuration.check_version(...,{2,0,0},{3,0,0})
 
 dt.print("hello, world")
 

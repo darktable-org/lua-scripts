@@ -31,7 +31,7 @@ local dt = require "darktable"
 local https = require "ssl.https"
 local cjson = require "cjson"
 
-dt.configuration.check_version(...,{2,0,0})
+dt.configuration.check_version(...,{2,0,0},{3,0,0})
 
 -- compare two version strings of the form "major.minor.patch"
 -- returns -1, 0, 1 if the first version is smaller, equal, greater than the second version,
