@@ -1,6 +1,6 @@
 --[[
     This file is part of darktable,
-    Copyright 2014 by Tobias Jakobs.
+    Copyright 2014-2016 by Tobias Jakobs.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ USAGE
 ]]
    
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,1},{3,0,0})
+dt.configuration.check_version(...,{3,0,0})
 
 local function calcDistance()
 	local sel_images = dt.gui.selection()
@@ -70,6 +70,11 @@ local function calcDistance()
       ; 
     local angle = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a)); 
     local distance = earthRadius * angle; -- Distance in km  
+
+    -- Add the elevation to the calculation
+    local elevation = 0;
+    elevation = math.abs(ele1 - ele2) / 1000;  --in km
+    distance = math.sqrt(math.pow(elevation,2) + math.pow(distance,2) );
 
     dt.print(distance.." km")
 
