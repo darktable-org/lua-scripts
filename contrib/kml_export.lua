@@ -33,7 +33,7 @@ USAGE
 ]]
    
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,1},{3,0,0})
+dt.configuration.check_version(...,{3,0,0})
 
 local function spairs(_table, order) -- Code copied from http://stackoverflow.com/questions/15706270/sort-a-table-in-lua
     -- collect the keys
@@ -134,7 +134,7 @@ local function create_kml_file(storage, image_table, extra_data)
     exportKMZFilename = filmName..".kmz"
 
     -- Create the KML file
-    kml_file = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+    local kml_file = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
     kml_file = kml_file.."<kml xmlns=\"http://www.opengis.net/kml/2.2\">\n"
     kml_file = kml_file.."<Document>\n"
 
@@ -149,8 +149,13 @@ local function create_kml_file(storage, image_table, extra_data)
             (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
            ) then
             kml_file = kml_file.."  <Placemark>\n"
-            kml_file = kml_file.."    <name>"..image.filename.."</name>\n"
-            --kml_file = kml_file.."    <description></description>\n"
+	    if (image.title and image.title ~= "") then
+              kml_file = kml_file.."    <name>"..image.title.."</name>\n"
+            else
+              kml_file = kml_file.."    <name>"..image.filename.."</name>\n"
+            end
+            
+            kml_file = kml_file.."    <description>"..image.description.."</description>\n"
             
             kml_file = kml_file.."    <Style>\n"
             kml_file = kml_file.."      <IconStyle>\n"
@@ -197,7 +202,11 @@ local function create_kml_file(storage, image_table, extra_data)
 	  if ((image.longitude and image.latitude) and 
               (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
              ) then
-              kml_file = kml_file.."        "..string.gsub(tostring(image.longitude),",", ".")..","..string.gsub(tostring(image.latitude),",", ".")..",0\n"
+              local altitude = 0;
+              if (image.elevation) then
+                altitude = image.elevation;
+              end
+              kml_file = kml_file.."        "..string.gsub(tostring(image.longitude),",", ".")..","..string.gsub(tostring(image.latitude),",", ".")..",altitude\n"
           end
       end
       kml_file = kml_file.."      </coordinates>\n"
