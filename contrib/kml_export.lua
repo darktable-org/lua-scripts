@@ -33,7 +33,7 @@ USAGE
 ]]
    
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,1},{3,0,0})
+dt.configuration.check_version(...,{3,0,0})
 
 local function spairs(_table, order) -- Code copied from http://stackoverflow.com/questions/15706270/sort-a-table-in-lua
     -- collect the keys
@@ -110,21 +110,29 @@ local function create_kml_file(storage, image_table, extra_data)
 
     -- Create the thumbnails
     for _,image in pairs(image_table) do
-	local path, filename, filetype = string.match(image, "(.-)([^\\/]-%.?([^%.\\/]*))$")
-	filename = string.upper(string.gsub(filename,"%.", "_"))
+        if ((_.longitude and _.latitude) and 
+            (_.longitude ~= 0 and _.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
+           ) then
+            local path, filename, filetype = string.match(image, "(.-)([^\\/]-%.?([^%.\\/]*))$")
+	    filename = string.upper(string.gsub(filename,"%.", "_"))
         
-        -- convert -size 92x92 filename.jpg -resize 92x92 +profile "*" thumbnail.jpg
-        --	In this example, '-size 120x120' gives a hint to the JPEG decoder that the image is going to be downscaled to 
-        --	120x120, allowing it to run faster by avoiding returning full-resolution images to  GraphicsMagick for the 
-        --	subsequent resizing operation. The '-resize 120x120' specifies the desired dimensions of the output image. It 
-        --	will be scaled so its largest dimension is 120 pixels. The '+profile "*"' removes any ICM, EXIF, IPTC, or other
-        --	profiles that might be present in the input and aren't needed in the thumbnail.
+            -- convert -size 92x92 filename.jpg -resize 92x92 +profile "*" thumbnail.jpg
+            --	In this example, '-size 120x120' gives a hint to the JPEG decoder that the image is going to be downscaled to 
+            --	120x120, allowing it to run faster by avoiding returning full-resolution images to  GraphicsMagick for the 
+            --	subsequent resizing operation. The '-resize 120x120' specifies the desired dimensions of the output image. It 
+            --	will be scaled so its largest dimension is 120 pixels. The '+profile "*"' removes any ICM, EXIF, IPTC, or other
+            --	profiles that might be present in the input and aren't needed in the thumbnail.
 
-        local concertToThumbCommand = "convert -size 96x96 "..image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory.."/"..imageFoldername.."thumb_"..filename..".jpg"
-        -- USE coroutine.yield. It does not block the UI
-        coroutine.yield("RUN_COMMAND", concertToThumbCommand)
-        local concertCommand = "convert -size 438x438 "..image.." -resize 438x438 +profile \"*\" "..exportDirectory.."/"..imageFoldername..filename..".jpg"
-        coroutine.yield("RUN_COMMAND", concertCommand)
+            local concertToThumbCommand = "convert -size 96x96 "..image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory.."/"..imageFoldername.."thumb_"..filename..".jpg"
+            -- USE coroutine.yield. It does not block the UI
+            coroutine.yield("RUN_COMMAND", concertToThumbCommand)
+            local concertCommand = "convert -size 438x438 "..image.." -resize 438x438 +profile \"*\" "..exportDirectory.."/"..imageFoldername..filename..".jpg"
+            coroutine.yield("RUN_COMMAND", concertCommand)
+        end
+
+        -- delete the original image to not get into the kmz file
+        local rmCommand = "rm "..image
+        coroutine.yield("RUN_COMMAND", rmCommand)
 
         local pattern = "[/]?([^/]+)$"
         filmName = string.match(_.film.path, pattern)
@@ -134,7 +142,7 @@ local function create_kml_file(storage, image_table, extra_data)
     exportKMZFilename = filmName..".kmz"
 
     -- Create the KML file
-    kml_file = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+    local kml_file = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
     kml_file = kml_file.."<kml xmlns=\"http://www.opengis.net/kml/2.2\">\n"
     kml_file = kml_file.."<Document>\n"
 
@@ -149,8 +157,13 @@ local function create_kml_file(storage, image_table, extra_data)
             (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
            ) then
             kml_file = kml_file.."  <Placemark>\n"
-            kml_file = kml_file.."    <name>"..image.filename.."</name>\n"
-            --kml_file = kml_file.."    <description></description>\n"
+	    if (image.title and image.title ~= "") then
+              kml_file = kml_file.."    <name>"..image.title.."</name>\n"
+            else
+              kml_file = kml_file.."    <name>"..image.filename.."</name>\n"
+            end
+            
+            kml_file = kml_file.."    <description>"..image.description.."</description>\n"
             
             kml_file = kml_file.."    <Style>\n"
             kml_file = kml_file.."      <IconStyle>\n"
@@ -197,7 +210,11 @@ local function create_kml_file(storage, image_table, extra_data)
 	  if ((image.longitude and image.latitude) and 
               (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
              ) then
-              kml_file = kml_file.."        "..string.gsub(tostring(image.longitude),",", ".")..","..string.gsub(tostring(image.latitude),",", ".")..",0\n"
+              local altitude = 0;
+              if (image.elevation) then
+                altitude = image.elevation;
+              end
+              kml_file = kml_file.."        "..string.gsub(tostring(image.longitude),",", ".")..","..string.gsub(tostring(image.latitude),",", ".")..",altitude\n"
           end
       end
       kml_file = kml_file.."      </coordinates>\n"
@@ -222,7 +239,7 @@ local function create_kml_file(storage, image_table, extra_data)
         local createKMZCommand = "zip --test --move --junk-paths "
         createKMZCommand = createKMZCommand .."\""..exportDirectory.."/"..exportKMZFilename.."\" "
         createKMZCommand = createKMZCommand .."\""..dt.configuration.tmp_dir.."/"..exportKMLFilename.."\" \""..dt.configuration.tmp_dir.."/"..imageFoldername.."\"*"
-	coroutine.yield("RUN_COMMAND", createKMZCommand) 
+	coroutine.yield("RUN_COMMAND", createKMZCommand)
     end
 
 -- Open the file with the standard programm    
