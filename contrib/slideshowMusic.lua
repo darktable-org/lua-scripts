@@ -25,7 +25,7 @@ USAGE
 ]]
    
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,2})
+dt.configuration.check_version(...,{2,0,2},{3,0,0})
 
 local function checkIfBinExists(bin)
   local handle = io.popen("which "..bin)
@@ -59,7 +59,7 @@ local function playSlideshowMusic(_, old_view, new_view)
       --dt.print_error(playCommand)
       coroutine.yield("RUN_COMMAND", playCommand) 
     else
-      if (old_view.id == "slideshow") then
+      if (old_view and old_view.id == "slideshow") then
         stopCommand = "rhythmbox-client --pause"
         --dt.print_error(stopCommand)
         coroutine.yield("RUN_COMMAND", stopCommand) 
