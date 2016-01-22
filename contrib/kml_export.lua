@@ -264,8 +264,8 @@ end
 dt.preferences.register("kml_export",
 	"OpenKmlFile",
 	"bool",
-	dt.gettext.dgettext("gettextExample", "KML export: Open KML/KMZ file after export"),
-	dt.gettext.dgettext("gettextExample", "Opens the KML file after the export with the standard programm for KML files"),
+	dt.gettext.dgettext("kml_export", "KML export: Open KML/KMZ file after export"),
+	dt.gettext.dgettext("kml_export", "Opens the KML file after the export with the standard programm for KML files"),
 	false )
 
 local handle = io.popen("xdg-user-dir DESKTOP")
@@ -274,22 +274,22 @@ handle:close()
 dt.preferences.register("kml_export",
 	"ExportDirectory",
 	"directory",
-	dt.gettext.dgettext("gettextExample", "KML export: Export directory"),
-	dt.gettext.dgettext("gettextExample", "A directory that will be used to export the KML/KMZ files"),
+	dt.gettext.dgettext("kml_export", "KML export: Export directory"),
+	dt.gettext.dgettext("kml_export", "A directory that will be used to export the KML/KMZ files"),
 	result )
 
 dt.preferences.register("kml_export",
 	"CreatePath",
 	"bool",
-	dt.gettext.dgettext("gettextExample", "KML export: Connect images with path"),
-	dt.gettext.dgettext("connect all images with a path"),
+	dt.gettext.dgettext("kml_export", "KML export: Connect images with path"),
+	dt.gettext.dgettext("kml_export", "connect all images with a path"),
 	false )
 dt.preferences.register("kml_export",
 	"CreateKMZ",
 	"bool",
-	dt.gettext.dgettext("gettextExample", "KML export: Create KMZ file"),
-	dt.gettext.dgettext("gettextExample", "Compress all imeges to one KMZ file"),
+	dt.gettext.dgettext("kml_export", "KML export: Create KMZ file"),
+	dt.gettext.dgettext("kml_export", "Compress all imeges to one KMZ file"),
 	true )	
 
 -- Register
-dt.register_storage("kml_export", "KML/KMZ Export", nil, create_kml_file)
+dt.register_storage("kml_export", dt.gettext.dgettext("kml_export", "KML/KMZ Export"), nil, create_kml_file)
