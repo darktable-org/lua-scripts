@@ -34,6 +34,9 @@ USAGE
    
 local dt = require "darktable"
 dt.configuration.check_version(...,{3,0,0})
+	
+-- Tell gettext where to find the .mo file translating messages for a particular domain
+dt.gettext.bindtextdomain("kml_export",".config/darktable/lua/")
 
 local function spairs(_table, order) -- Code copied from http://stackoverflow.com/questions/15706270/sort-a-table-in-lua
     -- collect the keys
@@ -59,7 +62,7 @@ local function spairs(_table, order) -- Code copied from http://stackoverflow.co
 end
 
 local function show_status(storage, image, format, filename, number, total, high_quality, extra_data)
-    dt.print("Export Image "..tostring(number).."/"..tostring(total))
+    dt.print(string.format(dt.gettext.dgettext("gettextExample", "Export Image %i/%i"), number, total))
 end
 
 local function checkIfBinExists(bin)
@@ -258,15 +261,34 @@ local function create_kml_file(storage, image_table, extra_data)
 end
 
 -- Preferences
-dt.preferences.register("kml_export", "OpenKmlFile", "bool", "KML export: Open KML/KMZ file after export", "Opens the KML file after the export with the standard programm for KML files", false )
+dt.preferences.register("kml_export",
+	"OpenKmlFile",
+	"bool",
+	dt.gettext.dgettext("gettextExample", "KML export: Open KML/KMZ file after export"),
+	dt.gettext.dgettext("gettextExample", "Opens the KML file after the export with the standard programm for KML files"),
+	false )
 
 local handle = io.popen("xdg-user-dir DESKTOP")
 local result = handle:read()
 handle:close()
-dt.preferences.register("kml_export", "ExportDirectory", "directory", "KML export: Export directory", "A directory that will be used to export the KML/KMZ files", result )
+dt.preferences.register("kml_export",
+	"ExportDirectory",
+	"directory",
+	dt.gettext.dgettext("gettextExample", "KML export: Export directory"),
+	dt.gettext.dgettext("gettextExample", "A directory that will be used to export the KML/KMZ files"),
+	result )
 
-dt.preferences.register("kml_export", "CreatePath", "bool", "KML export: Connect images with path", "connect all images with a path", false )
-dt.preferences.register("kml_export", "CreateKMZ", "bool", "KML export: Create KMZ file", "Compress all imeges to one KMZ file", true )
+dt.preferences.register("kml_export",
+	"CreatePath",
+	"bool",
+	dt.gettext.dgettext("gettextExample", "KML export: Connect images with path", "connect all images with a path"),
+	false )
+dt.preferences.register("kml_export",
+	"CreateKMZ",
+	"bool",
+	dt.gettext.dgettext("gettextExample", "KML export: Create KMZ file"),
+	dt.gettext.dgettext("gettextExample", "Compress all imeges to one KMZ file"),
+	true )	
 
 -- Register
 dt.register_storage("kml_export", "KML/KMZ Export", nil, create_kml_file)
