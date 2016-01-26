@@ -42,10 +42,12 @@ dt.configuration.check_version(...,{3,0,0})
 -- Not translated Text
 dt.print_error("Hello World!")
 
+local gettext = dt.gettext
 -- Translate a string using the darktable textdomain
-dt.print_error(dt.gettext.gettext("image"))
+dt.print_error(gettext.gettext("image"))
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-dt.gettext.bindtextdomain("gettextExample",".config/darktable/lua/")
+gettext.bindtextdomain("gettextExample",".config/darktable/lua/")
 -- Translate a string using the specified textdomain
-dt.print_error(dt.gettext.dgettext("gettextExample", 'Hello World!'))
+local _ = gettext.dgettext 
+dt.print_error(_("gettextExample", 'Hello World!'))
