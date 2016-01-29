@@ -63,6 +63,5 @@ local gettext = dt.gettext
 dt.print_error(gettext.gettext("image"))
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("gettextExample","~/.config/darktable/lua/")
 -- Translate a string using the specified textdomain
-dt.print_error(_("gettextExample", 'Hello World!'))
+dt.print_error(gettext.dgettext("gettextExample", 'Hello World!'))
