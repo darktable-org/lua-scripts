@@ -63,5 +63,14 @@ local gettext = dt.gettext
 dt.print_error(gettext.gettext("image"))
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
+
+gettext.bindtextdomain("gettextExample",dt.configuration.config_dir.."/lua/")
 -- Translate a string using the specified textdomain
 dt.print_error(gettext.dgettext("gettextExample", 'Hello World!'))
+
+-- Define a local function called _ to make the code more readable and have it call dgettext 
+-- with the proper domain.
+local function _(msgid)
+    return gettext.dgettext("gettextExample", msgid)
+end
+dt.print_error(_('Hello World!'))
