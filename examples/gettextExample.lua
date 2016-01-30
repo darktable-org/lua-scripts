@@ -18,6 +18,22 @@
 --[[
 darktable script to show how translations works
 
+To create the .po file run:
+xgettext -l lua gettextExample.lua
+
+xgettext is not a lua tool, it knows (almost) nothing about Lua, and not 
+enough to do a proper parsing. It takes a text file (In our case a Lua 
+file) and recognises a few (language dependant) keyword in there.
+It matches those keywords with internal description on how functions are 
+called and creates the .po file accordingly. (For example, it knows that 
+the first argument of gettext() is the translated string, but that it's 
+the second argument for dgettext)
+This is important because it means that if you use some neat Lua tricks
+(like renaming functions) xgettext won't recognize those calls and won't 
+extract the string to the .po file.
+So, this is why we create a local variagle gettext = dt.gettext, so 
+xgettext recognises gettext.gettext as a function but not dt.gettext.gettext
+
 To create a .mo file run:
 msgfmt -v gettextExample.po -o gettextExample.mo
 
@@ -42,10 +58,19 @@ dt.configuration.check_version(...,{3,0,0})
 -- Not translated Text
 dt.print_error("Hello World!")
 
+local gettext = dt.gettext
 -- Translate a string using the darktable textdomain
-dt.print_error(dt.gettext.gettext("image"))
+dt.print_error(gettext.gettext("image"))
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-dt.gettext.bindtextdomain("gettextExample",".config/darktable/lua/")
+
+gettext.bindtextdomain("gettextExample",dt.configuration.config_dir.."/lua/")
 -- Translate a string using the specified textdomain
-dt.print_error(dt.gettext.dgettext("gettextExample", 'Hello World!'))
+dt.print_error(gettext.dgettext("gettextExample", 'Hello World!'))
+
+-- Define a local function called _ to make the code more readable and have it call dgettext 
+-- with the proper domain.
+local function _(msgid)
+    return gettext.dgettext("gettextExample", msgid)
+end
+dt.print_error(_('Hello World!'))
