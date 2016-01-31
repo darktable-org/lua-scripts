@@ -139,8 +139,7 @@ local function create_kml_file(storage, image_table, extra_data)
         end
 
         -- delete the original image to not get into the kmz file
-        local rmCommand = "rm "..image
-        coroutine.yield("RUN_COMMAND", rmCommand)
+	os.remove(image)
 
         local pattern = "[/]?([^/]+)$"
         filmName = string.match(_.film.path, pattern)
