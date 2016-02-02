@@ -23,4 +23,4 @@ msgstr "Markiert alle Bilder mit GPS Informationen"
 
 #: gps_select.lua:60
 msgid "Select all images without GPS information"
-msgstr "Markiert alle Bilder ohne GPS Informationen"
+msgstr "Markiert alle Bilder ohne GPS-Informationen"
