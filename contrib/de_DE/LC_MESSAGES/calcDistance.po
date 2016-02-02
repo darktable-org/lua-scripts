@@ -19,4 +19,4 @@ msgstr ""
 
 #: calcDistance.lua:93
 msgid "Calculate the distance from latitude and longitude in km"
-msgstr "Errechne die Entfernung mit mit Hilfe des Längen- und Breitengrads in km"
+msgstr "Errechne die Entfernung mit Hilfe des Längen- und Breitengrads in km"
