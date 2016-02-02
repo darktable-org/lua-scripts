@@ -23,7 +23,7 @@ msgstr "Hugin wurde nicht gefunden"
 
 #: hugin.lua:97
 msgid "Will try to stitch now"
-msgstr "Versuche Bilder zusammen zu fügen"
+msgstr "Versuche Bilder zusammenzufügen"
 
 #: hugin.lua:102
 msgid "Creating pto file"
