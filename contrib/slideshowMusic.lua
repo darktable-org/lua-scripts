@@ -25,7 +25,15 @@ USAGE
 ]]
    
 local dt = require "darktable"
+local gettext = dt.gettext
 dt.configuration.check_version(...,{2,0,2},{3,0,0})
+
+-- Tell gettext where to find the .mo file translating messages for a particular domain
+gettext.bindtextdomain("slideshowMusic",dt.configuration.config_dir.."/lua/")
+
+local function _(msgid)
+    return gettext.dgettext("slideshowMusic", msgid)
+end
 
 local function checkIfBinExists(bin)
   local handle = io.popen("which "..bin)
@@ -69,12 +77,12 @@ local function playSlideshowMusic(_, old_view, new_view)
 end
 
 -- Preferences
-dt.preferences.register("slideshowMusic", "SlideshowMusic", "file", "Slideshow background music file", "", "")
+dt.preferences.register("slideshowMusic", "SlideshowMusic", "file", _("Slideshow background music file"), "", "")
 dt.preferences.register("slideshowMusic",  
                         "PlaySlideshowMusic",
                         "bool",
-                        "Play slideshow background music",
-                        "Plays music with rhythmbox if a slideshow starts",
+                        _("Play slideshow background music"),
+                        _("Plays music with rhythmbox if a slideshow starts"),
                         true)
 -- Register
 dt.register_event("view-changed",playSlideshowMusic)

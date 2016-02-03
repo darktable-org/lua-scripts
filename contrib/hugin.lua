@@ -34,9 +34,17 @@ This plugin will add a new storage option and calls hugin after export.
 ]]
 
 local dt = require "darktable"
+local gettext = dt.gettext
 
 -- works with darktable API version 2.0.0 and 3.0.0
 dt.configuration.check_version(...,{2,0,0},{3,0,0})
+
+-- Tell gettext where to find the .mo file translating messages for a particular domain
+gettext.bindtextdomain("hugin",dt.configuration.config_dir.."/lua/")
+
+local function _(msgid)
+    return gettext.dgettext("hugin", msgid)
+end
 
 local function checkIfBinExists(bin)
   local handle = io.popen("which "..bin)
@@ -62,7 +70,7 @@ end
 
 local function create_panorama(storage, image_table, extra_data) --finalize
   if not checkIfBinExists("hugin") then
-    darktable.print_error("hugin not found")
+    dt.print_error(_("hugin not found"))
     return
   end
 
@@ -86,15 +94,15 @@ local function create_panorama(storage, image_table, extra_data) --finalize
     img_list = img_list ..v.. " "
   end
 
-  dt.print("Will try to stitch now")
+  dt.print(_("Will try to stitch now"))
 
   local huginStartCommand
   if (hugin_executor) then
     huginStartCommand = "pto_gen "..img_list.." -o "..dt.configuration.tmp_dir.."/project.pto"
-    dt.print("Creating pto file")
+    dt.print(_("Creating pto file"))
     coroutine.yield("RUN_COMMAND", huginStartCommand)
 
-    dt.print("Running Assistent")
+    dt.print(_("Running Assistent"))
     huginStartCommand = "hugin_executor --assistant "..dt.configuration.tmp_dir.."/project.pto"
     coroutine.yield("RUN_COMMAND", huginStartCommand)
 
@@ -107,13 +115,13 @@ local function create_panorama(storage, image_table, extra_data) --finalize
 
   if coroutine.yield("RUN_COMMAND", huginStartCommand)
     then
-    dt.print("Command hugin failed ...")
+    dt.print(_("Command hugin failed ..."))
   end
 
 end
 
 -- Register
-dt.register_storage("module_hugin", "Hugin Panorama", show_status, create_panorama)
+dt.register_storage("module_hugin", _("Hugin Panorama"), show_status, create_panorama)
 
 --
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua

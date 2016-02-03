@@ -27,7 +27,15 @@ USAGE
 ]]
 
 local dt = require "darktable"
+local gettext = dt.gettext
 dt.configuration.check_version(...,{3,0,0})
+
+-- Tell gettext where to find the .mo file translating messages for a particular domain
+gettext.bindtextdomain("geo_uri",dt.configuration.config_dir.."/lua/")
+
+local function _(msgid)
+    return gettext.dgettext("geo_uri", msgid)
+end
 
 local function checkIfBinExists(bin)
   local handle = io.popen("which "..bin)
@@ -44,7 +52,7 @@ end
 
 local function openLocationInGnomeMaps()
   if not checkIfBinExists("gnome-maps") then
-    darktable.print_error("gnome-maps not found")
+    dt.print_error(_("gnome-maps not found"))
     return
   end	
     
@@ -70,11 +78,11 @@ local function openLocationInGnomeMaps()
     dt.print_error(startCommand)
     
     if coroutine.yield("RUN_COMMAND", startCommand) then
-      dt.print("Command failed ...")
+      dt.print(_("Command failed ..."))
     end
 
   end
 end
 
 -- Register
-dt.register_event("shortcut", openLocationInGnomeMaps, "Open Location in Gnome Maps")
+dt.register_event("shortcut", openLocationInGnomeMaps, _("Open Location in Gnome Maps"))

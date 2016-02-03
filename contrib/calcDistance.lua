@@ -26,7 +26,15 @@ USAGE
 ]]
    
 local dt = require "darktable"
+local gettext = dt.gettext
 dt.configuration.check_version(...,{3,0,0})
+
+-- Tell gettext where to find the .mo file translating messages for a particular domain
+gettext.bindtextdomain("calcDistance",dt.configuration.config_dir.."/lua/")
+
+local function _(msgid)
+    return gettext.dgettext("calcDistance", msgid)
+end
 
 local function calcDistance()
 	local sel_images = dt.gui.selection()
@@ -82,4 +90,4 @@ local function calcDistance()
 end
 
 -- Register
-dt.register_event("shortcut",calcDistance,"Calculate the distance from latitude and longitude in km")
+dt.register_event("shortcut",calcDistance,_("Calculate the distance from latitude and longitude in km"))
