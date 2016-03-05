@@ -33,7 +33,7 @@ Note that you need to restart DT for your changes to enabled scripts to take eff
 ]]
 local dt = require "darktable"
 local io = require "io"
-dt.configuration.check_version(...,{2,0,0})
+dt.configuration.check_version(...,{3,0,0})
 
 local output = io.popen("cd "..dt.configuration.config_dir.."/lua ;find . -name \\*.lua -print")
 local my_name={...}
