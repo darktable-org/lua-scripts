@@ -34,7 +34,7 @@ increase it if you need more temporary selection buffers
 
 ]]
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,0})
+dt.configuration.check_version(...,{2,0,0},{3,0,0})
 
 local buffer_count = 5
 
@@ -45,7 +45,7 @@ for i=1,buffer_count do
   end,"save to buffer "..i)
   dt.register_event("shortcut",function()
     dt.gui.selection(saved_selection)
-  end,"restor from buffer "..i)
+  end,"restore from buffer "..i)
 end
 
 local bounce_buffer = {}
