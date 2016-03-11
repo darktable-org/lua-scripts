@@ -1,6 +1,6 @@
 --[[
     This file is part of darktable,
-    Copyright 2014 by Tobias Jakobs.
+    Copyright 2016 by Tobias Jakobs.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -43,6 +43,7 @@ local function _(msgid)
     return gettext.dgettext("kml_export", msgid)
 end
 
+-- Sort a table
 local function spairs(_table, order) -- Code copied from http://stackoverflow.com/questions/15706270/sort-a-table-in-lua
     -- collect the keys
     local keys = {}
@@ -139,7 +140,7 @@ local function create_kml_file(storage, image_table, extra_data)
         end
 
         -- delete the original image to not get into the kmz file
-	os.remove(image)
+        os.remove(image)
 
         local pattern = "[/]?([^/]+)$"
         filmName = string.match(_.film.path, pattern)
