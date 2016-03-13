@@ -40,7 +40,7 @@ local combobox = dt.new_widget("combobox"){label = "MyCombobox", value = 2, "8",
 local entry = dt.new_widget("entry"){text = "test", placeholder = "placeholder"}
 local file_chooser_button = dt.new_widget("file_chooser_button"){title = "MyFile_chooser_button"}
 local label = dt.new_widget("label")
-label.label = "MyLabel"
+label.label = "MyLabel" -- This is an alternative way to the "{}" syntax to set a property 
 
 local separator = dt.new_widget("separator"){}
 local slider = dt.new_widget("slider")
