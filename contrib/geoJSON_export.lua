@@ -40,7 +40,7 @@ dt.configuration.check_version(...,{3,0,0})
 gettext.bindtextdomain("geoJSON_export",dt.configuration.config_dir.."/lua/")
 
 local function _(msgid)
-    return gettext.dgettext("kml_export", msgid)
+    return gettext.dgettext("geoJSON_export", msgid)
 end
 
 -- Sort a table
@@ -101,10 +101,10 @@ local function create_geoJSON_file(storage, image_table, extra_data)
 
     dt.print_error("Will try to export geoJSON file now")
 
-    exportDirectory = dt.preferences.read("geoJSON_export","ExportDirectory","string")
+    local xportDirectory = dt.preferences.read("geoJSON_export","ExportDirectory","string")
 
     -- Creates dir if not exsists
-    imageFoldername = "files/"
+    local imageFoldername = "files/"
     local mkdirCommand = "mkdir -p "..exportDirectory.."/"..imageFoldername
     coroutine.yield("RUN_COMMAND", mkdirCommand) 
 
@@ -137,11 +137,11 @@ local function create_geoJSON_file(storage, image_table, extra_data)
         filmName = string.match(_.film.path, pattern)
     end
 
-    exportgeoJSONFilename    = filmName..".geoJSON"
-    exportMapBoxHTMLFilename = filmName..".html"
+    local exportgeoJSONFilename    = filmName..".geoJSON"
+    local exportMapBoxHTMLFilename = filmName..".html"
 
     -- Create the geoJSON file
-    geoJSON_file = [[
+    local geoJSON_file = [[
 { 
     "type": "FeatureCollection",
     "features": [
@@ -265,12 +265,12 @@ local function create_geoJSON_file(storage, image_table, extra_data)
 </html>
 ]]
 
-        file = io.open(exportDirectory.."/"..exportMapBoxHTMLFilename, "w")
+        local file = io.open(exportDirectory.."/"..exportMapBoxHTMLFilename, "w")
         file:write(mapBoxHTML_file)
         file:close()
     end
 
-    file = io.open(exportDirectory.."/"..exportgeoJSONFilename, "w")
+    local file = io.open(exportDirectory.."/"..exportgeoJSONFilename, "w")
     file:write(geoJSON_file)
     file:close()
 
