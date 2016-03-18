@@ -29,7 +29,8 @@ WARNING
 This script is only tested with Linux
 
 USAGE
-* require this script from your main lua file
+* require this script from your main Lua file
+
 ]]
    
 local dt = require "darktable"
@@ -101,6 +102,7 @@ local function create_kml_file(storage, image_table, extra_data)
 
     dt.print_error("Will try to export KML file now")
 
+    local imageFoldername
     if ( dt.preferences.read("kml_export","CreateKMZ","bool") == true ) then
         if not checkIfBinExists("zip") then
             return
@@ -234,7 +236,7 @@ local function create_kml_file(storage, image_table, extra_data)
     kml_file = kml_file.."</Document>\n"
     kml_file = kml_file.."</kml>"
 
-    file = io.open(exportDirectory.."/"..exportKMLFilename, "w")
+    local file = io.open(exportDirectory.."/"..exportKMLFilename, "w")
     file:write(kml_file)
     file:close()
 
@@ -270,7 +272,7 @@ dt.preferences.register("kml_export",
 	"OpenKmlFile",
 	"bool",
 	_("KML export: Open KML/KMZ file after export"),
-	_("Opens the KML file after the export with the standard programm for KML files"),
+	_("Opens the KML file after the export with the standard program for KML files"),
 	false )
 
 local handle = io.popen("xdg-user-dir DESKTOP")
