@@ -147,11 +147,11 @@ local function create_geoJSON_file(storage, image_table, extra_data)
     "features": [
 ]]
   
-    for image,exported_image in pairs(image_table) do
-	filename = string.upper(string.gsub(image.filename,"%.", "_"))
+    for exported_image,image in pairs(image_table) do
+	filename = string.upper(string.gsub(exported_image.filename,"%.", "_"))
 
-	if ((image.longitude and image.latitude) and 
-            (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
+	if ((exported_image.longitude and exported_image.latitude) and 
+            (exported_image.longitude ~= 0 and exported_image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
            ) then
             geoJSON_file = geoJSON_file..
 [[    {
@@ -159,12 +159,12 @@ local function create_geoJSON_file(storage, image_table, extra_data)
       "geometry": {
         "type": "Point",
 ]]
-            geoJSON_file = geoJSON_file.."              \"coordinates\": ["..string.gsub(tostring(image.longitude),",", ".")..","..string.gsub(tostring(image.latitude),",", ".").."]\n"
+            geoJSON_file = geoJSON_file.."              \"coordinates\": ["..string.gsub(tostring(exported_image.longitude),",", ".")..","..string.gsub(tostring(exported_image.latitude),",", ".").."]\n"
             geoJSON_file = geoJSON_file..
 [[    },
       "properties": {
-        "title": "]]..image.title..[[",
-        "description": "]]..image.description..[[",
+        "title": "]]..exported_image.title..[[",
+        "description": "]]..exported_image.description..[[",
         "image": "]]..imageFoldername..filename..[[.jpg",
         "icon": {
           "iconUrl": "]]..imageFoldername.."thumb_"..filename..[[.jpg",
