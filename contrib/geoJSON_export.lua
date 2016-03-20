@@ -109,9 +109,9 @@ local function create_geoJSON_file(storage, image_table, extra_data)
     coroutine.yield("RUN_COMMAND", mkdirCommand) 
 
     -- Create the thumbnails
-    for _,image in pairs(image_table) do
-        if ((_.longitude and _.latitude) and 
-            (_.longitude ~= 0 and _.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
+    for exported_image,image in pairs(image_table) do
+        if ((exported_image.longitude and exported_image.latitude) and 
+            (exported_image.longitude ~= 0 and exported_image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
            ) then
             local path, filename, filetype = string.match(image, "(.-)([^\\/]-%.?([^%.\\/]*))$")
 	    filename = string.upper(string.gsub(filename,"%.", "_"))
@@ -134,7 +134,7 @@ local function create_geoJSON_file(storage, image_table, extra_data)
         os.remove(image)
 
         local pattern = "[/]?([^/]+)$"
-        filmName = string.match(_.film.path, pattern)
+        filmName = string.match(exported_image.film.path, pattern)
     end
 
     local exportgeoJSONFilename    = filmName..".geoJSON"
@@ -147,7 +147,7 @@ local function create_geoJSON_file(storage, image_table, extra_data)
     "features": [
 ]]
   
-    for image,_ in pairs(image_table) do
+    for image,exported_image in pairs(image_table) do
 	filename = string.upper(string.gsub(image.filename,"%.", "_"))
 
 	if ((image.longitude and image.latitude) and 
