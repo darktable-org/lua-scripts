@@ -120,11 +120,11 @@ local function create_kml_file(storage, image_table, extra_data)
 
 
     -- Create the thumbnails
-    for _,image in pairs(image_table) do
-        if ((_.longitude and _.latitude) and 
-            (_.longitude ~= 0 and _.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
+    for image,exported_image in pairs(image_table) do
+        if ((image.longitude and image.latitude) and 
+            (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
            ) then
-            local path, filename, filetype = string.match(image, "(.-)([^\\/]-%.?([^%.\\/]*))$")
+            local path, filename, filetype = string.match(exported_image, "(.-)([^\\/]-%.?([^%.\\/]*))$")
 	    filename = string.upper(string.gsub(filename,"%.", "_"))
         
             -- convert -size 92x92 filename.jpg -resize 92x92 +profile "*" thumbnail.jpg
@@ -134,18 +134,18 @@ local function create_kml_file(storage, image_table, extra_data)
             --	will be scaled so its largest dimension is 120 pixels. The '+profile "*"' removes any ICM, EXIF, IPTC, or other
             --	profiles that might be present in the input and aren't needed in the thumbnail.
 
-            local convertToThumbCommand = "convert -size 96x96 "..image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory.."/"..imageFoldername.."thumb_"..filename..".jpg"
+            local convertToThumbCommand = "convert -size 96x96 "..exported_image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory.."/"..imageFoldername.."thumb_"..filename..".jpg"
             -- USE coroutine.yield. It does not block the UI
             coroutine.yield("RUN_COMMAND", convertToThumbCommand)
-            local concertCommand = "convert -size 438x438 "..image.." -resize 438x438 +profile \"*\" "..exportDirectory.."/"..imageFoldername..filename..".jpg"
+            local concertCommand = "convert -size 438x438 "..exported_image.." -resize 438x438 +profile \"*\" "..exportDirectory.."/"..imageFoldername..filename..".jpg"
             coroutine.yield("RUN_COMMAND", concertCommand)
         end
 
         -- delete the original image to not get into the kmz file
-        os.remove(image)
+        os.remove(exported_image)
 
         local pattern = "[/]?([^/]+)$"
-        filmName = string.match(_.film.path, pattern)
+        filmName = string.match(image.film.path, pattern)
     end
 
     exportKMLFilename = filmName..".kml"
@@ -160,7 +160,7 @@ local function create_kml_file(storage, image_table, extra_data)
     kml_file = kml_file.."<name>"..filmName.."</name>\n" 
     kml_file = kml_file.."    <description>Exported from darktable</description>\n"
     
-    for image,_ in pairs(image_table) do
+    for image,exported_image in pairs(image_table) do
 	filename = string.upper(string.gsub(image.filename,"%.", "_"))
 
 	if ((image.longitude and image.latitude) and 
@@ -216,7 +216,7 @@ local function create_kml_file(storage, image_table, extra_data)
       kml_file = kml_file.."    <LineString>\n"
       kml_file = kml_file.."      <coordinates>\n"
       
-      for image,_ in spairs(image_table, function(t,a,b) return t[b] < t[a] end) do
+      for image,exported_image in spairs(image_table, function(t,a,b) return t[b] < t[a] end) do
 	  if ((image.longitude and image.latitude) and 
               (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
              ) then
