@@ -109,9 +109,9 @@ local function create_geoJSON_file(storage, image_table, extra_data)
     coroutine.yield("RUN_COMMAND", mkdirCommand) 
 
     -- Create the thumbnails
-    for exported_image,image in pairs(image_table) do
-        if ((exported_image.longitude and exported_image.latitude) and 
-            (exported_image.longitude ~= 0 and exported_image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
+    for image,exported_image in pairs(image_table) do
+        if ((image.longitude and image.latitude) and 
+            (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
            ) then
             local path, filename, filetype = string.match(image, "(.-)([^\\/]-%.?([^%.\\/]*))$")
 	    filename = string.upper(string.gsub(filename,"%.", "_"))
@@ -123,10 +123,10 @@ local function create_geoJSON_file(storage, image_table, extra_data)
             --	will be scaled so its largest dimension is 120 pixels. The '+profile "*"' removes any ICM, EXIF, IPTC, or other
             --	profiles that might be present in the input and aren't needed in the thumbnail.
 
-            local convertToThumbCommand = "convert -size 96x96 "..image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory.."/"..imageFoldername.."thumb_"..filename..".jpg"
+            local convertToThumbCommand = "convert -size 96x96 "..exported_image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory.."/"..imageFoldername.."thumb_"..filename..".jpg"
             -- USE coroutine.yield. It does not block the UI
             coroutine.yield("RUN_COMMAND", convertToThumbCommand)
-            local concertCommand = "convert -size 438x438 "..image.." -resize 438x438 +profile \"*\" "..exportDirectory.."/"..imageFoldername..filename..".jpg"
+            local concertCommand = "convert -size 438x438 "..exported_image.." -resize 438x438 +profile \"*\" "..exportDirectory.."/"..imageFoldername..filename..".jpg"
             coroutine.yield("RUN_COMMAND", concertCommand)
         end
 
@@ -134,7 +134,7 @@ local function create_geoJSON_file(storage, image_table, extra_data)
         os.remove(image)
 
         local pattern = "[/]?([^/]+)$"
-        filmName = string.match(exported_image.film.path, pattern)
+        filmName = string.match(image.film.path, pattern)
     end
 
     local exportgeoJSONFilename    = filmName..".geoJSON"
@@ -147,11 +147,11 @@ local function create_geoJSON_file(storage, image_table, extra_data)
     "features": [
 ]]
   
-    for exported_image,image in pairs(image_table) do
-	filename = string.upper(string.gsub(exported_image.filename,"%.", "_"))
+    for image,exported_image in pairs(image_table) do
+	filename = string.upper(string.gsub(image.filename,"%.", "_"))
 
-	if ((exported_image.longitude and exported_image.latitude) and 
-            (exported_image.longitude ~= 0 and exported_image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
+	if ((image.longitude and image.latitude) and 
+            (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
            ) then
             geoJSON_file = geoJSON_file..
 [[    {
@@ -159,12 +159,12 @@ local function create_geoJSON_file(storage, image_table, extra_data)
       "geometry": {
         "type": "Point",
 ]]
-            geoJSON_file = geoJSON_file.."              \"coordinates\": ["..string.gsub(tostring(exported_image.longitude),",", ".")..","..string.gsub(tostring(exported_image.latitude),",", ".").."]\n"
+            geoJSON_file = geoJSON_file.."              \"coordinates\": ["..string.gsub(tostring(image.longitude),",", ".")..","..string.gsub(tostring(image.latitude),",", ".").."]\n"
             geoJSON_file = geoJSON_file..
 [[    },
       "properties": {
-        "title": "]]..exported_image.title..[[",
-        "description": "]]..exported_image.description..[[",
+        "title": "]]..image.title..[[",
+        "description": "]]..image.description..[[",
         "image": "]]..imageFoldername..filename..[[.jpg",
         "icon": {
           "iconUrl": "]]..imageFoldername.."thumb_"..filename..[[.jpg",
