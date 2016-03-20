@@ -134,9 +134,9 @@ local function create_kml_file(storage, image_table, extra_data)
             --	will be scaled so its largest dimension is 120 pixels. The '+profile "*"' removes any ICM, EXIF, IPTC, or other
             --	profiles that might be present in the input and aren't needed in the thumbnail.
 
-            local concertToThumbCommand = "convert -size 96x96 "..image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory.."/"..imageFoldername.."thumb_"..filename..".jpg"
+            local convertToThumbCommand = "convert -size 96x96 "..image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory.."/"..imageFoldername.."thumb_"..filename..".jpg"
             -- USE coroutine.yield. It does not block the UI
-            coroutine.yield("RUN_COMMAND", concertToThumbCommand)
+            coroutine.yield("RUN_COMMAND", convertToThumbCommand)
             local concertCommand = "convert -size 438x438 "..image.." -resize 438x438 +profile \"*\" "..exportDirectory.."/"..imageFoldername..filename..".jpg"
             coroutine.yield("RUN_COMMAND", concertCommand)
         end
