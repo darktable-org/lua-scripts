@@ -43,6 +43,9 @@ local function calcDistance()
     local lon1 = 0;
     local lat2 = 0;
     local lon2 = 0;
+    local ele1 = 0;
+    local ele2 = 0;
+
     local i = 0;
 
     local sel_images = dt.gui.selection()
@@ -57,10 +60,12 @@ local function calcDistance()
           if (i == 1) then
             lat1 = image.latitude;
             lon1 = image.longitude;
+            ele1 = image.elevation;
           end
          
          lat2 = image.latitude;
          lon2 = image.longitude;
+         ele2 = image.elevation;
 
         end
     end
@@ -84,7 +89,15 @@ local function calcDistance()
     elevation = math.abs(ele1 - ele2) / 1000;  --in km
     distance = math.sqrt(math.pow(elevation,2) + math.pow(distance,2) );
 
-    dt.print(distance.." km")
+    local distanceUnit
+    if (distance < 1) then
+        distance = distance * 1000
+        distanceUnit = "m"
+    else
+        distanceUnit = "km"
+    end
+    dt.print(string.format("Distance: %.2f %s", distance, distanceUnit))
+
 
 
 end
