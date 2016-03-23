@@ -37,7 +37,7 @@ dt.configuration.check_version(...,{3,0,0})
 -- add a new lib
 local check_button = dt.new_widget("check_button"){label = "MyCheck_button", value = true}
 local combobox = dt.new_widget("combobox"){label = "MyCombobox", value = 2, "8", "16", "32"}
-local entry = dt.new_widget("entry"){text = "test", placeholder = "placeholder"}
+local entry = dt.new_widget("entry"){text = "test", placeholder = "placeholder", tooltip = "tooltip"}
 local file_chooser_button = dt.new_widget("file_chooser_button"){title = "MyFile_chooser_button"}
 local label = dt.new_widget("label")
 label.label = "MyLabel" -- This is an alternative way to the "{}" syntax to set a property 
