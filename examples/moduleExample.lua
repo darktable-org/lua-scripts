@@ -37,8 +37,25 @@ dt.configuration.check_version(...,{3,0,0})
 -- add a new lib
 local check_button = dt.new_widget("check_button"){label = "MyCheck_button", value = true}
 local combobox = dt.new_widget("combobox"){label = "MyCombobox", value = 2, "8", "16", "32"}
-local entry = dt.new_widget("entry"){text = "test", placeholder = "placeholder", tooltip = "tooltip"}
-local file_chooser_button = dt.new_widget("file_chooser_button"){title = "MyFile_chooser_button"}
+
+--https://www.darktable.org/lua-api/ar01s02s54.html.php
+local entry = dt.new_widget("entry")
+{
+    text = "test", 
+    placeholder = "placeholder",
+    is_password = false,
+    editable = true,
+    tooltip = "Tooltip Text",
+    reset_callback = function(self) self.text = "text" end
+}
+
+local file_chooser_button = dt.new_widget("file_chooser_button")
+{
+    title = "MyFile_chooser_button",  -- The title of the window when choosing a file
+    value = "",                       -- The currently selected file
+    is_directory = false              -- True if the file chooser button only allows directories to be selecte
+}
+
 local label = dt.new_widget("label")
 label.label = "MyLabel" -- This is an alternative way to the "{}" syntax to set a property 
 
