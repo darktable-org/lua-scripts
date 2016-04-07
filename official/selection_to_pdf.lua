@@ -82,7 +82,12 @@ local function thumbnail(latexfile,i,image,file)
   local filenoext=string.gsub(file, "(.*)(%..*)", "%1")
   local ext=string.gsub(file, "(.*)(%..*)", "%2")
   my_write(latexfile,"\\begin{minipage}[b]{"..width.."\\textwidth}\n")
-  my_write(latexfile,"\\includegraphics[width=\\textwidth]{{"..filenoext.."}"..ext.."}\\newline\n")
+  
+  if image.height > image.width then 
+    my_write(latexfile,"\\includegraphics[angle=90, width=\\textwidth]{{"..filenoext.."}"..ext.."}\\newline\n")
+   else
+    my_write(latexfile,"\\includegraphics[width=\\textwidth]{{"..filenoext.."}"..ext.."}\\newline\n")
+  end
   my_write(latexfile,"\\centering{"..i..": \\verb|"..title.."|}\n")
   my_write(latexfile,"\\end{minipage}\\quad\n")
 end
