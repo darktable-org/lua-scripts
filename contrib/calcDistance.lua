@@ -1,6 +1,6 @@
 --[[
     This file is part of darktable,
-    Copyright 2014 by Tobias Jakobs.
+    Copyright 2014-2016 by Tobias Jakobs.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -26,7 +26,15 @@ USAGE
 ]]
    
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,1},{3,0,0})
+local gettext = dt.gettext
+dt.configuration.check_version(...,{3,0,0})
+
+-- Tell gettext where to find the .mo file translating messages for a particular domain
+gettext.bindtextdomain("calcDistance",dt.configuration.config_dir.."/lua/")
+
+local function _(msgid)
+    return gettext.dgettext("calcDistance", msgid)
+end
 
 local function calcDistance()
 	local sel_images = dt.gui.selection()
@@ -35,6 +43,9 @@ local function calcDistance()
     local lon1 = 0;
     local lat2 = 0;
     local lon2 = 0;
+    local ele1 = 0;
+    local ele2 = 0;
+
     local i = 0;
 
     local sel_images = dt.gui.selection()
@@ -49,10 +60,12 @@ local function calcDistance()
           if (i == 1) then
             lat1 = image.latitude;
             lon1 = image.longitude;
+            ele1 = image.elevation;
           end
          
          lat2 = image.latitude;
          lon2 = image.longitude;
+         ele2 = image.elevation;
 
         end
     end
@@ -71,10 +84,23 @@ local function calcDistance()
     local angle = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a)); 
     local distance = earthRadius * angle; -- Distance in km  
 
-    dt.print(distance.." km")
+    -- Add the elevation to the calculation
+    local elevation = 0;
+    elevation = math.abs(ele1 - ele2) / 1000;  --in km
+    distance = math.sqrt(math.pow(elevation,2) + math.pow(distance,2) );
+
+    local distanceUnit
+    if (distance < 1) then
+        distance = distance * 1000
+        distanceUnit = "m"
+    else
+        distanceUnit = "km"
+    end
+    dt.print(string.format("Distance: %.2f %s", distance, distanceUnit))
+
 
 
 end
 
 -- Register
-dt.register_event("shortcut",calcDistance,"Calculate the distance from latitude and longitude in km")
+dt.register_event("shortcut",calcDistance,_("Calculate the distance from latitude and longitude in km"))

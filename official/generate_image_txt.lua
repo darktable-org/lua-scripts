@@ -31,12 +31,12 @@ USAGE
 
 -- TODO:
 --  * enable showing of the txt file (plugins/lighttable/draw_custom_metadata) if this script is enabled
---  * maybe allow a lua command returning text instead of a command line call ? both ?
+--  * maybe allow a lua command returning text instead of a command line call? both?
 --  * make filenames with double quotes (") work
 
 local dt = require "darktable"
 require "darktable.debug"
-dt.configuration.check_version(...,{2,1,0})
+dt.configuration.check_version(...,{2,1,0},{3,0,0})
 
 dt.preferences.register("generate_image_txt",
                         "enabled",

@@ -29,7 +29,7 @@ all tags longer than the given length will be automatically deleted at every res
 ]]
 
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,0})
+dt.configuration.check_version(...,{2,0,0},{3,0,0})
 
 dt.preferences.register("delete_long_tags", "length", "integer",
                         "maximum length of tags to keep",

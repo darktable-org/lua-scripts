@@ -24,7 +24,16 @@ USAGE
 ]]
    
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,1})
+local gettext = dt.gettext
+dt.configuration.check_version(...,{2,0,1},{3,0,0})
+
+-- Tell gettext where to find the .mo file translating messages for a particular domain
+gettext.bindtextdomain("gps_select",dt.configuration.config_dir.."/lua/")
+
+local function _(msgid)
+    return gettext.dgettext("gps_select", msgid)
+end
+
 table = require "table"
 
 local function selectWithGPS()
@@ -47,5 +56,5 @@ local function selectWithoutGPS()
    dt.gui.selection(selection)
 end
 
-dt.register_event("shortcut", selectWithGPS, "Select all images with GPS information")
-dt.register_event("shortcut", selectWithoutGPS, "Select all images without GPS information")
+dt.register_event("shortcut", selectWithGPS, _("Select all images with GPS information"))
+dt.register_event("shortcut", selectWithoutGPS, _("Select all images without GPS information"))
