@@ -120,7 +120,7 @@ end
 
 local function show_status(storage, image, format, filename,
   number, total, high_quality, extra_data)
-  dt.print("Exporting to gimp "..tostring(number).."/"..tostring(total))
+  dt.print(string.format(_("Exporting to gimp %i/%i", number, total)))
 end
 
 local function gimp_edit(storage, image_table, extra_data) --finalize
@@ -135,8 +135,8 @@ local function gimp_edit(storage, image_table, extra_data) --finalize
    -- reset and create image list
   img_list = ""
 
-  for _,v in pairs(image_table) do
-    img_list = img_list ..v.. " "
+  for _,exp_img in pairs(image_table) do
+    img_list = img_list ..exp_img.. " "
   end
 
   dt.print(_("Launching gimp..."))
@@ -154,15 +154,15 @@ local function gimp_edit(storage, image_table, extra_data) --finalize
   -- then import the image into the database which will group it with the original
   -- and then copy over any tags other than darktable tags
 
-  for _,v in pairs(image_table) do
-    local fname = get_filename(v)
-    for _,w in pairs(dt.gui.action_images) do
-      if basename(fname) == basename(w.filename) then
-        os.execute("mv "..v.." "..w.path)
-        local myimage = dt.database.import(w.path.."/"..fname)
-        for _,x in pairs(dt.tags.get_tags(w)) do 
-          if not (string.sub(x.name,1,9) == "darktable") then
-            dt.tags.attach(x,myimage)
+  for _,exp_img in pairs(image_table) do
+    local fname = get_filename(exp_img)
+    for _,orig_img in pairs(dt.gui.action_images) do
+      if basename(fname) == basename(orig_img.filename) then
+        os.execute("mv "..exp_img.." "..orig_img.path)
+        local myimage = dt.database.import(orig_img.path.."/"..fname)
+        for _,tag in pairs(dt.tags.get_tags(orig_img)) do 
+          if not (string.sub(tag.name,1,9) == "darktable") then
+            dt.tags.attach(tag,myimage)
           end
         end
       end
