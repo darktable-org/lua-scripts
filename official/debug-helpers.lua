@@ -55,7 +55,7 @@ This is mainly used to debug callbacks,
 
 register_event(event, dhelpers.new_tracepoint("hit callback"))
 
-will will print the following each time the callback is called
+will print the following each time the callback is called
 
 **** hit callback ****
 <all the callback's parameters dumped>
