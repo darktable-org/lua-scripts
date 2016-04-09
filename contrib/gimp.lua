@@ -120,7 +120,7 @@ end
 
 local function show_status(storage, image, format, filename,
   number, total, high_quality, extra_data)
-  dt.print(string.format(_("Exporting to gimp %i/%i", number, total)))
+  dt.print(_("Exporting to gimp "..tostring(number).."/"..tostring(total)))
 end
 
 local function gimp_edit(storage, image_table, extra_data) --finalize
