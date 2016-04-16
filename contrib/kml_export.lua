@@ -84,6 +84,76 @@ local function checkIfBinExists(bin)
     ret = true
     return ret
 end
+ 
+-- Strip accents from a string
+-- Copied from https://forums.coronalabs.com/topic/43048-remove-special-characters-from-string/
+function string.stripAccents( str )
+  local tableAccents = {}
+    tableAccents["à"] = "a"
+    tableAccents["á"] = "a"
+    tableAccents["â"] = "a"
+    tableAccents["ã"] = "a"
+    tableAccents["ä"] = "a"
+    tableAccents["ç"] = "c"
+    tableAccents["è"] = "e"
+    tableAccents["é"] = "e"
+    tableAccents["ê"] = "e"
+    tableAccents["ë"] = "e"
+    tableAccents["ì"] = "i"
+    tableAccents["í"] = "i"
+    tableAccents["î"] = "i"
+    tableAccents["ï"] = "i"
+    tableAccents["ñ"] = "n"
+    tableAccents["ò"] = "o"
+    tableAccents["ó"] = "o"
+    tableAccents["ô"] = "o"
+    tableAccents["õ"] = "o"
+    tableAccents["ö"] = "o"
+    tableAccents["ù"] = "u"
+    tableAccents["ú"] = "u"
+    tableAccents["û"] = "u"
+    tableAccents["ü"] = "u"
+    tableAccents["ý"] = "y"
+    tableAccents["ÿ"] = "y"
+    tableAccents["À"] = "A"
+    tableAccents["Á"] = "A"
+    tableAccents["Â"] = "A"
+    tableAccents["Ã"] = "A"
+    tableAccents["Ä"] = "A"
+    tableAccents["Ç"] = "C"
+    tableAccents["È"] = "E"
+    tableAccents["É"] = "E"
+    tableAccents["Ê"] = "E"
+    tableAccents["Ë"] = "E"
+    tableAccents["Ì"] = "I"
+    tableAccents["Í"] = "I"
+    tableAccents["Î"] = "I"
+    tableAccents["Ï"] = "I"
+    tableAccents["Ñ"] = "N"
+    tableAccents["Ò"] = "O"
+    tableAccents["Ó"] = "O"
+    tableAccents["Ô"] = "O"
+    tableAccents["Õ"] = "O"
+    tableAccents["Ö"] = "O"
+    tableAccents["Ù"] = "U"
+    tableAccents["Ú"] = "U"
+    tableAccents["Û"] = "U"
+    tableAccents["Ü"] = "U"
+    tableAccents["Ý"] = "Y"
+        
+  local normalizedString = ""
+ dt.print_error(str)
+  for strChar in string.gmatch(str, "([%z\1-\127\194-\244][\128-\191]*)") do
+    if tableAccents[strChar] ~= nil then
+      normalizedString = normalizedString..tableAccents[strChar]
+    else
+      normalizedString = normalizedString..strChar
+    end
+  end
+        
+  return normalizedString
+ 
+end
 
 local function create_kml_file(storage, image_table, extra_data)
 
@@ -143,9 +213,13 @@ local function create_kml_file(storage, image_table, extra_data)
 
         -- delete the original image to not get into the kmz file
         os.remove(exported_image)
-
+        
         local pattern = "[/]?([^/]+)$"
         filmName = string.match(image.film.path, pattern)
+
+	-- Strip accents from the filename, because GoogleEarth can't open them
+	-- https://github.com/darktable-org/lua-scripts/issues/54
+	filmName = string.stripAccents(filmName)
     end
 
     exportKMLFilename = filmName..".kml"
