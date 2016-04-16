@@ -66,10 +66,31 @@ dt.configuration.check_version(...,{3,0,0})
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("gimp",dt.configuration.config_dir.."/lua/")
 
+local function split_filepath(str)
+  local result = {}
+  -- Thank you Tobias Jakobs for the awesome regular expression, which I tweaked a little
+  result["path"], result["filename"], result["basename"], result["filetype"] = string.match(str, "(.-)(([^\\/]-)%.?([^%.\\/]*))$")
+  return result
+end
+
+local function get_path(str)
+  local parts = split_filepath(str)
+  return parts["path"]
+end
+
 local function get_filename(str)
-  -- Thanks to Tobias Jakobs for the awesome regular expression
-  local path, filename, filetype = string.match(str, "(.-)([^\\/]-%.?([^%.\\/]*))$")
-  return filename
+  local parts = split_filepath(str)
+  return parts["filename"]
+end
+
+local function get_basename(str)
+  local parts = split_filepath(str)
+  return parts["basename"]
+end
+
+local function get_filetype(str)
+  local parts = split_filepath(str)
+  return parts["filetype"]
 end
 
 local function _(msgid)
@@ -89,6 +110,68 @@ local function checkIfBinExists(bin)
     ret = false
   end
   return ret
+end
+
+local function checkIfFileExists(filepath)
+  local handle = io.popen("ls "..filepath)
+  local result = handle:read()
+  local ret
+  handle:close()
+  if (result) then
+    dt.print_error("true checkIfFileExists: "..filepath)
+    ret = true
+  else
+    dt.print_error(filepath.." not found")
+    ret = false
+  end
+  return ret
+end
+
+local function filename_increment(filepath)
+
+  -- break up the filepath into parts
+  local path = get_path(filepath)
+  local basename = get_basename(filepath)
+  local filetype = get_filetype(filepath)
+
+  -- check to see if we've incremented before
+  local increment = string.match(basename, "_(%d-)$")
+
+  if increment then
+    -- we do 2 digit increments so make sure we didn't grab part of the filename
+    if string.len(increment) > 2 then
+      -- we got the filename so set the increment to 01
+      increment = "01"
+    else
+      increment = string.format("%02d", tonumber(increment) + 1)
+      basename = string.gsub(basename, "_(%d-)$", "")
+    end
+  else
+    increment = "01"
+  end
+  local incremented_filepath = path .. basename .. "_" .. increment .. "." .. filetype
+
+  dt.print_error("original file was " .. filepath)
+  dt.print_error("incremented file is " .. incremented_filepath)
+
+  return incremented_filepath
+end
+
+local function groupIfNotMember(img, new_img)
+  local image_table = img:get_group_members()
+  local is_member = false
+  for _,image in ipairs(image_table) do
+    dt.print_error(image.filename .. " is a member")
+    if image.filename == new_img.filename then
+      is_member = true
+      dt.print_error("Already in group")
+    end
+  end
+  if not is_member then
+    dt.print_error("group leader is "..img.group_leader.filename)
+    new_img:group_with(img.group_leader)
+    dt.print_error("Added to group")
+  end
 end
 
 local function show_status(storage, image, format, filename,
@@ -130,11 +213,21 @@ local function gimp_edit(storage, image_table, extra_data) --finalize
 
     local myimage_name = image.path .. "/" .. get_filename(exported_image)
 
+    while checkIfFileExists(myimage_name) do
+      myimage_name = filename_increment(myimage_name)
+      -- limit to 99 more exports of the original export
+      if string.match(get_basename(myimage_name), "_(d-)$") == "99" then 
+        break 
+      end
+    end
+
     dt.print_error("moving " .. exported_image .. " to " .. myimage_name)
     result = os.rename(exported_image, myimage_name)
 
     dt.print_error("importing file")
     local myimage = dt.database.import(myimage_name)
+
+    groupIfNotMember(image, myimage)
 
     for _,tag in pairs(dt.tags.get_tags(image)) do 
       if not (string.sub(tag.name,1,9) == "darktable") then
