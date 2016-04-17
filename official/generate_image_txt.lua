@@ -97,7 +97,7 @@ dt.register_event("mouse-over-image-changed", function(event, img)
     local command = command_setting:gsub("%$%(FILE_NAME%)", '"'..img_filename..'"')..' > "'..txt_filename..'"'
 
     -- finally, run it
-     coroutine.yield("RUN_COMMAND", command)
+     dt.control.execute( command)
   end
 )
 

@@ -213,7 +213,7 @@ local function gimp_edit(storage, image_table, extra_data) --finalize
   
   dt.print_error(gimpStartCommand)
 
-  coroutine.yield("RUN_COMMAND", gimpStartCommand)
+  dt.control.execute( gimpStartCommand)
 
   -- for each of the image, exported image pairs
   --   move the exported image into the directory with the original  

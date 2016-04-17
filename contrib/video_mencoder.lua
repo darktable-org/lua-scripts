@@ -92,15 +92,13 @@ local function create_video_mencoder(storage, image_table, extra_data)
     end
 
     dt.print_error("this is the command: "..command)
-    -- USE coroutine.yield. It does not block the UI
-    coroutine.yield("RUN_COMMAND", command)
+    dt.control.execute( command)
 
     dt.print("Video created in "..exportDirectory)
     
     if ( dt.preferences.read("video_mencoder","OpenVideo","bool") == true ) then
-        -- USE coroutine.yield. It does not block the UI
         local playVideoCommand = "xdg-open "..exportDirectory.."/"..exportFilename
-        coroutine.yield("RUN_COMMAND", playVideoCommand) 
+        dt.control.execute( playVideoCommand) 
     end
 end
 

@@ -147,7 +147,7 @@ dt.register_lib(
         local output_image = target_dir.."/enfuse.tiff"
         local command = "enfuse --depth "..depth.value.." --exposure-mu "..ugly_decimal_point_hack
                         .." -o \""..output_image.."\" \"@"..response_file.."\""
-        if coroutine.yield("RUN_COMMAND", command) > 0 then
+        if dt.control.execute( command) > 0 then
           dt.print("enfuse failed, see terminal output for details")
           os.remove(response_file)
           return

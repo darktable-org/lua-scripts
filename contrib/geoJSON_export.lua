@@ -106,7 +106,7 @@ local function create_geoJSON_file(storage, image_table, extra_data)
     -- Creates dir if not exsists
     local imageFoldername = "files/"
     local mkdirCommand = "mkdir -p "..exportDirectory.."/"..imageFoldername
-    coroutine.yield("RUN_COMMAND", mkdirCommand) 
+    dt.control.execute( mkdirCommand) 
 
     -- Create the thumbnails
     for image,exported_image in pairs(image_table) do
@@ -124,10 +124,9 @@ local function create_geoJSON_file(storage, image_table, extra_data)
             --	profiles that might be present in the input and aren't needed in the thumbnail.
 
             local convertToThumbCommand = "convert -size 96x96 "..exported_image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory.."/"..imageFoldername.."thumb_"..filename..".jpg"
-            -- USE coroutine.yield. It does not block the UI
-            coroutine.yield("RUN_COMMAND", convertToThumbCommand)
+            dt.control.execute( convertToThumbCommand)
             local concertCommand = "convert -size 438x438 "..exported_image.." -resize 438x438 +profile \"*\" "..exportDirectory.."/"..imageFoldername..filename..".jpg"
-            coroutine.yield("RUN_COMMAND", concertCommand)
+            dt.control.execute( concertCommand)
         end
 
         -- delete the original image to not get into the kmz file
@@ -280,7 +279,7 @@ local function create_geoJSON_file(storage, image_table, extra_data)
     if ( dt.preferences.read("geoJSON_export","OpengeoJSONFile","bool") == true ) then
         local geoJSONFileOpenCommand
         geoJSONFileOpenCommand = "xdg-open "..exportDirectory.."/\""..exportgeoJSONFilename.."\""
-        coroutine.yield("RUN_COMMAND", geoJSONFileOpenCommand) 
+        dt.control.execute( geoJSONFileOpenCommand) 
     end
 
 

@@ -100,11 +100,11 @@ local function create_panorama(storage, image_table, extra_data) --finalize
   if (hugin_executor) then
     huginStartCommand = "pto_gen "..img_list.." -o "..dt.configuration.tmp_dir.."/project.pto"
     dt.print(_("Creating pto file"))
-    coroutine.yield("RUN_COMMAND", huginStartCommand)
+    dt.control.execute( huginStartCommand)
 
     dt.print(_("Running Assistent"))
     huginStartCommand = "hugin_executor --assistant "..dt.configuration.tmp_dir.."/project.pto"
-    coroutine.yield("RUN_COMMAND", huginStartCommand)
+    dt.control.execute( huginStartCommand)
 
     huginStartCommand = "hugin "..dt.configuration.tmp_dir.."/project.pto"
   else
@@ -113,7 +113,7 @@ local function create_panorama(storage, image_table, extra_data) --finalize
   
   dt.print_error(huginStartCommand)
 
-  if coroutine.yield("RUN_COMMAND", huginStartCommand)
+  if dt.control.execute( huginStartCommand)
     then
     dt.print(_("Command hugin failed ..."))
   end

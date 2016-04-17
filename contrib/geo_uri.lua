@@ -77,7 +77,7 @@ local function openLocationInGnomeMaps()
     startCommand = "gnome-maps \"geo:" .. lat1 .. "," .. lon1 .."\""
     dt.print_error(startCommand)
     
-    if coroutine.yield("RUN_COMMAND", startCommand) then
+    if dt.control.execute( startCommand) then
       dt.print(_("Command failed ..."))
     end
 

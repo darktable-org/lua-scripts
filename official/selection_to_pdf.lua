@@ -128,7 +128,7 @@ dt.register_storage("export_pdf","Export thumbnails to pdf",
       local dir=string.gsub(filename, "(.*/)(.*)", "%1")
       local locfile=string.gsub(filename, "(.*/)(.*)", "%2")
       local command = "pdflatex -halt-on-error -output-directory "..dir.." "..locfile
-      local result = coroutine.yield("RUN_COMMAND",command)
+      local result = dt.control.execute(command)
       if result ~= 0 then
         dt.print("Problem running pdflatex") -- this one is probably usefull to the user
         error("Problem running "..command)
@@ -138,7 +138,7 @@ dt.register_storage("export_pdf","Export thumbnails to pdf",
       local pdffile=string.gsub(filename, ".tex", ".pdf")
       command = dt.preferences.read("selection_to_pdf","Open with","string")
       command = command.." "..pdffile
-      local result = coroutine.yield("RUN_COMMAND",command)
+      local result = dt.control.execute(command)
       if result ~= 0 then
         dt.print("Problem running pdf viewer") -- this one is probably usefull to the user
         error("Problem running "..command)

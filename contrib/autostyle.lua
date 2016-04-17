@@ -118,8 +118,7 @@ end
 function get_stdout(cmd)
   -- Open the command, for reading
   local fd = assert(io.popen(cmd, 'r'))
-  -- yield to other lua threads until data is ready to be read
-  coroutine.yield("FILE_READABLE",fd)
+  dt.control.read(fd)
   -- slurp the whole file
   local data = assert(fd:read('*a'))
 
