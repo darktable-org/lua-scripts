@@ -142,7 +142,7 @@ function string.stripAccents( str )
     tableAccents["Ý"] = "Y"
         
   local normalizedString = ""
- dt.print_error(str)
+
   for strChar in string.gmatch(str, "([%z\1-\127\194-\244][\128-\191]*)") do
     if tableAccents[strChar] ~= nil then
       normalizedString = normalizedString..tableAccents[strChar]
@@ -177,6 +177,7 @@ local function create_kml_file(storage, image_table, extra_data)
         if not checkIfBinExists("zip") then
             return
         end
+
         exportDirectory = dt.configuration.tmp_dir
         imageFoldername = ""
     else
@@ -208,6 +209,7 @@ local function create_kml_file(storage, image_table, extra_data)
             -- USE coroutine.yield. It does not block the UI
             coroutine.yield("RUN_COMMAND", convertToThumbCommand)
             local concertCommand = "convert -size 438x438 "..exported_image.." -resize 438x438 +profile \"*\" "..exportDirectory.."/"..imageFoldername..filename..".jpg"
+
             coroutine.yield("RUN_COMMAND", concertCommand)
         end
 
@@ -320,9 +322,22 @@ local function create_kml_file(storage, image_table, extra_data)
     if ( dt.preferences.read("kml_export","CreateKMZ","bool") == true ) then
        exportDirectory = dt.preferences.read("kml_export","ExportDirectory","string")
         -- USE coroutine.yield. It does not block the UI
+
         local createKMZCommand = "zip --test --move --junk-paths "
-        createKMZCommand = createKMZCommand .."\""..exportDirectory.."/"..exportKMZFilename.."\" "
-        createKMZCommand = createKMZCommand .."\""..dt.configuration.tmp_dir.."/"..exportKMLFilename.."\" \""..dt.configuration.tmp_dir.."/"..imageFoldername.."\"*"
+        createKMZCommand = createKMZCommand .."\""..exportDirectory.."/"..exportKMZFilename.."\" "           -- KMZ filename
+        createKMZCommand = createKMZCommand .."\""..dt.configuration.tmp_dir.."/"..exportKMLFilename.."\" "  -- KML file
+
+        for image,exported_image in pairs(image_table) do
+          if ((image.longitude and image.latitude) and 
+              (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
+             ) then
+            local filename = string.upper(string.gsub(image.filename,"%.", "_"))
+
+            createKMZCommand = createKMZCommand .."\""..dt.configuration.tmp_dir.."/"..imageFoldername.."thumb_"..filename..".jpg\" " -- thumbnails
+            createKMZCommand = createKMZCommand .."\""..dt.configuration.tmp_dir.."/"..imageFoldername..filename..".jpg\" "           -- images
+          end
+        end
+
 	coroutine.yield("RUN_COMMAND", createKMZCommand)
     end
 
