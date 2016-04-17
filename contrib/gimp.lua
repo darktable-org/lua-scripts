@@ -112,15 +112,15 @@ local function checkIfBinExists(bin)
   return ret
 end
 
-local function checkIfFileExists(filepath)
-  local handle = io.popen("ls "..filepath)
-  local result = handle:read()
+-- Thanks Tobias Jakobs for the idea and the correction
+function checkIfFileExists(filepath)
+  local file = io.open(filepath,"r")
   local ret
-  handle:close()
-  if (result) then
+  if file ~= nil then 
+    io.close(file) 
     dt.print_error("true checkIfFileExists: "..filepath)
     ret = true
-  else
+  else 
     dt.print_error(filepath.." not found")
     ret = false
   end

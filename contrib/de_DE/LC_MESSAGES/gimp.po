@@ -36,4 +36,4 @@ msgstr "Starten von GIMP"
 
 #: gimp.lua:243
 msgid "Edit with GIMP"
-msgstr "Bearbeiten mit Gimp"
+msgstr "Bearbeiten mit GIMP"
