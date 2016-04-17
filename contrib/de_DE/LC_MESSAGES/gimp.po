@@ -21,19 +21,19 @@ msgstr ""
 "dngettext:2,3\n"
 "X-Poedit-Basepath: .\n"
 
-#: gimp.lua:179
+#: gimp.lua:189
 #, lua-format
 msgid "Export Image %i/%i"
 msgstr "Exportiere Bild %i/%i"
 
-#: gimp.lua:184
+#: gimp.lua:194
 msgid "GIMP not found"
 msgstr "GIMP nicht gefunden"
 
-#: gimp.lua:198
+#: gimp.lua:209
 msgid "Launching GIMP..."
 msgstr "Starten von GIMP"
 
-#: gimp.lua:243
+#: gimp.lua:254
 msgid "Edit with GIMP"
 msgstr "Bearbeiten mit GIMP"

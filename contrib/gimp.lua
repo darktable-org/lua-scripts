@@ -174,6 +174,16 @@ local function groupIfNotMember(img, new_img)
   end
 end
 
+local function sanitize_filename(filepath)
+  local path = get_path(filepath)
+  local basename = get_basename(filepath)
+  local filetype = get_filetype(filepath)
+
+  local sanitized = string.gsub(basename, " ", "\\ ")
+
+  return path .. sanitized .. "." .. filetype
+end
+
 local function show_status(storage, image, format, filename,
   number, total, high_quality, extra_data)
     dt.print(string.format(_("Export Image %i/%i"), number, total))
@@ -192,6 +202,7 @@ local function gimp_edit(storage, image_table, extra_data) --finalize
   img_list = ""
 
   for _,exp_img in pairs(image_table) do
+    exp_img = sanitize_filename(exp_img)
     img_list = img_list ..exp_img.. " "
   end
 
