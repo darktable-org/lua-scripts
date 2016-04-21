@@ -18,7 +18,8 @@
 
 --[[
    (MULTI-)COPY ATTACH DETACH REPLACE TAGS
-   This script that will create four shortcuts and add a modul in lighttable mode to copy, paste, replace and remove tags from images.
+   This script that will create four shortcuts and add a modul in lighttable mode to copy,
+   paste, replace and remove tags from images.
 
 INSTALATION
  * copy this file in $CONFIGDIR/lua/ where CONFIGDIR is your darktable configuration directory
@@ -151,7 +152,7 @@ dt.register_lib("tagging_addon","Tagging addon",true,false,{
       orientation = "vertical",
        dt.new_widget("button")
        {
-         label = "multi copy",
+         label = "multi copy tags",
          clicked_callback = mcopy_tags
        },
        dt.new_widget("button")
@@ -169,6 +170,14 @@ dt.register_lib("tagging_addon","Tagging addon",true,false,{
          label = "remove all tags",
          clicked_callback = detach_tags
        },
+       dt.new_widget("label")
+       {
+         label = "tag clipboard",
+         selectable = false,
+         ellipsize = "middle",
+         halign = "start"
+       },
+       dt.new_widget("separator"){},
        taglist_label
      },
    nil,
@@ -189,7 +198,7 @@ dt.register_event("shortcut",
 -- shortcut for detaching tags
 dt.register_event("shortcut",
                    detach_tags,
-                   "remove tags to selected image(s)")
+                   "remove tags from selected image(s)")
 
                    -- shortcut for replace tags
 dt.register_event("shortcut",
