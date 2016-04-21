@@ -1,6 +1,6 @@
 --[[
     This file is part of darktable,
-    copyright 2014-2015 by Christian Kanzian.
+    copyright 2014-2016 by Christian Kanzian.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
 ]]
 
 --[[
-   (MULTI-)COPY ATTACH DETACH TAG 
-   A simple script that will create three shortcuts to copy, attach and detach image tags.
+   (MULTI-)COPY ATTACH DETACH REPLACE TAGS
+   This script that will create four shortcuts and add a modul in lighttable mode to copy, paste, replace and remove tags from images.
 
 INSTALATION
  * copy this file in $CONFIGDIR/lua/ where CONFIGDIR is your darktable configuration directory
@@ -27,16 +27,21 @@ INSTALATION
 USAGE
  * set the shortcuts for copy, attach and detach in the preferences dialog
  * <your shortcut1> copy will create a list of tags from all selected images
- * <your shortcut2> attaches copied tags to selected images, whereby
+ * <your shortcut2> paste copied tags to selected images, whereby
    darktable internal tags starting with 'darktable|' will not be touched
- * <your shortcut3> detach removes all expect darktable internal tags from selected images
+ * <your shortcut3> removes all expect darktable internal tags from selected images
+ * <your shortcut4> replaces all tags expect darktable internals
 
 ]]
 
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,0},{3,0,0})
+dt.configuration.check_version(...,{3,0,0},{4,0,0})
 
 local image_tags = {}
+
+
+local taglist_label = dt.new_widget("label"){selectable = true, ellipsize = "middle", halign = "start"}
+taglist_label.label = ""
 
 local function mcopy_tags()
   local sel_images = dt.gui.action_images
@@ -66,7 +71,21 @@ local function mcopy_tags()
       end
 
       dt.print("Image tags copied ...")
-    return(image_tags)
+
+     --create UI tag list     
+     local taglist = ""
+ 
+     for _,tag in ipairs(image_tags) do
+       if taglist == "" then
+          taglist = tostring(tag)
+       else
+          taglist = taglist.."\n"..tostring(tag)
+        end    
+       end 
+
+	taglist_label.label = taglist 
+
+     return(image_tags)
   end
    
 -- attach copied tags to all selected images
@@ -99,9 +118,6 @@ local function attach_tags()
  dt.print("Tags attached ...")
 end
 
-
-
-
 local function detach_tags()
   local sel_images = dt.gui.action_images
 
@@ -118,6 +134,48 @@ local function detach_tags()
   dt.print("Tags removed from image(s).")
 end
 
+local function replace_tags()
+  detach_tags()
+  attach_tags()
+  dt.print("Tags replaced")
+end
+
+-- create modul Tagging addons
+taglist_label.reset_callback = mcopy_tags
+
+dt.register_lib("tagging_addon","Tagging addon",true,false,{
+    [dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER",500}
+    },
+    dt.new_widget("box")
+    {
+      orientation = "vertical",
+       dt.new_widget("button")
+       {
+         label = "multi copy",
+         clicked_callback = mcopy_tags
+       },
+       dt.new_widget("button")
+       {
+         label = "paste tags",
+         clicked_callback = attach_tags
+       },
+       dt.new_widget("button")
+       {
+         label = "replace tags",
+         clicked_callback = replace_tags
+       },
+       dt.new_widget("button")
+       {
+         label = "remove all tags",
+         clicked_callback = detach_tags
+       },
+       taglist_label
+     },
+   nil,
+   nil
+  )
+
+
 -- shortcut for copy
 dt.register_event("shortcut",
                    mcopy_tags,
@@ -126,13 +184,17 @@ dt.register_event("shortcut",
 -- shortcut for attach
 dt.register_event("shortcut",
                    attach_tags,
-                   "attach tags to selected image(s)")
+                   "paste tags to selected image(s)")
 
 -- shortcut for detaching tags
 dt.register_event("shortcut",
                    detach_tags,
-                   "detach tags to selected image(s)")
+                   "remove tags to selected image(s)")
 
+                   -- shortcut for replace tags
+dt.register_event("shortcut",
+                   replace_tags,
+                   "replace tags from selected image(s)")
 
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
 -- kate: tab-indents: off; indent-width 2; replace-tabs on; remove-trailing-space on;
