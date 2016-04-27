@@ -50,6 +50,7 @@ dt.register_import_filter("prefer raw over jpeg", function(event, images)
   local current_base = ""
   local jpg_indices = {}
   local other_format_found = false
+  local last_index
   table.insert(images, "")
   for i, img in ipairs(images) do
     local extension = img:match("[^.]*$"):upper()
@@ -74,8 +75,9 @@ dt.register_import_filter("prefer raw over jpeg", function(event, images)
       other_format_found = true
     end
 
+    last_index = i
   end
-  table.remove(images)
+  images[last_index] = nil
 end)
 
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent
