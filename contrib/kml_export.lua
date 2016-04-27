@@ -222,6 +222,9 @@ local function create_kml_file(storage, image_table, extra_data)
             local convertToThumbCommand = "convert -size 96x96 "..exported_image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory.."/"..imageFoldername.."thumb_"..filename..".jpg"
             -- USE coroutine.yield. It does not block the UI
             coroutine.yield("RUN_COMMAND", convertToThumbCommand)
+        else
+            -- Remove exported image if it has no GPS data
+            os.remove(exported_image)
         end
 
         local pattern = "[/]?([^/]+)$"
