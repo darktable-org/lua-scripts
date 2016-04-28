@@ -1,6 +1,7 @@
 --[[
     This file is part of darktable,
     Copyright 2016 by Tobias Jakobs.
+    Copyright 2016 by Erik Augustin.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -157,6 +158,7 @@ function string.stripAccents( str )
 end
 
 -- Escape XML characters
+-- Keep &amp; first, otherwise it will double escape other characters
 -- https://stackoverflow.com/questions/1091945/what-characters-do-i-need-to-escape-in-xml-documents
 function string.escapeXmlCharacters( str )
 
@@ -248,7 +250,9 @@ local function create_kml_file(storage, image_table, extra_data)
     kml_file = kml_file.."    <description>Exported from darktable</description>\n"
     
     for image,exported_image in pairs(image_table) do
+    -- Extract filename, e.g DSC9784.ARW -> DSC9784
     filename = string.upper(string.gsub(image.filename,"%.%w*", ""))
+    -- Extract extension from exported image (user can choose JPG or PNG), e.g DSC9784.JPG -> .JPG
     extension = string.match(exported_image,"%.%w*$")
 
 	if ((image.longitude and image.latitude) and 
@@ -262,6 +266,7 @@ local function create_kml_file(storage, image_table, extra_data)
             else
                 image_title = image.filename
             end
+            -- Characters should not be escaped in CDATA, but we are using HTML fragment, so we must escape them
             image_description = string.escapeXmlCharacters(image.description)
 
             kml_file = kml_file.."    <name>"..image_title.."</name>\n"            
