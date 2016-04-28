@@ -1,6 +1,6 @@
 --[[
     This file is part of darktable,
-    copyright (c) 2015 Tobias Ellinghaus
+    copyright (c) 2015-2016 Tobias Ellinghaus & Christian Mandel
 
     darktable is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -50,7 +50,11 @@ dt.register_import_filter("prefer raw over jpeg", function(event, images)
   local current_base = ""
   local jpg_indices = {}
   local other_format_found = false
+
+  -- add dummy image to force processing for the last image
+  local last_index
   table.insert(images, "")
+
   for i, img in ipairs(images) do
     local extension = img:match("[^.]*$"):upper()
     local base = img:match("^.*[.]")
@@ -74,8 +78,14 @@ dt.register_import_filter("prefer raw over jpeg", function(event, images)
       other_format_found = true
     end
 
+    last_index = i
   end
-  table.remove(images)
+
+  -- remove dummy image from list (just to make sure, it works even with keeping
+  -- the dummy but that may break in the future), table.remove(images) does not
+  -- work reliable because it can fail for sparse tables
+  images[last_index] = nil
+
 end)
 
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent
