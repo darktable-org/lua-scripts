@@ -1,6 +1,7 @@
 --[[
     This file is part of darktable,
     Copyright 2016 by Tobias Jakobs.
+    Copyright 2016 by Erik Augustin.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,7 +30,9 @@ WARNING
 This script is only tested with Linux
 
 USAGE
+* require script "official/yield" from your main Lua file in the first line
 * require this script from your main Lua file
+* when choosing file format, pick JPEG or PNG as Google Earth doesn't support other formats
 
 ]]
    
@@ -155,6 +158,20 @@ function string.stripAccents( str )
  
 end
 
+-- Escape XML characters
+-- Keep &amp; first, otherwise it will double escape other characters
+-- https://stackoverflow.com/questions/1091945/what-characters-do-i-need-to-escape-in-xml-documents
+function string.escapeXmlCharacters( str )
+
+    str = string.gsub(str,"&", "&amp;")
+    str = string.gsub(str,"\"", "&quot;")
+    str = string.gsub(str,"'", "&apos;")
+    str = string.gsub(str,"<", "&lt;")
+    str = string.gsub(str,">", "&gt;")
+
+    return str
+end
+
 local function create_kml_file(storage, image_table, extra_data)
 
     if not checkIfBinExists("mkdir") then
@@ -186,7 +203,7 @@ local function create_kml_file(storage, image_table, extra_data)
         -- Creates dir if not exsists
         imageFoldername = "files/"
         local mkdirCommand = "mkdir -p "..exportDirectory.."/"..imageFoldername
-        dt.control.execute( mkdirCommand) 
+        dt.control.execute(mkdirCommand) 
     end
 
 
@@ -196,8 +213,8 @@ local function create_kml_file(storage, image_table, extra_data)
             (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
            ) then
             local path, filename, filetype = string.match(exported_image, "(.-)([^\\/]-%.?([^%.\\/]*))$")
-	    filename = string.upper(string.gsub(filename,"%.", "_"))
-        
+            filename = string.upper(string.gsub(filename,"%.%w*", ""))
+            
             -- convert -size 92x92 filename.jpg -resize 92x92 +profile "*" thumbnail.jpg
             --	In this example, '-size 120x120' gives a hint to the JPEG decoder that the image is going to be downscaled to 
             --	120x120, allowing it to run faster by avoiding returning full-resolution images to  GraphicsMagick for the 
@@ -206,21 +223,18 @@ local function create_kml_file(storage, image_table, extra_data)
             --	profiles that might be present in the input and aren't needed in the thumbnail.
 
             local convertToThumbCommand = "convert -size 96x96 "..exported_image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory.."/"..imageFoldername.."thumb_"..filename..".jpg"
-            dt.control.execute( convertToThumbCommand)
-            local concertCommand = "convert -size 438x438 "..exported_image.." -resize 438x438 +profile \"*\" "..exportDirectory.."/"..imageFoldername..filename..".jpg"
-
-            dt.control.execute( concertCommand)
+            dt.control.execute(convertToThumbCommand)
+        else
+            -- Remove exported image if it has no GPS data
+            os.remove(exported_image)
         end
 
-        -- delete the original image to not get into the kmz file
-        os.remove(exported_image)
-        
         local pattern = "[/]?([^/]+)$"
         filmName = string.match(image.film.path, pattern)
-
-	-- Strip accents from the filename, because GoogleEarth can't open them
-	-- https://github.com/darktable-org/lua-scripts/issues/54
-	filmName = string.stripAccents(filmName)
+        
+        -- Strip accents from the filename, because GoogleEarth can't open them
+        -- https://github.com/darktable-org/lua-scripts/issues/54
+        filmName = string.stripAccents(filmName)
     end
 
     exportKMLFilename = filmName..".kml"
@@ -236,20 +250,27 @@ local function create_kml_file(storage, image_table, extra_data)
     kml_file = kml_file.."    <description>Exported from darktable</description>\n"
     
     for image,exported_image in pairs(image_table) do
-	filename = string.upper(string.gsub(image.filename,"%.", "_"))
+    -- Extract filename, e.g DSC9784.ARW -> DSC9784
+    filename = string.upper(string.gsub(image.filename,"%.%w*", ""))
+    -- Extract extension from exported image (user can choose JPG or PNG), e.g DSC9784.JPG -> .JPG
+    extension = string.match(exported_image,"%.%w*$")
 
 	if ((image.longitude and image.latitude) and 
             (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
            ) then
             kml_file = kml_file.."  <Placemark>\n"
-	    if (image.title and image.title ~= "") then
-              kml_file = kml_file.."    <name>"..image.title.."</name>\n"
+	    
+            local image_title, image_description
+            if (image.title and image.title ~= "") then
+                image_title = string.escapeXmlCharacters(image.title)
             else
-              kml_file = kml_file.."    <name>"..image.filename.."</name>\n"
+                image_title = image.filename
             end
-            
-            kml_file = kml_file.."    <description>"..image.description.."</description>\n"
-            
+            -- Characters should not be escaped in CDATA, but we are using HTML fragment, so we must escape them
+            image_description = string.escapeXmlCharacters(image.description)
+
+            kml_file = kml_file.."    <name>"..image_title.."</name>\n"            
+            kml_file = kml_file.."    <description>"..image_description.."</description>\n"
             kml_file = kml_file.."    <Style>\n"
             kml_file = kml_file.."      <IconStyle>\n"
             kml_file = kml_file.."        <Icon>\n"
@@ -257,7 +278,7 @@ local function create_kml_file(storage, image_table, extra_data)
             kml_file = kml_file.."        </Icon>\n"
             kml_file = kml_file.."      </IconStyle>\n"
             kml_file = kml_file.."      <BalloonStyle>\n"
-            kml_file = kml_file.."        <text><![CDATA[<img src=\""..imageFoldername..filename..".jpg\"><br/>]]></text>\n"
+            kml_file = kml_file.."        <text><![CDATA[<p><b>"..image_title.."</b></p><img src=\""..imageFoldername..filename..extension.."\"><p>"..image_description.."</p>]]></text>\n"
             kml_file = kml_file.."        <textColor>ff000000</textColor>\n"
             kml_file = kml_file.."        <displayMode>default</displayMode>\n"
             kml_file = kml_file.."      </BalloonStyle>\n"
@@ -329,14 +350,14 @@ local function create_kml_file(storage, image_table, extra_data)
           if ((image.longitude and image.latitude) and 
               (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
              ) then
-            local filename = string.upper(string.gsub(image.filename,"%.", "_"))
+            local filename = string.upper(string.gsub(image.filename,"%.%w*", ""))
 
             createKMZCommand = createKMZCommand .."\""..dt.configuration.tmp_dir.."/"..imageFoldername.."thumb_"..filename..".jpg\" " -- thumbnails
-            createKMZCommand = createKMZCommand .."\""..dt.configuration.tmp_dir.."/"..imageFoldername..filename..".jpg\" "           -- images
+            createKMZCommand = createKMZCommand .."\""..exported_image.."\" "  -- images
           end
         end
 
-	dt.control.execute( createKMZCommand)
+	dt.control.execute(createKMZCommand)
     end
 
 -- Open the file with the standard programm    
@@ -348,7 +369,7 @@ local function create_kml_file(storage, image_table, extra_data)
         else
             kmlFileOpenCommand = "xdg-open "..exportDirectory.."/\""..exportKMLFilename.."\""
 	end
-        dt.control.execute( kmlFileOpenCommand) 
+        dt.control.execute(kmlFileOpenCommand) 
     end
 
 
