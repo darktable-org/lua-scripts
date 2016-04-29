@@ -30,6 +30,7 @@ WARNING
 This script is only tested with Linux
 
 USAGE
+* require script "official/yield" from your main Lua file in the first line
 * require this script from your main Lua file
 * when choosing file format, pick JPEG or PNG as Google Earth doesn't support other formats
 
@@ -202,7 +203,7 @@ local function create_kml_file(storage, image_table, extra_data)
         -- Creates dir if not exsists
         imageFoldername = "files/"
         local mkdirCommand = "mkdir -p "..exportDirectory.."/"..imageFoldername
-        coroutine.yield("RUN_COMMAND", mkdirCommand) 
+        dt.control.execute(mkdirCommand) 
     end
 
 
@@ -222,8 +223,7 @@ local function create_kml_file(storage, image_table, extra_data)
             --	profiles that might be present in the input and aren't needed in the thumbnail.
 
             local convertToThumbCommand = "convert -size 96x96 "..exported_image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory.."/"..imageFoldername.."thumb_"..filename..".jpg"
-            -- USE coroutine.yield. It does not block the UI
-            coroutine.yield("RUN_COMMAND", convertToThumbCommand)
+            dt.control.execute(convertToThumbCommand)
         else
             -- Remove exported image if it has no GPS data
             os.remove(exported_image)
@@ -341,7 +341,6 @@ local function create_kml_file(storage, image_table, extra_data)
 -- Compress the files to create a KMZ file
     if ( dt.preferences.read("kml_export","CreateKMZ","bool") == true ) then
        exportDirectory = dt.preferences.read("kml_export","ExportDirectory","string")
-        -- USE coroutine.yield. It does not block the UI
 
         local createKMZCommand = "zip --test --move --junk-paths "
         createKMZCommand = createKMZCommand .."\""..exportDirectory.."/"..exportKMZFilename.."\" "           -- KMZ filename
@@ -358,7 +357,7 @@ local function create_kml_file(storage, image_table, extra_data)
           end
         end
 
-	coroutine.yield("RUN_COMMAND", createKMZCommand)
+	dt.control.execute(createKMZCommand)
     end
 
 -- Open the file with the standard programm    
@@ -370,7 +369,7 @@ local function create_kml_file(storage, image_table, extra_data)
         else
             kmlFileOpenCommand = "xdg-open "..exportDirectory.."/\""..exportKMLFilename.."\""
 	end
-        coroutine.yield("RUN_COMMAND", kmlFileOpenCommand) 
+        dt.control.execute(kmlFileOpenCommand) 
     end
 
 
