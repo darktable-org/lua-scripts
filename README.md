@@ -41,7 +41,7 @@ A collection of helper functions to help debugging lua scripts.
 
 ### delete_long_tags.lua
 
-*Compatibility: 1.x, 2.x*
+*Compatibility: 1.x, 2.x*  
 *Tags: tagging*
 
 Automatically delete all tags longer than a given length.
@@ -91,7 +91,7 @@ Provides shortcuts to save selections to and restore them from up to five tempor
 
 ### selection_to_pdf.lua
 
-*Compatibility: 1.x, 2.x*
+*Compatibility: 1.x, 2.x*  
 *Tags: storage*
 
 Register a new exporter that exports selected images into a single PDF file by using LaTeX. Requires a proper LaTeX installation.
@@ -111,7 +111,7 @@ The scripts of this section are maintained by individual people, which are liste
 
 ### autostyle.lua
 
-*Compatibility: 1.x, 2.x*
+*Compatibility: 1.x, 2.x*  
 *Maintainer: Marc Cousin (cousinmarc@gmail.com)*
 
 Automatically apply a given style when an exif tag is present in the file, e.g. to apply a style to compensate for Auto-DR from some Fujifilm cameras.
@@ -119,8 +119,8 @@ Automatically apply a given style when an exif tag is present in the file, e.g. 
 
 ### calcDistance.lua
 
-*Compatibility: 2.x*
-*Maintainer: Tobias Jakobs*
+*Compatibility: 2.x*  
+*Maintainer: Tobias Jakobs*  
 *Tags: geo*
 
 Calculate the distance between the places where two images were taken by using the GPS metadata.
@@ -128,8 +128,8 @@ Calculate the distance between the places where two images were taken by using t
 
 ### copy_attach_detach_tags.lua
 
-*Compatibility: 2.x, 3.x*
-*Maintainer: Christian Kanzian*
+*Compatibility: 2.x, 3.x*  
+*Maintainer: Christian Kanzian*  
 *Tags: tagging*
 
 Copy, paste, replace and remove tags from images by shortcuts and a distinct lighttable module.
@@ -137,8 +137,8 @@ Copy, paste, replace and remove tags from images by shortcuts and a distinct lig
 
 ### cr2hdr.lua
 
-*Compatibility: 1.x, 2.x*
-*Maintainer: Till Theato (theato@ttill.de)*
+*Compatibility: 1.x, 2.x*  
+*Maintainer: Till Theato (theato@ttill.de)*  
 *Dependencies: cr2hdr program from Magic Lantern (http://www.magiclantern.fm/forum/index.php?topic=7139.0)*
 
 Process images shot with Magic Lantern's Dual ISO feature for dynamic range improvement with the cr2hdr program from lighttable and import the result (with shortcut and/or on import).
@@ -146,9 +146,9 @@ Process images shot with Magic Lantern's Dual ISO feature for dynamic range impr
 
 ### geoJSON_export.lua
 
-*Compatibility: 2.x*
-*Maintainer: Tobias Jakobs*
-*Dependencies: mkdir, convert (ImageMagick), xdg-open, xdg-user-dir*
+*Compatibility: 2.x*  
+*Maintainer: Tobias Jakobs*  
+*Dependencies: mkdir, convert (ImageMagick), xdg-open, xdg-user-dir*  
 *Tags: geo*
 
 Generate GeoJSON file from image metadata. **What exactly is exported? What is a typical use case?**
@@ -156,9 +156,9 @@ Generate GeoJSON file from image metadata. **What exactly is exported? What is a
 
 ### geo_uri.lua
 
-*Compatibility: 2.x*
-*Maintainer: Tobias Jakobs*
-*Dependencies: gnome-maps ≥ 3.20*
+*Compatibility: 2.x*  
+*Maintainer: Tobias Jakobs*  
+*Dependencies: gnome-maps ≥ 3.20*  
 *Tags: geo*
 
 Open a geo uri in gnome-maps. **Where is this URI found? What is a typical use case?**
@@ -166,9 +166,9 @@ Open a geo uri in gnome-maps. **Where is this URI found? What is a typical use c
 
 ### gimp.lua
 
-*Compatibility: 2.x*
-*Maintainer: Bill Ferguson (wpferguson@gmail.com)*
-*Dependencies: GIMP*
+*Compatibility: 2.x*  
+*Maintainer: Bill Ferguson (wpferguson@gmail.com)*  
+*Dependencies: GIMP*  
 *Tags: storage*
 
 Adds new export option to lounch gimp with the selectet photo. After editing in GIMP the result is imported back into Darktable.
@@ -176,8 +176,8 @@ Adds new export option to lounch gimp with the selectet photo. After editing in 
 
 ### gps_select.lua
 
-*Compatibility: 1.x, 2.x*
-*Maintainer: Tobias Jakobs*
+*Compatibility: 1.x, 2.x*  
+*Maintainer: Tobias Jakobs*  
 *Tags: geo*
 
 Select images with or without GPS information with shortcuts.
@@ -185,9 +185,9 @@ Select images with or without GPS information with shortcuts.
 
 ### hugin.lua
 
-*Compatibility: 1.x, 2.x*
-*Maintainer: Tobias Jakobs*
-*Dependencies: Hugin*
+*Compatibility: 1.x, 2.x*  
+*Maintainer: Tobias Jakobs*  
+*Dependencies: Hugin*  
 *Tags: storage*
 
 Add a new storage option to send images to hugin.
@@ -195,9 +195,9 @@ Add a new storage option to send images to hugin.
 
 ### kml_export.lua
 
-*Compatibility: 2.x*
-*Maintainer: Erik Augustin*
-*Dependencies: mkdir, zip, convert (ImageMagick), xdg-open, xdg-user-dir*
+*Compatibility: 2.x*  
+*Maintainer: Erik Augustin*  
+*Dependencies: mkdir, zip, convert (ImageMagick), xdg-open, xdg-user-dir*  
 *Tags: geo, storage*
 
 Adds a new export option to export KML files. **I have no clue what it really does.**
@@ -205,7 +205,7 @@ Adds a new export option to export KML files. **I have no clue what it really do
 
 ### rate_group.lua
 
-*Compatibility: unknown*
+*Compatibility: unknown*  
 *Maintainer: Dom H (dom@hxy.io)*
 
 Provide shortcuts for rating or rejecting all images within a group.
@@ -213,8 +213,8 @@ Provide shortcuts for rating or rejecting all images within a group.
 
 ### slideshowMusic.lua
 
-*Compatibility: 1.x, 2.x*
-*Maintainer: Tobias Jakobs*
+*Compatibility: 1.x, 2.x*  
+*Maintainer: Tobias Jakobs*  
 *Dependencies: rhythmbox-client*
 
 Play music during a slide show.
@@ -222,8 +222,8 @@ Play music during a slide show.
 
 ### video_mencoder.lua
 
-*Compatibility: 1.x*
-*Maintainer: Tobias Jakobs*
+*Compatibility: 1.x*  
+*Maintainer: Tobias Jakobs*  
 *Dependencies: mencoder, xdg-open, xdg-user-dir*
 
 Video export from darktable. **Some more information would be great.**
@@ -236,7 +236,7 @@ In this category one can find useful stubs and templates for lua script developm
 
 ### api_version.lua
 
-*Compatibility: unknown*
+*Compatibility: unknown*  
 *Maintainer: Tobias Jakobs*
 
 Print Darktable Lua API version.
@@ -244,7 +244,7 @@ Print Darktable Lua API version.
 
 ### gettextExample.lua
 
-*Compatibility: 2.x*
+*Compatibility: 2.x*  
 *Maintainer: Tobias Jakobs*
 
 Example of Darktable Lua script localization.
@@ -252,7 +252,7 @@ Example of Darktable Lua script localization.
 
 ### hello_world.lua
 
-*Compatibility: 1.x, 2.x*
+*Compatibility: 1.x, 2.x*  
 *Maintainer: Tobias Ellinghaus*
 
 The obligatory “Hello world” example. Prints “Hello, world” on the command line.
@@ -260,7 +260,7 @@ The obligatory “Hello world” example. Prints “Hello, world” on the comma
 
 ### moduleExample.lua
 
-*Compatibility: 2.x*
+*Compatibility: 2.x*  
 *Maintainer: Tobias Jakobs*
 
 Template lighttable module with some GUI elements.
@@ -268,7 +268,7 @@ Template lighttable module with some GUI elements.
 
 ### preferenceExamples.lua
 
-*Compatibility: 1.x, 2.x*
+*Compatibility: 1.x, 2.x*  
 *Maintainer: Tobias Jakobs*
 
 Examples of the different preference types that are possible with Lua within Darktable's configuration.
