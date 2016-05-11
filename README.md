@@ -151,7 +151,7 @@ Process images shot with Magic Lantern's Dual ISO feature for dynamic range impr
 *Dependencies: mkdir, convert (ImageMagick), xdg-open, xdg-user-dir*  
 *Tags: geo*
 
-Generate GeoJSON file from image metadata. **What exactly is exported? What is a typical use case?**
+Adds a new export option to export geo information and thumbnails of selected images into a GeoJSON file. This file can e.g. be opened with Google Earth or KDE Marble.
 
 
 ### geo_uri.lua
@@ -161,7 +161,7 @@ Generate GeoJSON file from image metadata. **What exactly is exported? What is a
 *Dependencies: gnome-maps ≥ 3.20*  
 *Tags: geo*
 
-Open a geo uri in gnome-maps. **Where is this URI found? What is a typical use case?**
+Open the geo location of an image in the standard geo location viewer, e.g. GNOME Maps.
 
 
 ### gimp.lua
@@ -200,7 +200,7 @@ Add a new storage option to send images to hugin.
 *Dependencies: mkdir, zip, convert (ImageMagick), xdg-open, xdg-user-dir*  
 *Tags: geo, storage*
 
-Adds a new export option to export KML files. **I have no clue what it really does.**
+Adds a new export option to export geo information and thumbnails of selected images into a KML file. This file can e.g. be opened with Google Earth or KDE Marble.
 
 
 ### rate_group.lua
@@ -224,9 +224,10 @@ Play music during a slide show.
 
 *Compatibility: 1.x*  
 *Maintainer: Tobias Jakobs*  
-*Dependencies: mencoder, xdg-open, xdg-user-dir*
+*Dependencies: mencoder, xdg-open, xdg-user-dir*  
+*Tags: video, storage*
 
-Video export from darktable. **Some more information would be great.**
+New export possibility to concatenate selected images and create a mjpeg avi video using mencoder, e.g. useful for timelapse video.
 
 
 ## Examples
