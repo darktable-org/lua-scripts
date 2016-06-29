@@ -1,6 +1,7 @@
 --[[
   This file is part of darktable,
   copyright (c) 2015 Jérémy Rosen & Pascal Obry
+  edited 2016 Tejovanth N
 
   darktable is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,6 +29,8 @@ USAGE
 
 This plugin will add a new exporter that will allow you to generate the pdf file
 
+Plugin allows you to choose how many thumbnails you need per row
+
 
 ]]
 local dt = require "darktable"
@@ -40,20 +43,29 @@ dt.preferences.register
     "xdg-open")
 
 local title_widget = dt.new_widget("entry") {
-  placeholder="Title"
+    placeholder="Title"
+}
+local no_of_thumbs_widget = dt.new_widget("slider")
+{
+    label = "Thumbs per Line", 
+    soft_min = 1,     -- The soft minimum value for the slider, the slider can't go beyond this point
+    soft_max = 10,    -- The soft maximum value for the slider, the slider can't go beyond this point
+    hard_min = 1,     -- The hard minimum value for the slider, the user can't manually enter a value beyond this point
+    hard_max = 10,    -- The hard maximum value for the slider, the user can't manually enter a value beyond this point
+    value = 4         -- The current value of the slider
 }
 local widget = dt.new_widget("box") {
-  orientation=horizontal,
-  dt.new_widget("label"){label = "Title:"},
-  title_widget
+    orientation=horizontal,
+    dt.new_widget("label"){label = "Title:"},
+    title_widget,
+    dt.new_widget("label"){label = "Thumbnails per row:"},
+    no_of_thumbs_widget
 }
 
 local ending = [[
 \end{document}
 ]]
 
-local thumbs_per_line=4;
-local width = 1/thumbs_per_line-0.01
 
 local filename =dt.configuration.tmp_dir.."/pdfout.tex"
 
@@ -93,23 +105,27 @@ dt.register_storage("export_pdf","Export thumbnails to pdf",
       local my_title = title_widget.text
       if my_title == "" then
         my_title = "Title"
-      end
-      local preamble = [[
-\documentclass[a4paper,10pt]{article}
-\usepackage{graphicx}
-\pagestyle{empty}
-\parindent0pt
-\usepackage{geometry}
-\geometry{a4paper,left=5mm,right=5mm, top=5mm, bottom=5mm}
-\begin{document}
-{\Large\bfseries ]]..my_title..[[} \\
-\bigskip\bigskip
-]]
+    end
+    local thumbs_per_line = no_of_thumbs_widget.value
+    thumbs_per_line = tonumber(thumbs_per_line)
+    width = (1/thumbs_per_line) - 0.01
 
-      local errmsg
-      local latexfile
-      latexfile,errmsg=io.open(filename,"w")
-      if not latexfile then
+    local preamble = [[
+    \documentclass[a4paper,10pt]{article}
+    \usepackage{graphicx}
+    \pagestyle{empty}
+    \parindent0pt
+    \usepackage{geometry}
+    \geometry{a4paper,left=5mm,right=5mm, top=5mm, bottom=5mm}
+    \begin{document}
+    {\Large\bfseries ]]..my_title..[[} \\
+    \bigskip\bigskip
+    ]]
+
+    local errmsg
+    local latexfile
+    latexfile,errmsg=io.open(filename,"w")
+    if not latexfile then
         error(errmsg)
       end
       my_write(latexfile,preamble)
