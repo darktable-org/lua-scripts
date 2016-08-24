@@ -223,7 +223,7 @@ local function fileMove(fromFile, toFile)
     os.remove(fromFile)
   else
     dt.print_error("fileMove Error: Unable to copy " .. fromFile .. " to " .. toFile .. ".  Leaving " .. fromFile .. " in place.")
-    dt.print(string.format(_("Unable to move edited file into collection.  Leaving it as %s"), fromFile))
+    dt.print(string.format(_("Unable to move edited file into collection. Leaving it as %s"), fromFile))
   end
   return result
 end
