@@ -26,18 +26,18 @@ msgstr ""
 msgid "Export Image %i/%i"
 msgstr "Exportiere Bild %i/%i"
 
-#: gimp.lua:221
+#: gimp.lua:202
 msgid "Unable to move edited file into collection. Leaving it as %s"
 msgstr "Die bearbeitete Datei kann nicht in die Sammlung aufgenommen werden. Bearbeitet Datei ist %s"
 
-#: gimp.lua:228
+#: gimp.lua:209
 msgid "GIMP not found"
 msgstr "GIMP nicht gefunden"
 
-#: gimp.lua:243
+#: gimp.lua:224
 msgid "Launching GIMP..."
 msgstr "Starten von GIMP"
 
-#: gimp.lua:290
+#: gimp.lua:271
 msgid "Edit with GIMP"
 msgstr "Bearbeiten mit GIMP"

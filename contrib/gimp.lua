@@ -194,34 +194,10 @@ local function show_status(storage, image, format, filename,
     dt.print(string.format(_("Export Image %i/%i"), number, total))
 end
 
-local function fileCopy(fromFile, toFile)
-  local result = nil
-  local fileIn, err = io.open(fromFile, 'rb')
-  if fileIn then
-    local fileOut, errr = io.open(toFile, 'w')
-    if fileOut then
-      local content = fileIn:read(4096)
-      while content do
-        fileOut:write(content)
-        content = fileIn:read(4096)
-      end
-      result = true
-      fileIn:close()
-      fileOut:close()
-    else
-      dt.print_error("fileCopy Error: " .. errr)
-    end
-  else
-    dt.print_error("fileCopy Error: " .. err)
-  end
-  return result
-end
-
 local function fileMove(fromFile, toFile)
-  local result = fileCopy(fromFile, toFile)
-  if result then
-    os.remove(fromFile)
-  else
+  local result = os.execute("mv '" .. fromFile .. "' '" .. toFile .. "'")
+  dt.print_error("result is " .. tostring(result))
+  if not result then
     dt.print_error("fileMove Error: Unable to copy " .. fromFile .. " to " .. toFile .. ".  Leaving " .. fromFile .. " in place.")
     dt.print(string.format(_("Unable to move edited file into collection. Leaving it as %s"), fromFile))
   end
