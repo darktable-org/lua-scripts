@@ -194,14 +194,56 @@ local function show_status(storage, image, format, filename,
     dt.print(string.format(_("Export Image %i/%i"), number, total))
 end
 
-local function fileMove(fromFile, toFile)
-  local result = os.execute("mv '" .. fromFile .. "' '" .. toFile .. "'")
-  dt.print_error("result is " .. tostring(result))
+local function fileCopy(fromFile, toFile)
+  local result = nil
+  -- if cp exists, use it
+  if checkIfBinExists("cp") then
+    result = os.execute("cp '" .. fromFile .. "' '" .. toFile .. "'")
+  end
+  -- if cp was not present, or if cp failed, then a pure lua solution
   if not result then
-    dt.print_error("fileMove Error: Unable to copy " .. fromFile .. " to " .. toFile .. ".  Leaving " .. fromFile .. " in place.")
-    dt.print(string.format(_("Unable to move edited file into collection. Leaving it as %s"), fromFile))
+    local fileIn, err = io.open(fromFile, 'rb')
+    if fileIn then
+      local fileOut, errr = io.open(toFile, 'w')
+      if fileOut then
+        local content = fileIn:read(4096)
+        while content do
+          fileOut:write(content)
+          content = fileIn:read(4096)
+        end
+        result = true
+        fileIn:close()
+        fileOut:close()
+      else
+        dt.print_error("fileCopy Error: " .. errr)
+      end
+    else
+      dt.print_error("fileCopy Error: " .. err)
+    end
   end
   return result
+end
+
+local function fileMove(fromFile, toFile)
+  local success = os.rename(fromFile, toFile)
+  if not success then
+    -- an error occurred, so let's try using the operating system function
+    if checkIfBinExists("mv") then
+      success = os.execute("mv '" .. fromFile .. "' '" .. toFile .. "'")
+    end
+    -- if the mv didn't exist or succeed, then...
+    if not success then
+      -- pure lua solution
+      success = fileCopy(fromFile, toFile)
+      if success then
+        os.remove(fromFile)
+      else
+        dt.print_error("fileMove Error: Unable to move " .. fromFile .. " to " .. toFile .. ".  Leaving " .. fromFile .. " in place.")
+        dt.print(string.format(_("Unable to move edited file into collection. Leaving it as %s"), fromFile))
+      end
+    end
+  end
+  return success  -- nil on error, some value if success
 end
 
 local function gimp_edit(storage, image_table, extra_data) --finalize
