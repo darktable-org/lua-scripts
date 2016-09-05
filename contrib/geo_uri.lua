@@ -70,6 +70,7 @@ local function openLocationInGnomeMaps()
         lat1 = image.latitude;
         lon1 = image.longitude;
         break
+      end
     end
 
     local startCommand
