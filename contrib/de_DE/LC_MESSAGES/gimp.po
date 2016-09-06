@@ -21,19 +21,23 @@ msgstr ""
 "dngettext:2,3\n"
 "X-Poedit-Basepath: .\n"
 
-#: gimp.lua:189
+#: gimp.lua:194
 #, lua-format
 msgid "Export Image %i/%i"
 msgstr "Exportiere Bild %i/%i"
 
-#: gimp.lua:194
+#: gimp.lua:242
+msgid "Unable to move edited file into collection. Leaving it as %s"
+msgstr "Die bearbeitete Datei kann nicht in die Sammlung aufgenommen werden. Bearbeitete Datei ist %s"
+
+#: gimp.lua:251
 msgid "GIMP not found"
 msgstr "GIMP nicht gefunden"
 
-#: gimp.lua:209
+#: gimp.lua:266
 msgid "Launching GIMP..."
 msgstr "Starten von GIMP"
 
-#: gimp.lua:254
+#: gimp.lua:313
 msgid "Edit with GIMP"
 msgstr "Bearbeiten mit GIMP"

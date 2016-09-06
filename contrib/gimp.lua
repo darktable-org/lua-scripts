@@ -56,6 +56,11 @@
 
     BUGS, COMMENTS, SUGGESTIONS
     * Send to Bill Ferguson, wpferguson@gmail.com
+
+    CHANGES
+    * 20160823 - os.rename doesn't work across filesystems.  Added fileCopy and fileMove functions to move the file
+                 from the temporary location to the collection location irregardless of what filesystem it is on.  If an
+                 issue is encountered, a message is printed back to the UI so the user isn't left wondering what happened.
 ]]
 
 local dt = require "darktable"
@@ -189,6 +194,58 @@ local function show_status(storage, image, format, filename,
     dt.print(string.format(_("Export Image %i/%i"), number, total))
 end
 
+local function fileCopy(fromFile, toFile)
+  local result = nil
+  -- if cp exists, use it
+  if checkIfBinExists("cp") then
+    result = os.execute("cp '" .. fromFile .. "' '" .. toFile .. "'")
+  end
+  -- if cp was not present, or if cp failed, then a pure lua solution
+  if not result then
+    local fileIn, err = io.open(fromFile, 'rb')
+    if fileIn then
+      local fileOut, errr = io.open(toFile, 'w')
+      if fileOut then
+        local content = fileIn:read(4096)
+        while content do
+          fileOut:write(content)
+          content = fileIn:read(4096)
+        end
+        result = true
+        fileIn:close()
+        fileOut:close()
+      else
+        dt.print_error("fileCopy Error: " .. errr)
+      end
+    else
+      dt.print_error("fileCopy Error: " .. err)
+    end
+  end
+  return result
+end
+
+local function fileMove(fromFile, toFile)
+  local success = os.rename(fromFile, toFile)
+  if not success then
+    -- an error occurred, so let's try using the operating system function
+    if checkIfBinExists("mv") then
+      success = os.execute("mv '" .. fromFile .. "' '" .. toFile .. "'")
+    end
+    -- if the mv didn't exist or succeed, then...
+    if not success then
+      -- pure lua solution
+      success = fileCopy(fromFile, toFile)
+      if success then
+        os.remove(fromFile)
+      else
+        dt.print_error("fileMove Error: Unable to move " .. fromFile .. " to " .. toFile .. ".  Leaving " .. fromFile .. " in place.")
+        dt.print(string.format(_("Unable to move edited file into collection. Leaving it as %s"), fromFile))
+      end
+    end
+  end
+  return success  -- nil on error, some value if success
+end
+
 local function gimp_edit(storage, image_table, extra_data) --finalize
   if not checkIfBinExists("gimp") then
     dt.print_error(_("GIMP not found"))
@@ -233,17 +290,19 @@ local function gimp_edit(storage, image_table, extra_data) --finalize
     end
 
     dt.print_error("moving " .. exported_image .. " to " .. myimage_name)
-    result = os.rename(exported_image, myimage_name)
+    local result = fileMove(exported_image, myimage_name)
 
-    dt.print_error("importing file")
-    local myimage = dt.database.import(myimage_name)
+    if result then
+      dt.print_error("importing file")
+      local myimage = dt.database.import(myimage_name)
 
-    groupIfNotMember(image, myimage)
+      groupIfNotMember(image, myimage)
 
-    for _,tag in pairs(dt.tags.get_tags(image)) do 
-      if not (string.sub(tag.name,1,9) == "darktable") then
-        dt.print_error("attaching tag")
-        dt.tags.attach(tag,myimage)
+      for _,tag in pairs(dt.tags.get_tags(image)) do 
+        if not (string.sub(tag.name,1,9) == "darktable") then
+          dt.print_error("attaching tag")
+          dt.tags.attach(tag,myimage)
+        end
       end
     end
   end
