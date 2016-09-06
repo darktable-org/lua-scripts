@@ -69,9 +69,6 @@
       generate an hdr on a fast machine.  Focus stacking takes longer.  These numbers assume using 
       the single thread version of enfuse.  enfuse-mp gives much better results.
 
-    TODO
-    * remember the exposure_mu value in config when the slider is moved
-
     CHANGES
     * 20160828 - Bill Ferguson 
       * Since enfuse can't process raw images, converted it to a storage so that raws can be converted
@@ -81,8 +78,10 @@
         with a decimal point instead of a comma in some languages
       * Fixed TODO - make the output filename unique so you can use it more than once per filmroll
       * Fixed TODO - export images that are not ldr and remove them afterwards
-      * TODO - save exposure-mu value when changed.  The value gets saved when the storage is executed.  It does not 
-        get saved every time the slider is moved.  
+      * Removed TODO - save exposure-mu value when changed.  The value gets saved when the storage is executed.  It does not 
+        get saved every time the slider is moved.  The slider api does not support a changed_callback.  The value is saved
+        when Enfuse HDR runs.  I'm not sure there is any reason to save the slider value whenever it is changed and Enfuse HDR
+        is not executed.
       * Added German message translations
       * Check for the multiprocessor version of enfuse and use it if installed.  On my system the mp version is 5 - 6 
         times faster (i7-6820HK CPU @ 2.70GHz)
@@ -415,7 +414,6 @@ end
 
 local function enfuse_hdr(storage, image_table, extra_data)
   -- remember exposure_mu
-  -- TODO: find a way to save it whenever the value changes
   local mu = exposure_mu.value
   dt.preferences.write("enfuse", "exposure_mu", "float", mu)
 
@@ -512,9 +510,6 @@ local function enfuse_stack(storage, image_table, extra_data)
   stack_file_name = stack_file_name .. "-" .. filename .. "-stack"
 
   -- call enfuse on the response file
-  -- TODO: find something nicer
-  -- local ugly_decimal_point_hack = string.gsub(string.format("%.04f", mu), ",", ".")
-  -- TODO: make filename unique - done
   local output_image = target_dir.."/" .. stack_file_name .. ".tif"
 
   while checkIfFileExists(output_image) do
