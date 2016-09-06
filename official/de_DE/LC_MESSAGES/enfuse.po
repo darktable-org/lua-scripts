@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: enfuse\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-30 01:02-0400\n"
+"POT-Creation-Date: 2016-09-06 00:29-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Bill Ferguson <wpferguson@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,71 +23,91 @@ X-Generator: Poedit 1.5.4\n"
 "dngettext:2,3\n"
 "X-Poedit-Basepath: .\n"
 
-#: enfuse.lua:135
+#: enfuse.lua:134
 #, lua-format
 msgid "Export Image %i/%i"
 msgstr "Exportiere Bild %i/%i"
 
-#: enfuse.lua:143
+#: enfuse.lua:142
 msgid "enfuse-mp executable found, using it"
 msgstr "enfuse -mp ausführbare Datei gefunden, wird benutzen es"
 
-#: enfuse.lua:164
+#: enfuse.lua:162
+msgid "exposure mu"
+msgstr "Belichtung mu"
+
+#: enfuse.lua:163
 msgid "center also known as MEAN of Gaussian weighting function (0 <= MEAN <= 1); default: 0.5"
 msgstr "Zentrum auch als Mittel der Gaußschen Gewichtungsfunktion ( 0 <= MEAN < = 1) bekannt ist; Standard: 0.5"
 
-#: enfuse.lua:173 enfuse.lua:208
+#: enfuse.lua:171 enfuse.lua:206
+msgid "depth"
+msgstr "Ausmaß"
+
+#: enfuse.lua:172 enfuse.lua:207
 msgid "output image bits per channel"
 msgstr "Ausgangsabbildbits pro Kanal"
 
-#: enfuse.lua:183 enfuse.lua:241
+#: enfuse.lua:182 enfuse.lua:240
 msgid "Align Images"
 msgstr "Richten Sie Bilder"
 
-#: enfuse.lua:215
+#: enfuse.lua:213
+msgid "gray projector"
+msgstr "grau Projektor"
+
+#: enfuse.lua:214
 msgid "type of grayscale conversion, default = average"
 msgstr "Art der Graustufen -Konvertierung, default = mittel"
 
-#: enfuse.lua:222
+#: enfuse.lua:220
+msgid "contrast window size"
+msgstr "Kontrastfenstergröße"
+
+#: enfuse.lua:221
 msgid "size of box used for contrast detection, >= 3, default 5"
 msgstr "Größe des Kastens für Kontrasterkennung verwendet,> = 3, default 5"
 
-#: enfuse.lua:229
+#: enfuse.lua:227
+msgid "contrast edge scale"
+msgstr "Kontrastkante Skala"
+
+#: enfuse.lua:228
 msgid "laplacian edge detection, 0 disables, >0 enables, .3 is a good starting value"
 msgstr "Laplace-Kantenerkennung , 0 deaktiviert die Funktion,> 0 ermöglicht, 0,3 ein guter Start"
 
-#: enfuse.lua:369
+#: enfuse.lua:368
 msgid "Aligning images..."
 msgstr "Ausrichten von Bildern..."
 
-#: enfuse.lua:371
+#: enfuse.lua:370
 msgid "Image alignment failed"
 msgstr "Bildausrichtung ist fehlgeschlagen"
 
-#: enfuse.lua:390
+#: enfuse.lua:389
 msgid "No aligned images found"
 msgstr "Keine ausgerichteten Bilder gefunden"
 
-#: enfuse.lua:407
+#: enfuse.lua:406
 msgid "no suitable images selected, nothing to do for enfuse"
 msgstr "keine geeigneten Bilder ausgewählt, nichts für enfuse zu tun"
 
-#: enfuse.lua:456 enfuse.lua:533
+#: enfuse.lua:471 enfuse.lua:535
 msgid "Launching enfuse..."
 msgstr "Starten von enfuse..."
 
-#: enfuse.lua:458 enfuse.lua:535
+#: enfuse.lua:473 enfuse.lua:537
 msgid "enfuse failed, see terminal output for details"
 msgstr "enfuse fehlgeschlagen, siehe Terminal-Ausgabe für Details"
 
-#: enfuse.lua:479 enfuse.lua:556
+#: enfuse.lua:484 enfuse.lua:548
 msgid "enfuse was successful, resulting image was imported"
 msgstr "enfuse erfolgreich war, wurde resultierende Bild importiert"
 
-#: enfuse.lua:562
+#: enfuse.lua:554
 msgid "Enfuse HDR"
 msgstr "Enfuse HDR"
 
-#: enfuse.lua:563
+#: enfuse.lua:555
 msgid "Enfuse Focus Stack"
 msgstr "Enfuse Fokus Stapel"

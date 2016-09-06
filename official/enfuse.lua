@@ -159,7 +159,7 @@ end
 -- set up some hdr widgets, initialized from config
 local exposure_mu = dt.new_widget("slider")
 {
-  label = "exposure mu",
+  label = _("exposure mu"),
   tooltip = _("center also known as MEAN of Gaussian weighting function (0 <= MEAN <= 1); default: 0.5"),
   hard_min = 0,
   hard_max = 1,
@@ -168,7 +168,7 @@ local exposure_mu = dt.new_widget("slider")
 
 local depth = dt.new_widget("combobox")
 {
-  label = "depth",
+  label = _("depth"),
   tooltip = _("output image bits per channel"),
   value = dt.preferences.read("enfuse", "depth", "integer"), "8", "16", "32"
 }
@@ -203,28 +203,28 @@ end
 
 local stack_depth = dt.new_widget("combobox")
 {
-  label = "depth",
+  label =  _("depth"),
   tooltip = _("output image bits per channel"),
   value = dt.preferences.read("enfusestack", "depth", "integer") or 2, "8", "16", "32"
 }
 
 local gray_projector = dt.new_widget("combobox")
 {
-  label = "gray projector",
+  label =  _("gray projector"),
   tooltip = _("type of grayscale conversion, default = average"),
   value = 1, "average", "l-star"
 }
 
 local contrast_window = dt.new_widget("combobox")
 {
-  label = "contrast window size",
+  label =  _("contrast window size"),
   tooltip = _("size of box used for contrast detection, >= 3, default 5"),
   value = 3, "3", "4", "5", "6", "7", "8", "9"
 }
 
 local contrast_edge = dt.new_widget("slider")
 {
-  label = "contrast edge scale",
+  label =  _("contrast edge scale"),
   tooltip = _("laplacian edge detection, 0 disables, >0 enables, .3 is a good starting value"),
   hard_min = 0,
   hard_max = 1,
@@ -410,6 +410,23 @@ local function build_response_file(image_table, will_align)
   end
 end
 
+-- clean up after we've run or crashed
+local function cleanup(res_file)
+  -- remove exported images
+  local f = io.open(res_file)
+  fname = f:read()
+  while fname do
+    os.remove(fname)
+    fname = f:read()
+  end
+  f:close()
+  
+  -- remove the response file
+  os.remove(res_file)
+end
+
+
+
 -- ... and tell dt about it all
 
 local function enfuse_hdr(storage, image_table, extra_data)
@@ -454,21 +471,11 @@ local function enfuse_hdr(storage, image_table, extra_data)
   dt.print(_("Launching enfuse..."))
   if dt.control.execute(command) then
     dt.print(_("enfuse failed, see terminal output for details"))
-    os.remove(response_file)
+    cleanup(response_file)
     return
   end
 
-  -- remove exported images
-  local f = io.open(response_file)
-  fname = f:read()
-  while fname do
-    os.remove(fname)
-    fname = f:read()
-  end
-  f:close()
-  
-  -- remove the response file
-  os.remove(response_file)
+  cleanup(response_file)
 
   -- import resulting tiff
   local image = dt.database.import(output_image)
@@ -528,21 +535,11 @@ local function enfuse_stack(storage, image_table, extra_data)
   dt.print(_("Launching enfuse..."))
   if dt.control.execute(command) then
     dt.print(_("enfuse failed, see terminal output for details"))
-    os.remove(response_file)
+    cleanup(response_file)
     return
   end
 
-  -- remove exported images
-  local f = io.open(response_file)
-  fname = f:read()
-  while fname do
-    os.remove(fname)
-    fname = f:read()
-  end
-  f:close()
-  
-  -- remove the response file
-  os.remove(response_file)
+  cleanup(response_file)
 
   -- import resulting tiff
   local image = dt.database.import(output_image)
