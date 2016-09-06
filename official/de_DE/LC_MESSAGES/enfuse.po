@@ -1,0 +1,93 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: enfuse\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-08-30 01:02-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Bill Ferguson <wpferguson@gmail.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: de_DE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+X-Generator: Poedit 1.5.4\n"
+"Language: de_DE\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: gettext;dgettext:2;dcgettext:2ngettext:1,2;"
+"dngettext:2,3\n"
+"X-Poedit-Basepath: .\n"
+
+#: enfuse.lua:135
+#, lua-format
+msgid "Export Image %i/%i"
+msgstr "Exportiere Bild %i/%i"
+
+#: enfuse.lua:143
+msgid "enfuse-mp executable found, using it"
+msgstr "enfuse -mp ausführbare Datei gefunden, wird benutzen es"
+
+#: enfuse.lua:164
+msgid "center also known as MEAN of Gaussian weighting function (0 <= MEAN <= 1); default: 0.5"
+msgstr "Zentrum auch als Mittel der Gaußschen Gewichtungsfunktion ( 0 <= MEAN < = 1) bekannt ist; Standard: 0.5"
+
+#: enfuse.lua:173 enfuse.lua:208
+msgid "output image bits per channel"
+msgstr "Ausgangsabbildbits pro Kanal"
+
+#: enfuse.lua:183 enfuse.lua:241
+msgid "Align Images"
+msgstr "Richten Sie Bilder"
+
+#: enfuse.lua:215
+msgid "type of grayscale conversion, default = average"
+msgstr "Art der Graustufen -Konvertierung, default = mittel"
+
+#: enfuse.lua:222
+msgid "size of box used for contrast detection, >= 3, default 5"
+msgstr "Größe des Kastens für Kontrasterkennung verwendet,> = 3, default 5"
+
+#: enfuse.lua:229
+msgid "laplacian edge detection, 0 disables, >0 enables, .3 is a good starting value"
+msgstr "Laplace-Kantenerkennung , 0 deaktiviert die Funktion,> 0 ermöglicht, 0,3 ein guter Start"
+
+#: enfuse.lua:369
+msgid "Aligning images..."
+msgstr "Ausrichten von Bildern..."
+
+#: enfuse.lua:371
+msgid "Image alignment failed"
+msgstr "Bildausrichtung ist fehlgeschlagen"
+
+#: enfuse.lua:390
+msgid "No aligned images found"
+msgstr "Keine ausgerichteten Bilder gefunden"
+
+#: enfuse.lua:407
+msgid "no suitable images selected, nothing to do for enfuse"
+msgstr "keine geeigneten Bilder ausgewählt, nichts für enfuse zu tun"
+
+#: enfuse.lua:456 enfuse.lua:533
+msgid "Launching enfuse..."
+msgstr "Starten von enfuse..."
+
+#: enfuse.lua:458 enfuse.lua:535
+msgid "enfuse failed, see terminal output for details"
+msgstr "enfuse fehlgeschlagen, siehe Terminal-Ausgabe für Details"
+
+#: enfuse.lua:479 enfuse.lua:556
+msgid "enfuse was successful, resulting image was imported"
+msgstr "enfuse erfolgreich war, wurde resultierende Bild importiert"
+
+#: enfuse.lua:562
+msgid "Enfuse HDR"
+msgstr "Enfuse HDR"
+
+#: enfuse.lua:563
+msgid "Enfuse Focus Stack"
+msgstr "Enfuse Fokus Stapel"
