@@ -8,106 +8,105 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-06 00:29-0400\n"
+"POT-Creation-Date: 2016-09-06 23:30-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Bill Ferguson <wpferguson@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: de_DE\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-X-Generator: Poedit 1.5.4\n"
+"X-Generator: Poedit 1.5.4\n"
 "Language: de_DE\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-KeywordsList: gettext;dgettext:2;dcgettext:2ngettext:1,2;"
 "dngettext:2,3\n"
 "X-Poedit-Basepath: .\n"
 
-#: enfuse.lua:134
+#: enfuse.lua:217
 #, lua-format
 msgid "Export Image %i/%i"
 msgstr "Exportiere Bild %i/%i"
 
-#: enfuse.lua:142
+#: enfuse.lua:228
 msgid "enfuse-mp executable found, using it"
-msgstr "enfuse -mp ausführbare Datei gefunden, wird benutzen es"
+msgstr "enfuse-mp ausführbare Datei gefunden, wird benutzen es"
 
-#: enfuse.lua:162
+#: enfuse.lua:254
 msgid "exposure mu"
 msgstr "Belichtung mu"
 
-#: enfuse.lua:163
+#: enfuse.lua:255
 msgid "center also known as MEAN of Gaussian weighting function (0 <= MEAN <= 1); default: 0.5"
 msgstr "Zentrum auch als Mittel der Gaußschen Gewichtungsfunktion ( 0 <= MEAN < = 1) bekannt ist; Standard: 0.5"
 
-#: enfuse.lua:171 enfuse.lua:206
+#: enfuse.lua:265 enfuse.lua:298
 msgid "depth"
 msgstr "Ausmaß"
 
-#: enfuse.lua:172 enfuse.lua:207
+#: enfuse.lua:266 enfuse.lua:299
 msgid "output image bits per channel"
 msgstr "Ausgangsabbildbits pro Kanal"
 
-#: enfuse.lua:182 enfuse.lua:240
+#: enfuse.lua:274 enfuse.lua:309
 msgid "Align Images"
 msgstr "Richten Sie Bilder"
 
-#: enfuse.lua:213
+#: enfuse.lua:319
 msgid "gray projector"
 msgstr "grau Projektor"
 
-#: enfuse.lua:214
+#: enfuse.lua:320
 msgid "type of grayscale conversion, default = average"
 msgstr "Art der Graustufen -Konvertierung, default = mittel"
 
-#: enfuse.lua:220
+#: enfuse.lua:329
 msgid "contrast window size"
 msgstr "Kontrastfenstergröße"
 
-#: enfuse.lua:221
+#: enfuse.lua:330
 msgid "size of box used for contrast detection, >= 3, default 5"
 msgstr "Größe des Kastens für Kontrasterkennung verwendet,> = 3, default 5"
 
-#: enfuse.lua:227
+#: enfuse.lua:338
 msgid "contrast edge scale"
 msgstr "Kontrastkante Skala"
 
-#: enfuse.lua:228
+#: enfuse.lua:339
 msgid "laplacian edge detection, 0 disables, >0 enables, .3 is a good starting value"
 msgstr "Laplace-Kantenerkennung , 0 deaktiviert die Funktion,> 0 ermöglicht, 0,3 ein guter Start"
 
-#: enfuse.lua:368
+#: enfuse.lua:377
 msgid "Aligning images..."
 msgstr "Ausrichten von Bildern..."
 
-#: enfuse.lua:370
+#: enfuse.lua:379
 msgid "Image alignment failed"
 msgstr "Bildausrichtung ist fehlgeschlagen"
 
-#: enfuse.lua:389
+#: enfuse.lua:398
 msgid "No aligned images found"
 msgstr "Keine ausgerichteten Bilder gefunden"
 
-#: enfuse.lua:406
-msgid "no suitable images selected, nothing to do for enfuse"
-msgstr "keine geeigneten Bilder ausgewählt, nichts für enfuse zu tun"
+#: enfuse.lua:405 enfuse.lua:422
+msgid "not enough suitable images selected, nothing to do for enfuse"
+msgstr "nicht genug geeignete Bilder ausgewählt, nichts für enfuse zu tun"
 
-#: enfuse.lua:471 enfuse.lua:535
+#: enfuse.lua:488 enfuse.lua:554
 msgid "Launching enfuse..."
 msgstr "Starten von enfuse..."
 
-#: enfuse.lua:473 enfuse.lua:537
+#: enfuse.lua:490 enfuse.lua:556
 msgid "enfuse failed, see terminal output for details"
+msgstr ""
+
+#: enfuse.lua:501 enfuse.lua:567
+msgid "enfuse was successful, resulting image was imported"
 msgstr "enfuse fehlgeschlagen, siehe Terminal-Ausgabe für Details"
 
-#: enfuse.lua:484 enfuse.lua:548
-msgid "enfuse was successful, resulting image was imported"
-msgstr "enfuse erfolgreich war, wurde resultierende Bild importiert"
-
-#: enfuse.lua:554
+#: enfuse.lua:576
 msgid "Enfuse HDR"
 msgstr "Enfuse HDR"
 
-#: enfuse.lua:555
+#: enfuse.lua:577
 msgid "Enfuse Focus Stack"
 msgstr "Enfuse Fokus Stapel"

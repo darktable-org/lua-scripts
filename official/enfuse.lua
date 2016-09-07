@@ -79,9 +79,8 @@
       * Fixed TODO - make the output filename unique so you can use it more than once per filmroll
       * Fixed TODO - export images that are not ldr and remove them afterwards
       * Removed TODO - save exposure-mu value when changed.  The value gets saved when the storage is executed.  It does not 
-        get saved every time the slider is moved.  The slider api does not support a changed_callback.  The value is saved
-        when Enfuse HDR runs.  I'm not sure there is any reason to save the slider value whenever it is changed and Enfuse HDR
-        is not executed.
+        get saved every time the slider is moved.  The slider api does not support a changed_callback.  I'm not sure there 
+        is any reason to save the slider value whenever it is changed and Enfuse HDR is not executed.
       * Added German message translations
       * Check for the multiprocessor version of enfuse and use it if installed.  On my system the mp version is 5 - 6 
         times faster (i7-6820HK CPU @ 2.70GHz)
@@ -102,6 +101,8 @@ gettext.bindtextdomain("enfuse",dt.configuration.config_dir.."/lua/")
 local function _(msgid)
     return gettext.dgettext("enfuse", msgid)
 end
+
+-- general functions taken from other scripts
 
 -- thanks Tobias Jakobs for this function (taken from contrib/hugin.lua)
 local function checkIfBinExists(bin)
@@ -126,139 +127,6 @@ local function fixSliderFloat(float_str)
     float_str = characteristic .. '.' .. mantissa
   end
   return float_str
-end
-
--- print status while exporting images
-local function show_status(storage, image, format, filename,
-  number, total, high_quality, extra_data)
-    dt.print(string.format(_("Export Image %i/%i"), number, total))
-end
-
--- is enfuse installed?
-local enfuse_installed = checkIfBinExists("enfuse")
-
--- check for the parallel version and use it if it's installed
-if enfuse_installed and checkIfBinExists("enfuse-mp") then
-  dt.print_error(_("enfuse-mp executable found, using it"))
-  enfuse_executable = "enfuse-mp"
-end
-
--- check for align_image_stack so we can offer to align the images if desired
-local can_align = checkIfBinExists("align_image_stack")
-
--- initialize exposure_mu value and depth setting in config to sane defaults (would be 0 otherwise)
-if dt.preferences.read("enfuse", "depth", "integer") == 0 then
-  dt.preferences.write("enfuse", "depth", "integer", 2)
-  dt.preferences.write("enfuse", "exposure_mu", "float", 0.5)
-end
-
-if dt.preferences.read("enfusestack", "depth", "integer") == 0 then
-  dt.preferences.write("enfusestack", "depth", "integer", 2)
-end
-
--- set up some hdr widgets, initialized from config
-local exposure_mu = dt.new_widget("slider")
-{
-  label = _("exposure mu"),
-  tooltip = _("center also known as MEAN of Gaussian weighting function (0 <= MEAN <= 1); default: 0.5"),
-  hard_min = 0,
-  hard_max = 1,
-  value = dt.preferences.read("enfuse", "exposure_mu", "float")
-}
-
-local depth = dt.new_widget("combobox")
-{
-  label = _("depth"),
-  tooltip = _("output image bits per channel"),
-  value = dt.preferences.read("enfuse", "depth", "integer"), "8", "16", "32"
-}
-
-local hdr_align
-local hdr_widget
-
-if can_align then 
-  hdr_align = dt.new_widget("check_button")
-  {
-    label = _("Align Images"),
-    value = false
-  }
-
-  hdr_widget = dt.new_widget("box")                                                         -- widget
-  {
-    orientation = "vertical",
-    exposure_mu,
-    depth,
-    hdr_align
-  }
-else
-  hdr_widget = dt.new_widget("box")                                                         -- widget
-  {
-    orientation = "vertical",
-    exposure_mu,
-    depth
-  }
-end
-
--- set up focus stack widgets
-
-local stack_depth = dt.new_widget("combobox")
-{
-  label =  _("depth"),
-  tooltip = _("output image bits per channel"),
-  value = dt.preferences.read("enfusestack", "depth", "integer") or 2, "8", "16", "32"
-}
-
-local gray_projector = dt.new_widget("combobox")
-{
-  label =  _("gray projector"),
-  tooltip = _("type of grayscale conversion, default = average"),
-  value = 1, "average", "l-star"
-}
-
-local contrast_window = dt.new_widget("combobox")
-{
-  label =  _("contrast window size"),
-  tooltip = _("size of box used for contrast detection, >= 3, default 5"),
-  value = 3, "3", "4", "5", "6", "7", "8", "9"
-}
-
-local contrast_edge = dt.new_widget("slider")
-{
-  label =  _("contrast edge scale"),
-  tooltip = _("laplacian edge detection, 0 disables, >0 enables, .3 is a good starting value"),
-  hard_min = 0,
-  hard_max = 1,
-  value = 0
-}
-
-local stack_align
-local stack_widget
-
-if can_align then
-  stack_align = dt.new_widget("check_button")
-  {
-    label = _("Align Images"),
-    value = false
-  }
-
-  stack_widget = dt.new_widget("box")
-  {
-    orientation = "vertical",
-    stack_depth,
-    stack_align,
-    gray_projector,
-    contrast_window,
-    contrast_edge
-  }
-else
-  stack_widget = dt.new_widget("box")
-  {
-    orientation = "vertical",
-    stack_depth,
-    gray_projector,
-    contrast_window,
-    contrast_edge
-  }
 end
 
 local function split_filepath(str)
@@ -343,6 +211,146 @@ local function sanitize_filename(filepath)
   return path .. sanitized .. "." .. filetype
 end
 
+-- print status while exporting images
+local function show_status(storage, image, format, filename,
+  number, total, high_quality, extra_data)
+    dt.print(string.format(_("Export Image %i/%i"), number, total))
+end
+
+-- enfuse specific code
+
+
+-- is enfuse installed?
+local enfuse_installed = checkIfBinExists("enfuse")
+
+-- check for the parallel version and use it if it's installed
+if enfuse_installed and checkIfBinExists("enfuse-mp") then
+  dt.print_error(_("enfuse-mp executable found, using it"))
+  enfuse_executable = "enfuse-mp"
+end
+
+-- check for align_image_stack so we can offer to align the images if desired
+local can_align = checkIfBinExists("align_image_stack")
+
+-- initialize exposure_mu value and depth setting in config to sane defaults (would be 0 otherwise)
+if dt.preferences.read("enfuse", "depth", "integer") == 0 then
+  dt.preferences.write("enfuse", "depth", "integer", 2)
+  dt.preferences.write("enfuse", "exposure_mu", "float", 0.5)
+end
+
+if dt.preferences.read("enfusestack", "depth", "integer") == 0 then
+  dt.preferences.write("enfusestack", "depth", "integer", 2)
+end
+
+-- set up some hdr widgets, initialized from config
+
+-- gather the widgets in a table since there could be 2 or 3
+
+local hdr_widgets = {}
+
+-- exposure-mu
+local exposure_mu = dt.new_widget("slider")
+{
+  label = _("exposure mu"),
+  tooltip = _("center also known as MEAN of Gaussian weighting function (0 <= MEAN <= 1); default: 0.5"),
+  hard_min = 0,
+  hard_max = 1,
+  value = dt.preferences.read("enfuse", "exposure_mu", "float")
+}
+hdr_widgets[1] = exposure_mu
+
+-- bit depth
+local depth = dt.new_widget("combobox")
+{
+  label = _("depth"),
+  tooltip = _("output image bits per channel"),
+  value = dt.preferences.read("enfuse", "depth", "integer"), "8", "16", "32"
+}
+hdr_widgets[2] = depth
+
+if can_align then 
+  hdr_align = dt.new_widget("check_button")
+  {
+    label = _("Align Images"),
+    value = false
+  }
+  hdr_widgets[3] = hdr_align
+end
+
+-- enclose the widgets in a box
+
+local hdr_widget = dt.new_widget("box")                                                     -- widget
+{
+  orientation = "vertical",
+  table.unpack(hdr_widgets),
+}
+
+-- set up focus stack widgets
+
+-- gather the widgets in a table since there could be 4 or 5
+
+local stack_widgets = {}
+local widget_cnt = 1
+
+-- bit depth
+local stack_depth = dt.new_widget("combobox")
+{
+  label =  _("depth"),
+  tooltip = _("output image bits per channel"),
+  value = dt.preferences.read("enfusestack", "depth", "integer") or 2, "8", "16", "32"
+}
+stack_widgets[widget_cnt] = stack_depth
+widget_cnt = widget_cnt + 1
+
+-- align images
+if can_align then
+  stack_align = dt.new_widget("check_button")
+  {
+    label = _("Align Images"),
+    value = false
+  }
+  stack_widgets[widget_cnt] = stack_align
+  widget_cnt = widget_cnt + 1
+end
+
+-- gray projector
+local gray_projector = dt.new_widget("combobox")
+{
+  label =  _("gray projector"),
+  tooltip = _("type of grayscale conversion, default = average"),
+  value = 1, "average", "l-star"
+}
+stack_widgets[widget_cnt] = gray_projector
+widget_cnt = widget_cnt + 1
+
+-- contrast window
+contrast_window = dt.new_widget("combobox")
+{
+  label =  _("contrast window size"),
+  tooltip = _("size of box used for contrast detection, >= 3, default 5"),
+  value = 3, "3", "4", "5", "6", "7", "8", "9"
+}
+stack_widgets[widget_cnt] = contrast_window
+widget_cnt = widget_cnt + 1
+
+local contrast_edge = dt.new_widget("slider")
+{
+  label =  _("contrast edge scale"),
+  tooltip = _("laplacian edge detection, 0 disables, >0 enables, .3 is a good starting value"),
+  hard_min = 0,
+  hard_max = 1,
+  value = 0
+}
+stack_widgets[widget_cnt] = contrast_edge
+
+-- enclose the widgets in a box
+
+local stack_widget = dt.new_widget("box")
+{
+  orientation = "vertical",
+  table.unpack(stack_widgets),
+}
+
 -- assemble a list of the files to send to enfuse.  If desired, align the files first
 local function build_response_file(image_table, will_align)
 
@@ -363,7 +371,8 @@ local function build_response_file(image_table, will_align)
       cnt = cnt + 1
       align_img_list = align_img_list .. " " .. sanitize_filename(exp_img)
     end
-    if cnt > 0 then
+    -- need at least 2 images to align
+    if cnt > 1 then
       local align_command = "align_image_stack -m -a /tmp/OUT " .. align_img_list
       dt.print(_("Aligning images..."))
       if dt.control.execute(align_command) then
@@ -391,6 +400,10 @@ local function build_response_file(image_table, will_align)
           return nil
         end
       end
+    else
+      cleanup(response_file)
+      dt.print(_("not enough suitable images selected, nothing to do for enfuse"))
+      return nil
     end
   else
     -- add all filenames to the response file
@@ -401,9 +414,12 @@ local function build_response_file(image_table, will_align)
     f:close()
   end
 
-  if cnt == 0 then
-    os.remove(response_file)
-    dt.print(_("no suitable images selected, nothing to do for enfuse"))
+  -- export will happily export 0 images if none are selected and the export button is pressed
+  -- and it doesn't make any sense to try and do an hdr or focus stack on only 1 image
+
+  if cnt < 2 then
+    cleanup(response_file)
+    dt.print(_("not enough suitable images selected, nothing to do for enfuse"))
     return nil
   else
     return response_file
@@ -411,7 +427,7 @@ local function build_response_file(image_table, will_align)
 end
 
 -- clean up after we've run or crashed
-local function cleanup(res_file)
+function cleanup(res_file)
   -- remove exported images
   local f = io.open(res_file)
   fname = f:read()
@@ -445,45 +461,47 @@ local function enfuse_hdr(storage, image_table, extra_data)
   -- create a temp response file
   local response_file = build_response_file(image_table, will_align)
 
-  local target_dir
-  local hdr_file_name = ""
-  for img, exp_img in pairs(image_table) do
-    target_dir = img.path
-    hdr_file_name = get_basename(exp_img) .. '-' .. hdr_file_name
-  end
-
-  -- append hdr to the generated file name
-  hdr_file_name = hdr_file_name .. "hdr"
-
-  local output_image = target_dir.."/" .. hdr_file_name .. ".tif"
-
-  while checkIfFileExists(output_image) do
-    output_image = filename_increment(output_image)
-    -- limit to 99 more hdr attempts
-    if string.match(get_basename(output_image), "_(d-)$") == "99" then 
-      break 
+  if response_file then
+    local target_dir
+    local hdr_file_name = ""
+    for img, exp_img in pairs(image_table) do
+      target_dir = img.path
+      hdr_file_name = get_basename(exp_img) .. '-' .. hdr_file_name
     end
-  end
 
-  -- call enfuse on the response file
-  local command = enfuse_executable .. " --depth "..depth.value.." --exposure-mu "..fixSliderFloat(mu)
-                  .." -o \""..output_image.."\" \"@"..response_file.."\""
-  dt.print(_("Launching enfuse..."))
-  if dt.control.execute(command) then
-    dt.print(_("enfuse failed, see terminal output for details"))
+    -- append hdr to the generated file name
+    hdr_file_name = hdr_file_name .. "hdr"
+
+    local output_image = target_dir.."/" .. hdr_file_name .. ".tif"
+
+    while checkIfFileExists(output_image) do
+      output_image = filename_increment(output_image)
+      -- limit to 99 more hdr attempts
+      if string.match(get_basename(output_image), "_(d-)$") == "99" then 
+        break 
+      end
+    end
+
+    -- call enfuse on the response file
+    local command = enfuse_executable .. " --depth "..depth.value.." --exposure-mu "..fixSliderFloat(mu)
+                    .." -o \""..output_image.."\" \"@"..response_file.."\""
+    dt.print(_("Launching enfuse..."))
+    if dt.control.execute(command) then
+      dt.print(_("enfuse failed, see terminal output for details"))
+      cleanup(response_file)
+      return
+    end
+
     cleanup(response_file)
-    return
+
+    -- import resulting tiff
+    local image = dt.database.import(output_image)
+
+    -- tell the user that everything worked
+    dt.print(_("enfuse was successful, resulting image was imported"))
+    -- normally printing to stdout is bad, but we allow enfuse to show its output, so adding one extra line is ok
+    print("enfuse: done, resulting image '"..output_image.."' was imported with id "..image.id)
   end
-
-  cleanup(response_file)
-
-  -- import resulting tiff
-  local image = dt.database.import(output_image)
-
-  -- tell the user that everything worked
-  dt.print(_("enfuse was successful, resulting image was imported"))
-  -- normally printing to stdout is bad, but we allow enfuse to show its output, so adding one extra line is ok
-  print("enfuse: done, resulting image '"..output_image.."' was imported with id "..image.id)
 end
 
 local function enfuse_stack(storage, image_table, extra_data)
@@ -498,57 +516,61 @@ local function enfuse_stack(storage, image_table, extra_data)
   end
 
   -- create a temp response file
-  local response_file = build_response_file(image_table, can_align)
+  local response_file = build_response_file(image_table, will_align)
 
-  local target_dir
-  local stack_file_name = ""
-  local first = true
-  local file_name = ""
-  for img, exp_img in pairs(image_table) do
-    target_dir = img.path
-    filename = get_basename(exp_img)
-    if first then
-      stack_file_name = filename
-      first = false
+  if response_file then
+    local target_dir
+    local stack_file_name = ""
+    local first = true
+    local file_name = ""
+    for img, exp_img in pairs(image_table) do
+      target_dir = img.path
+      filename = get_basename(exp_img)
+      if first then
+        stack_file_name = filename
+        first = false
+      end
     end
-  end
 
-  -- append hdr to the generated file name
-  stack_file_name = stack_file_name .. "-" .. filename .. "-stack"
+    -- append hdr to the generated file name
+    stack_file_name = stack_file_name .. "-" .. filename .. "-stack"
 
-  -- call enfuse on the response file
-  local output_image = target_dir.."/" .. stack_file_name .. ".tif"
+    -- call enfuse on the response file
+    local output_image = target_dir.."/" .. stack_file_name .. ".tif"
 
-  while checkIfFileExists(output_image) do
-    output_image = filename_increment(output_image)
-    -- limit to 99 more hdr attempts
-    if string.match(get_basename(output_image), "_(d-)$") == "99" then 
-      break 
+    while checkIfFileExists(output_image) do
+      output_image = filename_increment(output_image)
+      -- limit to 99 more hdr attempts
+      if string.match(get_basename(output_image), "_(d-)$") == "99" then 
+        break 
+      end
     end
-  end
 
-  local command = enfuse_executable .. " --depth "..depth.value
-                  ..stack_args.." --gray-projector="..gray_projector.value
-                  .." --contrast-window-size="..contrast_window.value
-                  .." --contrast-edge-scale="..fixSliderFloat(contrast_edge.value)
-                  .." -o \""..output_image.."\" \"@"..response_file.."\""
-  dt.print(_("Launching enfuse..."))
-  if dt.control.execute(command) then
-    dt.print(_("enfuse failed, see terminal output for details"))
+    local command = enfuse_executable .. " --depth "..depth.value
+                    ..stack_args.." --gray-projector="..gray_projector.value
+                    .." --contrast-window-size="..contrast_window.value
+                    .." --contrast-edge-scale="..fixSliderFloat(contrast_edge.value)
+                    .." -o \""..output_image.."\" \"@"..response_file.."\""
+    dt.print(_("Launching enfuse..."))
+    if dt.control.execute(command) then
+      dt.print(_("enfuse failed, see terminal output for details"))
+      cleanup(response_file)
+      return
+    end
+
     cleanup(response_file)
-    return
+
+    -- import resulting tiff
+    local image = dt.database.import(output_image)
+
+    -- tell the user that everything worked
+    dt.print(_("enfuse was successful, resulting image was imported"))
+    -- normally printing to stdout is bad, but we allow enfuse to show its output, so adding one extra line is ok
+    print("enfuse: done, resulting image '"..output_image.."' was imported with id "..image.id)
   end
-
-  cleanup(response_file)
-
-  -- import resulting tiff
-  local image = dt.database.import(output_image)
-
-  -- tell the user that everything worked
-  dt.print(_("enfuse was successful, resulting image was imported"))
-  -- normally printing to stdout is bad, but we allow enfuse to show its output, so adding one extra line is ok
-  print("enfuse: done, resulting image '"..output_image.."' was imported with id "..image.id)
 end
+
+-- don't install the storage if the executable isn't present, since it would never work
 
 if enfuse_installed then
   dt.register_storage("module_enfusehdr", _("Enfuse HDR"), show_status, enfuse_hdr, nil, nil, hdr_widget)
