@@ -1,7 +1,7 @@
 --[[
     This file is part of darktable,
     copyright (c) 2016 Tobias Ellinghaus
-    updated 2016 Bill Ferguson
+    copyright (c) 2016 Bill Ferguson
 
     darktable is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -73,7 +73,7 @@
     * 20160828 - Bill Ferguson 
       * Since enfuse can't process raw images, converted it to a storage so that raws can be converted
         and processed.  Named it Enfuse HDR
-      * Added another storage to take advantage of enfuse's ability to process focus stack images
+      * Added another storage to take advantage of enfuse's ability to process focus stack images, Enfuse Focus Stack
       * Fixed TODO - find a less stupid way to make sure the float value of exposure_mu gets turned into a string 
         with a decimal point instead of a comma in some languages
       * Fixed TODO - make the output filename unique so you can use it more than once per filmroll
