@@ -29,7 +29,7 @@ msgstr "Exportiere Bild %i/%i"
 
 #: enfuse.lua:228
 msgid "enfuse-mp executable found, using it"
-msgstr "enfuse-mp ausführbare Datei gefunden, wird benutzen es"
+msgstr "enfuse-mp ausführbare Datei gefunden, wird verwenden es"
 
 #: enfuse.lua:254
 msgid "exposure mu"
@@ -37,11 +37,11 @@ msgstr "Belichtung mu"
 
 #: enfuse.lua:255
 msgid "center also known as MEAN of Gaussian weighting function (0 <= MEAN <= 1); default: 0.5"
-msgstr "Zentrum auch als Mittel der Gaußschen Gewichtungsfunktion ( 0 <= MEAN < = 1) bekannt ist; Standard: 0.5"
+msgstr "Zentrum auch als Mittel der Gaußschen Gewichtungsfunktion ( 0 <= MEAN < = 1) bekannt; Standard: 0.5"
 
 #: enfuse.lua:265 enfuse.lua:298
 msgid "depth"
-msgstr "Ausmaß"
+msgstr "Farbtiefe"
 
 #: enfuse.lua:266 enfuse.lua:299
 msgid "output image bits per channel"
@@ -49,7 +49,7 @@ msgstr "Ausgangsabbildbits pro Kanal"
 
 #: enfuse.lua:274 enfuse.lua:309
 msgid "Align Images"
-msgstr "Richten Sie Bilder"
+msgstr "Ausrichten der Bilder"
 
 #: enfuse.lua:319
 msgid "gray projector"
@@ -57,7 +57,7 @@ msgstr "grau Projektor"
 
 #: enfuse.lua:320
 msgid "type of grayscale conversion, default = average"
-msgstr "Art der Graustufen -Konvertierung, default = mittel"
+msgstr "Art der Graustufen-Konvertierung, Standard: mittel"
 
 #: enfuse.lua:329
 msgid "contrast window size"
@@ -65,7 +65,7 @@ msgstr "Kontrastfenstergröße"
 
 #: enfuse.lua:330
 msgid "size of box used for contrast detection, >= 3, default 5"
-msgstr "Größe des Kastens für Kontrasterkennung verwendet,> = 3, default 5"
+msgstr "Größe des Kastens, der für die Kontrasterkennung verwendet wird, > = 3, Standard: 5"
 
 #: enfuse.lua:338
 msgid "contrast edge scale"
@@ -73,11 +73,11 @@ msgstr "Kontrastkante Skala"
 
 #: enfuse.lua:339
 msgid "laplacian edge detection, 0 disables, >0 enables, .3 is a good starting value"
-msgstr "Laplace-Kantenerkennung , 0 deaktiviert die Funktion,> 0 ermöglicht, 0,3 ein guter Start"
+msgstr "Laplace-Kantenerkennung, 0 deaktiviert die Funktion, > 0 aktiviert die Funktion, 0,3 ist ein guter Start"
 
 #: enfuse.lua:377
 msgid "Aligning images..."
-msgstr "Ausrichten von Bildern..."
+msgstr "Ausrichten der Bildern..."
 
 #: enfuse.lua:379
 msgid "Image alignment failed"
@@ -97,11 +97,11 @@ msgstr "Starten von enfuse..."
 
 #: enfuse.lua:490 enfuse.lua:556
 msgid "enfuse failed, see terminal output for details"
-msgstr ""
+msgstr "enfuse fehlgeschlagen, siehe Terminal-Ausgabe für Details"
 
 #: enfuse.lua:501 enfuse.lua:567
 msgid "enfuse was successful, resulting image was imported"
-msgstr "enfuse fehlgeschlagen, siehe Terminal-Ausgabe für Details"
+msgstr "enfuse war erfolgreich, resultierendes Bild wurde importiert"
 
 #: enfuse.lua:576
 msgid "Enfuse HDR"
