@@ -32,8 +32,8 @@ msgid "enfuse-mp executable found, using it"
 msgstr "enfuse-mp ausführbare Datei gefunden, wird verwenden es"
 
 #: enfuse.lua:254
-msgid "exposure mu"
-msgstr "Belichtung mu"
+msgid "exposure-mu"
+msgstr "Belichtung-mu"
 
 #: enfuse.lua:255
 msgid "center also known as MEAN of Gaussian weighting function (0 <= MEAN <= 1); default: 0.5"

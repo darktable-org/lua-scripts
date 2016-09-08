@@ -26,7 +26,7 @@
     * two new storage options are created, Enfuse HDR and Enfuse Focus Stack
     * Enfuse HDR
       * select the bracketed images to use for the hdr
-      * adjust exposure mu to change the brightness of the output image
+      * adjust exposure-mu to change the brightness of the output image
       * select bit depth of the output image
       * if align_image_stack is installed, an option to align the images is 
         available.  Unless you shot your images from a rock steady tripod you
@@ -251,7 +251,7 @@ local hdr_widgets = {}
 -- exposure-mu
 local exposure_mu = dt.new_widget("slider")
 {
-  label = _("exposure mu"),
+  label = _("exposure-mu"),
   tooltip = _("center also known as MEAN of Gaussian weighting function (0 <= MEAN <= 1); default: 0.5"),
   hard_min = 0,
   hard_max = 1,
