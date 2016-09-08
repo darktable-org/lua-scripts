@@ -49,7 +49,7 @@ dt.configuration.check_version(...,{3,0,0})
 gettext.bindtextdomain("clear_GPS",dt.configuration.config_dir.."/lua/")
 
 local function _(msgid)
-    return gettext.dgettext("gimp_shortcut", msgid)
+    return gettext.dgettext("clear_GPS", msgid)
 end
 
 local function clear_GPS(images)
