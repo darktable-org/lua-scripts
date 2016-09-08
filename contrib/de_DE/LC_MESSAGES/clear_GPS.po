@@ -25,4 +25,4 @@ msgstr ""
 
 #: clear_GPS.lua:62
 msgid "clear GPS data"
-msgstr "löschen GPS-Daten"
+msgstr "GPS-Daten löschen"
