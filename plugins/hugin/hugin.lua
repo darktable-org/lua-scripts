@@ -4,6 +4,7 @@
   copyright (c) 2014  Wolfgang Goetz
   copyright (c) 2015  Christian Kanzian
   copyright (c) 2015  Tobias Jakobs
+  copyright (c) 2016  Bill Ferguson
   
   darktable is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,10 +35,12 @@ This plugin will add a new storage option and calls hugin after export.
 ]]
 
 local dt = require "darktable"
-local gettext = dt.gettext
+local dtutils = require "lib/dtutils"
+local libpi = require "lib/libPlugins"
+local pd = require "plugins/hugin/plugin-data"
 
--- works with darktable API version 2.0.0 and 3.0.0
-dt.configuration.check_version(...,{2,0,0},{3,0,0})
+
+local gettext = dt.gettext
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("hugin",dt.configuration.config_dir.."/lua/")
@@ -46,33 +49,7 @@ local function _(msgid)
     return gettext.dgettext("hugin", msgid)
 end
 
-local function checkIfBinExists(bin)
-  local handle = io.popen("which "..bin)
-  local result = handle:read()
-  local ret
-  handle:close()
-  if (result) then
-    dt.print_error("true checkIfBinExists: "..bin)
-    ret = true
-  else
-    dt.print_error(bin.." not found")
-    ret = false
-  end
-
-
-  return ret
-end
-
-local function show_status(storage, image, format, filename,
-  number, total, high_quality, extra_data)
-  dt.print("Export to Hugin "..tostring(number).."/"..tostring(total))
-end
-
 local function create_panorama(storage, image_table, extra_data) --finalize
-  if not checkIfBinExists("hugin") then
-    dt.print_error(_("hugin not found"))
-    return
-  end
 
 -- Since Hugin 2015.0.0 hugin provides a command line tool to start the assistant
 -- http://wiki.panotools.org/Hugin_executor
@@ -80,20 +57,21 @@ local function create_panorama(storage, image_table, extra_data) --finalize
 -- http://hugin.sourceforge.net/docs/manual/Pto_gen.html
 
   local hugin_executor = false
-  if (checkIfBinExists("hugin_executor") and checkIfBinExists("pto_gen")) then
+  if (dtutils.checkIfBinExists("hugin_executor") and dtutils.checkIfBinExists("pto_gen")) then
     hugin_executor = true
   end
 
   -- list of exported images 
-  local img_list
+  local img_list = dtutils.extract_image_list(image_table)
+  local collection_path = dtutils.extract_collection_path(image_table)
 
-  -- reset and create image list
-  img_list = ""
+  local data_dir = collection_path .. "/" .. pd.DtPluginDataDir
 
-  for _,v in pairs(image_table) do
-    img_list = img_list ..v.. " "
-  end
+  libpi.create_data_dir(data_dir)
 
+  local data_filename = dtutils.makeOutputFileName(img_list)
+
+  
   dt.print(_("Will try to stitch now"))
 
   local huginStartCommand
@@ -116,12 +94,51 @@ local function create_panorama(storage, image_table, extra_data) --finalize
   if dt.control.execute( huginStartCommand)
     then
     dt.print(_("Command hugin failed ..."))
-  end
+    -- cleanup after
+    -- use os.execute("rm") because it can remove the whole list at once
+    os.execute("rm" .. img_list)
+    if hugin_executor then
+      os.remove(dt.configuration.tmp_dir.."/project.pto")
+    end
+  else
+    -- remove the exported files
+    -- use os.execute("rm") because it can remove the whole list at once
+    os.execute("rm" .. img_list)
+    if hugin_executor then
+      -- save the pto file in the plugin data dir
+      local pto_filename = data_dir .. "/" .. data_filename .. ".pto"
+      while checkIfFileExists(pto_filename) do
+        pto_filename = filename_increment(pto_filename)
+        -- limit to 99 more exports of the original export
+        if string.match(get_basename(pto_filename), "_(d-)$") == "99" then 
+          break 
+        end
+      end
+      dtutils.fileMove(dt.configuration.tmp_dir.."/project.pto", pto_filename)
+    end
+    -- the only tif left should be the program output
+    -- move the resulting tif, project.tif into the collection and import it
+    -- then tag it as created by hugin
+    local myimg_name = collection_path .. "/" .. data_filename .. ".tif"
+    while checkIfFileExists(myimg_name) do
+      myimg_name = filename_increment(myimg_name)
+      -- limit to 99 more exports of the original export
+      if string.match(get_basename(myimg_name), "_(d-)$") == "99" then 
+        break 
+      end
+    end
+    dtutils.fileMove(dt.configuration.tmp_dir.."/project.tif", myimg_name)
+    local myimage = dt.database.import(myimg_name)
+    local tag = dt.tags.create("Creator|Hugin")
+    dt.tags.attach(tag, myimage)
 
+    -- remove any other "project" effects
+    os.execute("rm " .. dt.configuration.tmp_dir .. "/project.*")
+  end
 end
 
 -- Register
-dt.register_storage("module_hugin", _("Hugin Panorama"), show_status, create_panorama)
+dt.register_storage("module_hugin", _("Hugin Panorama"), dtutils.show_status, create_panorama)
 
 --
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
