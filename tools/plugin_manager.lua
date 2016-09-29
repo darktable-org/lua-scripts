@@ -62,7 +62,7 @@ end
 local output = io.popen("cd "..plugin_path..";find . -maxdepth 1 -type d -print | sort")
 for line in output:lines() do
   local plugin = line:sub(3,-1)
-  if plugin == "clear_GPS"  or plugin == "hugin" or plugin == "enfuse" then
+  if plugin:len() > 1 then
     -- process it
     local plugin_data = "plugins/" .. plugin .. "/plugin-data"
     print("plugin_data is " .. plugin_data)

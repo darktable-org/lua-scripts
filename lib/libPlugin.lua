@@ -136,14 +136,12 @@ libPlugin.button = dt.new_widget("button"){
 function libPlugin.register_processor_lib(name_table)
 
   print("name_table is ", #name_table)
-  dtutils.tellme("", name_table)
-  local namestring = {"Enfuse Focus Stack\0","Enfuse HDR\0","Hugin Panorama\0"}
-  print(namestring)
 
   libPlugin.processor_combobox = dt.new_widget("combobox"){
     label = "processor",
     tooltip = "pick a processor",
-    value = 1, "Enfuse Focus Stack", "Enfuse HDR", "Hugin Panorama",
+--  value = 1, unpack(name_table), bug #11184
+    value = 1, "Color Efex Pro 4", "Edit with GIMP", "Enfuse Focus Stack", "Enfuse HDR", "Hugin Panorama",
     changed_callback = function(_)
       libPlugin.processor[4] = nil
       libPlugin.processor[4] = processors[libPlugin.processor_combobox.value]
