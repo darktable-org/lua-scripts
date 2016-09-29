@@ -18,7 +18,7 @@
 ]]
 
 require "lib/dtutils"
-require "pluins/enfuse/lib/libenfuse"
+require "pluins/enfuse/lib/libEnfuse"
 
 local lib = dtutils
 

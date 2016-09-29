@@ -445,6 +445,7 @@ function dtutils.makeOutputFileName(img_list)
   local max_distinct_names = 3
   local name_separator = "-"
   local outputFileName = nil
+  print("img_list is ", img_list)
 
   local result = dtutils.split(img_list, " ")
   table.sort(result)
@@ -562,6 +563,15 @@ function dtutils.fileMove(fromFile, toFile)
     end
   end
   return success  -- nil on error, some value if success
+end
+
+function dtutils.getTargetDir(img_list)
+  local target = nil
+  for img,_ in pairs(img_list) do
+    target = img.path
+    break
+  end
+  return target
 end
 
 return dtutils

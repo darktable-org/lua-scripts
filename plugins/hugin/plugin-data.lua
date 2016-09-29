@@ -10,7 +10,7 @@ return {
                 "\tSelect the images to be used for the panorama\n" ..
                 "\tSelect Hugin Panorama from the exporter list\n" ..
                 "\tAdjust the exported image settings to what you desire\n" ..
-                "\tPress Export",
+                "\tPress Process",
         License = "GPL Version 2",
       },
       DtVersionRequired = {"2.0.0","3.0.0"},

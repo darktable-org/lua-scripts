@@ -134,13 +134,19 @@ libPlugin.button = dt.new_widget("button"){
 }
 
 function libPlugin.register_processor_lib(name_table)
+
   print("name_table is ", #name_table)
+  dtutils.tellme("", name_table)
+  local namestring = {"Enfuse Focus Stack\0","Enfuse HDR\0","Hugin Panorama\0"}
+  print(namestring)
+
   libPlugin.processor_combobox = dt.new_widget("combobox"){
     label = "processor",
-    value = 1, table.unpack(name_table),
-    changed_callback = function(self)
-      dtutils.pop(libPlugin.processor)
-      dtutils.push(libPlugin.processor, name_table[self.value])
+    tooltip = "pick a processor",
+    value = 1, "Enfuse Focus Stack", "Enfuse HDR", "Hugin Panorama",
+    changed_callback = function(_)
+      libPlugin.processor[4] = nil
+      libPlugin.processor[4] = processors[libPlugin.processor_combobox.value]
     end
   }
 
@@ -151,13 +157,15 @@ function libPlugin.register_processor_lib(name_table)
     dt.new_widget("label"){ label = "Processor" },
     dt.new_widget("separator"){},
     libPlugin.processor_combobox,
-    libPlugin.placeholder,
+    processors[processor_names[1]],
   }
+
+  dtutils.tellme("", libPlugin.processor)
 
   -- stick it all in a container and then register it
   dt.register_lib(
     "Processor",     -- Module name
-    "External Processing",     -- name
+    "external processing",     -- name
     true,                -- expandable
     false,               -- resetable
     {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},   -- containers
@@ -232,27 +240,29 @@ function libPlugin.activate_plugin(plugin_data)
     print("in activate plugin adding processor")
     -- add it to the processors table 
     -- add the associated processor widget or placeholder if not
-    processors[i.DtPluginName] = i.DtPluginProcessorWidget and i.DtPluginProcessorWidget or libPlugin.placeholder
+    processors[i.DtPluginName] = i.DtPluginProcessorWidget and dtutils.prequire(dtutils.chop_filetype(i.DtPluginProcessorWidget)) or libPlugin.placeholder
     print(i.DtPluginActivate.DtPluginRegisterProcessor)
+    print("Processor widget is ", processors[i.DtPluginName])
     processor_cmds[i.DtPluginName] = dtutils.prequire(dtutils.chop_filetype(i.DtPluginActivate.DtPluginRegisterProcessor))
-    print(processor_cmds[i.DtPluginName])
-    print(type(processor_cmds))
+    print("Processor command is ", processor_cmds[i.DtPluginName])
+    print("Processor command is a ", type(processor_cmds[i.DtPluginName]))
     dtutils.tellme("",processor_cmds)
     processor_names[#processor_names + 1] = i.DtPluginName
     table.sort(processor_names)
     -- TODO: refresh processor combobox
-    if #processor_names == 1 then
-      print("took ==1 branch")
-      if not pmstartup then
+    if not pmstartup then
+      print("after startup...")
+      if #processor_names == 1 then
+        print("took ==1 branch")
         libPlugin.register_processor_lib(processor_names)
+      else
+        print("took push branch")
+        print("processor_names count was ", #processor_names)
+        for k,v in ipairs(processor_names) do
+          print(k,v)
+        end
+        dtutils.push(libPlugin.processor_combobox, i.DtPluginName)
       end
-    else
-      print("took push branch")
-      print("processor_names count was ", #processor_names)
-      for k,v in ipairs(processor_names) do
-        print(k,v)
-      end
-      dtutils.push(libPlugin.processor_combobox, i.DtPluginName)
     end
   end
   if i.DtPluginIsA.shortcut then
@@ -341,6 +351,7 @@ function libPlugin.build_image_table(images, ff)
   end
 
   for _,img in ipairs(images) do
+    print(img.filename, " is ", tmp_dir .. dtutils.get_basename(img.filename) .. file_extension)
     image_table[img] = tmp_dir .. dtutils.get_basename(img.filename) .. file_extension
     cnt = cnt + 1
   end
@@ -362,10 +373,10 @@ function libPlugin.do_export(img_tbl, ff, height, width, upscale)
     exporter.quality = math.floor(dtutils.fixSliderFloat(libPlugin.jpeg_slider.value))
   elseif string.match(ff, "PNG") then
     exporter = dt.new_format("png")
-    exporter.bit_depth = libPlugin.png_bit_depth.value
+    exporter.bpp = libPlugin.png_bit_depth.value
   elseif string.match(ff, "TIFF") then
     exporter = dt.new_format("tiff")
-    exporter.bit_depth = libPlugin.tif_bit_depth.value
+    exporter.bpp = libPlugin.tif_bit_depth.value
   end
   exporter.max_height = tonumber(height)
   exporter.max_width = tonumber(width)

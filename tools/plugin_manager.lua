@@ -62,7 +62,7 @@ end
 local output = io.popen("cd "..plugin_path..";find . -maxdepth 1 -type d -print | sort")
 for line in output:lines() do
   local plugin = line:sub(3,-1)
-  if plugin == "clear_GPS"  or plugin == "hugin" then
+  if plugin == "clear_GPS"  or plugin == "hugin" or plugin == "enfuse" then
     -- process it
     local plugin_data = "plugins/" .. plugin .. "/plugin-data"
     print("plugin_data is " .. plugin_data)
@@ -107,7 +107,10 @@ dt.register_lib(
 -- the place for processors
 
 if #processor_names > 0 then
+  print("startup register processor")
+  print("processor names are ", table.unpack(processor_names))
   libPlugin.register_processor_lib(processor_names)
+  print("done registering processors on startup")
 end
 pmstartup = false
 

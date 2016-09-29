@@ -18,7 +18,7 @@
 ]]
 
 require "lib/dtutils"
-require "pluins/enfuse/lib/libenfuse"
+require "pluins/enfuse/lib/libEnfuse"
 
 local lib = dtutils
 
@@ -51,10 +51,6 @@ local can_align = lib.checkIfBinExists("align_image_stack")
 if dt.preferences.read("enfuse", "depth", "integer") == 0 then
   dt.preferences.write("enfuse", "depth", "integer", 2)
   dt.preferences.write("enfuse", "exposure_mu", "float", 0.5)
-end
-
-if dt.preferences.read("enfusestack", "depth", "integer") == 0 then
-  dt.preferences.write("enfusestack", "depth", "integer", 2)
 end
 
 -- gather the widgets in a table since there could be 2 or 3
@@ -112,7 +108,7 @@ local function enfuse_hdr(storage, image_table, extra_data)
   end
 
   -- create a temp response file
-  local response_file = libenfuse.build_response_file(image_table, will_align)
+  local response_file = libEnfuse.build_response_file(image_table, will_align)
 
   if response_file then
     local target_dir
@@ -141,11 +137,11 @@ local function enfuse_hdr(storage, image_table, extra_data)
     dt.print(_("Launching enfuse..."))
     if dt.control.execute(command) then
       dt.print(_("enfuse failed, see terminal output for details"))
-      libenfuse.cleanup(response_file)
+      libEnfuse.cleanup(response_file)
       return
     end
 
-    libenfuse.cleanup(response_file)
+    libEnfuse.cleanup(response_file)
 
     -- import resulting tiff
     local image = dt.database.import(output_image)
