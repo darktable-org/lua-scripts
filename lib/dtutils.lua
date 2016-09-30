@@ -20,6 +20,9 @@
 ]]
 dtutils = {}
 local dt = require "darktable"
+
+local log = require "lib/libLog"
+
 local gettext = dt.gettext
 
 dt.configuration.check_version(...,{3,0,0})
@@ -485,7 +488,7 @@ function dtutils.prequire(req_name)
   else
     dt.print_error("Error loading " .. req_name)
   end
-  print("return type if lib is ", type(lib))
+  print("return type of lib is ", type(lib))
   return lib
 end
 
@@ -572,6 +575,21 @@ function dtutils.getTargetDir(img_list)
     break
   end
   return target
+end
+
+function dtutils.updateComboboxChoices(combobox, choice_table)
+  local items = #combobox
+  local choices = #choice_table
+  for i, name in ipairs(choice_table) do 
+    log.msg(log.debug, "Setting " .. i .. " to " .. name)
+    combobox[i] = name
+  end
+  if choices < items then
+    for j = items, choices + 1, -1 do
+      log.msg(log.debug, "Removing choice " .. j)
+      combobox[j] = nil
+    end
+  end
 end
 
 return dtutils

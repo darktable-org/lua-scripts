@@ -1,6 +1,7 @@
 libPlugin = {}
 
 local dt = require "darktable"
+local log = require "lib/libLog"
 
 require "lib/dtutils"
 
@@ -45,21 +46,21 @@ libPlugin.format_combobox = dt.new_widget("combobox"){
   label = "file format",
   value = 1, "JPEG (8-bit)", "PNG (8/16-bit)", "TIFF (8/16/32-bit)",
   changed_callback = function(self)
-    print("value is " .. self.value)
+    log.msg(log.debug, "value is " .. self.value)
     if string.match(self.value, "JPEG") then
       -- set visible widget to non visible
       -- set jpeg_slider to visible
-      print("took JPEG")
+      log.msg(log.debug, "took JPEG")
       libPlugin.format[4] = nil
       libPlugin.format[4] = libPlugin.jpeg_slider
     elseif string.match(self.value, "PNG") then
-      print("took PNG")
+      log.msg(log.debug, "took PNG")
       libPlugin.format[4] = nil
       libPlugin.format[4] = libPlugin.png_bit_depth
 
       -- set png option to true
     elseif string.match(self.value, "TIFF") then
-      print("took TIFF")
+      log.msg(log.debug, "took TIFF")
       libPlugin.format[4] = nil
       libPlugin.format[4] = libPlugin.tif_widget
       -- set tiff option to true
@@ -123,11 +124,11 @@ libPlugin.button = dt.new_widget("button"){
     local export_format = libPlugin.format_combobox.value
     -- build the image table
     local img_table, cnt = libPlugin.build_image_table(dt.gui.action_images, export_format)
-    print("image count is ", cnt)
+    log.msg(log.debug, "image count is ", cnt)
     -- export the images
     local success = libPlugin.do_export(img_table, export_format, libPlugin.height.text, libPlugin.width.text, libPlugin.upscale.value)
     -- call the processor
-    print(processor_cmds[libPlugin.processor_combobox.value])
+    log.msg(log.debug, processor_cmds[libPlugin.processor_combobox.value])
     dtutils.tellme("",processor_cmds)
     processor_cmds[libPlugin.processor_combobox.value](img_table, plugins[libPlugin.processor_combobox.value])
   end
@@ -135,18 +136,22 @@ libPlugin.button = dt.new_widget("button"){
 
 function libPlugin.register_processor_lib(name_table)
 
-  print("name_table is ", #name_table)
+  log.msg(log.info, "name_table length is ", #name_table)
 
   libPlugin.processor_combobox = dt.new_widget("combobox"){
     label = "processor",
     tooltip = "pick a processor",
---  value = 1, unpack(name_table), bug #11184
-    value = 1, "Color Efex Pro 4", "Edit with GIMP", "Enfuse Focus Stack", "Enfuse HDR", "Hugin Panorama",
+--    value = 1, unpack(name_table), bug #11184
+--    value = 1, "Color Efex Pro 4", "Edit with GIMP", "Enfuse Focus Stack", "Enfuse HDR", "Hugin Panorama",
+    value = 1, "placeholder",
     changed_callback = function(_)
       libPlugin.processor[4] = nil
       libPlugin.processor[4] = processors[libPlugin.processor_combobox.value]
     end
   }
+
+  -- work around for bug #11184
+  dtutils.updateComboboxChoices(libPlugin.processor_combobox, name_table)
 
   -- processor container
 
@@ -246,20 +251,17 @@ function libPlugin.activate_plugin(plugin_data)
     print("Processor command is a ", type(processor_cmds[i.DtPluginName]))
     dtutils.tellme("",processor_cmds)
     processor_names[#processor_names + 1] = i.DtPluginName
+    log.msg(log.debug, "Added " .. i.DtPluginName .. " to processor_names")
     table.sort(processor_names)
-    -- TODO: refresh processor combobox
+    dtutils.tellme("", processor_names)
     if not pmstartup then
-      print("after startup...")
+      log.msg(log.debug, "after startup...")
       if #processor_names == 1 then
-        print("took ==1 branch")
+        log.msg(log.debug, "took ==1 branch")
         libPlugin.register_processor_lib(processor_names)
       else
-        print("took push branch")
-        print("processor_names count was ", #processor_names)
-        for k,v in ipairs(processor_names) do
-          print(k,v)
-        end
-        dtutils.push(libPlugin.processor_combobox, i.DtPluginName)
+        log.msg(log.debug, "took push branch")
+        dtutils.updateComboboxChoices(libPlugin.processor_combobox, processor_names)
       end
     end
   end
@@ -287,12 +289,11 @@ function libPlugin.deactivate_plugin(plugin_data)
     for k,v in ipairs(processor_names) do
       if v == i.DtPluginName then
         table.remove(processor_names, k)
-        libPlugin.processor_combobox[k] = nil
         break
       end
     end
     table.sort(processor_names)
-    -- TODO: refresh processor combobox
+    dtutils.updateComboboxChoices(libPlugin.processor_combobox, processor_names)
   end
   if i.DtPluginIsA.shortcut then
     libPlugin.stop_plugin(i.DtPluginDeactivate.DtPluginUnregisterShortcut)

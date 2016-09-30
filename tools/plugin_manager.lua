@@ -37,6 +37,8 @@
 local dt = require "darktable"
 require "lib/dtutils"
 require "lib/libPlugin"
+local log = require "lib/libLog"
+log.setLevel("debug")
 -- dtdb = require "darktable.debug"
 -- dtdb.debug = true
 -- print(dtdb.dump(_G, "Global Environment"))
@@ -50,6 +52,8 @@ processor_names = {}
 plugin_widgets = {}
 plugin_widget_cnt = 1
 pmstartup = true
+
+collectgarbage("stop")
 
 local plugin_path = dt.configuration.config_dir .. "/lua/plugins"
 
@@ -65,13 +69,13 @@ for line in output:lines() do
   if plugin:len() > 1 then
     -- process it
     local plugin_data = "plugins/" .. plugin .. "/plugin-data"
-    print("plugin_data is " .. plugin_data)
+    log.msg(log.debug, "plugin_data is " .. plugin_data)
     local plugin_data = require(plugin_data)
     for _,i in pairs(plugin_data.DtPlugins) do
       if libPlugin.check_api_version(i.DtVersionRequired) then
-        print("checked version and passed")
+        log.msg(log.debug, "checked version and passed")
         plugins[i.DtPluginName] = i
-        print(plugins[i.DtPluginName])
+        log.msg(log.debug, plugins[i.DtPluginName])
         if dt.preferences.read("plugin_manager", i.DtPluginPreference, "bool") then
           libPlugin.activate_plugin(i)
           libPlugin.add_plugin_widget(i, true)
@@ -107,10 +111,15 @@ dt.register_lib(
 -- the place for processors
 
 if #processor_names > 0 then
-  print("startup register processor")
-  print("processor names are ", table.unpack(processor_names))
+  log.msg(log.debug, "startup register processor")
+  log.msg(log.info, "processor names are ", table.unpack(processor_names))
   libPlugin.register_processor_lib(processor_names)
-  print("done registering processors on startup")
+  log.msg(log.debug, "done registering processors on startup")
+else
+  log.msg(log.warn, "No Processors Found")
 end
+
 pmstartup = false
+
+collectgarbage("restart")
 
