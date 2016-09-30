@@ -448,7 +448,7 @@ function dtutils.makeOutputFileName(img_list)
   local max_distinct_names = 3
   local name_separator = "-"
   local outputFileName = nil
-  print("img_list is ", img_list)
+  log.msg(log.debug, "img_list is ", img_list)
 
   local result = dtutils.split(img_list, " ")
   table.sort(result)
@@ -488,7 +488,7 @@ function dtutils.prequire(req_name)
   else
     dt.print_error("Error loading " .. req_name)
   end
-  print("return type of lib is ", type(lib))
+  log.msg(log.debug, "return type of lib is ", type(lib))
   return lib
 end
 

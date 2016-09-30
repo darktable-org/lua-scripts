@@ -350,7 +350,7 @@ function libPlugin.build_image_table(images, ff)
   end
 
   for _,img in ipairs(images) do
-    print(img.filename, " is ", tmp_dir .. dtutils.get_basename(img.filename) .. file_extension)
+    log.msg(log.info, img.filename, " is ", tmp_dir .. dtutils.get_basename(img.filename) .. file_extension)
     image_table[img] = tmp_dir .. dtutils.get_basename(img.filename) .. file_extension
     cnt = cnt + 1
   end
@@ -368,7 +368,7 @@ function libPlugin.do_export(img_tbl, ff, height, width, upscale)
   if string.match(ff, "JPEG") then
     exporter = dt.new_format("jpeg")
     dtutils.tellme("",exporter)
-    print(type(exporter))
+    log.msg(log.debug, "exporter type is " .. type(exporter))
     exporter.quality = math.floor(dtutils.fixSliderFloat(libPlugin.jpeg_slider.value))
   elseif string.match(ff, "PNG") then
     exporter = dt.new_format("png")
@@ -382,7 +382,7 @@ function libPlugin.do_export(img_tbl, ff, height, width, upscale)
   upsize = upscale == "yes" and true or false
   -- export the images
   for img,export in pairs(img_tbl) do
-    print(type(img))
+    log.msg(log.debug, "Image type is " .. type(img))
     exporter.write_image(exporter, img, export, upsize)
   end
   -- return success, or not
