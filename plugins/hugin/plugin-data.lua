@@ -25,6 +25,7 @@ return {
         storage = false,
         lib = false,
       },
+      DtPluginMinImages = 2,
       DtPluginProcessorWidget = nil,
       DtPluginActivate = {
         DtPluginRegisterProcessor = "plugins/hugin/hugin_processor_cmd.lua",

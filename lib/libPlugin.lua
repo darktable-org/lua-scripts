@@ -124,13 +124,18 @@ libPlugin.button = dt.new_widget("button"){
     local export_format = libPlugin.format_combobox.value
     -- build the image table
     local img_table, cnt = libPlugin.build_image_table(dt.gui.action_images, export_format)
-    log.msg(log.debug, "image count is ", cnt)
-    -- export the images
-    local success = libPlugin.do_export(img_table, export_format, libPlugin.height.text, libPlugin.width.text, libPlugin.upscale.value)
-    -- call the processor
-    log.msg(log.debug, processor_cmds[libPlugin.processor_combobox.value])
-    dtutils.tellme("",processor_cmds)
-    processor_cmds[libPlugin.processor_combobox.value](img_table, plugins[libPlugin.processor_combobox.value])
+    log.msg(log.debug, "image count is " .. cnt)
+
+    if plugins[libPlugin.processor_combobox.value].DtPluginMinImages < cnt then
+      -- export the images
+      local success = libPlugin.do_export(img_table, export_format, libPlugin.height.text, libPlugin.width.text, libPlugin.upscale.value)
+      -- call the processor
+      log.msg(log.debug, processor_cmds[libPlugin.processor_combobox.value])
+      dtutils.tellme("",processor_cmds)
+      processor_cmds[libPlugin.processor_combobox.value](img_table, plugins[libPlugin.processor_combobox.value])
+    else
+      log.msg(log.error, "Insufficient images selected, " .. plugins[libPlugin.processor_combobox.value].DtPluginMinImages .. " required")
+    end
   end
 }
 
@@ -142,7 +147,6 @@ function libPlugin.register_processor_lib(name_table)
     label = "processor",
     tooltip = "pick a processor",
 --    value = 1, unpack(name_table), bug #11184
---    value = 1, "Color Efex Pro 4", "Edit with GIMP", "Enfuse Focus Stack", "Enfuse HDR", "Hugin Panorama",
     value = 1, "placeholder",
     changed_callback = function(_)
       libPlugin.processor[4] = nil

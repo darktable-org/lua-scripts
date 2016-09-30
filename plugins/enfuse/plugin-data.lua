@@ -40,6 +40,7 @@ return {
         png = true,
         tif = true,
       },
+      DtPluginMinImages = 2,
       DtPluginProcessorWidget = "plugins/enfuse/enfuse_hdr_widget.lua",
       DtPluginActivate = {
         DtPluginRegisterProcessor = "plugins/enfuse/enfuse_hdr_processor_cmd.lua",
@@ -90,6 +91,7 @@ return {
         png = true,
         tif = true,
       },
+      DtPluginMinImages = 2,
       DtPluginProcessorWidget = "plugins/enfuse/enfuse_focus_stack_widget.lua",
       DtPluginActivate = {
         DtPluginRegisterProcessor = "plugins/enfuse/enfuse_focus_stack_processor_cmd.lua",

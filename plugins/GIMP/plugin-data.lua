@@ -35,6 +35,7 @@ return {
         png = true,
         tif = true,
       },
+      DtPluginMinImages = 1,
       DtPluginProcessorWidget = nil,
       DtPluginActivate = {
         DtPluginRegisterProcessor = "plugins/GIMP/gimp_processor_cmd.lua",
