@@ -590,6 +590,7 @@ function dtutils.updateComboboxChoices(combobox, choice_table)
       combobox[j] = nil
     end
   end
+  combobox.value = 1
 end
 
 return dtutils

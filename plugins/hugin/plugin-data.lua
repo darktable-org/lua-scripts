@@ -25,6 +25,12 @@ return {
         storage = false,
         lib = false,
       },
+      DtPluginInputFormats = {
+        raw = false,
+        jpg = true,
+        png = true,
+        tif = true,
+      },
       DtPluginMinImages = 2,
       DtPluginProcessorWidget = nil,
       DtPluginActivate = {

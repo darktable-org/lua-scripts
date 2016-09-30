@@ -151,6 +151,8 @@ function libPlugin.register_processor_lib(name_table)
     changed_callback = function(_)
       libPlugin.processor[4] = nil
       libPlugin.processor[4] = processors[libPlugin.processor_combobox.value]
+      local supported_formats = libPlugin.get_supported_formats(plugins[libPlugin.processor_combobox.value])
+      dtutils.updateComboboxChoices(libPlugin.format_combobox, supported_formats)
     end
   }
 
@@ -246,7 +248,7 @@ function libPlugin.activate_plugin(plugin_data)
   if i.DtPluginIsA.processor then
     print("in activate plugin adding processor")
     -- add it to the processors table 
-    -- add the associated processor widget or placeholder if not
+    -- add the associated processor widget or placeholder if notlibPlugin.get_supported_formats
     processors[i.DtPluginName] = i.DtPluginProcessorWidget and dtutils.prequire(dtutils.chop_filetype(i.DtPluginProcessorWidget)) or libPlugin.placeholder
     print(i.DtPluginActivate.DtPluginRegisterProcessor)
     print("Processor widget is ", processors[i.DtPluginName])
@@ -391,6 +393,20 @@ function libPlugin.do_export(img_tbl, ff, height, width, upscale)
   end
   -- return success, or not
   return true
+end
+
+function libPlugin.get_supported_formats(plugin_data)
+  local formats = {}
+  if plugin_data.DtPluginInputFormats.jpg then
+    dtutils.push(formats, "JPEG (8-bit)")
+  end
+  if plugin_data.DtPluginInputFormats.png then
+    dtutils.push(formats, "PNG (8/16-bit)")
+  end
+  if plugin_data.DtPluginInputFormats.tif then
+    dtutils.push(formats, "TIFF (8/16/32-bit)")
+  end
+  return formats
 end
 
 return libPlugin
