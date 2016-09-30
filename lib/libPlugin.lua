@@ -125,8 +125,8 @@ libPlugin.button = dt.new_widget("button"){
     -- build the image table
     local img_table, cnt = libPlugin.build_image_table(dt.gui.action_images, export_format)
     log.msg(log.debug, "image count is " .. cnt)
-
-    if plugins[libPlugin.processor_combobox.value].DtPluginMinImages < cnt then
+    -- make sure there is enough images
+    if plugins[libPlugin.processor_combobox.value].DtPluginMinImages <= cnt then
       -- export the images
       local success = libPlugin.do_export(img_table, export_format, libPlugin.height.text, libPlugin.width.text, libPlugin.upscale.value)
       -- call the processor
