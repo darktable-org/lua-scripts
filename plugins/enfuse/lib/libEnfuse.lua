@@ -1,3 +1,22 @@
+--[[
+    This file is part of darktable,
+    copyright (c) 2016 Tobias Ellinghaus
+    copyright (c) 2016 Bill Ferguson
+
+    darktable is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    darktable is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with darktable.  If not, see <http://www.gnu.org/licenses/>.
+]]
+
 require "lib/dtutils"
 local dt = require "darktable"
 local gettext = dt.gettext
@@ -11,7 +30,28 @@ end
 
 libEnfuse = {}
 
--- assemble a list of the files to send to enfuse.  If desired, align the files first
+--[[
+  NAME
+    libEnfuse.build_response_file - assemble a list of the files to send to enfuse.  If desired, align the files first
+
+  SYNOPSIS
+    result = libEnfuse.build_response_file(image_table, will_align)
+      image_table - a table of images such as supplied by the exporter or by libPlugin.build_image_table
+      will_align - boolean specifying if image alignment is desired
+
+  DESCRIPTION
+    build_response_file takes an image table, aligns the images if requested, and assembles the image
+    filenames into a string to pass to enfuse
+
+  RETURN VALUE
+    result - the response file on success, or nil if there was an error
+
+  ERRORS
+
+
+
+]]
+
 function libEnfuse.build_response_file(image_table, will_align)
 
   -- create a temp response file
@@ -86,7 +126,26 @@ function libEnfuse.build_response_file(image_table, will_align)
   end
 end
 
--- clean up after we've run or crashed
+--[[
+  NAME
+    libEnfuse.cleanup - cleanup before we return
+
+  SYNOPSIS
+    libEnfuse.cleanup(res_file)
+      res_file - the response file from libEnfuse.build_response_file()
+
+  DESCRIPTION
+    cleanup removes any leftover files, then removes the response file
+
+  RETURN VALUE
+    none
+
+  ERRORS
+
+
+
+]]
+
 function libEnfuse.cleanup(res_file)
   -- remove exported images
   local f = io.open(res_file)
@@ -101,15 +160,55 @@ function libEnfuse.cleanup(res_file)
   os.remove(res_file)
 end
 
+--[[
+  NAME
+    libEnfuse.can_align - check if it's possible to do image alignment
+
+  SYNOPSIS
+    result = libEnfuse.can_align()
+ 
+  DESCRIPTION
+    can_align checks to see if the align_image_stack executable is present
+    in the path and returns the result
+
+  RETURN VALUE
+    result - true if aligment can be done, otherwise false
+
+  ERRORS
+
+
+
+]]
 function libEnfuse.can_align()
   return dtutils.checkIfBinExists('align_image_stack')
 end
+
+--[[
+  NAME
+    libEnfuse.get_enfuse_executable - determine whether to use the multi-processor version of enfuse
+
+  SYNOPSIS
+    result = libEnfuse.get_enfuse_executable()
+
+  DESCRIPTION
+    get_enfuse_executable checks to see if enfuse-mp is in the path.  If it is, that is returned as the
+    executable, otherwise enfuse is returned.
+
+  RETURN VALUE
+    result - the name of the executable to use
+
+  ERRORS
+
+
+
+]]
 
 function libEnfuse.get_enfuse_executable()
   return dtutils.checkIfBinExists('enfuse-mp') and "enfuse-mp" or "enfuse"
 end
 
--- enfuse_hdr specific routines
+-- enfuse_hdr specific widgets included in the library so that they are easy to find
+-- programatically and in their own namespace
 
 libEnfuse.exposure_mu = dt.new_widget("slider")
 {
@@ -134,6 +233,27 @@ libEnfuse.hdr_align = dt.new_widget("check_button")
   value = false
 }
 
+--[[
+  NAME
+    libEnfuse.create_hdr_widget - assemble the hdr widgets into a single widget
+
+  SYNOPSIS
+    result = libEnfuse.create_hdr_widget()
+
+  DESCRIPTION
+    The number of widgets can vary based on whether we can do image alignment or not.
+    create_hdr_widget checks whether we can align images or not and builds the widget
+    correctly.
+
+  RETURN VALUE
+    result - the hdr widgets enclosed in a box widget
+
+  ERRORS
+
+
+
+]]
+
 function libEnfuse.create_hdr_widget()
   local hdr_widgets = {}
   hdr_widgets[1] = libEnfuse.exposure_mu
@@ -153,6 +273,28 @@ function libEnfuse.create_hdr_widget()
 end
 
 libEnfuse.hdr_widget = libEnfuse.create_hdr_widget()
+
+--[[
+  NAME
+    libEnfuse.enfuse_hdr - process images into an hdr image
+
+  SYNOPSIS
+    libEnfuse.enfuse_hdr(image_table, plugin_data)
+      image_table - a table of images such as supplied by the exporter or by libPlugin.build_image_table
+      plugin_data - plugin configuration data
+
+  DESCRIPTION
+    enfuse_hdr takes the images specified in the image table and sends them to enfuse to be assembled
+    into an hdr image.  The resulting image is imported into darktable when enfuse exits.
+
+  RETURN VALUE
+    none
+
+  ERRORS
+
+
+
+]]
 
 function libEnfuse.enfuse_hdr(image_table, plugin_data)
   -- remember exposure_mu
@@ -212,7 +354,8 @@ function libEnfuse.enfuse_hdr(image_table, plugin_data)
   end
 end
 
--- enfuse_focus_stack specific routines
+-- enfuse_focus_stack specific widgets included in the library so that they are easy to find
+-- programatically and in their own namespace
 
 -- bit depth
 libEnfuse.stack_depth = dt.new_widget("combobox")
@@ -254,7 +397,26 @@ libEnfuse.contrast_edge = dt.new_widget("slider")
   value = 0
 }
 
--- enclose the widgets in a box
+--[[
+  NAME
+    libEnfuse.create_stack_widget - assemble the focus stack widgets into a single widget
+
+  SYNOPSIS
+    result = libEnfuse.create_stack_widget()
+
+  DESCRIPTION
+    The number of widgets can vary based on whether we can do image alignment or not.
+    create_stack_widget checks whether we can align images or not and builds the widget
+    correctly.
+
+  RETURN VALUE
+    result - the focus stack widgets enclosed in a box widget
+ 
+  ERRORS
+
+
+
+]]
 
 function libEnfuse.create_stack_widget()
   local stack_widgets = {}
@@ -281,6 +443,28 @@ function libEnfuse.create_stack_widget()
 end
 
 libEnfuse.stack_widget = libEnfuse.create_stack_widget()
+
+--[[
+  NAME
+    libEnfuse.enfuse_stack - process images into a focus stacked image
+
+  SYNOPSIS
+    libEnfuse.enfuse_stack(image_table, plugin_data)
+      image_table - a table of images such as supplied by the exporter or by libPlugin.build_image_table
+      plugin_data - plugin configuration data
+
+  DESCRIPTION
+    enfuse_stack takes the images specified in the image table and sends them to enfuse to be assembled
+    into a focus stacked image.  The resulting image is imported into darktable when enfuse exits.
+
+  RETURN VALUE
+    none
+
+  ERRORS
+
+
+
+]]
 
 function libEnfuse.enfuse_stack(image_table, plugin_data)
   local stack_args = " --exposure-weight=0 --saturation-weight=0 --contrast-weight=1 --hard-mask "
