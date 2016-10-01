@@ -1,3 +1,9 @@
+--[[
+  hugin plugin configuration data
+
+  copyright (c) 2016 Bill Ferguson
+
+]]
 return {
   DtPlugins = {
     {
@@ -6,11 +12,11 @@ return {
       DtPluginDoc = {
         Sections = {"Name", "Usage", "License"},
         Name = "Hugin Panorama",
-        Usage = "Activate the plugin.\n" ..
-                "\tSelect the images to be used for the panorama\n" ..
-                "\tSelect Hugin Panorama from the exporter list\n" ..
-                "\tAdjust the exported image settings to what you desire\n" ..
-                "\tPress Process",
+        Usage = [[Activate the plugin.
+                Select the images to be used for the panorama
+                Select Hugin Panorama from the exporter list
+                Adjust the exported image settings to what you desire
+                Press Process]],
         License = "GPL Version 2",
       },
       DtVersionRequired = {"2.0.0","3.0.0"},

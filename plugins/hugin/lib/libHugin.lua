@@ -1,3 +1,25 @@
+--[[
+  Hugin plugin library for darktable 
+
+  copyright (c) 2014  Wolfgang Goetz
+  copyright (c) 2015  Christian Kanzian
+  copyright (c) 2015  Tobias Jakobs
+  copyright (c) 2016  Bill Ferguson
+  
+  darktable is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+  
+  darktable is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU General Public License
+  along with darktable.  If not, see <http://www.gnu.org/licenses/>.
+]]
+
 local dt = require "darktable"
 local dtutils = require "lib/dtutils"
 
@@ -12,6 +34,28 @@ local function _(msgid)
     return gettext.dgettext("hugin", msgid)
 end
 
+--[[
+  NAME
+    libHugin.create_panorama - create a panorama from the supplied images
+
+  SYNOPSIS
+    libHugin.create_panorama(image_table, pd)
+      image_table - a table of images and exported image filenames to create the panorama from
+      pd - plugin configuration data
+
+  DESCRIPTION
+    create_panorama takes the supplied images and passes that to hugin for processing.  On exit
+    from hugin, the resulting image is imported into darktable.  Artifacts (the pto file) is moved
+    into the collection directory under plugin_data/hugin
+
+  RETURN VALUE
+    none
+
+  ERRORS
+    A message is printed if the process fails.  Any leftover files are cleaned up.
+
+
+]]
 function libHugin.create_panorama(image_table, pd)
 
 -- Since Hugin 2015.0.0 hugin provides a command line tool to start the assistant
