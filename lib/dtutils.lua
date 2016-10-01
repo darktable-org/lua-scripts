@@ -18,7 +18,9 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]]
+
 dtutils = {}
+
 local dt = require "darktable"
 
 local log = require "lib/libLog"
@@ -40,12 +42,14 @@ end
 
   SYNOPSIS
     result = dtutils.split_filepath(path_string)
+      filepath - path and filename
 
   DESCRIPTION
-
+    split_filepath splits a filepath into the path, filename, basename and filetype and puts
+    that in a table
 
   RETURN VALUE
-
+    result - a table containing the path, filename, basename, and filetype
 
   ERRORS
 
@@ -66,12 +70,13 @@ end
 
   SYNOPSIS
     result = dtutils.get_path(filepath)
+      filepath - path and filename
 
   DESCRIPTION
-
+    get_path strips the filename and filetype from a path and returns the path
 
   RETURN VALUE
-
+    result - the path
 
   ERRORS
 
@@ -90,12 +95,13 @@ end
 
   SYNOPSIS
     result = dtutils.get_filename(filepath)
+      filepath - path and filename
 
   DESCRIPTION
-
+    get_filename strips the path from a filepath and returns the filename
 
   RETURN VALUE
-
+    result - the file name and type
 
   ERRORS
 
@@ -114,12 +120,13 @@ end
 
   SYNOPSIS
     result = dtutils.get_basename(filepath)
+      filepath - path and filename
 
   DESCRIPTION
-
+    get_basename returns the name of the file without the path or filetype
 
   RETURN VALUE
-
+    result - the basename of the file
 
   ERRORS
 
@@ -138,12 +145,13 @@ end
 
   SYNOPSIS
     result = dtutils.get_filetype(filepath)
+      filepath - path and filename
 
   DESCRIPTION
-
+    get_filetype returns the filetype from the supplied filepath
 
   RETURN VALUE
-
+    result - the filetype
 
   ERRORS
 
@@ -162,12 +170,14 @@ end
 
   SYNOPSIS
     result = dtutils.checkIfBinExists(bin)
+      bin - the binary to check for
 
   DESCRIPTION
-
+    checkIfBinExists checks to see if the specified binary executable is
+    in the path.
 
   RETURN VALUE
-
+    result - true if the executable was found, false if not
 
   ERRORS
 
@@ -196,12 +206,13 @@ end
 
   SYNOPSIS
     result = dtutils.checkIfFileExists(filepath)
+      filepath - a file or path to check
 
   DESCRIPTION
-
+    checkIfFileExists checks to see if a file or path exists
 
   RETURN VALUE
-
+    result - true if the file or path exists, false if it doesn't
 
   ERRORS
 
@@ -230,12 +241,16 @@ end
 
   SYNOPSIS
     result = dtutils.filename_increment(filepath)
+      filepath - file to increment
 
   DESCRIPTION
-
+    filename_increment solves the problem of filename confllict by adding an 
+    increment to the filename.  If the supplied filename has no increment then 
+    "01" is added to the basename.  If the filename already has an increment, then
+    1 is added to it and the filename returned.
 
   RETURN VALUE
-
+    result - the incremented filename
 
   ERRORS
 
@@ -279,12 +294,16 @@ end
 
   SYNOPSIS
     result = dtutils.groupIfNotMember(image, new_image)
+      image - an existing image in the darktable database
+      new_image - the new image to group with the existing image
 
   DESCRIPTION
-
+    groupIfNotMember checks a file to see if it's a member of the group
+    with an existing image.  If not, then the group leader of the existing 
+    image is found and the new image is grouped with it.
 
   RETURN VALUE
-
+    none
 
   ERRORS
 
@@ -315,15 +334,16 @@ end
 
   SYNOPSIS
     result = dtutils.sanitize_filename(filepath)
+      filepath - an optional path and filename with spaces
 
   DESCRIPTION
-
+    sanitize_filename escapes spaces in filenames so that the can be passed as arguments
 
   RETURN VALUE
-
+    result - sanitized filename
 
   ERRORS
-
+    Only spaces in filenames are sanitized, but not in the path
 
   
 ]]
@@ -344,12 +364,20 @@ end
 
   SYNOPSIS
     result = dtutils.show_status(storage, image, format, filename, number, total, high_quality, extra_data)
+      storage - the storage that the status is being shown for
+      image - the current image
+      format - the format of the export image
+      filename - the filename being exported to
+      number - the number of this image in the sequence
+      total - the total number of images being exported
+      high_quality - boolean
+      extra_data - extra data from the storage
 
   DESCRIPTION
-
+    show_status runs prior to each image being exported and prints out a status
 
   RETURN VALUE
-
+    none
 
   ERRORS
 
@@ -364,38 +392,24 @@ end
 
 --[[
   NAME
-    dutils.tellme - recursively dump the requested data
+    dutils.extract_image_list - assemble the exported image filenames from an image_table into a string
 
   SYNOPSIS
-    dtutils.tellme(offset, story)
+    result = dtutils.extract_image_list(image_table)
+      image_table - a table of images such as supplied by the exporter or by libPlugin.build_image_table
 
   DESCRIPTION
-
-
-  EXAMPLE
-    dtutils.tellme("",_G)
+    extract_image_list concatenates the exported image names into a space separated string suitable for
+    passing as an argument to a processor
 
   RETURN VALUE
-
+    result - the assembled image list on success, or an empty image list on error
 
   ERRORS
 
 
   
 ]]
-
-function dtutils.tellme(offset, story)
-  local n,v
-  for n,v in pairs(story) do
-    if n ~= "loaded" and n ~= "_G" then
-      io.write (offset .. n .. " " )
-      print (v)
-      if type(v) == "table" then
-              tellme(offset .. "--> ",v)
-      end
-    end
-  end
-end
 
 function dtutils.extract_image_list(image_table)
   local img_list = ""
@@ -404,6 +418,30 @@ function dtutils.extract_image_list(image_table)
   end
   return img_list
 end
+
+--[[
+  NAME
+    dutils.extract_collection_path - extract the collection path from an image table
+
+  SYNOPSIS
+    result = dtutils.extract_collection_path(image_table)
+      image_table - a table of images such as supplied by the exporter or by libPlugin.build_image_table
+
+  DESCRIPTION
+    extract_collection_path looks at the first image in the image_table and returns the path
+
+  RETURN VALUE
+    result - the collection path on success, or nil if there was an error
+
+  CAVEATS
+    The collection path is determined from the first image.  If the table consists of images from different
+    collections, then only the first collection is used.
+
+  ERRORS
+
+
+  
+]]
 
 function dtutils.extract_collection_path(image_table)
   collection_path = nil
@@ -414,7 +452,27 @@ function dtutils.extract_collection_path(image_table)
   return collection_path
 end
 
--- Thanks to http://lua-users.org/wiki/SplitJoin for the split and split_path functions
+--[[
+  NAME
+    dutils.split - split a string on a specified separator
+
+  SYNOPSIS
+    result = dtutils.split(str, pat)
+
+  DESCRIPTION
+    split separates a string into a table of strings.  The strings are separated at each
+    occurrence of the supplied pattern.
+
+  RETURN VALUE
+    result - a table of strings on success, or an empty table on error
+
+  ERRORS
+
+
+  
+]]
+
+-- Thanks to http://lua-users.org/wiki/SplitJoin
 function dtutils.split(str, pat)
    local t = {}  -- NOTE: use {n = 0} in Lua-5.0
    local fpat = "(.-)" .. pat
@@ -434,6 +492,29 @@ function dtutils.split(str, pat)
    return t
 end
 
+--[[
+  NAME
+    dutils.join - join a table of strings with a specified separator
+
+  SYNOPSIS
+    result = dtutils.join(tabl, pat)
+      tabl - a table of strings
+      pat - a separator
+
+  DESCRIPTION
+    join assembles a table of strings into a string with the specified pattern 
+    in between each string
+
+  RETURN VALUE
+    result - the joined string on success, or an empty string on failure
+
+  ERRORS
+
+
+  
+]]
+
+-- Thanks to http://lua-users.org/wiki/SplitJoin
 function dtutils.join(tabl, pat)
   returnstr = ""
   for i,str in pairs(tabl) do
@@ -441,6 +522,31 @@ function dtutils.join(tabl, pat)
   end
   return string.sub(returnstr, 1, -(pat:len() + 1))
 end
+
+--[[
+  NAME
+    dutils.makeOutputFileName- make an output filename from an image list
+
+  SYNOPSIS
+    result = dtutils.makeOutputFileName(img_list)
+      img_list - a space separated list of filenames
+
+  DESCRIPTION
+    makeOutputFileName takes a string of filenames, breaks them apart, then
+    combines them in a way that makes some sense.  This is useful in routines
+    that do panoramas, hdr, or focus stacks.  The returned filename is a representation
+    of the files used to construct the image.  If there are 3 or fewer images, then the file
+    basenames are concatenated with a separator. If there is more than 3 images, the first and 
+    last file basenames are concatenated with a separator.
+
+  RETURN VALUE
+    result - the constructed filename on success, nil on error
+
+  ERRORS
+
+
+  
+]]
 
 function dtutils.makeOutputFileName(img_list)
   local images = {}
@@ -475,10 +581,51 @@ function dtutils.makeOutputFileName(img_list)
   return outputFileName
 end
 
+--[[
+  NAME
+    dutils.chop_filetype - remove a filetype from a filename
+
+  SYNOPSIS
+    result = dtutils.chop_filetype(path)
+      path - a filename with or without a path
+
+  DESCRIPTION
+    chop_filetype removes the filetype from the filename
+
+  RETURN VALUE
+    result - the path and filename without the filetype
+
+  ERRORS
+
+
+  
+]]
+
 function dtutils.chop_filetype(path)
   local length = dtutils.get_filetype(path):len() + 2
   return string.sub(path, 1, -length)
 end
+
+--[[
+  NAME
+    dutils.prequire - a protected lua require
+
+  SYNOPSIS
+    result = dtutils.prequire(req_name)
+      req_name - name of thu lua code to load
+
+  DESCRIPTION
+    prequire is a protexted require that can survive an error in the code being loaded without
+    bringing down the calling routine.
+
+  RETURN VALUE
+    result - the code or true on success, otherwise an error message
+
+  ERRORS
+
+
+  
+]]
 
 function dtutils.prequire(req_name)
   dt.print_error("Loading " .. req_name)
@@ -492,6 +639,27 @@ function dtutils.prequire(req_name)
   return lib
 end
 
+--[[
+  NAME
+    dutils.push - push a value on a stack
+
+  SYNOPSIS
+    result = dtutils.push(stack, value)
+      stack - a table being used as the stack
+      value - the value to be put on the stack
+
+  DESCRIPTION
+    Push a value on a stack
+
+  RETURN VALUE
+    result - false if stack isn't a table, true on success
+
+  ERRORS
+
+
+  
+]]
+
 function dtutils.push(stack, value)
   success = false
   if type(stack) == "table" then
@@ -500,13 +668,59 @@ function dtutils.push(stack, value)
   end
 end
 
+--[[
+  NAME
+    dutils.pop - pop a value from a stack
+
+  SYNOPSIS
+    result = dtutils.pop(stack)
+      stack - a table being used as a stack
+
+  DESCRIPTION
+    Remove the last value pushed on the stack and return it
+
+  RETURN VALUE
+    result = nil if stack isn't a table or the stack is empty, otherwise the value removed from the table
+
+  ERRORS
+    
+
+  
+]]
+
 function dtutils.pop(stack)
   if type(stack) == "table" then
-    return table.remove(stack)
+    if #stack >= 1
+      return table.remove(stack)
+    else
+      return nil
+    end
   else
     return nil
   end
 end
+
+--[[
+  NAME
+    dutils.fixSlliderFloat - correct decimal point problems with slidets and environments
+
+  SYNOPSIS
+    result = dtutils.fixSliderFloat(float_str)
+
+  DESCRIPTION
+    Some locales use a "," instead of "." for the decimal point.  This routine ensures that
+    a "." is used as the decimal point.
+
+  RETURN VALUE
+    result = valid floating point number in string form
+
+  ERRORS
+    If a number without a decimal point is passed to the routine, it is simply returned with
+    no change.
+
+
+  
+]]
 
 function dtutils.fixSliderFloat(float_str)
   if string.match(float_str,"[,.]") then 
@@ -515,6 +729,28 @@ function dtutils.fixSliderFloat(float_str)
   end
   return float_str
 end
+
+--[[
+  NAME
+    dutils.fileCopy - copy a file to another name/location
+
+  SYNOPSIS
+    result = dtutils.fileCopy(fromFile, toFile)
+      fromFile - file to copy from
+      toFile - file to copy to
+
+  DESCRIPTION
+    copy a file using a succession of methods from operating system
+    to a pure lua solution
+
+  RETURN VALUE
+    result - nil on error, true on success
+
+  ERRORS
+
+
+  
+]]
 
 function dtutils.fileCopy(fromFile, toFile)
   local result = nil
@@ -546,6 +782,28 @@ function dtutils.fileCopy(fromFile, toFile)
   return result
 end
 
+--[[
+  NAME
+    dutils.fileMove - move a file from one directory to another
+
+  SYNOPSIS
+    result = dtutils.fileMove(fromFile, toFile)
+      fromFile - the original file
+      toFile - the new file location and name
+
+  DESCRIPTION
+    Move a file from one place to another.  Try a succession of methods from
+    builtin to operating system to a pure lua solution.
+
+  RETURN VALUE
+    result - nil on error, some value on success
+
+  ERRORS
+
+
+  
+]]
+
 function dtutils.fileMove(fromFile, toFile)
   local success = os.rename(fromFile, toFile)
   if not success then
@@ -568,14 +826,26 @@ function dtutils.fileMove(fromFile, toFile)
   return success  -- nil on error, some value if success
 end
 
-function dtutils.getTargetDir(img_list)
-  local target = nil
-  for img,_ in pairs(img_list) do
-    target = img.path
-    break
-  end
-  return target
-end
+--[[
+  NAME
+    dutils.updateComboboxChoices - change the list of choices in a combobox
+
+  SYNOPSIS
+    dtutils.updateComboboxChoices(combobox_widget, choice_table)
+      combobox_widget - a combobox widget
+      choice_table - a table of strings for the combobox choices
+
+  DESCRIPTION
+    Set the combobox choices to the supplied list.  Remove any extra choices from the end
+
+  RETURN VALUE
+    none
+
+  ERRORS
+
+
+  
+]]
 
 function dtutils.updateComboboxChoices(combobox, choice_table)
   local items = #combobox
