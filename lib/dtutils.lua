@@ -690,7 +690,7 @@ end
 
 function dtutils.pop(stack)
   if type(stack) == "table" then
-    if #stack >= 1
+    if #stack >= 1 then
       return table.remove(stack)
     else
       return nil
