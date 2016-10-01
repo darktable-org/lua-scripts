@@ -1,3 +1,10 @@
+--[[
+  GIMP plugin configuration data
+
+  copyright (c) 2016 Bill Ferguson
+
+]]
+
 return {
   DtPlugins = {
     {
@@ -6,14 +13,14 @@ return {
       DtPluginDoc = {
         Sections = {"Name", "Usage", "License", "Caveats"},
         Name = "Edit with GIMP",
-        Usage = "Activate the plugin.\n" ..
-                "\tselect an image or images for editing with GIMP\n" ..
-                "\tin the processor combobox select 'Edit with GIMP'\n" ..
-                "\tselect the format and bit depth for the exported image\n" ..
-                "\tPress Process\n" ..
-                "\tEdit the image with GIMP then save the changes with File->Overwrite\n" ..
-                "\tExit GIMP\n" ..
-                "\tThe edited image will be imported and grouped with the original image\n",
+        Usage = [[Activate the plugin.
+                select an image or images for editing with GIMP
+                in the processor combobox select 'Edit with GIMP'
+                select the format and bit depth for the exported image
+                Press Process
+                Edit the image with GIMP then save the changes with File->Overwrite
+                Exit GIMP
+                The edited image will be imported and grouped with the original image]],
         License = "GPL Version 2",
         Caveats = "Developed and tested on Ubuntu 14.04 LTS with darktable 2.0.3 and GIMP 2.9.3 (development version with > 8 bit color)\n",
       },

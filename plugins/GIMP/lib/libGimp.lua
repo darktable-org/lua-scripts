@@ -1,3 +1,28 @@
+--[[
+    GIMP plugin library
+
+    Copyright (C) 2016 Bill Ferguson <wpferguson@gmail.com>.
+
+    Portions are lifted from hugin.lua and thus are 
+
+    Copyright (c) 2014  Wolfgang Goetz
+    Copyright (c) 2015  Christian Kanzian
+    Copyright (c) 2015  Tobias Jakobs
+
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+
+]]
+
 local dt = require "darktable"
 require "lib/dtutils"
 require "lib/libPlugin"
@@ -11,6 +36,30 @@ local function _(msgid)
 end
 
 libGimp = {}
+
+--[[
+  NAME
+    libHugin.create_panorama - create a panorama from the supplied images
+
+  SYNOPSIS
+    libGimp.gimp_edit(image_table, plugin_data)
+      image_table - a table of images and exported image filenames to create the panorama from
+      plugin_data - plugin configuration data
+
+  DESCRIPTION
+    gimp_edit opens the selected images in GIMP for further editing.  After editing the image is
+    saved by overwriting the exported image.  The xcf file can also be saved and will be moved into
+    the collection directory under pluin_data/gimp.  On exit from GIMP, the overwitten files are moved
+    into the collection, imported into darktable, and grouped with the original images.
+
+  RETURN VALUE
+    none
+
+  ERRORS
+    
+
+
+]]
 
 function libGimp.gimp_edit(image_table, plugin_data) --finalize
 
