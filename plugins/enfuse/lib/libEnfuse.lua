@@ -171,7 +171,7 @@ function libEnfuse.enfuse_hdr(image_table, plugin_data)
   local response_file = libEnfuse.build_response_file(image_table, will_align)
 
   if response_file then
-    local target_dir = dtutils.getTargetDir(image_table)
+    local target_dir = dtutils.extract_collection_path(image_table)
     local img_list = dtutils.extract_image_list(image_table)
     local hdr_file_name = dtutils.makeOutputFileName(img_list)
 
@@ -297,7 +297,7 @@ function libEnfuse.enfuse_stack(image_table, plugin_data)
   local response_file = libEnfuse.build_response_file(image_table, will_align)
 
   if response_file then
-    local target_dir = dtutils.getTargetDir(image_table)
+    local target_dir = dtutils.extract_collection_path(image_table)
     local img_list = dtutils.extract_image_list(image_table)
     local stack_file_name = dtutils.makeOutputFileName(img_list)
 

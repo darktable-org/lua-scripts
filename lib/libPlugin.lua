@@ -217,9 +217,6 @@ function libPlugin.register_processor_lib(name_table)
     processors[processor_names[1]],
   }
 
-  -- dump the processor widget to see what's there
-  dtutils.tellme("", libPlugin.processor)
-
   -- stick it all in a container and then register it
   dt.register_lib(
     "Processor",     -- Module name
@@ -309,11 +306,9 @@ function libPlugin.activate_plugin(plugin_data)
     processor_cmds[i.DtPluginName] = dtutils.prequire(dtutils.chop_filetype(i.DtPluginActivate.DtPluginRegisterProcessor))
     log.msg(log.debug, "Processor command is ", processor_cmds[i.DtPluginName])
     log.msg(log.debug, "Processor command is a ", type(processor_cmds[i.DtPluginName]))
-    dtutils.tellme("",processor_cmds)
     processor_names[#processor_names + 1] = i.DtPluginName
     log.msg(log.debug, "Added " .. i.DtPluginName .. " to processor_names")
     table.sort(processor_names)
-    dtutils.tellme("", processor_names)
     if not pmstartup then
       log.msg(log.debug, "after startup...")
       if #processor_names == 1 then
@@ -445,7 +440,6 @@ function libPlugin.do_export(img_tbl, ff, height, width, upscale)
   -- get the export format parameters
   if string.match(ff, "JPEG") then
     exporter = dt.new_format("jpeg")
-    dtutils.tellme("",exporter)
     log.msg(log.debug, "exporter type is " .. type(exporter))
     exporter.quality = math.floor(dtutils.fixSliderFloat(libPlugin.jpeg_slider.value))
   elseif string.match(ff, "PNG") then
