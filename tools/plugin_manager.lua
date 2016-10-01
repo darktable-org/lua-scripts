@@ -26,8 +26,11 @@
   * none
 
   USAGE
+  * require this script from the luarc file
+  * install some plugins in the $HOME/.config/darktable/lua/plugins
 
   CAVEATS
+  * plugins must conform to the (as yet unwritten ;)) plugin specification
 
   BUGS, COMMENTS, SUGGESTIONS
   * Send to Bill Ferguson, wpferguson@gmail.com
@@ -52,6 +55,13 @@ processor_names = {}
 plugin_widgets = {}
 plugin_widget_cnt = 1
 pmstartup = true
+
+--[[
+Plugin manager creates many widgets during startup, depending on the number of plugins.
+Sometimes the garbage collector runs during widget creation and starts reaping widgets 
+before they are used, resulting in crashes and an ugly run of error messages.  Therefore,
+we turn off garbage collection during startup and re-enable it at the end of the script.
+]]
 
 collectgarbage("stop")
 
@@ -91,7 +101,8 @@ for line in output:lines() do
     dt.print_error("Ignoring " .. plugin)
   end
 end
--- install it
+
+-- install the plugin manager
 dt.register_lib(
   "Plugin Manager",     -- Module name
   "Plugin Manager",     -- name
@@ -108,7 +119,6 @@ dt.register_lib(
 )
 
 -- Provide a home for the processor plugins that require exported images
--- the place for processors
 
 if #processor_names > 0 then
   log.msg(log.debug, "startup register processor")
@@ -120,6 +130,8 @@ else
 end
 
 pmstartup = false
+
+-- restart the garbage collector now that we are done creating widgets
 
 collectgarbage("restart")
 

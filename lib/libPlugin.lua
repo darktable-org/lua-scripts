@@ -1,3 +1,21 @@
+--[[
+  This file is part of darktable,
+  copyright (c) 2016 Bill Ferguson
+  
+  darktable is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+  
+  darktable is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU General Public License
+  along with darktable.  If not, see <http://www.gnu.org/licenses/>.
+]]
+
 libPlugin = {}
 
 local dt = require "darktable"
@@ -10,6 +28,7 @@ require "lib/dtutils"
 libPlugin.placeholder = dt.new_widget("separator"){}
 
 -- format options container
+-- TODO: read the value from saved preferences 
 
 libPlugin.jpeg_slider = dt.new_widget("slider"){
   label = "quality",
@@ -21,15 +40,21 @@ libPlugin.jpeg_slider = dt.new_widget("slider"){
   value = 90          -- The current value of the slider
 }
 
+-- TODO: read the value from saved preferences 
+
 libPlugin.png_bit_depth = dt.new_widget("combobox"){
   label = "bit depth",
   value = 1, 8, 16,
 }
 
+-- TODO: read the value from saved preferences 
+
 libPlugin.tif_bit_depth = dt.new_widget("combobox"){
   label = "bit depth",
   value = 1, 8, 16, 32,
 }
+
+-- TODO: read the value from saved preferences 
 
 libPlugin.tif_compression = dt.new_widget("combobox"){
   label = "compression",
@@ -41,6 +66,8 @@ libPlugin.tif_widget = dt.new_widget("box"){
   libPlugin.tif_bit_depth,
   libPlugin.tif_compression,
 }
+
+-- TODO: read the value from saved preferences 
 
 libPlugin.format_combobox = dt.new_widget("combobox"){
   label = "file format",
@@ -77,6 +104,8 @@ libPlugin.format = dt.new_widget("box"){
   libPlugin.jpeg_slider,
 }
 
+-- TODO: read the value from saved preferences 
+
 libPlugin.height = dt.new_widget("entry"){
   tooltip = "height",
   text = "0",
@@ -89,6 +118,8 @@ libPlugin.height_box = dt.new_widget("box"){    -- TODO: refresh processor combo
   libPlugin.height,
 }
 
+-- TODO: read the value from saved preferences 
+
 libPlugin.width = dt.new_widget("entry"){
   tooltip = "width",
   text = "0",
@@ -99,6 +130,8 @@ libPlugin.width_box = dt.new_widget("box"){
   dt.new_widget("label"){ label = "Width " },
   libPlugin.width,
 }
+
+-- TODO: read the value from saved preferences 
 
 libPlugin.upscale = dt.new_widget("combobox"){
   label = "upscale",
@@ -116,22 +149,27 @@ libPlugin.global = dt.new_widget("box"){
 }
 
 -- execute button
+-- TODO: save the values from the various widgets when process is pressed
 
 libPlugin.button = dt.new_widget("button"){
   label = "Process",
   clicked_callback = function (_)
+
     -- get the gui parameters
     local export_format = libPlugin.format_combobox.value
+
     -- build the image table
     local img_table, cnt = libPlugin.build_image_table(dt.gui.action_images, export_format)
     log.msg(log.debug, "image count is " .. cnt)
+
     -- make sure there is enough images
     if plugins[libPlugin.processor_combobox.value].DtPluginMinImages <= cnt then
+
       -- export the images
       local success = libPlugin.do_export(img_table, export_format, libPlugin.height.text, libPlugin.width.text, libPlugin.upscale.value)
+
       -- call the processor
       log.msg(log.debug, processor_cmds[libPlugin.processor_combobox.value])
-      dtutils.tellme("",processor_cmds)
       processor_cmds[libPlugin.processor_combobox.value](img_table, plugins[libPlugin.processor_combobox.value])
     else
       log.msg(log.error, "Insufficient images selected, " .. plugins[libPlugin.processor_combobox.value].DtPluginMinImages .. " required")
@@ -143,19 +181,29 @@ function libPlugin.register_processor_lib(name_table)
 
   log.msg(log.info, "name_table length is ", #name_table)
 
+  -- since we don't know how many processors are going to be present at startup, we just put
+  -- a placeholder in the combobox and load the correct values later
+
   libPlugin.processor_combobox = dt.new_widget("combobox"){
     label = "processor",
     tooltip = "pick a processor",
 --    value = 1, unpack(name_table), bug #11184
     value = 1, "placeholder",
     changed_callback = function(_)
+
+      -- reset the processor widget
       libPlugin.processor[4] = nil
+
+      -- set the processor widget to the appropriate one for the selected processor
       libPlugin.processor[4] = processors[libPlugin.processor_combobox.value]
+
+      -- update the export formats to those allowed for the processor
       local supported_formats = libPlugin.get_supported_formats(plugins[libPlugin.processor_combobox.value])
       dtutils.updateComboboxChoices(libPlugin.format_combobox, supported_formats)
     end
   }
 
+  -- load the processor combobox with the activated processors
   -- work around for bug #11184
   dtutils.updateComboboxChoices(libPlugin.processor_combobox, name_table)
 
@@ -169,6 +217,7 @@ function libPlugin.register_processor_lib(name_table)
     processors[processor_names[1]],
   }
 
+  -- dump the processor widget to see what's there
   dtutils.tellme("", libPlugin.processor)
 
   -- stick it all in a container and then register it
@@ -191,11 +240,15 @@ function libPlugin.register_processor_lib(name_table)
   )
 end
 
+-- for the processors that produce extra files, i.e. xcf
+
 function libPlugin.create_data_dir(dir)
   if not dtutils.checkIfFileExists(dir) then
     os.execute("mkdir -p '" .. dir .. "'")
   end
 end
+
+-- add an activate/deactivate widget to plugin manager for a plugin
 
 function libPlugin.add_plugin_widget(req_name, plugin_state)
   local button_text = ""
@@ -231,6 +284,7 @@ function libPlugin.add_plugin_widget(req_name, plugin_state)
 end
 
 -- get the script documentation, with some assumptions
+
 function libPlugin.get_plugin_doc(plugin)
   local description = ""
   for _,section in pairs(plugin.DtPluginDoc.Sections) do
@@ -246,15 +300,15 @@ end
 function libPlugin.activate_plugin(plugin_data)
   local i = plugin_data
   if i.DtPluginIsA.processor then
-    print("in activate plugin adding processor")
+    log.msg(log.debug, "in activate plugin adding processor")
     -- add it to the processors table 
-    -- add the associated processor widget or placeholder if notlibPlugin.get_supported_formats
+    -- add the associated processor widget or placeholder if not
     processors[i.DtPluginName] = i.DtPluginProcessorWidget and dtutils.prequire(dtutils.chop_filetype(i.DtPluginProcessorWidget)) or libPlugin.placeholder
-    print(i.DtPluginActivate.DtPluginRegisterProcessor)
-    print("Processor widget is ", processors[i.DtPluginName])
+    log.msg(log.debug, i.DtPluginActivate.DtPluginRegisterProcessor)
+    log.msg(log.debug, "Processor widget is ", processors[i.DtPluginName])
     processor_cmds[i.DtPluginName] = dtutils.prequire(dtutils.chop_filetype(i.DtPluginActivate.DtPluginRegisterProcessor))
-    print("Processor command is ", processor_cmds[i.DtPluginName])
-    print("Processor command is a ", type(processor_cmds[i.DtPluginName]))
+    log.msg(log.debug, "Processor command is ", processor_cmds[i.DtPluginName])
+    log.msg(log.debug, "Processor command is a ", type(processor_cmds[i.DtPluginName]))
     dtutils.tellme("",processor_cmds)
     processor_names[#processor_names + 1] = i.DtPluginName
     log.msg(log.debug, "Added " .. i.DtPluginName .. " to processor_names")
@@ -263,6 +317,8 @@ function libPlugin.activate_plugin(plugin_data)
     if not pmstartup then
       log.msg(log.debug, "after startup...")
       if #processor_names == 1 then
+        -- the external processing widget wasn't created because there were no processors
+        -- therefore, we need to create it
         log.msg(log.debug, "took ==1 branch")
         libPlugin.register_processor_lib(processor_names)
       else
@@ -285,6 +341,9 @@ function libPlugin.activate_plugin(plugin_data)
   end
 end
 
+-- deactivate works for any processor that doesn't have a widget associated with it
+-- such as GIMP, Color Efex Pro 4, Hugin
+
 function libPlugin.deactivate_plugin(plugin_data)
   local i = plugin_data
 
@@ -298,6 +357,9 @@ function libPlugin.deactivate_plugin(plugin_data)
         break
       end
     end
+
+    -- sort the remaining processors and reload the combobox
+    -- TODO: handle the case where all the processors are dactivated...  oops...
     table.sort(processor_names)
     dtutils.updateComboboxChoices(libPlugin.processor_combobox, processor_names)
   end
@@ -315,17 +377,26 @@ function libPlugin.deactivate_plugin(plugin_data)
   end
 end
 
+-- actually start the plugin
+
 function libPlugin.start_plugin(method)
   if method then
     prequire(dtutils.chop_filetype(method))
   end
 end
 
+-- stop the plugin...  this is really a placeholder since I'm not quite sure how to do this yet
+-- TODO: figure out how to stop a plugin  :D
+
 function libPlugin.stop_plugin(method)
   if method then
     prequire(dtutils.chop_filetype(method))
   end
 end
+
+-- the dt.configuration_check throws an error that breaks the plugin manager
+-- this is a gentler method that simply refuses to load a plugin it if it doesn't match
+-- the api version
 
 function libPlugin.check_api_version(ver_table)
   local dtversion = tostring(dt.configuration.api_version_major) .. "." ..
@@ -341,6 +412,7 @@ function libPlugin.check_api_version(ver_table)
 end
 
 -- build the image table
+
 function libPlugin.build_image_table(images, ff)
   local image_table = {}
   local file_extension = ""
@@ -394,6 +466,9 @@ function libPlugin.do_export(img_tbl, ff, height, width, upscale)
   -- return success, or not
   return true
 end
+
+-- read the plugin input image formats and return a table of them
+-- for the format combobox
 
 function libPlugin.get_supported_formats(plugin_data)
   local formats = {}
