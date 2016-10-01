@@ -17,26 +17,18 @@ msgstr ""
 "Language-Team: \n"
 "X-Generator: Poedit 1.8.4\n"
 
-#: hugin.lua:73
-msgid "hugin not found"
-msgstr "Hugin wurde nicht gefunden"
-
-#: hugin.lua:97
+#: libHugin.lua:82
 msgid "Will try to stitch now"
 msgstr "Versuche Bilder zusammenzufügen"
 
-#: hugin.lua:102
+#: libHugin.lua:87
 msgid "Creating pto file"
 msgstr "Erzeuge pto Datei"
 
-#: hugin.lua:105
-msgid "Running Assistent"
+#: libHugin.lua:90
+msgid "Running Assistant"
 msgstr "Starte den Assistenten"
 
-#: hugin.lua:118
+#: libHugin.lua:103
 msgid "Command hugin failed ..."
 msgstr "Aufruf von hugin fehlgeschlagen ..."
-
-#: hugin.lua:124
-msgid "Hugin Panorama"
-msgstr "Hugin Panorama"

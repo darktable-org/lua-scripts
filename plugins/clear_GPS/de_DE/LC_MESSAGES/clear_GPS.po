@@ -23,6 +23,6 @@ msgstr ""
 "dngettext:2,3\n"
 "X-Poedit-Basepath: .\n"
 
-#: clear_GPS.lua:62
+#: clear_GPS_action.lua:20
 msgid "clear GPS data"
 msgstr "GPS-Daten löschen"

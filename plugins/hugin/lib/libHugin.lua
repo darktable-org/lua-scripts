@@ -87,7 +87,7 @@ function libHugin.create_panorama(image_table, pd)
     dt.print(_("Creating pto file"))
     dt.control.execute( huginStartCommand)
 
-    dt.print(_("Running Assistent"))
+    dt.print(_("Running Assistant"))
     huginStartCommand = "hugin_executor --assistant "..dt.configuration.tmp_dir.."/project.pto"
     dt.control.execute( huginStartCommand)
 
