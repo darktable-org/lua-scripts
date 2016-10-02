@@ -68,6 +68,7 @@ libPlugin.tif_widget = dt.new_widget("box"){
 }
 
 -- TODO: read the value from saved preferences 
+-- TODO: add more formats
 
 libPlugin.format_combobox = dt.new_widget("combobox"){
   label = "file format",
@@ -177,6 +178,27 @@ libPlugin.button = dt.new_widget("button"){
   end
 }
 
+--[[
+  NAME
+    libPlugin.register_processor_lib - build and install the external processor gui
+
+  SYNOPSIS
+    result = dtutils.split_filepath(path_string)
+      filepath - path and filename
+
+  DESCRIPTION
+    split_filepath splits a filepath into the path, filename, basename and filetype and puts
+    that in a table
+
+  RETURN VALUE
+    result - a table containing the path, filename, basename, and filetype
+
+  ERRORS
+
+
+
+]]
+
 function libPlugin.register_processor_lib(name_table)
 
   log.msg(log.info, "name_table length is ", #name_table)
@@ -237,7 +259,25 @@ function libPlugin.register_processor_lib(name_table)
   )
 end
 
--- for the processors that produce extra files, i.e. xcf
+--[[
+  NAME
+    libPlugin.create_data_dir - create the specified directory to contain artifacts
+
+  SYNOPSIS
+    libPlugin.create_data_dir(dir)
+      dir - the directory to create
+
+  DESCRIPTION
+    create_data_dir creates a directory to hold artifact data produced by the plugin
+
+  RETURN VALUE
+    none
+
+  ERRORS
+
+
+
+]]
 
 function libPlugin.create_data_dir(dir)
   if not dtutils.checkIfFileExists(dir) then
@@ -245,7 +285,27 @@ function libPlugin.create_data_dir(dir)
   end
 end
 
--- add an activate/deactivate widget to plugin manager for a plugin
+--[[
+  NAME
+    libPlugin.add_plugin_widget - add an activate/deactivate widget for a plugin
+
+  SYNOPSIS
+    libPlugin.add_plugin_widget(req_name, plugin_state)
+      req_name - plugin configuration data
+      plugin_state - true if plugin is active, otherwise false
+
+  DESCRIPTION
+    split_filepath splits a filepath into the path, filename, basename and filetype and puts
+    that in a table
+
+  RETURN VALUE
+    result - a table containing the path, filename, basename, and filetype
+
+  ERRORS
+
+
+
+]]
 
 function libPlugin.add_plugin_widget(req_name, plugin_state)
   local button_text = ""
@@ -280,6 +340,27 @@ function libPlugin.add_plugin_widget(req_name, plugin_state)
   plugin_widget_cnt = plugin_widget_cnt + 1
 end
 
+--[[
+  NAME
+    libPlugin.get_plugin_doc - returns the plugin documentation
+
+  SYNOPSIS
+    result = libPlugin.get_plugin_doc(plugin)
+      plugin - plugin configuration data
+
+  DESCRIPTION
+    get_plugin_doc gets the documentation from the plugin configuration data,
+    assembles it, and returns it.  
+
+  RETURN VALUE
+    result - the included plugin doc, otherwise a statement that no documentation is available
+
+  ERRORS
+
+
+
+]]
+
 -- get the script documentation, with some assumptions
 
 function libPlugin.get_plugin_doc(plugin)
@@ -293,6 +374,26 @@ function libPlugin.get_plugin_doc(plugin)
   end
   return description
 end
+
+--[[
+  NAME
+    libPlugin.activate_plugin - add a plugin to the system
+
+  SYNOPSIS
+    libPlugin.activate_plugin(plugin_data)
+      plugin_data - plugin configuration data
+
+  DESCRIPTION
+    activate_plugin adds a plugin to the system so that it can be used
+
+  RETURN VALUE
+    none
+
+  ERRORS
+
+
+
+]]
 
 function libPlugin.activate_plugin(plugin_data)
   local i = plugin_data
@@ -336,6 +437,27 @@ function libPlugin.activate_plugin(plugin_data)
   end
 end
 
+--[[
+  NAME
+    libPlugin.deactivate_plugin - remove a plugin from the system
+
+  SYNOPSIS
+    libPlugin.deactivate_plugin(plugin_data)
+      plugin_data - plugin configuration data
+
+  DESCRIPTION
+    deactivate_plugin removes a plugin from the system
+
+  RETURN VALUE
+    none
+
+  CAVEATS
+    This works for any processor that doesn't have a widget associated with it
+    such as GIMP, Color Efex Pro 4, Hugin
+
+
+]]
+
 -- deactivate works for any processor that doesn't have a widget associated with it
 -- such as GIMP, Color Efex Pro 4, Hugin
 
@@ -372,7 +494,25 @@ function libPlugin.deactivate_plugin(plugin_data)
   end
 end
 
--- actually start the plugin
+--[[
+  NAME
+    libPlugin.start_plugin - execute the function to start the processor
+
+  SYNOPSIS
+    libPlugin.start_plugin(method)
+      method - a function to start the processor
+
+  DESCRIPTION
+    start_plugin executes the function to start the processor
+
+  RETURN VALUE
+    none
+
+  ERRORS
+
+
+
+]]
 
 function libPlugin.start_plugin(method)
   if method then
@@ -380,8 +520,29 @@ function libPlugin.start_plugin(method)
   end
 end
 
--- stop the plugin...  this is really a placeholder since I'm not quite sure how to do this yet
--- TODO: figure out how to stop a plugin  :D
+--[[
+  NAME
+    libPlugin.stop_plugin - stop a processor plugin
+
+  SYNOPSIS
+    libPlugin.stop_plugin(method)
+      method - a function to execute that stops the plugin
+
+  DESCRIPTION
+    split_filepath splits a filepath into the path, filename, basename and filetype and puts
+    that in a table
+
+    this is really a placeholder since I'm not quite sure how to do this yet
+    TODO: figure out how to stop a plugin  :D
+
+  RETURN VALUE
+    none
+
+  ERRORS
+
+
+
+]]
 
 function libPlugin.stop_plugin(method)
   if method then
@@ -389,9 +550,26 @@ function libPlugin.stop_plugin(method)
   end
 end
 
--- the dt.configuration_check throws an error that breaks the plugin manager
--- this is a gentler method that simply refuses to load a plugin it if it doesn't match
--- the api version
+--[[
+  NAME
+    libPlugin.check_api_version - check that the processor is compatible with the version of darktable
+
+  SYNOPSIS
+    result = libPlugin.check_api_version(ver_table)
+      ver_table - an table of acceptable version strings
+
+  DESCRIPTION
+    dt.configuration_check causes a fatal error to incompatible scripts.  We need a slightly gentler response
+    to prevent crashing the plugin manager.
+
+  RETURN VALUE
+    result - true if compatible, otherwise false
+
+  ERRORS
+
+
+
+]]
 
 function libPlugin.check_api_version(ver_table)
   local dtversion = tostring(dt.configuration.api_version_major) .. "." ..
@@ -405,6 +583,30 @@ function libPlugin.check_api_version(ver_table)
   end
   return match
 end
+
+--[[
+  NAME
+    libPlugin.build_image_table - build a table of images for the exporter
+
+  SYNOPSIS
+    result, count = libPlugin.build_image_table(images, ff)
+      images - a table of the selected images (dt.gui.action_images)
+      ff - export image format
+
+  DESCRIPTION
+    build_image_table creates an export filename for each of the selected images and
+    pairs them in a table, which is returned.  The count of images is also returned
+    so that it can be used to check if we have sufficient images to run the processor
+
+  RETURN VALUE
+    result - a table of dt_lua_image_t, export filepath pairs
+    count - the number of images in the table
+
+  ERRORS
+
+
+
+]]
 
 -- build the image table
 
@@ -431,7 +633,30 @@ function libPlugin.build_image_table(images, ff)
   return image_table, cnt
 end
 
--- export the images
+--[[
+  NAME
+    libPlugin.do_export - export raw images to the requested format
+
+  SYNOPSIS
+    result = libPlugin.do_export(img_tbl, ff, height, width, upscale)
+      img_tbl - table of images to be exported, as produced by the exporter or libPlugin.by build_image_table
+      ff - format of the exported image
+      height - maximum height of export, 0 for original size
+      width - maximum width of export, 0 for original size
+      upscale - boolean, permit upscaling
+
+  DESCRIPTION
+    do_export creates an exporter for the requested format, then populates it with specific and general settings.
+    Once the exporter is created and configured, the images in the image table are exported.
+
+  RETURN VALUE
+    result - true for success
+
+  ERRORS
+
+
+
+]]
 
 function libPlugin.do_export(img_tbl, ff, height, width, upscale)
   local exporter = nil
@@ -461,8 +686,26 @@ function libPlugin.do_export(img_tbl, ff, height, width, upscale)
   return true
 end
 
--- read the plugin input image formats and return a table of them
--- for the format combobox
+--[[
+  NAME
+    libPlugin.get_supported_formats - get the processor supported input formats
+
+  SYNOPSIS
+    result = libPlugin.get_supported_formats(plugin_data)
+      plugin_data - plugin configuration data
+
+  DESCRIPTION
+    Read the plugin_data.DtPluginInputFormats and return a table of the supported
+    ones
+
+  RETURN VALUE
+    result - a table the strings for the format combobox
+
+  ERRORS
+
+
+
+]]
 
 function libPlugin.get_supported_formats(plugin_data)
   local formats = {}
