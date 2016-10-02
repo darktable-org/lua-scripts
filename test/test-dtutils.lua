@@ -1,3 +1,12 @@
+--[[
+
+    test-dtutils.lua - the start of a testing framework idea....
+
+    copyright (c) 2016 Bill Ferguson
+
+    TODO: Think this out a little better
+]]
+
 dt = require "darktable"
 require "lib/dtutils"
 du = dtutils
