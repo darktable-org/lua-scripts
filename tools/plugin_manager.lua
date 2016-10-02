@@ -63,7 +63,7 @@ before they are used, resulting in crashes and an ugly run of error messages.  T
 we turn off garbage collection during startup and re-enable it at the end of the script.
 ]]
 
-collectgarbage("stop")
+-- collectgarbage("stop")
 
 local plugin_path = dt.configuration.config_dir .. "/lua/plugins"
 
@@ -133,5 +133,5 @@ pmstartup = false
 
 -- restart the garbage collector now that we are done creating widgets
 
-collectgarbage("restart")
+-- collectgarbage("restart")
 

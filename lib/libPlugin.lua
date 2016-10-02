@@ -376,7 +376,7 @@ end
 
 function libPlugin.start_plugin(method)
   if method then
-    prequire(dtutils.chop_filetype(method))
+    dtutils.prequire(dtutils.chop_filetype(method))
   end
 end
 
@@ -385,7 +385,7 @@ end
 
 function libPlugin.stop_plugin(method)
   if method then
-    prequire(dtutils.chop_filetype(method))
+    dtutils.prequire(dtutils.chop_filetype(method))
   end
 end
 

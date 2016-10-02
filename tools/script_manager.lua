@@ -61,21 +61,31 @@
     * Made it self aware so it doesn't include itself
     * Added plugin support (ignore them)
     * Put the example scripts back in
-
+  20161001
+    * Added libs to the ignore list
+    * broke the scripts down into categories (official/contrib/examples)
 
 ]]
+
 local dt = require "darktable"
 
 dt.configuration.check_version(...,{3,0,0})
 
+-- collectgarbage("stop")
+
+-- set up a namespace so we don't pollute
+
+script_manager = {}
+
 local lua_path = dt.configuration.config_dir .. "/lua"
 local lua_script_repo = "https://github.com/darktable-org/lua-scripts.git"
 local script_controller_not_installed = true
-local script_widgets = {}
-local widget_cnt = 1
+script_manager.script_widgets = {}
+script_manager.script_categories = {}
+script_manager.script_names = {}
 
 -- Thanks Tobias Jakobs for the idea and the correction
-function checkIfFileExists(filepath)
+local function checkIfFileExists(filepath)
   local file = io.open(filepath,"r")
   local ret
   if file ~= nil then 
@@ -105,6 +115,22 @@ local function checkIfBinExists(bin)
   return ret
 end
 
+local function updateComboboxChoices(combobox, choice_table)
+  local items = #combobox
+  local choices = #choice_table
+  for i, name in ipairs(choice_table) do 
+    print("Setting " .. i .. " to " .. name)
+    combobox[i] = name
+  end
+  if choices < items then
+    for j = items, choices + 1, -1 do
+      print("Removing choice " .. j)
+      combobox[j] = nil
+    end
+  end
+  combobox.value = 1
+end
+
 -- Thanks Jérémy Rosen
 local function load_scripts()
   local output = io.popen("cd "..dt.configuration.config_dir.."/lua ;find . -name \\*.lua -print | sort")
@@ -112,27 +138,96 @@ local function load_scripts()
     local req_name = line:sub(3,-5)
     if not string.match(req_name, "script_manager") then  -- let's not include ourself
       if not string.match(req_name, "plugin") then -- skip plugins and plugin_manager
-        if not string.match(req_name, "yield") then -- special case, because everything needs this
-        -- check if we know about this script
-          if dt.preferences.read("script_controller", req_name, "bool") then
-            prequire(req_name)
-            if script_controller_not_installed then
-              add_script_widget(req_name, true)
-            end
+        if not string.match(req_name, "lib") then -- let's not try and run libraries
+          if not string.match(req_name, "yield") then -- special case, because everything needs this
+            script_manager.add_script_data(req_name)
           else
-            dt.preferences.write("script_controller", req_name, "bool", false)
-            if script_controller_not_installed then
-              add_script_widget(req_name, false)
-            end
+            script_manager.prequire(req_name) -- load yield.lua
           end
-        else
-          prequire(req_name)
         end
       end
     end
   end
   
   if script_controller_not_installed then
+    table.sort(script_manager.script_categories)
+    for _,cat in ipairs(script_manager.script_categories) do
+      table.sort(script_manager.script_names[cat])
+      local tmp = {}
+      for _,sname in ipairs(script_manager.script_names[cat]) do
+        local req = script_manager.join({cat, sname}, "/")
+        local btext = "Activate "
+        if dt.preferences.read("script_controller", req, "bool") then
+          script_manager.prequire(req)
+          btext = "Deactivate "
+        else
+          dt.preferences.write("script_controller", req, "bool", false)
+        end
+        tmp[#tmp + 1] = dt.new_widget("button")
+        {
+          label = btext .. sname,
+          tooltip = script_manager.get_script_doc(req),
+          clicked_callback = function (self)
+            -- split the label into action and target
+            local action, target = string.match(self.label, "(.+) (.+)")
+            -- load the script if it's not loaded
+            local scat = ""
+            for _,scatn in ipairs(script_manager.script_categories) do
+              if string.match(unpack(script_manager.script_names[scatn]), target) then
+                scat = scatn 
+              end
+            end
+            local starget = script_manager.join({scat, target}, "/")
+            if action == "Activate" then
+              dt.preferences.write("script_controller", starget, "bool", true)
+              dt.print_error("Loading " .. target)
+              local status, lib = pcall(require, starget)
+      --        require(target)
+              if status then
+                dt.print("Loaded " .. target)
+              else
+                dt.print_error("Error loading " .. target)
+                print(lib)
+              end
+              self.label = "Deactivate " .. target
+            else
+              dt.preferences.write("script_controller", starget, "bool", false)
+              -- ideally we would call a deactivate method provided by the script
+              dt.print(target .. " will not be active when darktable is restarted")
+              self.label = "Activate " .. target
+            end
+          end
+        }
+      end
+
+      script_manager.script_widgets[cat] = dt.new_widget("box")
+      {
+        orientation = "vertical",
+        table.unpack(tmp),
+      }
+    end
+
+    local cat_combobox = dt.new_widget("combobox")
+    {
+      label = "Script Category",
+      tooltip = "Select script category",
+      value = 1, "placeholder",
+      changed_callback = function(self)
+        print("value is ", self.value)
+        script_manager.sm[2] = nil
+        script_manager.sm[2] = script_manager.script_widgets[self.value]
+      end
+    }
+
+    updateComboboxChoices(cat_combobox, script_manager.script_categories)
+
+    script_manager.sm = dt.new_widget("box")
+    {
+      orientation = "vertical",
+      cat_combobox,
+      dt.new_widget("separator"){}
+    }
+
     -- install it
     dt.register_lib(
       "Script Controller",     -- Module name
@@ -140,21 +235,18 @@ local function load_scripts()
       true,                -- expandable
       false,               -- resetable
       {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_BOTTOM", 100}},   -- containers
-      dt.new_widget("box") -- widget
-      {
-        orientation = "vertical",
-        table.unpack(script_widgets),
-      },
+      script_manager.sm,
       nil,-- view_enter
       nil -- view_leave
     )
     script_controller_not_installed = false
+    cat_combobox.value = 1
   end
 end
 
 -- protected require, load but recover frome errors
 
-function prequire(req_name)
+function script_manager.prequire(req_name)
   dt.print_error("Loading " .. req_name)
   local status, lib = pcall(require, req_name)
   if status then
@@ -165,46 +257,48 @@ function prequire(req_name)
   end
 end
 
-function add_script_widget(req_name, script_state)
-  local button_text = ""
-  if script_state then
-    button_text = "Deactivate " .. req_name
-  else
-    button_text = "Activate " .. req_name
-  end
-  script_widgets[widget_cnt] = dt.new_widget("button")
-  {
-    label = button_text,
-    tooltip = get_script_doc(req_name),
-    clicked_callback = function (self)
-      -- split the label into action and target
-      local action, target = string.match(self.label, "(.+) (.+)")
-      -- load the script if it's not loaded
-      if action == "Activate" then
-        dt.preferences.write("script_controller", target, "bool", true)
-        dt.print_error("Loading " .. target)
-        local status, lib = pcall(require, target)
---        require(target)
-        if status then
-          dt.print("Loaded " .. target)
-        else
-          dt.print_error("Error loading " .. target)
-          print(lib)
-        end
-        self.label = "Deactivate " .. target
-      else
-        dt.preferences.write("script_controller", target, "bool", false)
-        -- ideally we would call a deactivate method provided by the script
-        dt.print(target .. " will not be active when darktable is restarted")
-        self.label = "Activate " .. target
+local function split(str, pat)
+   local t = {}  -- NOTE: use {n = 0} in Lua-5.0
+   local fpat = "(.-)" .. pat
+   local last_end = 1
+   local s, e, cap = str:find(fpat, 1)
+   while s do
+      if s ~= 1 or cap ~= "" then
+        table.insert(t,cap)
       end
-    end
-  }
-  widget_cnt = widget_cnt + 1
+      last_end = e+1
+      s, e, cap = str:find(fpat, last_end)
+   end
+   if last_end <= #str then
+      cap = str:sub(last_end)
+      table.insert(t, cap)
+   end
+   return t
+end
+
+-- Thanks to http://lua-users.org/wiki/SplitJoin
+function script_manager.join(tabl, pat)
+  returnstr = ""
+  for i,str in pairs(tabl) do
+    returnstr = returnstr .. str .. pat
+  end
+  return string.sub(returnstr, 1, -(pat:len() + 1))
+end
+
+function script_manager.add_script_data(req_name)
+  local parts = split(req_name, "/")
+  local category = parts[1]
+  local script = parts[2]
+
+  if #script_manager.script_categories == 0 or not string.match(script_manager.join(script_manager.script_categories, " "), category) then
+    script_manager.script_categories[#script_manager.script_categories + 1] = category
+    script_manager.script_names[category] = {}
+  end
+  script_manager.script_names[category][#script_manager.script_names[category] + 1] = script
 end
 
 -- get the script documentation, with some assumptions
-function get_script_doc(script)
+function script_manager.get_script_doc(script)
   local description = nil
   f = io.open(lua_path .. "/" .. script .. ".lua")
   if f then
@@ -236,7 +330,7 @@ if checkIfFileExists(lua_path) then
   action_button_text = "Update Scripts"
 end
 
-action_button =  dt.new_widget("button")
+script_manager.action_button =  dt.new_widget("button")
 {
   label = action_button_text,
   clicked_callback = function (_)
@@ -288,14 +382,14 @@ action_button =  dt.new_widget("button")
           load_scripts()
           dt.preferences.write("script_manager", "repository", "string", script_repo)
 --          require("contrib/gimp")
-          action_button.label = "Update Scripts"
+          script_manager.action_button.label = "Update Scripts"
         end
       end
     end
   end
 }
 
-repository = dt.new_widget("entry")
+script_manager.repository = dt.new_widget("entry")
 {
     text = script_repo,
 }
@@ -317,9 +411,11 @@ dt.register_lib(
   dt.new_widget("box") -- widget
   {
     orientation = "vertical",
-    repository,
-    action_button,
+    script_manager.repository,
+    script_manager.action_button,
   },
   nil,-- view_enter
   nil -- view_leave
 )
+
+-- collectgarbage("restart")
