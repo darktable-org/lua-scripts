@@ -94,6 +94,7 @@ local function attach_tags()
   
   if next(image_tags) == nil then
     dt.print("No tags to attached, please copy tags first.")
+    return true
   end
   
   local sel_images = dt.gui.action_images
@@ -144,42 +145,44 @@ end
 -- create modul Tagging addons
 taglist_label.reset_callback = mcopy_tags
 
-dt.register_lib("tagging_addon","Tagging addon",true,false,{
-    [dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER",500}
-    },
-    dt.new_widget("box")
-    {
-      orientation = "vertical",
-       dt.new_widget("button")
-       {
+-- create buttons and elements
+local mc_button = dt.new_widget("button") {
          label = "multi copy tags",
-         clicked_callback = mcopy_tags
-       },
-       dt.new_widget("button")
-       {
+         clicked_callback = mcopy_tags}
+
+local p_button = dt.new_widget("button") {
          label = "paste tags",
-         clicked_callback = attach_tags
-       },
-       dt.new_widget("button")
-       {
+         clicked_callback = attach_tags}
+
+local rep_button = dt.new_widget("button") {
          label = "replace tags",
-         clicked_callback = replace_tags
-       },
-       dt.new_widget("button")
-       {
+         clicked_callback = replace_tags}
+
+local rem_button = dt.new_widget("button") {
          label = "remove all tags",
-         clicked_callback = detach_tags
-       },
-       dt.new_widget("label")
-       {
+         clicked_callback = detach_tags}
+
+local taglabel = dt.new_widget("label") {
          label = "tag clipboard",
          selectable = false,
          ellipsize = "middle",
-         halign = "start"
-       },
-       dt.new_widget("separator"){},
-       taglist_label
-     },
+         halign = "start"}
+
+
+-- create modul
+dt.register_lib("tagging_addon","Tagging addon",true,false,{
+    [dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER",500}
+    },
+    dt.new_widget("box") {
+      orientation = "vertical",
+      mc_button,
+      p_button,
+      rep_button,
+      rem_button,
+      taglabel,
+      dt.new_widget("separator"){},
+      taglist_label
+    },
    nil,
    nil
   )
