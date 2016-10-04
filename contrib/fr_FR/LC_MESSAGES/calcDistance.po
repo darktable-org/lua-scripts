@@ -1,0 +1,22 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-01-31 22:57+0100\n"
+"PO-Revision-Date: 2016-10-03 14:58+0200\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Pascal Obry <pascal@obry.net>\n"
+"Language-Team: \n"
+"X-Generator: Poedit 1.8.9\n"
+
+#: calcDistance.lua:93
+msgid "Calculate the distance from latitude and longitude in km"
+msgstr "Calcule la distance en km entre les positions GPS de deux images"

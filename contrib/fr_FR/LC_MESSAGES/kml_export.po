@@ -1,0 +1,46 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Lua gettextTest\n"
+"POT-Creation-Date: 2016-01-22 15:33+0100\n"
+"PO-Revision-Date: 2016-10-03 15:15+0200\n"
+"Last-Translator: Pascal Obry <pascal@obry.net>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.9\n"
+"X-Poedit-Basepath: .\n"
+"Plural-Forms: nplurals=2;t\" plural=(n != 1);\n"
+"X-Poedit-KeywordsList: gettext;dgettext:2;dcgettext:2;ngettext:1,2;dngettext:2,3\n"
+"X-Poedit-SearchPath-0: .\n"
+
+msgid "KML/KMZ Export"
+msgstr "export kml/kmz"
+
+msgid "Export Image %i/%i"
+msgstr "export image %i/%i"
+
+msgid "KML export: Open KML/KMZ file after export"
+msgstr "export kml: ouvrir le fichier kml/kmz après l'export"
+
+msgid "Opens the KML file after the export with the standard programm for KML files"
+msgstr "ouvrir le fichier kml après l'export avec le lecteur kml par défaut"
+
+msgid "KML export: Export directory"
+msgstr "export kml : répertoire pour l'export"
+
+msgid "A directory that will be used to export the KML/KMZ files"
+msgstr "Le répertoire utiliser pour les fichiers d'export kml/kmz"
+
+msgid "KML export: Connect images with path"
+msgstr "export kml: connecter les images avec un chemin"
+
+msgid "connect all images with a path"
+msgstr "connecter toutes les images avec un chemin"
+
+msgid "KML export: Create KMZ file"
+msgstr "export kml: créer un fichier kmz"
+
+msgid "Compress all imeges to one KMZ file"
+msgstr "compresser les images en un fichier kmz"
