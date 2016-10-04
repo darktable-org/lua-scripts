@@ -94,6 +94,7 @@ local function attach_tags()
   
   if next(image_tags) == nil then
     dt.print("No tags to attached, please copy tags first.")
+    return true
   end
   
   local sel_images = dt.gui.action_images
