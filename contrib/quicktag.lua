@@ -1,6 +1,9 @@
 --[[
     This file is part of darktable,
-    copyright 2016 by Christian Kanzian.
+    Copyright (C) 2016 by Christian Kanzian
+
+    Thanks to
+    Copyright (C) 2016 Bill Ferguson
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,40 +21,59 @@
 
 --[[
    QUICKTAGS
-   This script that will create shortcuts and add a modul in lighttable mode to quickly attach tags. You have to create this tags before in the tagging module
+   This script that will create shortcuts, a list of tag entries in the preferences and
+   add a modul in lighttable mode to quickly attach tags. If the tags do not exist in your databse,
+   you have to create them in the tagging module.
 
-INSTALATION
- * copy this file in $CONFIGDIR/lua/ where CONFIGDIR is your darktable configuration directory
- * add the following line in the file $CONFIGDIR/luarc require "quicktag"
+   INSTALATION
+   * copy this file in $CONFIGDIR/lua/ where CONFIGDIR is your darktable configuration directory
+   * add the following line in the file $CONFIGDIR/luarc require "quicktag"
 
 USAGE
- * set the shortcuts your in the preferences dialog
- * change the entries as needed
+   * set the shortcuts and prefered tags your in the preferences dialog
+   * use the shortcuts or the buttons to attach the tags to selected images
+   * change the entries as needed
+   * use the "save taglist" button to update your preferences
  
 TODO
- * make number of quicktag entries dynamic
- * store tag entries in the hidden preferences
-
-]]
+   * enhance button and entry layout in the module
+   * autosave tag entries
+ ]]
 
 
 local dt = require "darktable"
 dt.configuration.check_version(...,{4,0,0})
 
 -- register number of quicktags
---dt.preferences.register("quickTag",         
---                        "quickTagnumber",  
---                        "integer",                    -- type
---                        "number of quick tag fields",           -- label
---                        "number of quick tag fields from 2 to 10",   -- tooltip
---                        3,                            -- default
---                        2,                            -- min
---                     10)   
+dt.preferences.register("quickTag",         
+                        "quickTagnumber",  
+                        "integer",                    -- type
+                        "number of quick tag fields",           -- label
+                        "number of quick tag fields from 2 to 10 - needs a restart",   -- tooltip
+                        3,                            -- default
+                        2,                            -- min
+                     10)   
 
---local qnr = dt.preferences.read("quickTag", "quickTagnumber", "integer")			
+local qnr = dt.preferences.read("quickTag", "quickTagnumber", "integer")
 
--- set number of entries static now because i do not know howto create the modul dynamic
-local qnr = 5
+-- set quicktag in the preferences
+for j=1,qnr do
+   dt.preferences.register("quickTag",
+                        "quicktag"..j,
+                        "string",                    -- type
+                        "quick tag "..j,           -- label
+                        "please create the tags before in the tagging module",   -- tooltip
+                        ""                            -- default
+                        )
+end
+
+-- get quicktags from the preferences
+local quicktag_table = {}
+
+for j=1,qnr do
+   quicktag_table[j] = dt.preferences.read("quickTag", "quicktag"..j, "string")
+end
+
 
 -- quicktag function to attach tags
 local function tagattach(tag)
@@ -68,40 +90,68 @@ local function tagattach(tag)
   
   local sel_images = dt.gui.action_images
   
-  for _,image in ipairs(sel_images) do
-    dt.tags.attach(tagnr,image)
+  if next(sel_images) == nil then
+    dt.print("no images selected")
+    return true
   end
-  dt.print("tag \""..tag.."\" attached")
+
+  local counter = 0
+
+  for _,image in ipairs(sel_images) do
+     dt.tags.attach(tagnr,image)
+     counter = counter+1
+  end
+  dt.print("tag \""..tag.."\" attached to "..counter.." images")
 end
 
 
--- quicktag module
-
+-- quicktag module elements
 local tagentries = {}
 
 for j=1,qnr do
   tagentries[#tagentries+1] = dt.new_widget("entry")
     {
-    text = "qtest", 
-    placeholder = "placeholder",
+    text = quicktag_table[j],
+    placeholder = "your tag "..j,
     is_password = true,
     editable = true,
-    tooltip = "Tooltip Text",
-    reset_callback = function(self) self.text = "test" end
+    tooltip = "enter your tag here",
+   -- would be nice if the tags gets autosaved to the preferences?
+   -- reset_callback =
     }
 end
 
-local label = dt.new_widget("label")
-label.label = "MyLabel" -- This is an alternative way to the "{}" syntax to set a property 
---end
 
-local button_tab = {}
+local button = {}
 
 for j=1,qnr do
-  button_tab[#button_tab+1] = dt.new_widget("button") {
-         label = "tag "..j,
-         clicked_callback = function () tagattach(tostring(tagentries[j].text)) end}
+  button[#button+1] = dt.new_widget("button") {
+         label = "apply tag "..j,
+         clicked_callback = function() tagattach(tostring(tagentries[j].text)) end}
 end
+
+-- back UI elements in a table
+-- thanks to wpferguson for the hint
+local widget_table = {}
+
+for i=1,qnr do
+  widget_table[#widget_table  + 1] = tagentries[i]
+  widget_table[#widget_table + 1] = button[i]
+end
+
+local dump_to_preferences = dt.new_widget("button") {
+         label = "save taglist",
+         tooltip = "update the taglist in the preferences",
+         clicked_callback = function()
+           for j=1,qnr do
+             dt.preferences.write("quickTag", "quicktag"..j, "string",  tagentries[j].text)
+           end
+     end}
+
+-- add to dump button to widget_table
+widget_table[#widget_table  + 1] = dt.new_widget("separator"){}
+widget_table[#widget_table  + 1] = dump_to_preferences
+
 
      
 --create modul static. it would be nice to place button and entry side by side
@@ -110,27 +160,17 @@ dt.register_lib(
   "quick tag",     -- name
   true,                -- expandable
   false,               -- resetable
-  {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 490}},   -- containers
+  {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 490}},
     
   dt.new_widget("box"){
     orientation = "vertical",
-    button_tab[1],
-    tagentries[1],
-    button_tab[2],
-    tagentries[2],
-    button_tab[3],
-    tagentries[3],
-    button_tab[4],
-    tagentries[4],
-    button_tab[5],
-    tagentries[5]},
+    table.unpack(widget_table),
+
+  },
   nil,-- view_enter
   nil -- view_leave
 )
 
-print(tostring(tagentries.text))
-
---local testtag = "qtest"
 -- create shortcuts
 for i=1,qnr do
   dt.register_event("shortcut", 
