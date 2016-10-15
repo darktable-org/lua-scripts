@@ -22,6 +22,7 @@
 
 local dt = require "darktable"
 local dtutils = require "lib/dtutils"
+local dtfileutils = require "lib/dtutils.file"
 
 libHugin = {}
 
@@ -64,7 +65,7 @@ function libHugin.create_panorama(image_table, pd)
 -- http://hugin.sourceforge.net/docs/manual/Pto_gen.html
 
   local hugin_executor = false
-  if (dtutils.checkIfBinExists("hugin_executor") and dtutils.checkIfBinExists("pto_gen")) then
+  if (dtfileutils.checkIfBinExists("hugin_executor") and dtfileutils.checkIfBinExists("pto_gen")) then
     hugin_executor = true
   end
 
@@ -114,27 +115,27 @@ function libHugin.create_panorama(image_table, pd)
     if hugin_executor then
       -- save the pto file in the plugin data dir
       local pto_filename = data_dir .. "/" .. data_filename .. ".pto"
-      while checkIfFileExists(pto_filename) do
-        pto_filename = filename_increment(pto_filename)
+      while dtfileutils.checkIfFileExists(pto_filename) do
+        pto_filename = dtfileutils.filename_increment(pto_filename)
         -- limit to 99 more exports of the original export
-        if string.match(get_basename(pto_filename), "_(d-)$") == "99" then 
+        if string.match(dtfileutils.get_basename(pto_filename), "_(d-)$") == "99" then 
           break 
         end
       end
-      dtutils.fileMove(dt.configuration.tmp_dir.."/project.pto", pto_filename)
+      dtfileutils.fileMove(dt.configuration.tmp_dir.."/project.pto", pto_filename)
     end
     -- the only tif left should be the program output
     -- move the resulting tif, project.tif into the collection and import it
     -- then tag it as created by hugin
     local myimg_name = collection_path .. "/" .. data_filename .. ".tif"
-    while checkIfFileExists(myimg_name) do
-      myimg_name = filename_increment(myimg_name)
+    while dtfileutils.checkIfFileExists(myimg_name) do
+      myimg_name = dtfileutils.filename_increment(myimg_name)
       -- limit to 99 more exports of the original export
-      if string.match(get_basename(myimg_name), "_(d-)$") == "99" then 
+      if string.match(dtfileutils.get_basename(myimg_name), "_(d-)$") == "99" then 
         break 
       end
     end
-    dtutils.fileMove(dt.configuration.tmp_dir.."/project.tif", myimg_name)
+    dtfileutils.fileMove(dt.configuration.tmp_dir.."/project.tif", myimg_name)
     local myimage = dt.database.import(myimg_name)
     local tag = dt.tags.create("Creator|Hugin")
     dt.tags.attach(tag, myimage)

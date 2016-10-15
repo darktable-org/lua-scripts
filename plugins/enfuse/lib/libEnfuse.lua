@@ -17,7 +17,8 @@
     along with darktable.  If not, see <http://www.gnu.org/licenses/>.
 ]]
 
-require "lib/dtutils"
+local dtutils = require "lib/dtutils"
+local dtfileutils = require "lib/dtutils.file"
 local dt = require "darktable"
 local gettext = dt.gettext
 -- Tell gettext where to find the .mo file translating messages for a particular domain
@@ -46,10 +47,6 @@ libEnfuse = {}
   RETURN VALUE
     result - the response file on success, or nil if there was an error
 
-  ERRORS
-
-
-
 ]]
 
 function libEnfuse.build_response_file(image_table, will_align)
@@ -69,7 +66,7 @@ function libEnfuse.build_response_file(image_table, will_align)
     local align_img_list = ""
     for img, exp_img in pairs(image_table) do
       cnt = cnt + 1
-      align_img_list = align_img_list .. " " .. dtutils.sanitize_filename(exp_img)
+      align_img_list = align_img_list .. " " .. "'" .. exp_img .. "'"
     end
     -- need at least 2 images to align
     if cnt > 1 then
@@ -140,10 +137,6 @@ end
   RETURN VALUE
     none
 
-  ERRORS
-
-
-
 ]]
 
 function libEnfuse.cleanup(res_file)
@@ -174,13 +167,10 @@ end
   RETURN VALUE
     result - true if aligment can be done, otherwise false
 
-  ERRORS
-
-
-
 ]]
+
 function libEnfuse.can_align()
-  return dtutils.checkIfBinExists('align_image_stack')
+  return dtfileutils.check_if_bin_exists('align_image_stack')
 end
 
 --[[
@@ -197,14 +187,10 @@ end
   RETURN VALUE
     result - the name of the executable to use
 
-  ERRORS
-
-
-
 ]]
 
 function libEnfuse.get_enfuse_executable()
-  return dtutils.checkIfBinExists('enfuse-mp') and "enfuse-mp" or "enfuse"
+  return dtfileutils.check_if_bin_exists('enfuse-mp') and "enfuse-mp" or "enfuse"
 end
 
 -- enfuse_hdr specific widgets included in the library so that they are easy to find
@@ -248,10 +234,6 @@ libEnfuse.hdr_align = dt.new_widget("check_button")
   RETURN VALUE
     result - the hdr widgets enclosed in a box widget
 
-  ERRORS
-
-
-
 ]]
 
 function libEnfuse.create_hdr_widget()
@@ -290,10 +272,6 @@ libEnfuse.hdr_widget = libEnfuse.create_hdr_widget()
   RETURN VALUE
     none
 
-  ERRORS
-
-
-
 ]]
 
 function libEnfuse.enfuse_hdr(image_table, plugin_data)
@@ -322,10 +300,10 @@ function libEnfuse.enfuse_hdr(image_table, plugin_data)
 
     local output_image = target_dir.."/" .. hdr_file_name .. ".tif"
 
-    while dtutils.checkIfFileExists(output_image) do
-      output_image = dtutils.filename_increment(output_image)
+    while dtfileutils.checkIfFileExists(output_image) do
+      output_image = dtfileutils.filename_increment(output_image)
       -- limit to 99 more hdr attempts
-      if string.match(dtutils.get_basename(output_image), "_(d-)$") == "99" then 
+      if string.match(dtfileutils.get_basename(output_image), "_(d-)$") == "99" then 
         break 
       end
     end
@@ -333,7 +311,7 @@ function libEnfuse.enfuse_hdr(image_table, plugin_data)
     local enfuse_executable = libEnfuse.get_enfuse_executable()
 
     -- call enfuse on the response file
-    local command = enfuse_executable .. " --depth "..libEnfuse.depth.value.." --exposure-mu "..dtutils.fixSliderFloat(mu)
+    local command = enfuse_executable .. " --depth "..libEnfuse.depth.value.." --exposure-mu "..mu
                     .." -o \""..output_image.."\" \"@"..response_file.."\""
     dt.print(_("Launching enfuse..."))
     if dt.control.execute(command) then
@@ -412,10 +390,6 @@ libEnfuse.contrast_edge = dt.new_widget("slider")
   RETURN VALUE
     result - the focus stack widgets enclosed in a box widget
  
-  ERRORS
-
-
-
 ]]
 
 function libEnfuse.create_stack_widget()
@@ -460,10 +434,6 @@ libEnfuse.stack_widget = libEnfuse.create_stack_widget()
   RETURN VALUE
     none
 
-  ERRORS
-
-
-
 ]]
 
 function libEnfuse.enfuse_stack(image_table, plugin_data)
@@ -491,10 +461,10 @@ function libEnfuse.enfuse_stack(image_table, plugin_data)
     -- call enfuse on the response file
     local output_image = target_dir.."/" .. stack_file_name .. ".tif"
 
-    while dtutils.checkIfFileExists(output_image) do
-      output_image = dtutils.filename_increment(output_image)
+    while dtfileutils.checkIfFileExists(output_image) do
+      output_image = dtfileutils.filename_increment(output_image)
       -- limit to 99 more hdr attempts
-      if string.match(dtutils.get_basename(output_image), "_(d-)$") == "99" then 
+      if string.match(dtfileutils.get_basename(output_image), "_(d-)$") == "99" then 
         break 
       end
     end
@@ -504,7 +474,7 @@ function libEnfuse.enfuse_stack(image_table, plugin_data)
     local command = enfuse_executable .. " --depth "..libEnfuse.stack_depth.value
                     ..stack_args.." --gray-projector="..libEnfuse.gray_projector.value
                     .." --contrast-window-size="..libEnfuse.contrast_window.value
-                    .." --contrast-edge-scale="..dtutils.fixSliderFloat(libEnfuse.contrast_edge.value)
+                    .." --contrast-edge-scale="..libEnfuse.contrast_edge.value
                     .." -o \""..output_image.."\" \"@"..response_file.."\""
     dt.print(_("Launching enfuse..."))
     if dt.control.execute(command) then

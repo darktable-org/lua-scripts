@@ -24,8 +24,9 @@
 ]]
 
 local dt = require "darktable"
-require "lib/dtutils"
-require "lib/libPlugin"
+local dtutils = require "lib/dtutils"
+local dtfileutils = require "lib/dtutils.file"
+local libPlugin = require "lib/libPlugin"
 
 local gettext = dt.gettext
 -- Tell gettext where to find the .mo file translating messages for a particular domain
@@ -39,7 +40,7 @@ libGimp = {}
 
 --[[
   NAME
-    libHugin.create_panorama - create a panorama from the supplied images
+    libGimp.gimp_edit - edit the selected images with GIMP
 
   SYNOPSIS
     libGimp.gimp_edit(image_table, plugin_data)
@@ -88,35 +89,41 @@ function libGimp.gimp_edit(image_table, plugin_data) --finalize
 
   for image,exported_image in pairs(image_table) do
 
-    local myimage_name = image.path .. "/" .. dtutils.get_filename(exported_image)
+    local myimage_name = image.path .. "/" .. dtfileutils.get_filename(exported_image)
 
-    while dtutils.checkIfFileExists(myimage_name) do
-      myimage_name = dtutils.filename_increment(myimage_name)
+    while dtfileutils.check_if_file_exists(myimage_name) do
+      myimage_name = dtfileutils.filename_increment(myimage_name)
       -- limit to 99 more exports of the original export
-      if string.match(dtutils.get_basename(myimage_name), "_(d-)$") == "99" then 
+      if string.match(dtfileutils.get_basename(myimage_name), "_(d-)$") == "99" then 
         break 
       end
     end
 
     dt.print_error("moving " .. exported_image .. " to " .. myimage_name)
-    result = dtutils.fileMove(exported_image, myimage_name)
+    local result = dtfileutils.fileMove(exported_image, myimage_name)
+    if result then
+      dt.print_error("importing file")
+      local myimage = dt.database.import(myimage_name)
 
+      myimage:group_with(image.group_leader)
+
+      for _,tag in pairs(dt.tags.get_tags(image)) do 
+        if not (string.sub(tag.name,1,9) == "darktable") then
+          dt.print_error("attaching tag")
+          dt.tags.attach(tag,myimage)
+        end
+      end
+    else
+      dt.print(string.format(_("Unable to move edited file into collection. Leaving it as %s"), exported_image))
+    end
+    
     -- save the xcf file if it was created
 
-    local xcf_file = dtutils.chop_filetype(exported_image) .. ".xcf"
-    if dtutils.checkIfFileExists(xcf_file) then
-      dtutils.fileMove(xcf_file, data_dir .. "/" .. dtutils.get_filename(xcf_file))
-    end
-
-    dt.print_error("importing file")
-    local myimage = dt.database.import(myimage_name)
-
-    dtutils.groupIfNotMember(image, myimage)
-
-    for _,tag in pairs(dt.tags.get_tags(image)) do 
-      if not (string.sub(tag.name,1,9) == "darktable") then
-        dt.print_error("attaching tag")
-        dt.tags.attach(tag,myimage)
+    local xcf_file = dtfileutils.chop_filetype(exported_image) .. ".xcf"
+    if dtfileutils.check_if_file_exists(xcf_file) then
+      local xcf_result = dtfileutils.fileMove(xcf_file, data_dir .. "/" .. dtfileutils.get_filename(xcf_file))
+      if not xcf_result then
+        dt.print(string.format(_("Unable to move xcf file into data directory. Leaving it as %s"), xcf_file))
       end
     end
   end
