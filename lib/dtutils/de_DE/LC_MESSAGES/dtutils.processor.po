@@ -12,17 +12,12 @@ msgstr ""
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"Language: de_DE\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: dtutils.lua:390
+#: dtutils.processor.lua:42
 #, lua-format
 msgid "Export Image %i/%i"
 msgstr "Exportiere Bild %i/%i"
-
-#: dtutils.lua:822
-#, lua-format
-msgid "Unable to move edited file into collection. Leaving it as %s"
-msgstr "Die bearbeitete Datei kann nicht in die Sammlung aufgenommen werden. Bearbeitete Datei ist %s"
