@@ -136,7 +136,7 @@ local function load_scripts()
     local req_name = line:sub(3,-5)
     if not string.match(req_name, "script_manager") then  -- let's not include ourself
       if not string.match(req_name, "plugin") then -- skip plugins and plugin_manager
-        if not string.match(req_name, "lib") then -- let's not try and run libraries
+        if not string.match(req_name, "lib/") then -- let's not try and run libraries
           if not string.match(req_name, "yield") then -- special case, because everything needs this
             script_manager.add_script_data(req_name)
           else
@@ -156,7 +156,8 @@ local function load_scripts()
         local req = script_manager.join({cat, sname}, "/")
         local btext = "Activate "
         if dt.preferences.read("script_controller", req, "bool") then
-          script_manager.prequire(req)
+--          script_manager.prequire(req)
+          require(req)
           btext = "Deactivate "
         else
           dt.preferences.write("script_controller", req, "bool", false)
@@ -180,7 +181,7 @@ local function load_scripts()
               dt.preferences.write("script_controller", starget, "bool", true)
               dt.print_error("Loading " .. target)
               local status, lib = pcall(require, starget)
-      --        require(target)
+              -- require(starget)
               if status then
                 dt.print("Loaded " .. target)
               else
@@ -285,8 +286,6 @@ function script_manager.add_script_data(req_name)
   local parts = split(req_name, "/")
   local category = parts[1]
   local script = parts[2]
-  print("category is " .. category)
-  print("script is " .. script)
 
   if #script_manager.script_categories == 0 or not string.match(script_manager.join(script_manager.script_categories, " "), category) then
     script_manager.script_categories[#script_manager.script_categories + 1] = category

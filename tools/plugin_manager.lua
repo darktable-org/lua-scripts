@@ -38,13 +38,10 @@
 
 ]]
 local dt = require "darktable"
-require "lib/dtutils"
-require "lib/libPlugin"
+local dtutils = require "lib/dtutils"
+local dtfileutils = require "lib/dtutils.file"
+local libPlugin = require "lib/libPlugin"
 local log = require "lib/libLog"
-log.setLevel("debug")
--- dtdb = require "darktable.debug"
--- dtdb.debug = true
--- print(dtdb.dump(_G, "Global Environment"))
 
 dt.configuration.check_version(...,{3,0,0})
 
@@ -67,7 +64,7 @@ collectgarbage("stop")
 
 local plugin_path = dt.configuration.config_dir .. "/lua/plugins"
 
-if not dtutils.checkIfFileExists(plugin_path) then
+if not dtfileutils.check_if_file_exists(plugin_path) then
   -- no plugin directory, therefore nothing to do
   return
 end
