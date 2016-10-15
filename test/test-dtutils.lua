@@ -7,110 +7,92 @@
     TODO: Think this out a little better
 ]]
 
-dt = require "darktable"
-require "lib/dtutils"
-du = dtutils
+local dt = require "darktable"
+local du = require "lib/dtutils"
 
 print(dtutils)
 print(du)
 
 dt.print_error("Testing lib/dtutils")
 
-local pathstr = "/home/user/src/a.file.txt"
-
--- dtutils.split_filepath
-
-local ans = du.split_filepath(pathstr)
-if ans['path'] == "/home/user/src/" and
-   ans['filename'] == "a.file.txt" and
-   ans['basename'] == "a.file" and
-   ans['filetype'] == "txt" then
-   dt.print_error("split_filepath: OK")
-else
-  dt.print_error("split_filepath: Failed")
-end
-
--- dtutils.get_path
-
-local p = du.get_path(pathstr)
-if p == "/home/user/src/" then
-  dt.print_error("get_path: OK")
-else
-  dt.print_error("get_path: Failed")
-end
-
--- dtutils.get_filename
-
-p = du.get_filename(pathstr)
-if p == "a.file.txt" then
-  dt.print_error("get_filename: OK")
-else
-  dt.print_error("get_filename: Failed")
-end
-
--- dtutils.get_basename
-
-p = du.get_basename(pathstr)
-if p == "a.file" then
-  dt.print_error("get_basename: OK")
-else
-  dt.print_error("get_basename: Failed")
-end
-
--- dtutils.get_filetype
-
-p = du.get_filetype(pathstr)
-if p == "txt" then
-  dt.print_error("get_filetype: OK")
-else
-  dt.print_error("get_filetype: Failed")
-end
-
--- checkIfBinExists
-
-local a = dtutils.checkIfBinExists("cp")
-local b = dtutils.checkIfBinExists("boguscp")
-if a and not b then
-  dt.print_error("checkIfBinExists: OK")
-else
-  dt.print_error("checkIfBinExists: Failed")
-end
-
--- checkIfFileExists
-
-a = du.checkIfFileExists("/tmp")
-b = du.checkIfFileExists("/tmp.not")
-if a and not b then
-  dt.print_error("checkIfFileExists: OK")
-else
-  dt.print_error("checkIfFileExists: Failed")
-end
-
--- filename_increment
-
-a = du.filename_increment("/home/user/myfile.txt")
-b = du.filename_increment("/home/user/myfile_57.txt")
-if a == "/home/user/myfile_01.txt" and
-   b == "/home/user/myfile_58.txt" then
-  dt.print_error("increment_filename: OK")
-else
-  dt.print_error("increment_filename: Failed")
-end
 
 -- groupIfNotMember
   -- need the darktable database to test this....  It might be possible
   dt.print_error("can't test groupIfNotMember. Yet")
 
--- sanitize_filename
-
-if du.sanitize_filename("/somepath/withaspace/to a file.txt") ==
-  "/somepath/withaspace/to\\ a\\ file.txt" then
-  dt.print_error("sanitize_filename: OK")
-else
-  dt.print_error("sanitize_filename: Failed")
-end
-
 -- show_status
   -- need the exporter running to test this
   dt.print_error("can't test show_status. Yet")
+
+  -- make some data
+
+  local action_images = {}
+
+  for i 1,9 do 
+    local i = {}
+    i.filename = string.format("img_000%d.cdr", i)
+    i.path = "/home/user/pictures"
+    du.push(action_images, i)
+  end
+
+  local image_table = libPlugin.build_image_table(action_images, "JPEG")
+  local img_list = ""
+
+  for i=1,9 do
+    img_list = img_list .. dt.configuration.tmp_dir .. string.format("/img_000%d.jpg")
+  end
   
+  -- extract_image_list
+
+  if img_list == du.extract_image_list(image_table) then
+    dt.print_error("extract_image_list: OK")
+  else
+    dt.print_error("extract_image_list: Failed")
+  end
+
+  -- extract_collection_path
+
+  if "/home/user/pictures" == du.extract_collection_path(image_table) then
+    dt.print_error("extract_collection_path: OK")
+  else
+    dt.print_error("extract_collection_path: Failed")
+  end
+
+  -- split
+
+  sjstring = "a string to split into pieces"
+
+  parts = split(sjstring, " ")
+
+  if #parts == 6 and parts[1] == "a" and parts[6] == "pieces" then
+    dt.print_error("split: OK")
+  else
+    dt.print_error("split: Failed")
+  end
+
+  -- join
+
+  if sjstring == du.join(parts, " ") then
+    dt.print_error("join: OK")
+  else
+    dt.print_error("join: Failed")
+  end
+
+  -- makeOutputFileName
+
+  if "img_0001.jpg" == du.makeOutputFileName("img_0001.jpg") and
+     "img_0001-img_0002.jpg" == du.makeOutputFileName("img_0001.jpg img_0002.jpg") and
+     "img_0001-img_0002-img_0003.jpg" == du.makeOutputFileName("img_0001.jpg img_0002.jpg img_0003.jpg") and
+     "img_0001-img_0005.jpg" == du.makeOutputFileName("img_0001.jpg img_0002.jpg img_0003.jpg img_0004.jpg img_0005.jpg") then
+     dt.print_error("makeOutputFileName: OK")
+   else
+    dt.print_error("makeOutputFileName: Failed")
+  end
+
+  -- prequire
+
+  -- push
+
+  -- pop
+
+  -- updateComboboxChoices
