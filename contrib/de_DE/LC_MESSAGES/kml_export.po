@@ -11,12 +11,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.8.4\n"
 "X-Poedit-Basepath: .\n"
-"Plural-Forms: nplurals=2;t" plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-KeywordsList: gettext;dgettext:2;dcgettext:2;ngettext:1,2;dngettext:2,3\n"
 "X-Poedit-SearchPath-0: .\n"
 
 msgid "KML/KMZ Export"
-msgstr "KML/KMZ Expor
+msgstr "KML/KMZ Export"
 
 msgid "Export Image %i/%i"
 msgstr "Exportiere Bild %i/%i"
