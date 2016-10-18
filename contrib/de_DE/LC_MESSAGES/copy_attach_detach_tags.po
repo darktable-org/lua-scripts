@@ -1,0 +1,75 @@
+# Holger Klemm, 2016.
+# Christian Kanzian <christian.kanzian@gmx.at>, 2016.
+msgid ""
+msgstr ""
+"Project-Id-Version: Lua image path\n"
+"POT-Creation-Date: 2016-01-07 20:33+0100\n"
+"PO-Revision-Date: 2016-10-18 15:34+0200\n"
+"Last-Translator: Christian Kanzian <christian.kanzian@gmx.at>\n"
+"Language-Team: German <kde-i18n-de@kde.org>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Lokalize 1.5\n"
+"X-Poedit-Basepath: .\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-KeywordsList: \n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: copy_attach_detach_tags.lua:10
+msgid "Image tags copied ..."
+msgstr "Bild Tags kopiert ..."
+
+#: copy_attach_detach_tags.lua:10
+msgid "No tags to attached, please copy tags first."
+msgstr "Es wurden keine Tags eingefügt. Bitte zuerst die Tags kopieren."
+
+#: copy_attach_detach_tags.lua:10
+msgid "Tags attached ..."
+msgstr "Tags anhängen ..."
+
+#: copy_attach_detach_tags.lua:10
+msgid "Tags removed from image(s)."
+msgstr "Tags von Bildern wurden gelöscht."
+
+#: copy_attach_detach_tags.lua:10
+msgid "Tags replaced"
+msgstr "Tag ersetzen"
+
+#: copy_attach_detach_tags.lua:10
+msgid "multi copy tags"
+msgstr "Tags kopieren"
+
+#: copy_attach_detach_tags.lua:10
+msgid "paste tags"
+msgstr "Tags anhängen"
+
+#: copy_attach_detach_tags.lua:10
+msgid "replace tags"
+msgstr "Tags ersetzen"
+
+#: copy_attach_detach_tags.lua:10
+msgid "remove all tags"
+msgstr "Tags löschen"
+
+#: copy_attach_detach_tags.lua:10
+msgid "tag clipboard"
+msgstr "Zwischenablage"
+
+#: copy_attach_detach_tags.lua:10
+msgid "copy tags from selected image(s)"
+msgstr "Tags von ausgewählten Bildern kopieren"
+
+#: copy_attach_detach_tags.lua:10
+msgid "paste tags to selected image(s)"
+msgstr "Tags an ausgewählte Bilder anhängen"
+
+#: copy_attach_detach_tags.lua:10
+msgid "remove tags from selected image(s)"
+msgstr "Tags von ausgewählten Bildern löschen"
+
+#: copy_attach_detach_tags.lua:10
+msgid "replace tags from selected image(s)"
+msgstr "Tags von ausgewählten Bildern ersetzen"
+
