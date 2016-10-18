@@ -1,6 +1,7 @@
 --[[
     This file is part of darktable,
-    copyright 2014-2016 by Christian Kanzian.
+    Copyright 2014-2016 by Christian Kanzian
+    Copyright 2016 by Holger Klemm
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -36,7 +37,16 @@ USAGE
 ]]
 
 local dt = require "darktable"
+local gettext = dt.gettext
 dt.configuration.check_version(...,{3,0,0},{4,0,0})
+
+-- Tell gettext where to find the .mo file translating messages for a particular domain
+gettext.bindtextdomain("copy_attach_detach_tags",dt.configuration.config_dir.."/lua/")
+
+local function _(msgid)
+    return gettext.dgettext("copy_attach_detach_tags", msgid)
+end
+
 
 local image_tags = {}
 
@@ -71,7 +81,7 @@ local function mcopy_tags()
          end
       end
 
-      dt.print("Image tags copied ...")
+      dt.print(_('Image tags copied ...'))
 
      --create UI tag list     
      local taglist = ""
@@ -93,7 +103,7 @@ local function mcopy_tags()
 local function attach_tags()
   
   if next(image_tags) == nil then
-    dt.print("No tags to attached, please copy tags first.")
+    dt.print(_('No tags to attached, please copy tags first.'))
     return true
   end
   
@@ -117,7 +127,7 @@ local function attach_tags()
       end
     end
   end
- dt.print("Tags attached ...")
+ dt.print(_('Tags attached ...'))
 end
 
 local function detach_tags()
@@ -133,13 +143,13 @@ local function detach_tags()
         end
       end
    end
-  dt.print("Tags removed from image(s).")
+  dt.print(_('Tags removed from image(s).'))
 end
 
 local function replace_tags()
   detach_tags()
   attach_tags()
-  dt.print("Tags replaced")
+  dt.print(_('Tags replaced'))
 end
 
 -- create modul Tagging addons
@@ -147,23 +157,23 @@ taglist_label.reset_callback = mcopy_tags
 
 -- create buttons and elements
 local mc_button = dt.new_widget("button") {
-         label = "multi copy tags",
+         label = _('multi copy tags'),
          clicked_callback = mcopy_tags}
 
 local p_button = dt.new_widget("button") {
-         label = "paste tags",
+         label = _('paste tags'),
          clicked_callback = attach_tags}
 
 local rep_button = dt.new_widget("button") {
-         label = "replace tags",
+         label = _('replace tags'),
          clicked_callback = replace_tags}
 
 local rem_button = dt.new_widget("button") {
-         label = "remove all tags",
+         label = _('remove all tags'),
          clicked_callback = detach_tags}
 
 local taglabel = dt.new_widget("label") {
-         label = "tag clipboard",
+         label = _('tag clipboard'),
          selectable = false,
          ellipsize = "middle",
          halign = "start"}
@@ -191,22 +201,22 @@ dt.register_lib("tagging_addon","Tagging addon",true,false,{
 -- shortcut for copy
 dt.register_event("shortcut",
                    mcopy_tags,
-                   "copy tags from selected image(s)")
+                   _('copy tags from selected image(s)'))
 
 -- shortcut for attach
 dt.register_event("shortcut",
                    attach_tags,
-                   "paste tags to selected image(s)")
+                   _('paste tags to selected image(s)'))
 
 -- shortcut for detaching tags
 dt.register_event("shortcut",
                    detach_tags,
-                   "remove tags from selected image(s)")
+                   _('remove tags from selected image(s)'))
 
                    -- shortcut for replace tags
 dt.register_event("shortcut",
                    replace_tags,
-                   "replace tags from selected image(s)")
+                   _('replace tags from selected image(s)'))
 
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
 -- kate: tab-indents: off; indent-width 2; replace-tabs on; remove-trailing-space on;
