@@ -1,15 +1,17 @@
+# Holger Klemm, 2016.
+# Christian Kanzian <christian.kanzian@gmx.at>, 2016.
 msgid ""
 msgstr ""
 "Project-Id-Version: Lua image path\n"
 "POT-Creation-Date: 2016-01-07 20:33+0100\n"
-"PO-Revision-Date: 2016-01-07 21:32+0100\n"
-"Last-Translator: Holger Klemm\n"
-"Language-Team: \n"
+"PO-Revision-Date: 2016-10-18 15:34+0200\n"
+"Last-Translator: Christian Kanzian <christian.kanzian@gmx.at>\n"
+"Language-Team: German <kde-i18n-de@kde.org>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.4\n"
+"X-Generator: Lokalize 1.5\n"
 "X-Poedit-Basepath: .\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-KeywordsList: \n"
@@ -29,7 +31,7 @@ msgstr "Tags anhängen ..."
 
 #: copy_attach_detach_tags.lua:10
 msgid "Tags removed from image(s)."
-msgstr "Tags vom Bild wurden gelöscht."
+msgstr "Tags von Bildern wurden gelöscht."
 
 #: copy_attach_detach_tags.lua:10
 msgid "Tags replaced"
@@ -57,16 +59,17 @@ msgstr "Zwischenablage"
 
 #: copy_attach_detach_tags.lua:10
 msgid "copy tags from selected image(s)"
-msgstr "Tags vom ausgewählten Bild kopieren"
+msgstr "Tags von ausgewählten Bildern kopieren"
 
 #: copy_attach_detach_tags.lua:10
 msgid "paste tags to selected image(s)"
-msgstr "Tags ans ausgewählte Bild anhängen"
+msgstr "Tags an ausgewählte Bilder anhängen"
 
 #: copy_attach_detach_tags.lua:10
 msgid "remove tags from selected image(s)"
-msgstr "Tags vom ausgewählten Bild löschen"
+msgstr "Tags von ausgewählten Bildern löschen"
 
 #: copy_attach_detach_tags.lua:10
 msgid "replace tags from selected image(s)"
-msgstr "Tags vom ausgewählten Bild ersetzen"
+msgstr "Tags von ausgewählten Bildern ersetzen"
+
