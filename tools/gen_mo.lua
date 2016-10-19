@@ -11,7 +11,7 @@
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-local log = require "lib/libLog"
+local log = require "lib/dtutils.log"
 
 local lua_dir = dt.configuration.config_dir .. "/lua/"
 local locale_dir = dt.configuration.config_dir .. "/lua/locale/"

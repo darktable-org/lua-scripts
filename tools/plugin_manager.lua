@@ -41,7 +41,7 @@ local dt = require "darktable"
 local dtutils = require "lib/dtutils"
 local dtfileutils = require "lib/dtutils.file"
 local libPlugin = require "lib/libPlugin"
-local log = require "lib/libLog"
+local log = require "lib/dtutils.log"
 
 dt.configuration.check_version(...,{3,0,0})
 
@@ -52,6 +52,8 @@ processor_names = {}
 plugin_widgets = {}
 plugin_widget_cnt = 1
 pmstartup = true
+
+log.set_level("debug")
 
 --[[
 Plugin manager creates many widgets during startup, depending on the number of plugins.
@@ -70,7 +72,8 @@ if not dtfileutils.check_if_file_exists(plugin_path) then
 end
 
 -- load the plugins
-local output = io.popen("cd "..plugin_path..";find . -maxdepth 1 -type d -print | sort")
+--local output = io.popen("cd "..plugin_path..";find . -maxdepth 1 -type d -print | sort")
+local output = io.popen("cd "..plugin_path..";find . -maxdepth 1 -print | sort")
 for line in output:lines() do
   local plugin = line:sub(3,-1)
   if plugin:len() > 1 then

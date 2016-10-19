@@ -6,21 +6,25 @@
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
+local log = require "lib/dtutils.log"
 local libname = nil
 
 dt.configuration.check_version(...,{3,0,0})
 
+local keys = {"Name", "Synopsis", "Usage", "Description", "Return_Value", "Limitations", 
+              "Example", "See_Also", "Reference", "License", "Copyright"}
+
 local function output_man(d)
-  local parts = du.split(d[d.Sections[1]], " - ")
+  local name = d["Name"]
   if not libname then
-    libname = parts[1]
+    libname = name
   end
-  local fname = "/tmp/" .. parts[1] .. ".3"
+  local fname = "/tmp/" .. name .. ".3"
   local mf = io.open(fname, "w")
   if mf then
-    mf:write(".TH " .. string.upper(parts[1]) .. " 3 \"\" \"\" \"Darktable " .. libname .. " functions\"\n")
-    for _,section in pairs(d.Sections) do
-      if d[section] then
+    mf:write(".TH " .. string.upper(name) .. " 3 \"\" \"\" \"Darktable " .. libname .. " functions\"\n")
+    for _,section in ipairs(keys) do
+      if d[section]:len() > 0 then
         mf:write(".SH " .. string.upper(string.gsub(section, "_", " ")) .. "\n")
         mf:write(d[section] .. "\n")
       end

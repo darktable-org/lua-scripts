@@ -186,6 +186,7 @@ local function load_scripts()
                 dt.print("Loaded " .. target)
               else
                 dt.print_error("Error loading " .. target)
+                dt.print_error("error message was " .. lib)
               end
               self.label = "Deactivate " .. target
             else

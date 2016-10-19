@@ -1,22 +1,15 @@
---[[
-
-  NAME
-    dtutils/extensions.lua - a library of extenstions to the lua libraries
-
-  SYNOPSIS
-    require "lib/dtutils.extensions"
-
-  DESCRIPTION
-    This library contains extensions to the lua libraries.
-
-]]
-
-local dtutils_extensions = {}
-dtutils_extensions.libdoc = {
-  Sections = {"Name", "Synopsis", "Description", "License"},
-  Name = "dtutils.extensions - a library of extenstions to the lua libraries",
-  Synopsis = [[require "lib/dtutils.extensions"]],
-  Description = [[This library contains extensions to the lua libraries.]],
+local dtutils_string = {}
+dtutils_string.libdoc = {
+  Name = [[dtutils.string]],
+  Synopsis = [[a library of string utilities for use in darktable lua scripts]],
+  Usage = [[local ds = require "lib/dtutils.string"]],
+  Description = [[This library contains string manipulation routines to aid in building
+    darktable lua scripts.]],
+  Return_Value = [[du - library - the darktable lua string library]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
   License = [[This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 3 of the License, or
@@ -29,44 +22,29 @@ dtutils_extensions.libdoc = {
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.]],
+  Copyright = [[]],
   functions = {}
 }
 
---[[
-  
-  NAME
-    string.strip_accents - strip accents from characters
+dtutils_string.libdoc.functions["strip_accents"] = {
+  Name = [[strip_accents]],
+  Synopsis = [[strip accents from characters]],
+  Usage = [[local ds = require "lib/dtutils.string"
 
-  SYNOPSIS
-    require "lib/dtutils.extensions"
-
-    result = string.strip_accents(str)
-      str - string - the string with characters that need accents removed
-
-  DESCRIPTION
-    strip_accents removes accents from accented characters returning the 
-    unaccented character.
-
-  RETURN VALUE
-    result - string - the string containing unaccented characters
-  
-]]
-
-dtutils_extensions.libdoc.functions[#dtutils_extensions.libdoc.functions + 1] = {
-  Sections = {"Name", "Synopsis", "Description", "Return_Value"},
-  Name = [[string.strip_accents - strip accents from characters]],
-  Synopsis = [[require "lib/dtutils.extensions"
-
-    result = string.strip_accents(str)
+    local result = ds.strip_accents(str)
       str - string - the string with characters that need accents removed]],
   Description = [[strip_accents removes accents from accented characters returning the 
     unaccented character.]],
   Return_Value = [[result - string - the string containing unaccented characters]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[Copied from https://forums.coronalabs.com/topic/43048-remove-special-characters-from-string/]],
+  License = [[]],
+  Copyright = [[]],
 }
 
--- Strip accents from a string
--- Copied from https://forums.coronalabs.com/topic/43048-remove-special-characters-from-string/
-function string.strip_accents( str )
+function dtutils_string.strip_accents( str )
   local tableAccents = {}
     tableAccents["à"] = "a"
     tableAccents["á"] = "a"
@@ -134,44 +112,27 @@ function string.strip_accents( str )
  
 end
 
---[[
-  
-  NAME
-    string.escape_xml_characters - escape characters for xml documents
-
-  SYNOPSIS
-    require "lib/dtutils.extensions"
+dtutils_string.libdoc.functions["escape_xml_characters"] = {
+  Name = [[escape_xml_characters]],
+  Synopsis = [[escape characters for xml documents]],
+  Usage = [[local ds = require "lib/dtutils.string"
     
-    result = string.escape_xml_characters(str)
-      str - string - the string that needs escaped
-
-  DESCRIPTION
-    escape_xml_characters provides the escape sequences for
-    "&", '"', "'", "<", and ">" with the corresponding "&amp;",
-    "&quot;", "&apos;", "&lt;", and "&gt;".
-
-  RETURNN VALUE
-    result - string - the string containing escapes for the xml characters
-  
-]]
-
-dtutils_extensions.libdoc.functions[#dtutils_extensions.libdoc.functions + 1] = {
-  Sections = {"Name", "Synopsis", "Description", "Return_Value"},
-  Name = "string.escape_xml_characters - escape characters for xml documents",
-  Synopsis = [[    require "lib/dtutils.extensions"
-    
-    result = string.escape_xml_characters(str)
+    local result = ds.escape_xml_characters(str)
       str - string - the string that needs escaped]],
   Description = [[escape_xml_characters provides the escape sequences for
     "&", '"', "'", "<", and ">" with the corresponding "&amp;",
     "&quot;", "&apos;", "&lt;", and "&gt;".]],
   Return_Value = [[result - string - the string containing escapes for the xml characters]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[https://stackoverflow.com/questions/1091945/what-characters-do-i-need-to-escape-in-xml-documents]],
+  License = [[]],
+  Copyright = [[]],
 }
 
--- Escape XML characters
 -- Keep &amp; first, otherwise it will double escape other characters
--- https://stackoverflow.com/questions/1091945/what-characters-do-i-need-to-escape-in-xml-documents
-function string.escape_xml_characters( str )
+function dtutils_string.escape_xml_characters( str )
 
   str = string.gsub(str,"&", "&amp;")
   str = string.gsub(str,"\"", "&quot;")
@@ -182,4 +143,31 @@ function string.escape_xml_characters( str )
   return str
 end
 
-return dtutils_extensions
+dtutils_string.libdoc.functions["urlencode"] = {
+  Name = [[urlencode]],
+  Synopsis = [[encode a string in a websage manner]],
+  Usage = [[local ds = require "lib/dtutils.string"
+
+    local result = ds.urlencode(str)
+      str - string - the string that needs to be made websafe]],
+  Description = [[urlencode converts a string into a websafe version suitable for
+    use in a web browser.]],
+  Return_Value = [[result - string - a websafe string]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[https://forums.coronalabs.com/topic/43048-remove-special-characters-from-string/]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_string.urlencode(str)
+  if (str) then
+    str = string.gsub (str, "\n", "\r\n")
+    str = string.gsub (str, "([^%w ])", function () return string.format ("%%%02X", string.byte()) end)
+    str = string.gsub (str, " ", "+")
+  end
+  return str
+end
+
+return dtutils_string

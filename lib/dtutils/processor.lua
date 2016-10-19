@@ -1,48 +1,26 @@
---[[
-  This file is part of darktable,
-  copyright (c) 2016 Bill Ferguson
-  
-  darktable is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-  
-  darktable is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-  
-  You should have received a copy of the GNU General Public License
-  along with darktable.  If not, see <http://www.gnu.org/licenses/>.
-]]
-
 local dtutils_processor = {}
-
-dtutils_processor.libdoc = {
-  Sections = {"Name", "Synopsis", "Description", "License"},
-  Name = [[dtutils.processor - Darktable lua functions for building processor scripts]],
-  Synopsis = [[local dp = require "lib/dtutils.processor"]],
-  Description = [[dtutils.processor provides common functions used for building scripts
-    that send images out to an external process, process them, and return the result (i.e. processors).]],
-  License = [[This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.]],
-  functions = {}
-}
 
 local dt = require "darktable"
 local dtutils = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-local log = require "lib/libLog"
+local log = require "lib/dtutils.log"
+
+dtutils_processor.libdoc = {
+  Name = [[dtutils.processor]],
+  Synopsis = [[Darktable lua functions for building processor scripts]],
+  Usage = [[local dp = require "lib/dtutils.processor"]],
+  Description = [[dtutils.processor provides common functions used for building scripts
+    that send images out to an external process, process them, and return the result (i.e. processors).]],
+  Return_Value = [[dp - library - the darktable lua processor functions]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = dtutils.libdoc.License,
+  Copyright = [[Copyright (c) 2016 Bill Ferguson]],
+  functions = {}
+}
+
 
 local gettext = dt.gettext
 
@@ -56,36 +34,10 @@ local function _(msgid)
     return gettext.dgettext("dtutils.processor", msgid)
 end
 
---[[
-  NAME
-    exporter_status - show the status while exporting images
-
-  SYNOPSIS
-    local dp = require "lib/dtutils.processor"
-
-    local result = dp.exporter_status(storage, image, format, filename, number, total, high_quality, extra_data)
-      storage - dt_imageio_module_storage_t - the storage that the status is being shown for
-      image - dt_lua_image_t - the current image
-      format - dt_imageio_module_format_t - the format of the export image
-      filename - string - the filename being exported to
-      number - integer - the number of this image in the sequence
-      total - integer - the total number of images being exported
-      high_quality - boolean
-      extra_data - extra data from the storage
-
-  DESCRIPTION
-    exporter_status runs prior to each image being exported and prints out a status that lets the user
-    know how many images, out of the total, have been exported
-
-  RETURN VALUE
-    none
-
-]]
-
-dtutils_processor.libdoc.functions[#dtutils_processor.libdoc.functions + 1] = {
-  Sections = {"Name", "Synopsis", "Description", "Return_Value"},
-  Name = [[exporter_status - show the status while exporting images]],
-  Synopsis = [[local dp = require "lib/dtutils.processor"
+dtutils_processor.libdoc.functions["exporter_status"] = {
+  Name = [[exporter_status]],
+  Synopsis = [[show the status while exporting images]],
+  Usage = [[local dp = require "lib/dtutils.processor"
 
     local result = dp.exporter_status(storage, image, format, filename, number, total, high_quality, extra_data)
       storage - dt_imageio_module_storage_t - the storage that the status is being shown for
@@ -97,8 +49,15 @@ dtutils_processor.libdoc.functions[#dtutils_processor.libdoc.functions + 1] = {
       high_quality - boolean
       extra_data - extra data from the storage]],
   Description = [[exporter_status runs prior to each image being exported and prints out a status that lets the user
-    know how many images, out of the total, have been exported]],
-  Return_Value = [[none]],
+    know how many images, out of the total, have been exported.  This routine can be used as the [store] argument to
+    darktable.register_storage()]],
+  Return_Value = [[]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
 }
 
 function dtutils_processor.exporter_status(storage, image, format, filename,
@@ -106,30 +65,10 @@ function dtutils_processor.exporter_status(storage, image, format, filename,
     dt.print(string.format(_("Export Image %i/%i"), number, total))
 end
 
---[[
-  NAME
-    extract_image_list - assemble the exported image filenames from an image_table into a string
-
-  SYNOPSIS
-    local dp = require "lib/dtutils.processor"
-
-    result = dp.extract_image_list(image_table)
-      image_table - table - a table of images such as supplied by the exporter or by libPlugin.build_image_table
-
-  DESCRIPTION
-    extract_image_list concatenates the exported image names into a space separated string suitable for
-    passing as an argument to a processor.  Each filename is bracketed with single quotes to protect against
-    spaces and special characters in the filepath
-
-  RETURN VALUE
-    result - string - the assembled image list on success, or an empty image list on error
-
-]]
-
-dtutils_processor.libdoc.functions[#dtutils_processor.libdoc.functions + 1] = {
-  Sections = {"Name", "Synopsis", "Description", "Return_Value"},
-  Name = [[extract_image_list - assemble the exported image filenames from an image_table into a string]],
-  Synopsis = [[local dp = require "lib/dtutils.processor"
+dtutils_processor.libdoc.functions["extract_image_list"] = {
+  Name = [[extract_image_list]],
+  Synopsis = [[assemble the exported image filenames from an image_table into a string]],
+  Usage = [[local dp = require "lib/dtutils.processor"
     
     result = dp.extract_image_list(image_table)
       image_table - table - a table of images such as supplied by the exporter or by libPlugin.build_image_table]],
@@ -137,6 +76,12 @@ dtutils_processor.libdoc.functions[#dtutils_processor.libdoc.functions + 1] = {
     passing as an argument to a processor.  Each filename is bracketed with single quotes to protect against
     spaces and special characters in the filepath]],
   Return_Value = [[result - string - the assembled image list on success, or an empty image list on error]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
 }
 
 function dtutils_processor.extract_image_list(image_table)
@@ -147,32 +92,10 @@ function dtutils_processor.extract_image_list(image_table)
   return img_list
 end
 
---[[
-  NAME
-    extract_collection_path - extract the collection path from an image table
-
-  SYNOPSIS
-    local dp = require "lib/dtutils.processor"
-
-    local result = dp.extract_collection_path(image_table)
-      image_table - table - a table of images such as supplied by the exporter or by libPlugin.build_image_table
-
-  DESCRIPTION
-    extract_collection_path looks at the first image in the image_table and returns the path
-
-  RETURN VALUE
-    result - string - the collection path on success, or nil if there was an error
-
-  LIMITATIONS
-    The collection path is determined from the first image.  If the table consists of images from different
-    collections, then only the first collection is used.
-
-]]
-
-dtutils_processor.libdoc.functions[#dtutils_processor.libdoc.functions + 1] = {
-  Sections = {"Name", "Synopsis", "Description", "Return_Value", "Limitations"},
-  Name = [[extract_collection_path - extract the collection path from an image table]],
-  Synopsis = [[local dp = require "lib/dtutils.processor"
+dtutils_processor.libdoc.functions["extract_collection_path"] = {
+  Name = [[extract_collection_path]],
+  Synopsis = [[extract the collection path from an image table]],
+  Usage = [[local dp = require "lib/dtutils.processor"
 
     local result = dp.extract_collection_path(image_table)
       image_table - table - a table of images such as supplied by the exporter or by libPlugin.build_image_table]],
@@ -180,6 +103,11 @@ dtutils_processor.libdoc.functions[#dtutils_processor.libdoc.functions + 1] = {
   Return_Value = [[result - string - the collection path on success, or nil if there was an error]],
   Limitations = [[The collection path is determined from the first image.  If the table consists of images from different
     collections, then only the first collection is used.]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
 }
 
 function dtutils_processor.extract_collection_path(image_table)
@@ -214,10 +142,10 @@ end
 
 ]]
 
-dtutils_processor.libdoc.functions[#dtutils_processor.libdoc.functions + 1] = {
-  Sections = {"Name", "Synopsis", "Description", "Return_Value"},
-  Name = [[make_output_filename- make an output filename from an image list]],
-  Synopsis = [[local dp = require "lib/dtutils.processor"
+dtutils_processor.libdoc.functions["make_output_filename"] = {
+  Name = [[make_output_filename]],
+  Synopsis = [[make an output filename from an image list]],
+  Usage = [[local dp = require "lib/dtutils.processor"
     
     local result = dtutils.make_output_filename(img_list)
       img_list - string - a space separated list of filenames]],
@@ -228,6 +156,12 @@ dtutils_processor.libdoc.functions[#dtutils_processor.libdoc.functions + 1] = {
     basenames are concatenated with a separator. If there is more than 3 images, the first and 
     last file basenames are concatenated with a separator.]],
   Return_Value = [[result - string - the constructed filename on success, nil on error]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
 }
 
 function dtutils_processor.make_output_filename(img_list)
@@ -261,6 +195,41 @@ function dtutils_processor.make_output_filename(img_list)
   end
 
   return outputFileName
+end
+
+dtutils_processor.libdoc.functions["update_combobox_choices"] = {
+  Name = [[update_combobox_choices]],
+  Synopsis = [[change the list of choices in a combobox]],
+  Usage = [[local du = require "lib/dtutils"
+
+    du.update_combobox_choices(combobox_widget, choice_table)
+      combobox_widget - lua_combobox - a combobox widget
+      choice_table - table - a table of strings for the combobox choices]],
+  Description = [[Set the combobox choices to the supplied list.  Remove any extra choices from the end. After
+  reloading the choices, the value is set to 1 to force the combobox to update the displayed choices.]],
+  Return_Value = [[]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_processor.update_combobox_choices(combobox, choice_table)
+  local items = #combobox
+  local choices = #choice_table
+  for i, name in ipairs(choice_table) do 
+    log.msg(log.debug, "Setting choice " .. i .. " to " .. name)
+    combobox[i] = name
+  end
+  if choices < items then
+    for j = items, choices + 1, -1 do
+      log.msg(log.debug, "Removing choice " .. j)
+      combobox[j] = nil
+    end
+  end
+  combobox.value = 1
 end
 
 return dtutils_processor

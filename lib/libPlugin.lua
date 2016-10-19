@@ -18,33 +18,30 @@
 
 local libPlugin = {}
 
-libPlugin.libdoc = {
-  Sections = {"Name", "Synopsis", "Description", "License"},
-  Name = [[libPlugin - functions used by plugin_manager and for building plugin scripts]],
-  Synopsis = [[local lp = require "lib/libPlugin"]],
-  Description = [[libPlugin contains the widgets and routines used by plugin_manager to provide 
-    plugin management.  Some of the functions, such as do_export() and build_image_table() may be
-    useful in other scripts.]],
-  License = [[This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.]],
-  functions = {}
-}
-
 local dt = require "darktable"
-local log = require "lib/libLog"
+local log = require "lib/dtutils.log"
 
 local dtutils = require "lib/dtutils"
 local dtfileutils = require "lib/dtutils.file"
+local dp = require "lib/dtutils.processor"
+
+libPlugin.libdoc = {
+  Name = [[libPlugin]],
+  Synopsis = [[functions used by plugin_manager and for building plugin scripts]],
+  Usage = [[local lp = require "lib/libPlugin"]],
+  Description = [[libPlugin contains the widgets and routines used by plugin_manager to provide 
+    plugin management.  Some of the functions, such as do_export() and build_image_table() may be
+    useful in other scripts.]],
+  Return_Value = [[lp - library - the plugin library functions]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = dtutils.libdoc.License,
+  Copyright = [[Copyright (C) 2016 Bill Ferguson <wpferguson@gmail.com>.]],
+  Copyright = [[Copyright (c) 2016 Bill Ferguson <wpferguson@gmail.com>]],
+  functions = {}
+}
 
 -- put the plugin_manager widgets here to prevent namespace pollution
 
@@ -201,31 +198,10 @@ libPlugin.button = dt.new_widget("button"){
   end
 }
 
---[[
-  NAME
-    register_processor_lib - build and install the external processor gui
-
-  SYNOPSIS
-    local lp = require "lib/libPlugin"
-
-    lp.register_processor_lib(name_table)
-      name_table - table - a table of processor names (strings)
-
-  DESCRIPTION
-    register_processor_lib registers the lib that creates the lightroom module for
-    the external processors.  The name_table passed to the function contains the 
-    names of all the processors that are available.  A combobox contains the choices
-    or processors.  When a processor is selected, the corresponding widget is displayed
-    and the appropriate exporter choices are displayed.  Once all the choices are made,
-    pressing the "Process" button causes the image(s) to be exported and the processor 
-    started.
-
-]]
-
-libPlugin.libdoc.functions[#libPlugin.libdoc.functions + 1] = {
-  Sections = {"Name", "Synopsis", "Description"},
-  Name = [[register_processor_lib - build and install the external processor gui]],
-  Synopsis = [[local lp = require "lib/libPlugin"
+libPlugin.libdoc.functions["register_processor_lib"] = {
+  Name = [[register_processor_lib]],
+  Synopsis = [[build and install the external processor gui]],
+  Usage = [[local lp = require "lib/libPlugin"
 
     lp.register_processor_lib(name_table)
       name_table - table - a table of processor names (strings)]],
@@ -236,6 +212,13 @@ libPlugin.libdoc.functions[#libPlugin.libdoc.functions + 1] = {
     and the appropriate exporter choices are displayed.  Once all the choices are made,
     pressing the "Process" button causes the image(s) to be exported and the processor 
     started.]],
+  Return_Value = [[]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
 }
 
 function libPlugin.register_processor_lib(name_table)
@@ -262,13 +245,13 @@ function libPlugin.register_processor_lib(name_table)
 
       -- update the export formats to those allowed for the processor
       local supported_formats = libPlugin.get_supported_formats(plugins[libPlugin.processor_combobox.value])
-      dtutils.update_combobox_choices(libPlugin.format_combobox, supported_formats)
+      dp.update_combobox_choices(libPlugin.format_combobox, supported_formats)
     end
   }
 
   -- load the processor combobox with the activated processors
   -- work around for bug #11184
-  dtutils.update_combobox_choices(libPlugin.processor_combobox, name_table)
+  dp.update_combobox_choices(libPlugin.processor_combobox, name_table)
 
   -- processor container
 
@@ -300,29 +283,21 @@ function libPlugin.register_processor_lib(name_table)
   )
 end
 
---[[
-  NAME
-    create_data_dir - create the specified directory to contain artifacts
-
-  SYNOPSIS
-    local lp = require "lib/libPlugin"
-
-    lp.create_data_dir(dir)
-      dir - string - the directory to create
-
-  DESCRIPTION
-    create_data_dir creates a directory to hold artifact data produced by the plugin
-
-]]
-
-libPlugin.libdoc.functions[#libPlugin.libdoc.functions + 1] = {
-  Sections = {"Name", "Synopsis", "Description", "Return_Value"},
-  Name = [[create_data_dir - create the specified directory to contain artifacts]],
-  Synopsis = [[local lp = require "lib/libPlugin"
+libPlugin.libdoc.functions["create_data_dir"] = {
+  Name = [[create_data_dir]],
+  Synopsis = [[create the specified directory to contain artifacts]],
+  Usage = [[local lp = require "lib/libPlugin"
 
     lp.create_data_dir(dir)
       dir - string - the directory to create]],
   Description = [[create_data_dir creates a directory to hold artifact data produced by the plugin]],
+  Return_Value = [[]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
 }
 
 function libPlugin.create_data_dir(dir)
@@ -331,33 +306,23 @@ function libPlugin.create_data_dir(dir)
   end
 end
 
---[[
-  NAME
-    add_plugin_widget - add an activate/deactivate widget for a plugin
-
-  SYNOPSIS
-    local lp = require "lib/libPlugin"
-
-    lp.add_plugin_widget(req_name, plugin_state)
-      req_name - table - plugin configuration data
-      plugin_state - boolean - true if plugin is active, otherwise false
-
-  DESCRIPTION
-    add_plugin_widget creates the plugin activate/deactivate button for
-    plugin_manager.
-
-]]
-
-libPlugin.libdoc.functions[#libPlugin.libdoc.functions + 1] = {
-  Sections = {"Name", "Synopsis", "Description", "Return_Value"},
-  Name = [[add_plugin_widget - add an activate/deactivate widget for a plugin]],
-  Synopsis = [[local lp = require "lib/libPlugin"
+libPlugin.libdoc.functions["add_plugin_widget"] = {
+  Name = [[add_plugin_widget]],
+  Synopsis = [[add an activate/deactivate widget for a plugin]],
+  Usage = [[local lp = require "lib/libPlugin"
 
     lp.add_plugin_widget(req_name, plugin_state)
       req_name - table - plugin configuration data
       plugin_state - boolean - true if plugin is active, otherwise false]],
   Description = [[add_plugin_widget creates the plugin activate/deactivate button for
     plugin_manager.]],
+  Return_Value = [[]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
 }
 
 function libPlugin.add_plugin_widget(req_name, plugin_state)
@@ -393,37 +358,22 @@ function libPlugin.add_plugin_widget(req_name, plugin_state)
   plugin_widget_cnt = plugin_widget_cnt + 1
 end
 
---[[
-  NAME
-    get_plugin_doc - returns the plugin documentation
+libPlugin.libdoc.functions["get_plugin_doc"] = {
+  Name = [[get_plugin_doc]],
+  Synopsis = [[returns the plugin documentation]],
+  Usage = [[local lp = require "lib/libPlugin"
 
-  SYNOPSIS
-    local lp = require "lib/libPlugin"
-
-    local result = lp.get_plugin_doc(plugin)
-      plugin - table - plugin configuration data
-
-  DESCRIPTION
-    get_plugin_doc gets the documentation from the plugin configuration data,
-    assembles it, and returns it.  
-
-  RETURN VALUE
-    result - string(s) - the included plugin doc, otherwise a statement that no documentation is available
-
-]]
-
--- get the script documentation, with some assumptions
-
-libPlugin.libdoc.functions[#libPlugin.libdoc.functions + 1] = {
-  Sections = {"Name", "Synopsis", "Description", "Return_Value"},
-  Name = [[get_plugin_doc - returns the plugin documentation]],
-  Synopsis = [[local lp = require "lib/libPlugin"
-    
     local result = lp.get_plugin_doc(plugin)
       plugin - table - plugin configuration data]],
   Description = [[get_plugin_doc gets the documentation from the plugin configuration data,
     assembles it, and returns it.]],
   Return_Value = [[result - string(s) - the included plugin doc, otherwise a statement that no documentation is available]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
 }
 
 function libPlugin.get_plugin_doc(plugin)
@@ -438,29 +388,21 @@ function libPlugin.get_plugin_doc(plugin)
   return description
 end
 
---[[
-  NAME
-    activate_plugin - add a plugin to the system
-
-  SYNOPSIS
-    local lp = require "lib/libPlugin"
-
-    lp.activate_plugin(plugin_data)
-      plugin_data - table - plugin configuration data
-
-  DESCRIPTION
-    activate_plugin adds a plugin to the system so that it can be used
-
-]]
-
-libPlugin.libdoc.functions[#libPlugin.libdoc.functions + 1] = {
-  Sections = {"Name", "Synopsis", "Description"},
-  Name = [[activate_plugin - add a plugin to the system]],
-  Synopsis = [[local lp = require "lib/libPlugin"
+libPlugin.libdoc.functions["activate_plugin"] = {
+  Name = [[activate_plugin]],
+  Synopsis = [[add a plugin to the system]],
+  Usage = [[local lp = require "lib/libPlugin"
 
     lp.activate_plugin(plugin_data)
       plugin_data - table - plugin configuration data]],
   Description = [[activate_plugin adds a plugin to the system so that it can be used]],
+  Return_Value = [[]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
 }
 
 function libPlugin.activate_plugin(plugin_data)
@@ -472,9 +414,12 @@ function libPlugin.activate_plugin(plugin_data)
     processors[i.DtPluginName] = i.DtPluginProcessorWidget and dtutils.prequire(dtfileutils.chop_filetype(i.DtPluginProcessorWidget)) or libPlugin.placeholder
     log.msg(log.debug, i.DtPluginActivate.DtPluginRegisterProcessor)
     log.msg(log.debug, "Processor widget is ", processors[i.DtPluginName])
-    processor_cmds[i.DtPluginName] = dtutils.prequire(dtfileutils.chop_filetype(i.DtPluginActivate.DtPluginRegisterProcessor))
-    log.msg(log.debug, "Processor command is ", processor_cmds[i.DtPluginName])
-    log.msg(log.debug, "Processor command is a ", type(processor_cmds[i.DtPluginName]))
+    local status, lib = dtutils.prequire(dtfileutils.chop_filetype(i.DtPluginActivate.DtPluginRegisterProcessor))
+    if status then
+      processor_cmds[i.DtPluginName] = lib
+      log.msg(log.debug, "Processor command is ", processor_cmds[i.DtPluginName])
+      log.msg(log.debug, "Processor command is a ", type(processor_cmds[i.DtPluginName]))
+    end
     processor_names[#processor_names + 1] = i.DtPluginName
     log.msg(log.debug, "Added " .. i.DtPluginName .. " to processor_names")
     table.sort(processor_names)
@@ -505,39 +450,22 @@ function libPlugin.activate_plugin(plugin_data)
   end
 end
 
---[[
-  NAME
-    deactivate_plugin - remove a plugin from the system
-
-  SYNOPSIS
-    local lp = require "lib/libPlugin"
-
-    lp.deactivate_plugin(plugin_data)
-      plugin_data - table - plugin configuration data
-
-  DESCRIPTION
-    deactivate_plugin removes a plugin from the system
-
-  LIMITATIONS
-    This works for any processor that doesn't have a widget associated with it
-    such as GIMP or Hugin
-
-
-]]
-
--- deactivate works for any processor that doesn't have a widget associated with it
--- such as GIMP or Hugin
-
-libPlugin.libdoc.functions[#libPlugin.libdoc.functions + 1] = {
-  Sections = {"Name", "Synopsis", "Description", "Limitations"},
-  Name = [[deactivate_plugin - remove a plugin from the system]],
-  Synopsis = [[local lp = require "lib/libPlugin"
+libPlugin.libdoc.functions["deactivate_plugin"] = {
+  Name = [[deactivate_plugin]],
+  Synopsis = [[remove a plugin from the system]],
+  Usage = [[local lp = require "lib/libPlugin"
 
     lp.deactivate_plugin(plugin_data)
       plugin_data - table - plugin configuration data]],
   Description = [[deactivate_plugin removes a plugin from the system]],
+  Return_Value = [[]],
   Limitations = [[This works for any processor that doesn't have a widget associated with it
     such as GIMP or Hugin]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
 }
 
 function libPlugin.deactivate_plugin(plugin_data)
@@ -573,29 +501,21 @@ function libPlugin.deactivate_plugin(plugin_data)
   end
 end
 
---[[
-  NAME
-    start_plugin - execute the function to start the processor
-
-  SYNOPSIS
-    local lp = require "lib/libPlugin"
-
-    lp.start_plugin(method)
-      method - function - a function to start the processor
-
-  DESCRIPTION
-    start_plugin executes the function to start the processor
-
-]]
-
-libPlugin.libdoc.functions[#libPlugin.libdoc.functions + 1] = {
-  Sections = {"Name", "Synopsis", "Description"},
-  Name = [[start_plugin - execute the function to start the processor]],
-  Synopsis = [[local lp = require "lib/libPlugin"
+libPlugin.libdoc.functions["start_plugin"] = {
+  Name = [[start_plugin]],
+  Synopsis = [[execute the function to start the processor]],
+  Usage = [[local lp = require "lib/libPlugin"
 
     lp.start_plugin(method)
       method - function - a function to start the processor]],
   Description = [[start_plugin executes the function to start the processor]],
+  Return_Value = [[]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
 }
 
 function libPlugin.start_plugin(method)
@@ -604,31 +524,22 @@ function libPlugin.start_plugin(method)
   end
 end
 
---[[
-  NAME
-    stop_plugin - stop a processor plugin
-
-  SYNOPSIS
-    local lp = require "lib/libPlugin"
-
-    lp.stop_plugin(method)
-      method - function - a function to execute that stops the plugin
-
-  DESCRIPTION
-    this is really a placeholder since I'm not quite sure how to do this yet
-    TODO: figure out how to stop a plugin  :D
-
-]]
-
-libPlugin.libdoc.functions[#libPlugin.libdoc.functions + 1] = {
-  Sections = {"Name", "Synopsis", "Description", "Return_Value"},
-  Name = [[stop_plugin - stop a processor plugin]],
-  Synopsis = [[local lp = require "lib/libPlugin"
+libPlugin.libdoc.functions["stop_plugin"] = {
+  Name = [[stop_plugin]],
+  Synopsis = [[stop a processor plugin]],
+  Usage = [[local lp = require "lib/libPlugin"
 
     lp.stop_plugin(method)
       method - function - a function to execute that stops the plugin]],
   Description = [[this is really a placeholder since I'm not quite sure how to do this yet
     TODO: figure out how to stop a plugin  :D]],
+  Return_Value = [[]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
 }
 
 function libPlugin.stop_plugin(method)
@@ -637,35 +548,22 @@ function libPlugin.stop_plugin(method)
   end
 end
 
---[[
-  NAME
-    check_api_version - check that the processor is compatible with the version of darktable
-
-  SYNOPSIS
-    local lp = require "lib/libPlugin"
-
-    result = lp.check_api_version(ver_table)
-      ver_table - table - a table of acceptable version strings
-
-  DESCRIPTION
-    dt.configuration_check causes a fatal error to incompatible scripts.  We need a slightly gentler response
-    to prevent crashing the plugin manager.
-
-  RETURN VALUE
-    result - true if compatible, otherwise false
-
-]]
-
-libPlugin.libdoc.functions[#libPlugin.libdoc.functions + 1] = {
-  Sections = {"Name", "Synopsis", "Description", "Return_Value"},
-  Name = [[check_api_version - check that the processor is compatible with the version of darktable]],
-  Synopsis = [[local lp = require "lib/libPlugin"
+libPlugin.libdoc.functions["check_api_version"] = {
+  Name = [[check_api_version]],
+  Synopsis = [[check that the processor is compatible with the version of darktable]],
+  Usage = [[local lp = require "lib/libPlugin"
 
     result = lp.check_api_version(ver_table)
       ver_table - table - a table of acceptable version strings]],
   Description = [[dt.configuration_check causes a fatal error to incompatible scripts.  We need a slightly gentler response
     to prevent crashing the plugin manager.]],
   Return_Value = [[result - true if compatible, otherwise false]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
 }
 
 function libPlugin.check_api_version(ver_table)
@@ -681,34 +579,10 @@ function libPlugin.check_api_version(ver_table)
   return match
 end
 
---[[
-  NAME
-    build_image_table - build a table of images for the exporter
-
-  SYNOPSIS
-    local lp = require "lib/libPlugin"
-
-    result, count = lp.build_image_table(images, ff)
-      images - table - a table of the selected images (dt.gui.action_images)
-      ff - export image format
-
-  DESCRIPTION
-    build_image_table creates an export filename for each of the selected images and
-    pairs them in a table, which is returned.  The count of images is also returned
-    so that it can be used to check if we have sufficient images to run the processor
-
-  RETURN VALUE
-    result - a table of dt_lua_image_t, export filepath pairs
-    count - the number of images in the table
-
-]]
-
--- build the image table
-
-libPlugin.libdoc.functions[#libPlugin.libdoc.functions + 1] = {
-  Sections = {"Name", "Synopsis", "Description", "Return_Value"},
-  Name = [[build_image_table - build a table of images for the exporter]],
-  Synopsis = [[local lp = require "lib/libPlugin"
+libPlugin.libdoc.functions["build_image_table"] = {
+  Name = [[build_image_table]],
+  Synopsis = [[build a table of images for the exporter]],
+  Usage = [[local lp = require "lib/libPlugin"
 
     result, count = lp.build_image_table(images, ff)
       images - table - a table of the selected images (dt.gui.action_images)
@@ -718,6 +592,12 @@ libPlugin.libdoc.functions[#libPlugin.libdoc.functions + 1] = {
     so that it can be used to check if we have sufficient images to run the processor]],
   Return_Value = [[result - a table of dt_lua_image_t, export filepath pairs
     count - the number of images in the table]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
 }
 
 function libPlugin.build_image_table(images, ff)
@@ -743,33 +623,10 @@ function libPlugin.build_image_table(images, ff)
   return image_table, cnt
 end
 
---[[
-  NAME
-    do_export - export raw images to the requested format
-
-  SYNOPSIS
-    local lp = require "lib/libPlugin"
-
-    local result = lp.do_export(img_tbl, ff, height, width, upscale)
-      img_tbl - table - table of images to be exported, as produced by the exporter or libPlugin.build_image_table
-      ff - string - format of the exported image
-      height - number - maximum height of export, 0 for original size
-      width - number - maximum width of export, 0 for original size
-      upscale - boolean - permit upscaling
-
-  DESCRIPTION
-    do_export creates an exporter for the requested format, then populates it with specific and general settings.
-    Once the exporter is created and configured, the images in the image table are exported.
-
-  RETURN VALUE
-    result - true for success
-
-]]
-
-libPlugin.libdoc.functions[#libPlugin.libdoc.functions + 1] = {
-  Sections = {"Name", "Synopsis", "Description", "Return_Value"},
-  Name = [[do_export - export raw images to the requested format]],
-  Synopsis = [[local lp = require "lib/libPlugin"
+libPlugin.libdoc.functions["do_export"] = {
+  Name = [[do_export]],
+  Synopsis = [[export raw images to the requested format]],
+  Usage = [[local lp = require "lib/libPlugin"
 
     local result = lp.do_export(img_tbl, ff, height, width, upscale)
       img_tbl - table - table of images to be exported, as produced by the exporter or libPlugin.build_image_table
@@ -779,7 +636,13 @@ libPlugin.libdoc.functions[#libPlugin.libdoc.functions + 1] = {
       upscale - boolean - permit upscaling]],
   Description = [[do_export creates an exporter for the requested format, then populates it with specific and general settings.
     Once the exporter is created and configured, the images in the image table are exported.]],
-  Return_Value = [[result - true for success]],
+  Return_Value = [[result - boolean - true for success]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
 }
 
 function libPlugin.do_export(img_tbl, ff, height, width, upscale)
@@ -810,47 +673,34 @@ function libPlugin.do_export(img_tbl, ff, height, width, upscale)
   return true
 end
 
---[[
-  NAME
-    get_supported_formats - get the processor supported input formats
-
-  SYNOPSIS
-    local lp = require "lib/libPlugin"
-
-    local result = lp.get_supported_formats(plugin_data)
-      plugin_data - table - plugin configuration data
-
-  DESCRIPTION
-    Read the plugin_data.DtPluginInputFormats and return a table of the supported
-    ones
-
-  RETURN VALUE
-    result - table - a table the strings for the format combobox
-
-]]
-
-libPlugin.libdoc.functions[#libPlugin.libdoc.functions + 1] = {
-  Sections = {"Name", "Synopsis", "Description", "Return_Value"},
-  Name = [[get_supported_formats - get the processor supported input formats]],
-  Synopsis = [[local lp = require "lib/libPlugin"
+libPlugin.libdoc.functions["get_supported_formats"] = {
+  Name = [[get_supported_formats]],
+  Synopsis = [[get the processor supported input formats]],
+  Usage = [[local lp = require "lib/libPlugin"
 
     local result = lp.get_supported_formats(plugin_data)
       plugin_data - table - plugin configuration data]],
   Description = [[Read the plugin_data.DtPluginInputFormats and return a table of the supported
     ones]],
   Return_Value = [[result - table - a table the strings for the format combobox]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
 }
 
 function libPlugin.get_supported_formats(plugin_data)
   local formats = {}
   if plugin_data.DtPluginInputFormats.jpg then
-    dtutils.push(formats, "JPEG (8-bit)")
+    table.insert(formats, "JPEG (8-bit)")
   end
   if plugin_data.DtPluginInputFormats.png then
-    dtutils.push(formats, "PNG (8/16-bit)")
+    table.insert(formats, "PNG (8/16-bit)")
   end
   if plugin_data.DtPluginInputFormats.tif then
-    dtutils.push(formats, "TIFF (8/16/32-bit)")
+    table.insert(formats, "TIFF (8/16/32-bit)")
   end
   return formats
 end
