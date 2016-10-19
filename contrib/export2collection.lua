@@ -22,7 +22,8 @@
 
     This script provides another storage (export target) for darktable.  Selected
     images are exported in the specified format to temporary storage.   The exported 
-    files are moved into the current collection and imported into the database.  
+    files are moved into the current collection and imported into the database.  Any 
+    tags that have been added to the original image are copied to the imported image.
     The imported files then show up grouped with the originally selected images.
     If there is a filename conflict on import, the incoming filename will have an 
     increment added to it, i.e. _7D_1234.jpg would be _7D_1234_01.jpg.
