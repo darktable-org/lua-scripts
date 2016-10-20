@@ -22,7 +22,7 @@ dtutils_string.libdoc = {
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.]],
-  Copyright = [[]],
+  Copyright = [[Copyright (c) 2016 Bill Ferguson <wpferguson@gmail.com>]],
   functions = {}
 }
 

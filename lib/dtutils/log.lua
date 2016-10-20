@@ -1,22 +1,3 @@
---[[
-
-    log.lua - darktable lua logging library
-
-    Copyright (C) 2016 Bill Ferguson <wpferguson@gmail.com>.
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-]]
 
 local dtutils_log = {}
 
@@ -25,10 +6,28 @@ dtutils_log.libdoc = {
   Synopsis = [[darktable lua logging library]],
   Usage = [[local log = require "lib/dtutils.log"]],
   Description = [[log provides a multi-level logging solution for use with
-    the darktable lua scripts.]],
+    the darktable lua scripts.  With this library you can leave log messages 
+    scattered through out your code and only turn them on as necessary.]],
   Return_Value = [[log - library - the darktable lua logging functions]],
   Limitations = [[]],
-  Example = [[]],
+  Example = [[local log = require "lib/dtutils.log"
+
+  local cur_level = log.log_level()
+  log.log_level(log.warn)
+
+  print out warning, error and success messages as code is running
+
+  log.log_level(debug)
+
+  print out debugging messages too because this isnt working
+
+  log.log_level(info)
+
+  I want to make sure this is working ok
+
+  log.log_level(cur_level)
+
+  reset the logging level back to normal]],
   See_Also = [[]],
   Reference = [[]],
   License = [[This program is free software: you can redistribute it and/or modify
@@ -48,19 +47,66 @@ dtutils_log.libdoc = {
 }
 
 local dt = require "darktable"
+local dt_print_error = dt.print_error
+-- work around until dt.print_log()
+local dt_print_log = dt.print_error
+local dt_print = dt.print
 
 -- set the default log levels
 
-dtutils_log.debug = {"DEBUG:", false}
-dtutils_log.info = {"INFO:", false}
-dtutils_log.warn = {"WARN:", false}
-dtutils_log.error = {"ERROR:", true}
-dtutils_log.success = {"SUCCESS:", true}
+dtutils_log.debug = {
+  label = "DEBUG:", 
+  enabled = false,
+  engine = dt_print_log,
+  level = 1,
+}
+dtutils_log.info = {
+  label = "INFO:", 
+  enable = false,
+  engine = dt_print_log,
+  level = 2,
+}
+dtutils_log.warn = {
+  label = "WARN:", 
+  enabled = false,
+  engine = dt_print_log,
+  level = 3,
+}
+dtutils_log.error = {
+  label = "ERROR:",
+  enabled = true,
+  engine = dt_print_error,
+  level = 4,
+}
+dtutils_log.success = {
+  label = "SUCCESS:", 
+  enabled = true,
+  engine = dt_print_log,
+  level = 5,
+}
+dtutils_log.screen = {
+  label = "",
+  enabled = true,
+  engine = dt_print,
+  level = 9,
+}
+dtutils_log.always = {
+  label = "",
+  enabled = true,
+  engine = dt_print_log,
+  level = 9,
+}
+dtutils_log.critical = {
+  label = "CRITICAL:",
+  enabled = true,
+  engine = print,
+  level = 9,
+}
 
 dtutils_log.libdoc.functions["caller"] = {
   Name = [[caller]],
   Synopsis = [[get the name and line number of the calling routine]],
-  Usage = [[local log = require "lib/log"
+  Usage = [[local log = require "lib/dtutils.log"
 
 result = log.caller(level)
       level - number - the  number of stack levels to go down to retrieve the caller routine information]],
@@ -99,15 +145,18 @@ dtutils_log.libdoc.functions["msg"] = {
 
     log.msg(level, ...)
       level - table - the type of message, one of: 
-        log.debug   - debugging messages
-        log.info    - informational messages
-        log.warn    - warning messages 
-        log.error   - error messages 
-        log.success - success messages
+        log.debug    - debugging messages
+        log.info     - informational messages
+        log.warn     - warning messages 
+        log.error    - error messages 
+        log.success  - success messages
+        log.always   - an internal message for debugging
+        log.screen   - output 1 line of text to the screen
+        log.critical - print a critical message to the console
+
       ... - string(s) - the message to print, which could be a comma separated set of strings]],
   Description = [[msg checks the level to see if it is enabled, then prints the level type and message if it is.
-    debug messages print straight to the console, info and warn messages to dt.print_error() and error
-    and success to dt.print()]],
+    Messages are output using the engine configured in each log level.]],
   Return_Value = [[]],
   Limitations = [[If you use log.msg in a callback, the name of the calling routine can't be determined.  A solution
     is to include some means of reference such as the name of the callback as an argument, i.e. 
@@ -125,113 +174,95 @@ dtutils_log.libdoc.functions["msg"] = {
 }
 
 function dtutils_log.msg(level, ...)
-  local message = {...}
-  if level[2] == true then
-    dtutils_log.print(level[1], dtutils_log.caller(3), unpack(message))
+  if level.enabled then
+    local args = {...}
+    local call_level = 3
+    if level == dtutils_log.always then
+      call_level = args[1]
+      table.remove(args, 1)
+    end
+    local log_msg = level.label
+    if level.engine ~= dt_screen and call_level ~= 0 then
+      log_msg = log_msg .. dtutils_log.caller(call_level) .. " "
+    elseif log_msg:len() > 2 then
+      log_msg = log_msg .. " "
+    end
+    for i = 1,#args do
+      log_msg = log_msg .. tostring(args[i]) .. " "
+    end
+    level.engine(log_msg)
   end
 end
 
-dtutils_log.libdoc.functions["print"] = {
-  Name = [[print]],
-  Synopsis = [[print the supplied arguments]],
+dtutils_log.libdoc.functions["log_level"] = {
+  Name = [[log_level]],
+  Synopsis = [[get or set the log level]],
   Usage = [[local log = require "lib/log"
 
-    log.print(...)
-      ... - arguments to be printed that are converted with tostring()]],
-  Description = [[print loops through the arguments converting each to a string then writing
-    them to stdout.  Spaces are put between each argument on output.]],
-  Return_Value = [[]],
+    local result = log.log_level(...)
+      ... - arguments - if none is supplied, then the current log level is returned as one of:
+      log.debug, log.info, log.warn, log.error, log.success.  If one of log.debug, log.info, log.warn,
+      log.error, or log.success is supplied as the argument then the log level is set to that value.  All
+      log levels greater than or equal in value will be enabled.  Any levels of lesser value will be disabled.]],
+  Description = [[log_level gets and sets the logging level.  When called with no arguments the current log level
+  is returned as one of log.debug, log.info, log.warn, log.error, or log.success.  When called with one of log.debug, 
+  log.info, log.warn, log.error or log.success then the log level is set.  When setting the log level all levels 
+  equal or greater are enabled and any of lesser value are disabled.  See the example.]],
+  Return_Value = [[result - the log level, one of log.debug, log.info, log.warn, log.error or log.success]],
   Limitations = [[]],
-  Example = [[]],
+  Example = [[Assume that the current log level is log.error.  Calling log.log_level() will return log.error.
+  Calling log.log_level(log.info) will leave log.debug disabled, and enable log.info, log.warn, log.error and 
+  log.success.  log.info will be returned as the log_level.]],
   See_Also = [[]],
-  Reference = [[http://stackoverflow.com/questions/7148678/lua-print-on-the-same-line]],
+  Reference = [[]],
   License = [[]],
   Copyright = [[]],
 }
 
-function dtutils_log.print(...)
-  local write = io.write
-  local n = select("#",...)
-    for i = 1,n do
-      local v = tostring(select(i,...))
-      write(v)
-      if i~=n then 
-        write(' ') 
+function dtutils_log.log_level(...)
+  local levels = {"debug", "info", "warn", "error", "success"}
+  local args = {...}
+  local log_level = nil
+  if #args > 0 then
+    log_level = args[1]
+    if log_level == dtutils_log.critical or
+       log_level == dtutils_log.screen or
+       log_level == dtutils_log.always then
+       -- these aren't valid for setting levels
+      return nil
+    else
+      for _,v in ipairs(levels) do
+        if dtutils_log[v].level >= log_level.level then
+          dtutils_log[v].enabled = true
+        else
+          dtutils_log[v].enabled = false
+        end
       end
     end
-    write('\n')
-end
-
-dtutils_log.libdoc.functions["set_level"] = {
-  Name = [[set_level]],
-  Synopsis = [[set the logging level]],
-  Usage = [[local log = require "lib/log"
-
-    log.set_level(level)
-      level - string - a string specifying the level, one of: "debug", "info", "warn", "error", "success"]],
-  Description = [[set_level sets the logging level to the level specified.  Every level above the specified level 
-    is also enabled, therefore specifying "debug" would turn on all levels and specifying "success"
-    would turn all levels off except log.success.]],
-  Return_Value = [[]],
-  Limitations = [[]],
-  Example = [[]],
-  See_Also = [[]],
-  Reference = [[]],
-  License = [[]],
-  Copyright = [[]],
-}
-
-function dtutils_log.set_level(level)
-  level = level:lower()
-  if string.match(level, "debug") then
-    -- turn everything on
-    dtutils_log.debug[2] = true
-    dtutils_log.info[2] = true
-    dtutils_log.warn[2] = true
-    dtutils_log.error[2] = true
-    dtutils_log.success[2] = true
-  elseif string.match(level, "info") then
-    -- turn off debug and everything else on
-    dtutils_log.debug[2] = false
-    dtutils_log.info[2] = true
-    dtutils_log.warn[2] = true
-    dtutils_log.error[2] = true
-    dtutils_log.success[2] = true
-  elseif string.match(level, "warn") then
-    -- turn off debug and info and everything else on
-    dtutils_log.debug[2] = false
-    dtutils_log.info[2] = false
-    dtutils_log.warn[2] = true
-    dtutils_log.error[2] = true
-    dtutils_log.success[2] = true
-  elseif string.match(level, "error") or string.match("reset") then
-    -- everything off except error and success
-    dtutils_log.debug[2] = false
-    dtutils_log.info[2] = false
-    dtutils_log.warn[2] = false
-    dtutils_log.error[2] = true
-    dtutils_log.success[2] = true
-  elseif string.match(level, "success") then
-    -- everything off except success
-    dtutils_log.debug[2] = false
-    dtutils_log.info[2] = false
-    dtutils_log.warn[2] = false
-    dtutils_log.error[2] = false
-    dtutils_log.success[2] = true
   else
-    -- leave everything unchanged and return
-    return
+    for _,v in ipairs(levels) do
+      if dtutils_log[v].enabled == true then
+        log_level = dtutils_log[v]
+      end
+    end
   end
+  return log_level
 end
 
-dtutils_log.libdoc.functions["get_level"] = {
-  Name = [[get_level]],
-  Synopsis = [[get the current logging level]],
-  Usage = [[local log = require "lib/log"
+dtutils_log.libdoc.functions["engine"] = {
+  Name = [[engine]],
+  Synopsis = [[get and set the output engine]],
+  Usage = [[local log = require "lib/dtutils.log"
 
-    local result = log.get_level()]],
-  Description = [[get_level returns a string representing the current log level.]],
-  Return_Value = [[result - string - one of "debug", "info", "warn", "error", or "success"]],
+result = log.engine(level, ...)
+      level - table - the log level to get or set the engine for, one of log.debug, log.info, log.warn, log.error
+      log.success, log.always, log.screen, log.critical
+      ... - function - the output function, one of dt.print, dt.print_error, dt.print_log, print
+      if not function is included, the current engine is returned for the specified log level]],
+  Description = [[engine returns the output engine for the specified log level if a second argument is not
+  supplied.  If a function is supplied as the second argment, then the output engine for the specified log level
+  is set to that.]],
+  Return_Value = [[result - function - the current output engine]],
   Limitations = [[]],
   Example = [[]],
   See_Also = [[]],
@@ -240,47 +271,21 @@ dtutils_log.libdoc.functions["get_level"] = {
   Copyright = [[]],
 }
 
-function dtutils_log.get_level()
-  local result = nil
-  if dtutils_log.debug[2] == true then
-    result = "debug"
-  elseif log.info[2] == true then
-    result = "info"
-  elseif log.warn[2] == true then
-    result = "warn"
-  elseif log.error[2] == true then
-    result = "error"
-  elseif log.success[2] == true then
-    result = "success"
+function dtutils_log.print_engine(level, ...)
+  local engines = {"dt_print", "dt_print_error", "dt_print_log", "print"}
+  local args = {...}
+  local cur_engine = ""
+  if #args == 0 then
+    cur_engine = level.engine
+  else
+    for _,v in ipairs(engines) do
+      if args[1] == v then
+        level.engine = args[1]
+        cur_engine = level.engine
+      end
+    end
   end
-  return result
-end
-
-dtutils_log.libdoc.functions["always"] = {
-  Name = [[always]],
-  Synopsis = [[always write out a log message]],
-  Usage = [[local log = require "lib/log"
-
-    log.always(level, ...)
-      level - number - the number of stack levels to go back to identify the caller
-      ... - string(s) - the message to print]],
-  Description = [[always is meant specifically for the dtutils.debug library, but may be used for other
-    purposes.  always is independent of the log level setting so that it will always work.
-    The number of stack levels to look back for the caller may be specified.  It is normally
-    3 when called from a routine, but is 4 when called from the debugging routines since the
-    debugging routines add another stack level.]],
-  Return_Value = [[]],
-  Limitations = [[]],
-  Example = [[]],
-  See_Also = [[]],
-  Reference = [[]],
-  License = [[]],
-  Copyright = [[]],
-}
-
-function dtutils_log.always(level, ...)
-  local message = {...}
-  dtutils_log.print(log.caller(level), unpack(message))
+  return cur_engine
 end
 
 return dtutils_log

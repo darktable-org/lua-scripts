@@ -147,9 +147,9 @@ dtutils_processor.libdoc.functions["make_output_filename"] = {
   Synopsis = [[make an output filename from an image list]],
   Usage = [[local dp = require "lib/dtutils.processor"
     
-    local result = dtutils.make_output_filename(img_list)
-      img_list - string - a space separated list of filenames]],
-  Description = [[make_output_filename takes a string of filenames, breaks them apart, then
+    local result = dtutils.make_output_filename(image_table)
+      image_table - table - a table of images such as supplied by the exporter or by libPlugin.build_image_table]],
+  Description = [[make_output_filename takes an image table, gets the filenames, then
     combines them in a way that makes some sense.  This is useful in routines
     that do panoramas, hdr, or focus stacks.  The returned filename is a representation
     of the files used to construct the image.  If there are 3 or fewer images, then the file
@@ -164,15 +164,17 @@ dtutils_processor.libdoc.functions["make_output_filename"] = {
   Copyright = [[]],
 }
 
-function dtutils_processor.make_output_filename(img_list)
+function dtutils_processor.make_output_filename(image_table)
   local images = {}
   local cnt = 1
   local max_distinct_names = 3
   local name_separator = "-"
   local outputFileName = nil
-  log.msg(log.debug, "img_list is ", img_list)
+  local result = {}
 
-  local result = dtutils.split(img_list, " ")
+  for img,expimg in pairs(image_table) do
+    table.insert(result, expimg)
+  end
   table.sort(result)
   for _,img in pairs(result) do
     images[cnt] = df.get_basename(img)

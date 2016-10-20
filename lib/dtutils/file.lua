@@ -359,4 +359,36 @@ function dtutils_file.filename_increment(filepath)
   return incremented_filepath
 end
 
+
+dtutils_file.libdoc.functions["create_unique_filename"] = {
+  Name = [[create_unique_filename]],
+  Synopsis = [[create a unique filename from the supplied argment]],
+  Usage = [[local df = require "lib/dtutils.file"
+
+    local result = df.create_unique_filename(filepath)
+      filepath - string - the path and filename requested]],
+  Description = [[create_unique_filename takes a requested filepath and checks to see if
+  it exists.  If if doesn't then it's returned intact.  If it already exists, then a two
+  digit increment is added to the filename and it is tested again.  The increment keeps 
+  increasing until either a unique filename is found or there have been 100 attempts.]],
+  Return_Value = [[result - string - the incremented filename]],
+  Limitations = [[create_unique_filename will only attempt 100 increments.]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_file.create_unique_filename(filepath)
+  while dtutils_file.check_if_file_exists(filepath) do
+    filepath = dtutils_file.filename_increment(filepath)
+    -- limit to 99 more exports of the original export
+    if string.match(dtfileutils.get_basename(filepath), "_(d-)$") == "99" then 
+      break 
+    end
+  end
+  return filepath
+end
+
 return dtutils_file

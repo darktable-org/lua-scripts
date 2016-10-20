@@ -74,9 +74,9 @@ M.libdoc.functions["tracepoint"] = {
 }
 
 function M.tracepoint(name,...)
-  log.always(4, "*****  "..name.." ****")
+  log.msg(log.always, 4, "*****  "..name.." ****")
   params = {...}
-  print(dt.debug.dump(params,"parameters"))
+  log.msg(log.always, 0, dt.debug.dump(params,"parameters"))
   return ...;
 end
 

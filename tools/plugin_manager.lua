@@ -53,7 +53,7 @@ plugin_widgets = {}
 plugin_widget_cnt = 1
 pmstartup = true
 
-log.set_level("debug")
+log.log_level(log.debug)
 
 --[[
 Plugin manager creates many widgets during startup, depending on the number of plugins.
