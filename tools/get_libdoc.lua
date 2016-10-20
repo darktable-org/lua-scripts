@@ -8,9 +8,12 @@ local dt = require "darktable"
 
 dt.configuration.check_version(...,{3,0,0})
 
+local keys = {"Name", "Synopsis", "Usage", "Description", "Return_Value", "Limitations", 
+              "Example", "See_Also", "Reference", "License", "Copyright"}
+
 local function output_doc(d)
-  for _,section in pairs(d.Sections) do
-    if d[section] then
+  for _,section in ipairs(keys) do
+    if d[section]:len() > 0 then
       print(string.upper(string.gsub(section, "_", " ")))
       print("\t" .. d[section] .. "\n")
     end
