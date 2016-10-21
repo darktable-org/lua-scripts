@@ -34,6 +34,8 @@ Plugin allows you to choose how many thumbnails you need per row
 
 ]]
 local dt = require "darktable"
+require "official/yield"
+
 dt.configuration.check_version(...,{2,0,0},{3,0,0})
 
 dt.preferences.register
