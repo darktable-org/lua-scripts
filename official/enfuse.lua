@@ -33,6 +33,8 @@ TODO
 ]]
 
 local dt = require "darktable"
+require "official/yield"
+
 
 dt.configuration.check_version(...,{3,0,0})
 

@@ -34,6 +34,8 @@ This plugin will add a new storage option and calls hugin after export.
 ]]
 
 local dt = require "darktable"
+require "official/yield"
+
 local gettext = dt.gettext
 
 -- works with darktable API version 2.0.0 and 3.0.0

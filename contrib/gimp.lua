@@ -64,6 +64,8 @@
 ]]
 
 local dt = require "darktable"
+require "official/yield"
+
 local gettext = dt.gettext
 
 dt.configuration.check_version(...,{3,0,0})
