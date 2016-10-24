@@ -128,7 +128,7 @@ M.libdoc.functions["dprint"] = {
 }
 
 function M.dprint(...)
-  log.always(4, dt.debug.dump(...))
+  log.msg(log.always, 4, dt.debug.dump(...))
 end
 
 M.libdoc.functions["terse_dump"] = {
