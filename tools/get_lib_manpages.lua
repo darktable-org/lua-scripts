@@ -6,6 +6,7 @@
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
+local df = require "lib/dtutils.file"
 local log = require "lib/dtutils.log"
 local libname = nil
 
@@ -30,7 +31,15 @@ local function output_man(d)
       end
     end
     mf:close()
-    os.execute("groff -man " .. fname .. " | ps2pdf - " .. fname .. ".pdf")
+    if df.check_if_bin_exists("groff") then
+      if df.check_if_bin_exists("ps2pdf") then
+        os.execute("groff -man " .. fname .. " | ps2pdf - " .. fname .. ".pdf")
+      else
+        log.msg(log.error, "Missing ps2pdf.  Can't generate pdf man pages.")
+      end
+    else
+      log.msg(log.error, "Missing groff.  Can't generate pdf man pages.")
+    end
   else
     log.msg(log.error, "Can't open file " .. fname .. "for writing")
   end
