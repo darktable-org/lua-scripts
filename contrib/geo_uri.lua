@@ -30,7 +30,7 @@ local dt = require "darktable"
 require "official/yield"
 
 local gettext = dt.gettext
-dt.configuration.check_version(...,{3,0,0})
+dt.configuration.check_version(...,{3,0,0},{4,0,0})
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("geo_uri",dt.configuration.config_dir.."/lua/")

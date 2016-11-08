@@ -36,7 +36,7 @@ local dt = require "darktable"
 require "official/yield"
 
 
-dt.configuration.check_version(...,{3,0,0})
+dt.configuration.check_version(...,{3,0,0},{4,0,0})
 
 -- thanks Tobias Jakobs for this function (taken from contrib/hugin.lua)
 local function checkIfBinExists(bin)

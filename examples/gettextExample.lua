@@ -53,7 +53,7 @@ LUA ERROR Hallo Welt!
 
 ]] 
 local dt = require "darktable"
-dt.configuration.check_version(...,{3,0,0})
+dt.configuration.check_version(...,{3,0,0},{4,0,0})
 
 -- Not translated Text
 dt.print_error("Hello World!")

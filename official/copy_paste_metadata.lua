@@ -27,7 +27,7 @@ USAGE
 
 local dt = require "darktable"
 
-dt.configuration.check_version(...,{3,0,0})
+dt.configuration.check_version(...,{3,0,0},{4,0,0})
 
 -- set this to "false" if you don't want to overwrite metadata fields
 -- (title, description, creator, publisher and rights) that are already set

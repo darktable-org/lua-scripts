@@ -25,7 +25,7 @@ USAGE
    
 local dt = require "darktable"
 local gettext = dt.gettext
-dt.configuration.check_version(...,{2,0,1},{3,0,0})
+dt.configuration.check_version(...,{2,0,1},{3,0,0},{4,0,0})
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("gps_select",dt.configuration.config_dir.."/lua/")
