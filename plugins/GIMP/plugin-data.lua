@@ -24,7 +24,7 @@ return {
         License = "GPL Version 2",
         Caveats = "Developed and tested on Ubuntu 14.04 LTS with darktable 2.0.3 and GIMP 2.9.3 (development version with > 8 bit color)\n",
       },
-      DtVersionRequired = {"3.0.0"},
+      DtVersionRequired = {"3.0.0", "4.0.0"},
       DtPluginDataDir = "plugin-data/gimp",
       DtPluginExecutablesRequired = {
         "gimp",

@@ -19,7 +19,7 @@ return {
         License = "GPL Version 2",
         Contact = "Bill Ferguson <wpferguson@gmail.com>"
       },
-      DtVersionRequired = {"3.0.0"},
+      DtVersionRequired = {"3.0.0","4.0.0"},
       DtPluginDataDir = nil,
       DtPluginIsA = {
         processor = false,

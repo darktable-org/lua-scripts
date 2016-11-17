@@ -69,7 +69,7 @@
 
 local dt = require "darktable"
 
-dt.configuration.check_version(...,{3,0,0})
+dt.configuration.check_version(...,{3,0,0},{4,0,0})
 
 -- collectgarbage("stop")
 

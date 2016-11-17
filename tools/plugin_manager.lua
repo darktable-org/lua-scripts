@@ -43,7 +43,7 @@ local dtfileutils = require "lib/dtutils.file"
 local libPlugin = require "lib/libPlugin"
 local log = require "lib/dtutils.log"
 
-dt.configuration.check_version(...,{3,0,0})
+dt.configuration.check_version(...,{3,0,0},{4,0,0})
 
 plugins = {}
 processors = {}

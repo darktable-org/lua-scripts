@@ -14,7 +14,7 @@ local df = require "lib/dtutils.file"
 local log = require "lib/dtutils.log"
 
 local lua_dir = dt.configuration.config_dir .. "/lua/"
-local locale_dir = dt.configuration.config_dir .. "/lua/locale/"
+local locale_dir = dt.configuration.config_dir .. "/lua/translations/"
 
 -- find the .po files
 

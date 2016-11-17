@@ -19,7 +19,7 @@ return {
                 Press Process]],
         License = "GPL Version 2",
       },
-      DtVersionRequired = {"2.0.0","3.0.0"},
+      DtVersionRequired = {"2.0.0","3.0.0","4.0.0"},
       DtPluginDataDir = "plugin-data/hugin",
       DtPluginExecutablesRequired = {
         "hugin",
