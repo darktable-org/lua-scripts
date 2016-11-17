@@ -31,7 +31,9 @@ USAGE
 ]]
 
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,1})
+require "official/yield"
+
+dt.configuration.check_version(...,{2,0,1},{3,0,0},{4,0,0})
 
 local function show_status(storage, image, format, filename, number, total, high_quality, extra_data)
     dt.print("Export Image "..tostring(number).."/"..tostring(total))

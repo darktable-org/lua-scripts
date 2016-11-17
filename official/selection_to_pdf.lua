@@ -34,7 +34,9 @@ Plugin allows you to choose how many thumbnails you need per row
 
 ]]
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,0},{3,0,0})
+require "official/yield"
+
+dt.configuration.check_version(...,{2,0,0},{3,0,0},{4,0,0})
 
 dt.preferences.register
    ("selection_to_pdf","Open with","string",

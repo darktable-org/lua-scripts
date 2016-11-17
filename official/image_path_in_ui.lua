@@ -29,7 +29,7 @@ This plugin will add a widget at the bottom of the left column in lighttable mod
 
 ]]
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,0},{3,0,0})
+dt.configuration.check_version(...,{2,0,0},{3,0,0},{4,0,0})
 
 local main_label = dt.new_widget("label"){selectable = true, ellipsize = "middle", halign = "start"}
 
