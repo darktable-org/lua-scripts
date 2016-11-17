@@ -18,245 +18,70 @@
   along with darktable.  If not, see <http://www.gnu.org/licenses/>.
 ]]
 --[[
-  script_manager - a drop in luarc file that provides script management
+    script_manager.lua - a tool for managing the darktable lua scripts
 
-  script_manager creates two modules, Script Install/Update and Script
-  Controller.  Script Install/Update installs the scripts, from the
-  specified repository, if they don't exist.  Once the scripts are 
-  installed the module provides a way to update the scripts with one
-  click.  After the scripts are installed, Script Controller starts.  A
-  button for each script is displayed.  Hovering over the button displays 
-  the documentation from the script. Clicking the button loads the script
-  and runs it.  A preference is updated to record that the script is active.
-  Once a script is active, the button changes to Deactivate to turn off the
-  script.
+    script_manager is designed to run as a standalone script so that it
+    may be used as a drop in luarc file in the user's $HOME/.config/darktable
+    directory.  It may also be required from a luarc file.
 
-  ADDITIONAL SOFTWARE NEEDED FOR THIS SCRIPT
-  * git - https://git-scm.com/
+    On startup script_manager checks to see what methods are available for downloading
+    and/or updating the darktable lua scripts.  It also checks to see if there is an 
+    existing scripts directory.  If there is an existing lua scripts directory then it is 
+    read to see what scripts are present.  Scripts are sorted by "category" based on what 
+    subdirectory they are found in, thus with a lua scripts directory that matched the current
+    repository the categories would be contrib, examples, offical, and tools.  Each script has
+    and Enable/Disable button to enable or disable the script.
 
-  USAGE
-  * replace the existing luarc file with this one.  
-  * start darktable
-  * click install to install the scripts from the specified repository (default:
-    https://github.com/darktable-org/lua-scripts.git), if they aren't already.
-  * click update to retrieve the latest version of the scripts from the
-    specified repository (default: https://github.com/darktable-org/lua-scripts.git)
-  * activate the scripts you want 
+    Additional "un-official" scripts may be downloaded from other sources and placed in a separate
+    download directory.  These scripts all fall in a download category.  They also each have an 
+    Enable/Disable button.
 
-  CAVEATS
-  * deactivate doesn't take effect until darktable is restarted.  There currently isn't
-    a way to unload a script from the UI (that I'm aware of).
-  * Newer scripts retrieved using update won't take effect until darktable is restarted
-    since we can't unload running scripts.  A script that isn't active and gets updated
-    will run the newest version if activated after the update.
-  * changing the repository, then clicking update will cause the current lua directory
-    ($HOME/lua-scripts) to be removed and a new one created by cloning the specified
-    repository.
-
-  BUGS, COMMENTS, SUGGESTIONS
-  * Send to Bill Ferguson, wpferguson@gmail.com
-
-  CHANGES
-  * 20160910
-    * Made it self aware so it doesn't include itself
-    * Added plugin support (ignore them)
-    * Put the example scripts back in
-  20161001
-    * Added libs to the ignore list
-    * broke the scripts down into categories (official/contrib/examples)
-
+    Available download methods and directory locations can be configured.
 ]]
 
 local dt = require "darktable"
+local dd = require "lib/dtutils.debug"
 
-dt.configuration.check_version(...,{3,0,0},{4,0,0})
+collectgarbage("stop")
 
--- collectgarbage("stop")
+-- - - - - - - - - - - - - - - - - - - - - - - - 
+-- C O N S T A N T S
+-- - - - - - - - - - - - - - - - - - - - - - - - 
 
--- set up a namespace so we don't pollute
+local LUA_DIR = dt.configuration.config_dir .. "/lua"
+local LUA_GIT_DIR = LUA_DIR .. "/.git"
+local LUA_SCRIPT_REPO = "https://github.com/darktable-org/lua-scripts.git"
+local LUA_SCRIPT_ZIP_REPO = "https://github.com/darktable-org/lua-scripts/archive/master.zip"
 
-script_manager = {}
+-- - - - - - - - - - - - - - - - - - - - - - - - 
+-- F U N C T I O N S
+-- - - - - - - - - - - - - - - - - - - - - - - - 
 
-local lua_path = dt.configuration.config_dir .. "/lua"
-local lua_script_repo = "https://github.com/darktable-org/lua-scripts.git"
-local script_controller_not_installed = true
-script_manager.script_widgets = {}
-script_manager.script_categories = {}
-script_manager.script_names = {}
+  -- - - - - - - - - - - - - - - - - - - - - - - - 
+  -- L I F T E D  F R O M  D T U T I L S  L I B S
+  -- - - - - - - - - - - - - - - - - - - - - - - - 
 
--- Thanks Tobias Jakobs for the idea and the correction
-local function check_if_file_exists(filepath)
-  local file = io.open(filepath,"r")
-  local ret
-  if file ~= nil then 
-    io.close(file) 
-    dt.print_error("true check_if_file_exists: "..filepath)
-    ret = true
-  else 
-    dt.print_error(filepath.." not found")
-    ret = false
-  end
-  return ret
-end
 
 -- Thanks Tobias Jakobs
 local function check_if_bin_exists(bin)
-  local handle = io.popen("which "..bin)
-  local result = handle:read()
-  local ret
-  handle:close()
-  if (result) then
-    dt.print_error("true check_if_bin_exists: "..bin)
-    ret = true
-  else
-    dt.print_error(bin.." not found")
-    ret = false
+  local result = os.execute("which " .. bin)
+  if not result then
+    result = false
   end
-  return ret
+  return result
 end
 
-local function update_combobox_choices(combobox, choice_table)
-  local items = #combobox
-  local choices = #choice_table
-  for i, name in ipairs(choice_table) do 
-    combobox[i] = name
+-- Thanks Tobias Jakobs for the idea and the correction
+local function check_if_file_exists(filepath)
+  local result = os.execute("test -e " .. filepath)
+  if not result then
+    result = false
   end
-  if choices < items then
-    for j = items, choices + 1, -1 do
-      combobox[j] = nil
-    end
-  end
-  combobox.value = 1
-end
-
--- Thanks Jérémy Rosen
-local function load_scripts()
-  local output = io.popen("cd "..dt.configuration.config_dir.."/lua ;find . -name \\*.lua -print | sort")
-  for line in output:lines() do
-    local req_name = line:sub(3,-5)
-    if not string.match(req_name, "script_manager") then  -- let's not include ourself
-      if not string.match(req_name, "plugin") then -- skip plugins and plugin_manager
-        if not string.match(req_name, "lib/") then -- let's not try and run libraries
-          if not string.match(req_name, "yield") then -- special case, because everything needs this
-            script_manager.add_script_data(req_name)
-          else
-            script_manager.prequire(req_name) -- load yield.lua
-          end
-        end
-      end
-    end
-  end
-  
-  if script_controller_not_installed then
-    table.sort(script_manager.script_categories)
-    for _,cat in ipairs(script_manager.script_categories) do
-      table.sort(script_manager.script_names[cat])
-      local tmp = {}
-      for _,sname in ipairs(script_manager.script_names[cat]) do
-        local req = script_manager.join({cat, sname}, "/")
-        local btext = "Activate "
-        if dt.preferences.read("script_controller", req, "bool") then
---          script_manager.prequire(req)
-          require(req)
-          btext = "Deactivate "
-        else
-          dt.preferences.write("script_controller", req, "bool", false)
-        end
-        tmp[#tmp + 1] = dt.new_widget("button")
-        {
-          label = btext .. sname,
-          tooltip = script_manager.get_script_doc(req),
-          clicked_callback = function (self)
-            -- split the label into action and target
-            local action, target = string.match(self.label, "(.+) (.+)")
-            -- load the script if it's not loaded
-            local scat = ""
-            for _,scatn in ipairs(script_manager.script_categories) do
-              if string.match(table.concat(script_manager.script_names[scatn]), target) then
-                scat = scatn 
-              end
-            end
-            local starget = script_manager.join({scat, target}, "/")
-            if action == "Activate" then
-              dt.preferences.write("script_controller", starget, "bool", true)
-              dt.print_error("Loading " .. target)
-              local status, lib = pcall(require, starget)
-              -- require(starget)
-              if status then
-                dt.print("Loaded " .. target)
-              else
-                dt.print_error("Error loading " .. target)
-                dt.print_error("error message was " .. lib)
-              end
-              self.label = "Deactivate " .. target
-            else
-              dt.preferences.write("script_controller", starget, "bool", false)
-              -- ideally we would call a deactivate method provided by the script
-              dt.print(target .. " will not be active when darktable is restarted")
-              self.label = "Activate " .. target
-            end
-          end
-        }
-      end
-
-      script_manager.script_widgets[cat] = dt.new_widget("box")
-      {
-        orientation = "vertical",
-        table.unpack(tmp),
-      }
-    end
-
-    local cat_combobox = dt.new_widget("combobox")
-    {
-      label = "Script Category",
-      tooltip = "Select script category",
-      value = 1, "placeholder",
-      changed_callback = function(self)
-        script_manager.sm[2] = nil
-        script_manager.sm[2] = script_manager.script_widgets[self.value]
-      end
-    }
-
-    update_combobox_choices(cat_combobox, script_manager.script_categories)
-
-    script_manager.sm = dt.new_widget("box")
-    {
-      orientation = "vertical",
-      cat_combobox,
-      dt.new_widget("separator"){}
-    }
-
-    -- install it
-    dt.register_lib(
-      "Script Controller",     -- Module name
-      "Script Controller",     -- name
-      true,                -- expandable
-      false,               -- resetable
-      {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_BOTTOM", 100}},   -- containers
-      script_manager.sm,
-      nil,-- view_enter
-      nil -- view_leave
-    )
-    script_controller_not_installed = false
-    cat_combobox.value = 1
-  end
-end
-
--- protected require, load but recover frome errors
-
-function script_manager.prequire(req_name)
-  dt.print_error("Loading " .. req_name)
-  local status, lib = pcall(require, req_name)
-  if status then
-    dt.print_error("Loaded " .. req_name)
-  else
-    dt.print_error("Error loading " .. req_name)
-    print(lib)
-  end
+  return result
 end
 
 local function split(str, pat)
-   local t = {}  -- NOTE: use {n = 0} in Lua-5.0
+   local t = {}  
    local fpat = "(.-)" .. pat
    local last_end = 1
    local s, e, cap = str:find(fpat, 1)
@@ -275,7 +100,7 @@ local function split(str, pat)
 end
 
 -- Thanks to http://lua-users.org/wiki/SplitJoin
-function script_manager.join(tabl, pat)
+local function join(tabl, pat)
   returnstr = ""
   for i,str in pairs(tabl) do
     returnstr = returnstr .. str .. pat
@@ -283,22 +108,156 @@ function script_manager.join(tabl, pat)
   return string.sub(returnstr, 1, -(pat:len() + 1))
 end
 
-function script_manager.add_script_data(req_name)
-  local parts = split(req_name, "/")
-  local category = parts[1]
-  local script = parts[2]
-
-  if #script_manager.script_categories == 0 or not string.match(script_manager.join(script_manager.script_categories, " "), category) then
-    script_manager.script_categories[#script_manager.script_categories + 1] = category
-    script_manager.script_names[category] = {}
+local function prequire(req_name)
+  dt.print_error("Loading " .. req_name)
+  local status, lib = pcall(require, req_name)
+  if status then
+    dt.print_error("Loaded " .. req_name)
+  else
+    dt.print_error("Error loading " .. req_name)
+    dt.print_error(lib)
   end
-  script_manager.script_names[category][#script_manager.script_names[category] + 1] = script
+  return status, lib
+end
+
+local function update_combobox_choices(combobox, choice_table, selected)
+  local items = #combobox
+  local choices = #choice_table
+  for i, name in ipairs(choice_table) do 
+    combobox[i] = name
+  end
+  if choices < items then
+    for j = items, choices + 1, -1 do
+      combobox[j] = nil
+    end
+  end
+  combobox.value = selected
+end
+
+  -- - - - - - - - - - - - - - - - - - - - - - - - 
+  -- P R O G R A M  S P E C I F I C
+  -- - - - - - - - - - - - - - - - - - - - - - - - 
+
+local function setup_download_methods(have_method, name)
+  if have_method then
+    table.insert(sm.download_methods.available, name)
+    if sm.not_initialized then
+      dt.preferences.write("script_manager", "use_" .. name, "bool", true)
+      if name == "git" then
+        table.insert(sm.download_methods.single, name)
+        if sm.can_use_git then
+          table.insert(sm.download_methods.repo, name)
+        else
+          dt.preferences.write("script_manager", "use_" .. name, "bool", false)
+        end
+      else
+        table.insert(sm.download_methods.repo, name)
+        table.insert(sm.download_methods.single, name)
+      end
+    else
+      if dt.preferences.read("script_manager", "use_" .. name, "bool") then
+        if name == "git" then 
+          table.insert(sm.download_methods.single, name)
+          if sm.can_use_git then
+            table.insert(sm.download_methods.repo, name)
+          end
+        else
+          table.insert(sm.download_methods.repo, name)
+          table.insert(sm.download_methods.single, name)
+        end
+      end
+    end
+  end
+end
+
+local function get_script_repo()
+  local repo = dt.preferences.read("script_manager", "repository", "string")
+  if not repo then
+    if dt.preferences.read("script_manager", "use_git", "bool") then
+      repo = LUA_SCRIPT_REPO
+    else
+      repo = LUA_SCRIPT_ZIP_REPO
+    end
+  end
+  return repo
+end
+
+local function install_scripts(method, location)
+  local result = true
+  if not check_if_file_exists(sm.lua_scripts_dir) then
+    os.execute("mkdir -p " .. sm.lua_scripts_dir)
+  end
+  if not (LUA_DIR == sm.lua_scripts_dir) then
+    os.execute("ln -s " .. sm.lua_scripts_dir .. " " .. LUA_DIR)
+  end
+
+  if method == "git" then
+    result = os.execute("cd " .. sm.lua_scripts_dir ..";git clone " .. location .. " .")
+  else
+    result = download_script_repository(method, location)
+  end
+  return result
+end
+
+local function update_scripts(method, location)
+  if method == "git" then
+    if check_if_file_exists(LUA_DIR .. "/.git") then
+      os.execute("cd " .. LUA_DIR .. ";git pull")
+    end
+  else
+    result = download_script_repository(method, location)
+  end
+  return result
+end
+
+local function add_script_data(req_name)
+  -- add the script data
+  local category,path,name,f,ft = string.match(req_name, "(.-)/(.-)(([^\\/]-)%.?([^%.\\/]*))$")
+
+  if #sm.script_categories == 0 or not string.match(join(sm.script_categories, " "), category) then
+    sm.script_categories[#sm.script_categories + 1] = category
+    sm.script_names[category] = {}
+  end
+  if name then
+    if not string.match(join(sm.script_names[category], " "), name) then
+      sm.script_names[category][#sm.script_names[category] + 1] = name
+      sm.script_paths[category .. "/" .. name] = category .. "/" .. path .. name
+      if category == "download" then
+        sm.have_downloads = true
+      end
+    end
+  end
+end
+
+local function scan_scripts()
+  -- scan the scripts
+  local output = io.popen("cd " .. LUA_DIR .. " ;find -L . -name \\*.lua -print | sort")
+  for line in output:lines() do
+    local req_name = line:sub(3,-5)
+    if not string.match(req_name, "script_manager") then  -- let's not include ourself
+      if not string.match(req_name, "plugins") then -- skip plugins
+        if not string.match(req_name, "lib/") then -- let's not try and run libraries
+          if not string.match(req_name, "include_all") then -- skip include_all.lua
+            if not string.match(req_name, "yield") then -- special case, because everything needs this
+              add_script_data(req_name)
+            else
+              prequire(req_name) -- load yield.lua
+            end
+          end
+        end
+      end
+    end
+  end
+  -- work around because we can't dynamically add a new stack child.  We create an empty child that will be
+  -- populated with downloads as they occur.  If there are already downloads then this is just ignored
+
+  add_script_data("download/")
 end
 
 -- get the script documentation, with some assumptions
-function script_manager.get_script_doc(script)
+local function get_script_doc(script)
   local description = nil
-  f = io.open(lua_path .. "/" .. script .. ".lua")
+  f = io.open(LUA_DIR .. "/" .. script .. ".lua")
   if f then
     -- slurp the file
     local content = f:read("*all")
@@ -315,105 +274,547 @@ function script_manager.get_script_doc(script)
   end
 end
 
+local function deactivate(script)
+  -- deactivate it....
 
-local script_repo = dt.preferences.read("script_manager", "repository", "string")
-if script_repo == "" then
-  dt.preferences.write("script_manager", "repository", "string", lua_script_repo)
-  script_repo = lua_script_repo
-end
-dt.print_error("script_repo is set to " .. script_repo)
+  -- turn any gui elements invisible (currently only lib)
 
-local action_button_text = "Install Scripts"
-if check_if_file_exists(lua_path) then
-  action_button_text = "Update Scripts"
+  -- unload from package.loaded
 end
 
-script_manager.action_button =  dt.new_widget("button")
-{
-  label = action_button_text,
-  clicked_callback = function (_)
-    if action_button.label == "Install Scripts" then
-      if check_if_bin_exists("git") then
-        -- see if $HOME/lua-scripts exists and if it does move it out of the way
-        local homedir = os.getenv("HOME")
-        if check_if_file_exists(homedir .. "/lua-scripts") then
-          os.execute("mv $HOME/lua-scripts $HOME/lua-scripts.save")
+local function create_enable_disable_button(btext, sname, req)
+  return dt.new_widget("button")
+  {
+    label = btext .. sname,
+    tooltip = get_script_doc(req),
+    clicked_callback = function (self)
+      -- split the label into action and target
+      local action, target = string.match(self.label, "(.+) (.+)")
+      -- load the script if it's not loaded
+      local scat = ""
+      for _,scatn in ipairs(sm.script_categories) do
+        if string.match(table.concat(sm.script_names[scatn]), target) then
+          scat = scatn 
         end
-        -- fetch it and set it up
-        local result = os.execute("cd $HOME;git clone " .. script_repo)
-        if not result then
-          -- something went wrong
-          dt.print("Error fetching scripts from " .. script_repo)
+      end
+      local starget = join({scat, target}, "/")
+      if action == "Enable" then
+        dt.preferences.write("script_manager", starget, "bool", true)
+        dt.print_error("Loading " .. target)
+        local status, lib = prequire(sm.script_paths[starget])
+        if status then
+          dt.print("Loaded " .. target)
         else
-          result = os.execute("ln -s $HOME/lua-scripts " .. lua_path)
-          load_scripts()
---          require("contrib/gimp")
-          action_button.label = "Update Scripts"
+          dt.print_error("Error loading " .. target)
+          dt.print_error("Error message: " .. lib)
+        end
+        self.label = "Disable " .. target
+      else
+        dt.preferences.write("script_manager", starget, "bool", false)
+        deactivate(starget)
+        dt.print(target .. " will not be active when darktable is restarted")
+        self.label = "Enable " .. target
+      end
+    end
+  }
+end
+
+local function load_script_stack()
+  -- load the scripts
+  table.sort(sm.script_categories)
+  for _,cat in ipairs(sm.script_categories) do
+    local tmp = {}
+    table.sort(sm.script_names[cat])
+    if not sm.script_widgets[cat] then
+      for _,sname in ipairs(sm.script_names[cat]) do
+        local req = join({cat, sname}, "/")
+        local btext = "Enable "
+        if dt.preferences.read("script_manager", req, "bool") then
+          status, lib = prequire(sm.script_paths[req])
+          if status then 
+            btext = "Disable "
+          else
+            dt.print_error("Error loading " .. sname)
+  --          dt.print_error("Error message: " .. lib)
+          end
+        else
+          dt.preferences.write("script_manager", req, "bool", false)
+        end
+        tmp[#tmp + 1] = create_enable_disable_button(btext, sname, req)
+      end
+
+      sm.script_widgets[cat] = dt.new_widget("box")
+      {
+        orientation = "vertical",
+        table.unpack(tmp),
+      }
+    elseif #sm.script_widgets[cat] ~= #sm.script_names[cat] then
+      for index,sname in ipairs(sm.script_names[cat]) do
+        local req = join({cat, sname}, "/")
+        dt.print_error("script is " .. sname .. " and index is " .. index)
+        if sm.script_widgets[cat][index] then
+          sm.script_widgets[cat][index] = nil
+        end
+        sm.script_widgets[cat][index] = create_enable_disable_button("Enable ", sname, req)
+      end
+    end
+  end
+  if not sm.script_stack then
+    sm.script_stack = dt.new_widget("stack"){}
+    for i,cat in ipairs(sm.script_categories) do
+      sm.script_stack[i] = sm.script_widgets[cat]
+    end
+    sm.script_stack.active = 1
+  end
+end
+
+local function update_stack_choices(combobox, choice_table)
+  sm.have_downloads = true
+  local items = #combobox
+  local choices = #choice_table
+  if #sm.script_widgets["download"] == 0 then
+    choices = choices - 1
+    sm.have_downloads = false
+  end
+  cnt = 1
+  for i, name in ipairs(choice_table) do 
+    if (name == "download" and sm.have_downloads) or name ~= "download" then
+      combobox[cnt] = name
+      cnt = cnt + 1
+    end
+  end
+  if choices < items then
+    for j = items, choices + 1, -1 do
+      combobox[j] = nil
+    end
+  end
+  combobox.value = 1
+end
+
+local function build_scripts_block()
+  -- build the whole script block
+  scan_scripts()
+
+    -- set up the stack for the choices
+  load_script_stack()
+
+  if not sm.category_selector then
+    -- set up the combobox for the categories
+
+    sm.category_selector = dt.new_widget("combobox"){
+      label = "Category",
+      tooltip = "Select the script category",
+      value = 1, "placeholder",
+      changed_callback = function(self)
+        local cnt = 1
+        for i,cat in ipairs(sm.script_categories) do
+          if cat == self.value then
+            sm.script_stack.active = i
+          end
+        end
+      end
+    }
+  end
+
+  update_stack_choices(sm.category_selector, sm.script_categories)
+
+  if not sm.scripts then
+    sm.scripts = dt.new_widget("box"){
+      orientation = "vertical",
+      dt.new_widget("label"){ label = "Scripts" },
+      sm.category_selector,
+      sm.script_stack,
+    }
+  end
+end
+
+local function insert_scripts_block()
+  table.insert(sm.main_menu_choices, "Enable/Disable Scripts")
+  update_combobox_choices(sm.main_menu, sm.main_menu_choices, 1)
+  sm.main_stack[#sm.main_stack + 1] = sm.scripts
+end
+
+local function download_script(method, location)
+  local result = true
+  if not check_if_file_exists(sm.download_scripts_dir) then
+    os.execute("mkdir -p " .. sm.download_scripts_dir)
+  end
+  if not check_if_file_exists(LUA_DIR) then
+    os.execute("mkdir -p " .. LUA_DIR)
+  end
+  if not check_if_file_exists(LUA_DIR .. "/download") then
+    os.execute("ln -s " .. sm.download_scripts_dir .. " " .. LUA_DIR .. "/download")
+  end
+  local cmd = ""
+  if method == "git" then
+    cmd = "git clone "
+  elseif method == "curl" then
+    cmd = "curl -L -O -s "
+  else
+    cmd = "wget --quiet "
+  end
+  if method == "curl" or method == "wget" then
+    location = string.gsub(location, "github.com", "raw.githubusercontent.com")
+  end
+  if not os.execute("cd " .. sm.download_scripts_dir .. ";" .. cmd .. location) then 
+    result = false
+  end
+  if result then
+    sm.have_downloads = true
+  end
+  return result
+end
+
+local function update_usable_download_methods()
+  -- clear the usable download methods
+  sm.download_methods.repo = {}
+  sm.download_methods.single = {}
+
+  -- reload it
+
+  for _,widget in ipairs(sm.config_checkboxes) do
+    if widget.value then
+      local method = string.match(widget.label, ".- (.-)?$")
+      if method == "git" then
+        table.insert(sm.download_methods.single, method)
+        if sm.can_use_git then
+          table.insert(sm.download_methods.repo, method)
         end
       else
-        dt.print("Git not installed.  Install git and restart darktable")
+        table.insert(sm.download_methods.repo, method)
+        table.insert(sm.download_methods.single, method)
       end
-    else -- doing an update
-      dt.print_error("Updating scripts")
-      if repository.text == script_repo then
-        result = os.execute("cd " .. lua_path .. ";git pull")
-        if not result then
-          dt.print("Failed to update scripts")
+    end
+  end
+end
+
+local function create_download_checkbox(var, val)
+  return dt.new_widget("check_button"){
+    label = "Use " .. var .."?",
+    tooltip = "Will " .. var .. " show in the download options menu?",
+    value = val,
+  }
+end
+
+local function create_dir_widget(var, value, ttip)
+  sm[var] = dt.preferences.read("script_manager", var, "string")
+  if sm[var] == "" and sm.not_initialized then
+    dt.preferences.write("script_manager", var, "string", value)
+    sm[var] = value
+  end
+
+  return dt.new_widget("entry"){
+    tooltip = ttip,
+    text = sm[var],
+  }
+end
+
+
+-- - - - - - - - - - - - - - - - - - - - - - - - 
+-- M A I N   P R O G R A M
+-- - - - - - - - - - - - - - - - - - - - - - - - 
+
+-- check api compatibility
+
+dt.configuration.check_version(...,{3,0,0},{4,0,0})
+
+-- set up a namespace to protect our stuff
+
+script_manager = {}
+sm = script_manager
+
+sm.script_widgets = {}
+sm.script_categories = {}
+sm.script_names = {}
+sm.script_paths = {}
+sm.download_methods = {
+  available = {},
+  repo = {},
+  single = {},
+}
+sm.main_menu_choices = {}
+sm.main_stack_items = {}
+sm.lua_scripts_dir = os.getenv("HOME") .. "/test/lua-scripts"
+sm.download_scripts_dir = os.getenv("HOME") .. "/test/downloads"
+
+-- see what we have to download with
+
+local have_git = check_if_bin_exists("git")
+local have_curl = check_if_bin_exists("curl")
+local have_wget = check_if_bin_exists("wget")
+local have_unzip = check_if_bin_exists("unzip")
+
+-- if the lua scripts directory was cloned from a repository then we can use 
+-- git to update it.  If not then git would fail to update.  We assume false
+-- then check
+
+sm.can_use_git = false
+
+-- assume we have at least one method to download the scripts repository
+
+sm.can_download_repository = true
+
+-- do we have a script directory?
+
+local have_scripts = check_if_file_exists(LUA_DIR)
+
+-- did we create it with git?  If not, then we can't use git to update
+-- if we don't have scripts then we can use git as one of the download methods
+
+if have_scripts then
+  sm.can_use_git = check_if_file_exists(LUA_GIT_DIR)
+else
+  sm.can_use_git = true
+end
+
+-- work around for dt.preferences.read returning false if they don't exist instead of nil
+-- if you have a bool, is it false because it's false or false because it doesn't exist?
+
+sm.not_initialized = not dt.preferences.read("script_manager", "initialized", "bool")
+
+-- load up the tables with available download methods and repository download methods
+
+setup_download_methods(have_git, "git")
+setup_download_methods(have_curl, "curl")
+setup_download_methods(have_wget, "wget")
+
+if #sm.download_methods.available == 0 then
+  dt.print("No way to download scripts.  Please install git, curl, or wget, and unzip.")
+  sm.can_download_repository = false
+end
+
+  -- set up the install/update block
+if sm.can_download_repository then
+
+  sm.repository = dt.new_widget("entry")
+  {
+    text = get_script_repo(),
+  }
+
+  sm.download_method_selector = dt.new_widget("combobox"){
+    label = "Repository Download Method",
+    tooltip = "Select download method",
+    value = 1, "placeholder",
+    changed_callback = function(self)
+      if self.value == "git" then
+        sm.repository.text = LUA_SCRIPT_REPO
+      else
+        sm.repository.text = LUA_SCRIPT_ZIP_REPO
+      end
+    end
+  }
+
+  update_combobox_choices(sm.download_method_selector, sm.download_methods.repo, 1)
+
+  local install_upgrade_text = "Install "
+  if have_scripts then
+    install_upgrade_text = "Update "
+  end
+
+  sm.install_upgrade_button = dt.new_widget("button"){
+    label = install_upgrade_text .. "scripts",
+    clicked_callback = function(self)
+      if string.match(self.label, "^Install") then
+        local result = install_scripts(sm.download_method_selector.value, sm.repository.text)
+        if result then
+          build_scripts_block()
+          insert_scripts_block()
+          have_scripts = 1
+          self.label = "Upgrade scripts"
+          dt.print("Installed scripts from " .. sm.repository.text)
         else
-  --        package.loaded.gimp = nil
-          load_scripts()
-  --        require("contrib/gimp")
+          dt.print("Error installing scripts from " .. sm.repository.text)
         end
-      else -- repository changed
-        script_repo = repository.text
-        -- remove the existing repository
-        os.execute("rm -f lua_path")
-        os.execute("rm -rf $HOME/lua-scripts")
-        -- clone from the new reposiitory
-        local result = os.execute("cd $HOME;git clone " .. script_repo)
-          -- if successful save the repository
-        if not result then
-          -- something went wrong
-          dt.print("Error fetching scripts from " .. script_repo)
+      else
+        local result = update_scripts(sm.download_method_selector.value, sm.repository.text)
+        if result then
+          build_scripts_block()
+          dt.print("Updated scripts from " .. sm.repository.text)
         else
-          result = os.execute("ln -s $HOME/lua-scripts " .. lua_path)
-          load_scripts()
-          dt.preferences.write("script_manager", "repository", "string", script_repo)
---          require("contrib/gimp")
-          script_manager.action_button.label = "Update Scripts"
+          dt.print("Error updating scripts from " .. sm.repository.text)
         end
+      end
+    end
+  }
+
+  sm.install_upgrade_box = dt.new_widget("box"){
+    orientation = "vertical",
+    dt.new_widget("label"){ label = "Install/Update scripts" },
+    sm.download_method_selector,
+    sm.repository,
+    sm.install_upgrade_button,
+  }
+
+  table.insert(sm.main_menu_choices, "Install/Update Scripts")
+  table.insert(sm.main_stack_items, sm.install_upgrade_box)
+end
+
+  -- single script download block
+if #sm.download_methods.available > 0 then
+
+  sm.script_download_method_selector = dt.new_widget("combobox"){
+    label = "Script Download Method",
+    tooltip = "Select download method",
+    value = 1, "placeholder",
+  }
+
+  update_combobox_choices(sm.script_download_method_selector, sm.download_methods.single, 1)
+
+  sm.script_location = dt.new_widget("entry")
+  {
+    text = "",
+    placeholder = "Location of script to download",
+  }
+
+  sm.download_button = dt.new_widget("button"){
+    label = "Download Script",
+    clicked_callback = function(_)
+      local result = download_script(sm.script_download_method_selector.value, sm.script_location.text)
+      if result then
+        if have_scripts then
+          build_scripts_block()
+        else
+          build_scripts_block()
+          insert_scripts_block()
+        end
+      else
+        dt.print("Failed to download " .. sm.script_location.value)
+      end
+    end
+  }
+
+  sm.download_script_box = dt.new_widget("box"){
+    orientation = "vertical",
+    dt.new_widget("label"){ label = "Download a script" },
+    sm.script_download_method_selector,
+    sm.script_location,
+    sm.download_button,
+  }
+
+  table.insert(sm.main_menu_choices, "Download a Single Script")
+  table.insert(sm.main_stack_items, sm.download_script_box)
+end
+
+  -- configuration block
+sm.config_checkboxes = {}
+
+for _,method in ipairs(sm.download_methods.available) do 
+  table.insert(sm.config_checkboxes, create_download_checkbox(method, dt.preferences.read("script_manager", "use_" .. method, "bool")))
+end
+
+
+sm.lua_scripts_entry = create_dir_widget("lua_scripts_dir", LUA_DIR, "Directory to store official scripts in")
+sm.download_scripts_entry = create_dir_widget("download_scripts_dir", LUA_DIR .. "/downloads", "Directory to store downloaded unofficial scripts in")
+sm.temp_dir_entry = create_dir_widget("temp_dir", "/tmp", "Directory to use for temporary storage")
+
+sm.config_save_button = dt.new_widget("button"){
+  label = "Save",
+  clicked_callback = function(_)
+    for _,widget in ipairs(sm.config_checkboxes) do
+      local use_string = string.lower(string.gsub(string.match(widget.label, "(.+)?$"), " ", "_"))
+      dt.preferences.write("script_manager", use_string, "bool", widget.value)
+    end
+    update_usable_download_methods()
+    update_combobox_choices(sm.script_download_method_selector, sm.download_methods.single, 1)
+    update_combobox_choices(sm.download_method_selector, sm.download_methods.repo, 1)
+    dt.preferences.write("script_manager", "lua_scripts_dir", "string", sm.lua_scripts_entry.text)
+    sm.lua_scripts_dir = sm.lua_scripts_entry.text
+    dt.preferences.write("script_manager", "download_scripts_dir", "string", sm.download_scripts_entry.text)
+    sm.download_scripts_dir = sm.download_scripts_entry.text
+    dt.preferences.write("script_manager", "temp_dir", "string", sm.temp_dir_entry.text)
+    sm.temp_dir = sm.temp_dir_entry.text
+    dt.print("Configuration saved")
+  end
+}
+
+sm.config_box = dt.new_widget("box"){
+  orientation = "vertical",
+  dt.new_widget("label"){ label = "Configuration" },
+  dt.new_widget("box"){
+    orientation = "vertical",
+    unpack(sm.config_checkboxes),
+  },
+  dt.new_widget("label"){ label = "Official Scripts Directory"},
+  sm.lua_scripts_entry,
+  dt.new_widget("label"){ label = "Unofficial Scripts Directory"},
+  sm.download_scripts_entry,
+  dt.new_widget("label"){ label = "Temporary Directory"},
+  sm.temp_dir_entry,
+  sm.config_save_button,
+}
+
+table.insert(sm.main_menu_choices, "Configure")
+table.insert(sm.main_stack_items, sm.config_box)
+
+-- set up the outside stack for config, install/update, and download
+
+  -- make a stack for the choices
+
+sm.main_stack = dt.new_widget("stack"){
+  table.unpack(sm.main_stack_items),
+}
+
+  -- make a combobox for the selector
+
+sm.main_menu = dt.new_widget("combobox"){
+  label = "Action",
+  tooltip = "Select the action you want to perform",
+  value = 1, "No actions available",
+  changed_callback = function(self)
+    for pos,str in ipairs(sm.main_menu_choices) do
+      if self.value == str then
+        sm.main_stack.active = pos
       end
     end
   end
 }
 
-script_manager.repository = dt.new_widget("entry")
-{
-    text = script_repo,
-}
-
-
-if check_if_file_exists(lua_path) then
-  -- find the scripts and read them
-  dt.print_error("Found the lua directory, now we need to read the scripts")
-  load_scripts()
+if #sm.main_menu_choices > 0 then
+  update_combobox_choices(sm.main_menu, sm.main_menu_choices, 1)
 end
 
--- create the install/update module
+sm.main_box = dt.new_widget("box"){
+  orientation = "vertical",
+  sm.main_menu,
+  sm.main_stack,
+}
+
+-- register the module
 dt.register_lib(
-  "Script Install/Update",     -- Module name
-  "Script Install/Update",     -- name
+  "script_manager",     -- Module name
+  "Script Manager",     -- Visible name
   true,                -- expandable
   false,               -- resetable
   {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_BOTTOM", 100}},   -- containers
   dt.new_widget("box") -- widget
   {
     orientation = "vertical",
-    script_manager.repository,
-    script_manager.action_button,
+    sm.main_box,
   },
   nil,-- view_enter
   nil -- view_leave
 )
 
--- collectgarbage("restart")
+-- set up the scripts block if we have them otherwise we'll wait until we download them
+
+if have_scripts then
+
+  -- scan for scripts and populate the categories
+  build_scripts_block()
+
+  -- add the widgets to the lib
+  insert_scripts_block()
+
+end
+
+if sm.not_initialized then
+  for i,name in ipairs(sm.main_menu_choices) do
+    if name == "Configure" then
+      sm.main_menu.value = i
+    end
+  end
+end
+
+dt.preferences.write("script_manager", "initialized", "bool", true)
+
+collectgarbage("restart")
