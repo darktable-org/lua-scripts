@@ -26,8 +26,8 @@ local dt = require "darktable"
 local yield_orig = coroutine.yield
 
 -- ToDo: Test with dt master
---[[
-if (dt.configuration.api_version_major >= 4) then
+
+--[[if (dt.configuration.api_version_major >= 4) then
   coroutine.yield = function(yield_type, command)
     if (yield_type == "RUN_COMMAND") then
       dt.control.execute(command)
@@ -37,8 +37,8 @@ if (dt.configuration.api_version_major >= 4) then
       dt.control.sleep(command)
     end  
   end
-end
-]]
+end]]
+
 
 if (dt.configuration.api_version_major < 4) then
   dt.control = {}

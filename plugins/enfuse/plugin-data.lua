@@ -79,7 +79,7 @@ return {
                 the stack output until you find the right combination, then export at full
                 resolution with the desired format and depth]],
       },
-      DtVersionRequired = {"3.0.0"},
+      DtVersionRequired = {"3.0.0","4.0.0"},
       DtPluginDataDir = nil,
       DtPluginExecutablesRequired = {
         "enfuse",

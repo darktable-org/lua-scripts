@@ -22,7 +22,7 @@ local dt = require "darktable"
 local log = require "lib/dtutils.log"
 
 local dtutils = require "lib/dtutils"
-local dtfileutils = require "lib/dtutils.file"
+local df = require "lib/dtutils.file"
 local dp = require "lib/dtutils.processor"
 
 libPlugin.libdoc = {
@@ -39,7 +39,6 @@ libPlugin.libdoc = {
   Reference = [[]],
   License = dtutils.libdoc.License,
   Copyright = [[Copyright (C) 2016 Bill Ferguson <wpferguson@gmail.com>.]],
-  Copyright = [[Copyright (c) 2016 Bill Ferguson <wpferguson@gmail.com>]],
   functions = {}
 }
 
@@ -301,7 +300,7 @@ libPlugin.libdoc.functions["create_data_dir"] = {
 }
 
 function libPlugin.create_data_dir(dir)
-  if not dtfileutils.check_if_file_exists(dir) then
+  if not df.check_if_file_exists(dir) then
     os.execute("mkdir -p '" .. dir .. "'")
   end
 end
@@ -411,10 +410,19 @@ function libPlugin.activate_plugin(plugin_data)
     log.msg(log.debug, "in activate plugin adding processor")
     -- add it to the processors table 
     -- add the associated processor widget or placeholder if not
-    processors[i.DtPluginName] = i.DtPluginProcessorWidget and dtutils.prequire(dtfileutils.chop_filetype(i.DtPluginProcessorWidget)) or libPlugin.placeholder
+    if i.DtPluginProcessorWidget then
+      local status, lib = dtutils.prequire(df.chop_filetype(i.DtPluginProcessorWidget))
+      if status then
+        processors[i.DtPluginName] = lib
+      else
+        log.msg(log.error, "Error loading processor widget", lib)
+      end
+    else
+      processors[i.DtPluginName] = libPlugin.placeholder
+    end
     log.msg(log.debug, i.DtPluginActivate.DtPluginRegisterProcessor)
     log.msg(log.debug, "Processor widget is ", processors[i.DtPluginName])
-    local status, lib = dtutils.prequire(dtfileutils.chop_filetype(i.DtPluginActivate.DtPluginRegisterProcessor))
+    local status, lib = dtutils.prequire(df.chop_filetype(i.DtPluginActivate.DtPluginRegisterProcessor))
     if status then
       processor_cmds[i.DtPluginName] = lib
       log.msg(log.debug, "Processor command is ", processor_cmds[i.DtPluginName])
@@ -432,7 +440,7 @@ function libPlugin.activate_plugin(plugin_data)
         libPlugin.register_processor_lib(processor_names)
       else
         log.msg(log.debug, "took push branch")
-        dtutils.update_combobox_choices(libPlugin.processor_combobox, processor_names)
+        dp.update_combobox_choices(libPlugin.processor_combobox, processor_names)
       end
     end
   end
@@ -485,7 +493,7 @@ function libPlugin.deactivate_plugin(plugin_data)
     -- sort the remaining processors and reload the combobox
     -- TODO: handle the case where all the processors are dactivated...  oops...
     table.sort(processor_names)
-    dtutils.update_combobox_choices(libPlugin.processor_combobox, processor_names)
+    dp.update_combobox_choices(libPlugin.processor_combobox, processor_names)
   end
   if i.DtPluginIsA.shortcut then
     libPlugin.stop_plugin(i.DtPluginDeactivate.DtPluginUnregisterShortcut)
@@ -520,7 +528,7 @@ libPlugin.libdoc.functions["start_plugin"] = {
 
 function libPlugin.start_plugin(method)
   if method then
-    dtutils.prequire(dtfileutils.chop_filetype(method))
+    dtutils.prequire(df.chop_filetype(method))
   end
 end
 
@@ -544,7 +552,7 @@ libPlugin.libdoc.functions["stop_plugin"] = {
 
 function libPlugin.stop_plugin(method)
   if method then
-    dtutils.prequire(dtfileutils.chop_filetype(method))
+    dtutils.prequire(df.chop_filetype(method))
   end
 end
 
@@ -615,8 +623,8 @@ function libPlugin.build_image_table(images, ff)
   end
 
   for _,img in ipairs(images) do
-    log.msg(log.info, img.filename, " is ", tmp_dir .. dtfileutils.get_basename(img.filename) .. file_extension)
-    image_table[img] = tmp_dir .. dtfileutils.get_basename(img.filename) .. file_extension
+    log.msg(log.info, img.filename, " is ", tmp_dir .. df.get_basename(img.filename) .. file_extension)
+    image_table[img] = tmp_dir .. df.get_basename(img.filename) .. file_extension
     cnt = cnt + 1
   end
 

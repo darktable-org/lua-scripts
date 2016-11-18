@@ -24,7 +24,7 @@ dtutils_processor.libdoc = {
 
 local gettext = dt.gettext
 
-dt.configuration.check_version(...,{3,0,0})
+dt.configuration.check_version(...,{3,0,0},{4,0,0})
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 -- This should be $HOME/.config/darktable/lua/locale/
@@ -233,5 +233,73 @@ function dtutils_processor.update_combobox_choices(combobox, choice_table)
   end
   combobox.value = 1
 end
+
+dtutils_processor.libdoc.functions["job_succeeded"] = {
+  Name = [[job_succeeded]],
+  Synopsis = [[determine if a dt.control.execute job succeeded or not]],
+  Usage = [[local dp = require "lib/dtutils.processor"
+  local dt = require "darktable"
+
+    local result = dp.job_succeeded(dt.control.execute(some_external_command))
+      some_external_command - string - an external command run by dt.control.execute()]],
+  Description = [[The darktable lua API version 3.0.0 returns a nil on successful job completion
+  and a value on failure.  Version 4.0.0 of the lua API returns 0 on successful job completion 
+  and a different value on failure.  job_succeeded provides a way to check for successful job
+  completion regardless of which API is used.]],
+  Return_Value = [[result - boolean - true if the job succeeded, otherwise false]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+-- api 3,0,0 returns a nil on successful job completion
+-- api 4.0.0 returns the result of the job (0 on success)
+-- we need to tell if a job succeeded or failed so we wrap these around
+-- a dt.control.execute() call
+
+function dtutils_processor.job_succeeded(job)
+  local result = false
+  if dt.configuration.api_version_major == 3 and not job then
+    result = true
+  elseif dt.configuration.api_version_major == 4 and job == 0 then
+    result = true
+  end
+  return result
+end
+
+dtutils_processor.libdoc.functions["job_failed"] = {
+  Name = [[job_failed]],
+  Synopsis = [[determine if a dt.control.execute job failed or not]],
+  Usage = [[local dp = require "lib/dtutils.processor"
+  local dt = require "darktable"
+
+    local result = dp.job_failed(dt.control.execute(some_external_command))
+      some_external_command - string - an external command run by dt.control.execute()]],
+  Description = [[The darktable lua API version 3.0.0 returns a nil on successful job completion
+  and a value on failure.  Version 4.0.0 of the lua API returns 0 on successful job completion 
+  and a different value on failure.  job_failed provides a way to check for unsuccessful job
+  completion regardless of which API is used.]],
+  Return_Value = [[result - boolean - true if the job failed, otherwise false]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_processor.job_failed(job)
+  local result = false
+  if dt.configuration.api_version_major == 3 and job then
+    result = true
+  elseif dt.configuration.api_version_major == 4 and job > 0 then
+    result = true
+  end
+  return result
+end
+
 
 return dtutils_processor

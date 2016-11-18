@@ -25,7 +25,8 @@
 
 local dt = require "darktable"
 local dtutils = require "lib/dtutils"
-local dtfileutils = require "lib/dtutils.file"
+local df = require "lib/dtutils.file"
+local dp = require "lib/dtutils.processor"
 local libPlugin = require "lib/libPlugin"
 
 local gettext = dt.gettext
@@ -64,14 +65,14 @@ libGimp = {}
 
 function libGimp.gimp_edit(image_table, plugin_data) --finalize
 
-  local collection_path = dtutils.extract_collection_path(image_table)
+  local collection_path = dp.extract_collection_path(image_table)
 
   local data_dir = collection_path .. "/" .. plugin_data.DtPluginDataDir
 
   libPlugin.create_data_dir(data_dir)
 
   -- list of exported images 
-  local img_list = dtutils.extract_image_list(image_table)
+  local img_list = dp.extract_image_list(image_table)
 
   dt.print(_("Launching GIMP..."))
 
@@ -89,18 +90,18 @@ function libGimp.gimp_edit(image_table, plugin_data) --finalize
 
   for image,exported_image in pairs(image_table) do
 
-    local myimage_name = image.path .. "/" .. dtfileutils.get_filename(exported_image)
+    local myimage_name = image.path .. "/" .. df.get_filename(exported_image)
 
-    while dtfileutils.check_if_file_exists(myimage_name) do
-      myimage_name = dtfileutils.filename_increment(myimage_name)
+    while df.check_if_file_exists(myimage_name) do
+      myimage_name = df.filename_increment(myimage_name)
       -- limit to 99 more exports of the original export
-      if string.match(dtfileutils.get_basename(myimage_name), "_(d-)$") == "99" then 
+      if string.match(df.get_basename(myimage_name), "_(d-)$") == "99" then 
         break 
       end
     end
 
     dt.print_error("moving " .. exported_image .. " to " .. myimage_name)
-    local result = dtfileutils.fileMove(exported_image, myimage_name)
+    local result = df.file_move(exported_image, myimage_name)
     if result then
       dt.print_error("importing file")
       local myimage = dt.database.import(myimage_name)
@@ -119,9 +120,9 @@ function libGimp.gimp_edit(image_table, plugin_data) --finalize
     
     -- save the xcf file if it was created
 
-    local xcf_file = dtfileutils.chop_filetype(exported_image) .. ".xcf"
-    if dtfileutils.check_if_file_exists(xcf_file) then
-      local xcf_result = dtfileutils.fileMove(xcf_file, data_dir .. "/" .. dtfileutils.get_filename(xcf_file))
+    local xcf_file = df.chop_filetype(exported_image) .. ".xcf"
+    if df.check_if_file_exists(xcf_file) then
+      local xcf_result = df.file_move(xcf_file, data_dir .. "/" .. df.get_filename(xcf_file))
       if not xcf_result then
         dt.print(string.format(_("Unable to move xcf file into data directory. Leaving it as %s"), xcf_file))
       end

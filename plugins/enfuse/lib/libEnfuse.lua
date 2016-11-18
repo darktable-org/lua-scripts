@@ -18,7 +18,8 @@
 ]]
 
 local dtutils = require "lib/dtutils"
-local dtfileutils = require "lib/dtutils.file"
+local df = require "lib/dtutils.file"
+local dp = require "lib/dtutils.processor"
 local dt = require "darktable"
 local gettext = dt.gettext
 -- Tell gettext where to find the .mo file translating messages for a particular domain
@@ -27,7 +28,6 @@ gettext.bindtextdomain("enfuse",dt.configuration.config_dir.."/lua/")
 local function _(msgid)
     return gettext.dgettext("enfuse", msgid)
 end
-
 
 libEnfuse = {}
 
@@ -72,7 +72,7 @@ function libEnfuse.build_response_file(image_table, will_align)
     if cnt > 1 then
       local align_command = "align_image_stack -m -a /tmp/OUT " .. align_img_list
       dt.print(_("Aligning images..."))
-      if dt.control.execute(align_command) then
+      if dp.job_failed(dt.control.execute(align_command)) then
         dt.print(_("Image alignment failed"))
         os.remove(response_file)
         return nil
@@ -170,7 +170,7 @@ end
 ]]
 
 function libEnfuse.can_align()
-  return dtfileutils.check_if_bin_exists('align_image_stack')
+  return df.check_if_bin_exists('align_image_stack')
 end
 
 --[[
@@ -190,7 +190,7 @@ end
 ]]
 
 function libEnfuse.get_enfuse_executable()
-  return dtfileutils.check_if_bin_exists('enfuse-mp') and "enfuse-mp" or "enfuse"
+  return df.check_if_bin_exists('enfuse-mp') and "enfuse-mp" or "enfuse"
 end
 
 -- enfuse_hdr specific widgets included in the library so that they are easy to find
@@ -202,7 +202,7 @@ libEnfuse.exposure_mu = dt.new_widget("slider")
   tooltip = _("center also known as MEAN of Gaussian weighting function (0 <= MEAN <= 1); default: 0.5"),
   hard_min = 0,
   hard_max = 1,
-  value = dt.preferences.read("enfuse", "exposure_mu", "float")
+  value = dt.preferences.read("enfuse", "exposure_mu", "float") or 0.5
 }
 
 -- bit depth
@@ -210,7 +210,7 @@ libEnfuse.depth = dt.new_widget("combobox")
 {
   label = _("depth"),
   tooltip = _("output image bits per channel"),
-  value = dt.preferences.read("enfuse", "depth", "integer"), "8", "16", "32"
+  value = dt.preferences.read("enfuse", "depth", "integer") or 2, "8", "16", "32"
 }
 
 libEnfuse.hdr_align = dt.new_widget("check_button")
@@ -291,19 +291,19 @@ function libEnfuse.enfuse_hdr(image_table, plugin_data)
   local response_file = libEnfuse.build_response_file(image_table, will_align)
 
   if response_file then
-    local target_dir = dtutils.extract_collection_path(image_table)
-    local img_list = dtutils.extract_image_list(image_table)
-    local hdr_file_name = dtutils.makeOutputFileName(img_list)
+    local target_dir = dp.extract_collection_path(image_table)
+    local img_list = dp.extract_image_list(image_table)
+    local hdr_file_name = dp.make_output_filename(image_table)
 
     -- append hdr to the generated file name
     hdr_file_name = hdr_file_name .. "-hdr"
 
     local output_image = target_dir.."/" .. hdr_file_name .. ".tif"
 
-    while dtfileutils.checkIfFileExists(output_image) do
-      output_image = dtfileutils.filename_increment(output_image)
+    while df.check_if_file_exists(output_image) do
+      output_image = df.filename_increment(output_image)
       -- limit to 99 more hdr attempts
-      if string.match(dtfileutils.get_basename(output_image), "_(d-)$") == "99" then 
+      if string.match(df.get_basename(output_image), "_(d-)$") == "99" then 
         break 
       end
     end
@@ -314,7 +314,7 @@ function libEnfuse.enfuse_hdr(image_table, plugin_data)
     local command = enfuse_executable .. " --depth "..libEnfuse.depth.value.." --exposure-mu "..mu
                     .." -o \""..output_image.."\" \"@"..response_file.."\""
     dt.print(_("Launching enfuse..."))
-    if dt.control.execute(command) then
+    if dp.job_failed(dt.control.execute(command)) then
       dt.print(_("enfuse failed, see terminal output for details"))
       libEnfuse.cleanup(response_file)
       return
@@ -451,9 +451,9 @@ function libEnfuse.enfuse_stack(image_table, plugin_data)
   local response_file = libEnfuse.build_response_file(image_table, will_align)
 
   if response_file then
-    local target_dir = dtutils.extract_collection_path(image_table)
-    local img_list = dtutils.extract_image_list(image_table)
-    local stack_file_name = dtutils.makeOutputFileName(img_list)
+    local target_dir = dp.extract_collection_path(image_table)
+    local img_list = dp.extract_image_list(image_table)
+    local stack_file_name = dp.make_output_filename(image_table)
 
     -- append hdr to the generated file name
     stack_file_name = stack_file_name .. "-stack"
@@ -461,10 +461,10 @@ function libEnfuse.enfuse_stack(image_table, plugin_data)
     -- call enfuse on the response file
     local output_image = target_dir.."/" .. stack_file_name .. ".tif"
 
-    while dtfileutils.checkIfFileExists(output_image) do
-      output_image = dtfileutils.filename_increment(output_image)
+    while df.check_if_file_exists(output_image) do
+      output_image = df.filename_increment(output_image)
       -- limit to 99 more hdr attempts
-      if string.match(dtfileutils.get_basename(output_image), "_(d-)$") == "99" then 
+      if string.match(df.get_basename(output_image), "_(d-)$") == "99" then 
         break 
       end
     end
@@ -477,7 +477,7 @@ function libEnfuse.enfuse_stack(image_table, plugin_data)
                     .." --contrast-edge-scale="..libEnfuse.contrast_edge.value
                     .." -o \""..output_image.."\" \"@"..response_file.."\""
     dt.print(_("Launching enfuse..."))
-    if dt.control.execute(command) then
+    if dp.job_failed(dt.control.execute(command)) then
       dt.print(_("enfuse failed, see terminal output for details"))
       libEnfuse.cleanup(response_file)
       return

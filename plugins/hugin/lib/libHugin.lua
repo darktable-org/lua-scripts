@@ -22,7 +22,9 @@
 
 local dt = require "darktable"
 local dtutils = require "lib/dtutils"
-local dtfileutils = require "lib/dtutils.file"
+local df = require "lib/dtutils.file"
+local dp = require "lib/dtutils.processor"
+local libPlugin = require "lib/libPlugin"
 
 libHugin = {}
 
@@ -65,19 +67,19 @@ function libHugin.create_panorama(image_table, pd)
 -- http://hugin.sourceforge.net/docs/manual/Pto_gen.html
 
   local hugin_executor = false
-  if (dtfileutils.checkIfBinExists("hugin_executor") and dtfileutils.checkIfBinExists("pto_gen")) then
+  if (df.check_if_bin_exists("hugin_executor") and df.check_if_bin_exists("pto_gen")) then
     hugin_executor = true
   end
 
   -- list of exported images 
-  local img_list = dtutils.extract_image_list(image_table)
-  local collection_path = dtutils.extract_collection_path(image_table)
+  local img_list = dp.extract_image_list(image_table)
+  local collection_path = dp.extract_collection_path(image_table)
 
   local data_dir = collection_path .. "/" .. pd.DtPluginDataDir
 
   libPlugin.create_data_dir(data_dir)
 
-  local data_filename = dtutils.makeOutputFileName(img_list)
+  local data_filename = dp.make_output_filename(image_table)
 
   
   dt.print(_("Will try to stitch now"))
@@ -99,8 +101,7 @@ function libHugin.create_panorama(image_table, pd)
   
   dt.print_error(huginStartCommand)
 
-  if dt.control.execute( huginStartCommand)
-    then
+  if dp.job_failed(dt.control.execute( huginStartCommand)) then
     dt.print(_("Command hugin failed ..."))
     -- cleanup after
     -- use os.execute("rm") because it can remove the whole list at once
@@ -115,27 +116,27 @@ function libHugin.create_panorama(image_table, pd)
     if hugin_executor then
       -- save the pto file in the plugin data dir
       local pto_filename = data_dir .. "/" .. data_filename .. ".pto"
-      while dtfileutils.checkIfFileExists(pto_filename) do
-        pto_filename = dtfileutils.filename_increment(pto_filename)
+      while df.check_if_file_exists(pto_filename) do
+        pto_filename = df.filename_increment(pto_filename)
         -- limit to 99 more exports of the original export
-        if string.match(dtfileutils.get_basename(pto_filename), "_(d-)$") == "99" then 
+        if string.match(df.get_basename(pto_filename), "_(d-)$") == "99" then 
           break 
         end
       end
-      dtfileutils.fileMove(dt.configuration.tmp_dir.."/project.pto", pto_filename)
+      df.file_move(dt.configuration.tmp_dir.."/project.pto", pto_filename)
     end
     -- the only tif left should be the program output
     -- move the resulting tif, project.tif into the collection and import it
     -- then tag it as created by hugin
     local myimg_name = collection_path .. "/" .. data_filename .. ".tif"
-    while dtfileutils.checkIfFileExists(myimg_name) do
-      myimg_name = dtfileutils.filename_increment(myimg_name)
+    while df.check_if_file_exists(myimg_name) do
+      myimg_name = df.filename_increment(myimg_name)
       -- limit to 99 more exports of the original export
-      if string.match(dtfileutils.get_basename(myimg_name), "_(d-)$") == "99" then 
+      if string.match(df.get_basename(myimg_name), "_(d-)$") == "99" then 
         break 
       end
     end
-    dtfileutils.fileMove(dt.configuration.tmp_dir.."/project.tif", myimg_name)
+    df.file_move(dt.configuration.tmp_dir.."/project.tif", myimg_name)
     local myimage = dt.database.import(myimg_name)
     local tag = dt.tags.create("Creator|Hugin")
     dt.tags.attach(tag, myimage)
