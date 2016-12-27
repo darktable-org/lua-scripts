@@ -42,6 +42,8 @@ TODO
 
 
 local dt = require "darktable"
+local debug = require "darktable.debug"
+
 dt.configuration.check_version(...,{3,0,0},{4,0,0})
 
 -- register number of quicktags
@@ -52,7 +54,7 @@ dt.preferences.register("quickTag",
                         "number of quick tag fields from 2 to 10 - needs a restart",   -- tooltip
                         3,                            -- default
                         2,                            -- min
-                     10)   
+                        10)
 
 local qnr = dt.preferences.read("quickTag", "quickTagnumber", "integer")
 
@@ -65,19 +67,23 @@ for j=1,qnr do
                         "please create the tags before in the tagging module",   -- tooltip
                         ""                            -- default
                         )
-end
+  end
 
 -- get quicktags from the preferences
 local quicktag_table = {}
 
-for j=1,qnr do
-   quicktag_table[j] = dt.preferences.read("quickTag", "quicktag"..j, "string")
-end
+local function read_pref_tags()
+  for j=1,qnr do
+    quicktag_table[j] = dt.preferences.read("quickTag", "quicktag"..j, "string")
+    end
+  end
+
 
 
 -- quicktag function to attach tags
-local function tagattach(tag)
-  if tag == nil then
+local function tagattach(tag,qtagnr)
+  if tag == "" then
+    dt.print("quicktag "..qtagnr.." empty, please set a tag")
     return true
   end
   
@@ -105,8 +111,12 @@ local function tagattach(tag)
 end
 
 
--- quicktag module elements
+-- create quicktag module elements
+
 local tagentries = {}
+
+-- read tags from preferences for initialization
+read_pref_tags()
 
 for j=1,qnr do
   tagentries[#tagentries+1] = dt.new_widget("entry")
@@ -124,19 +134,31 @@ end
 
 local button = {}
 
+-- function to create buttons with tags as lables
 for j=1,qnr do
-  button[#button+1] = dt.new_widget("button") {
-         label = "apply tag "..j,
-         clicked_callback = function() tagattach(tostring(tagentries[j].text)) end}
-end
+      button[#button+1] = dt.new_widget("button") {
+         label = j..": "..quicktag_table[j],
+         clicked_callback = function() tagattach(tostring(tagentries[j].text),j) end}
+    end
+
+local function update_buttons_lables()
+   read_pref_tags()
+   for i=1,qnr do
+     button[i].label = i..": "..quicktag_table[i]
+   end
+  end
+
 
 -- back UI elements in a table
 -- thanks to wpferguson for the hint
 local widget_table = {}
 
+
 for i=1,qnr do
-  widget_table[#widget_table  + 1] = tagentries[i]
-  widget_table[#widget_table + 1] = button[i]
+  widget_table[#widget_table  + 1] = dt.new_widget ("box") {
+   orientation = "horizontal",
+   tagentries[i],
+   button[i]}
 end
 
 local dump_to_preferences = dt.new_widget("button") {
@@ -146,6 +168,7 @@ local dump_to_preferences = dt.new_widget("button") {
            for j=1,qnr do
              dt.preferences.write("quickTag", "quicktag"..j, "string",  tagentries[j].text)
            end
+           update_buttons_lables()
      end}
 
 -- add to dump button to widget_table
