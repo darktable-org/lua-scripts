@@ -33,7 +33,7 @@ USAGE
    darktable internal tags starting with 'darktable|' will not be touched
  * <your shortcut3> removes all expect darktable internal tags from selected images
  * <your shortcut4> replaces all tags expect darktable internals
-
+ * A module reset will empty the clipboard
 ]]
 
 local dt = require "darktable"
