@@ -32,12 +32,13 @@
 USAGE
    * set the shortcuts and prefered tags your in the preferences dialog
    * use the shortcuts or the buttons to attach the tags to selected images
-   * change the entries as needed
-   * use the "save taglist" button to update your preferences
+   * use the "set quicktag" button to update your quicktag and preferences
  
 TODO
    * enhance button and entry layout in the module
-   * autosave tag entries
+   * option to add non existing tags
+   * abbrevate button labels
+   * maybe two colums of buttons
  ]]
 
 
@@ -112,24 +113,8 @@ end
 
 
 -- create quicktag module elements
-
-local tagentries = {}
-
 -- read tags from preferences for initialization
 read_pref_tags()
-
-for j=1,qnr do
-  tagentries[#tagentries+1] = dt.new_widget("entry")
-    {
-    text = quicktag_table[j],
-    placeholder = "your tag "..j,
-    is_password = true,
-    editable = true,
-    tooltip = "enter your tag here",
-   -- would be nice if the tags gets autosaved to the preferences?
-   -- reset_callback =
-    }
-end
 
 
 local button = {}
@@ -138,42 +123,64 @@ local button = {}
 for j=1,qnr do
       button[#button+1] = dt.new_widget("button") {
          label = j..": "..quicktag_table[j],
-         clicked_callback = function() tagattach(tostring(tagentries[j].text),j) end}
+         clicked_callback = function() tagattach(tostring(quicktag_table[j]),j) end}
     end
 
-local function update_buttons_lables()
-   read_pref_tags()
-   for i=1,qnr do
-     button[i].label = i..": "..quicktag_table[i]
-   end
+
+local old_quicktag = dt.new_widget("combobox"){
+    label = "old quicktag:",
+    tooltip = "select the quicktag to replace"
+}
+
+local function update_quicktag_list()
+ -- read_pref_tags()
+  for j=1,qnr do
+      button[j].label = j..": "..quicktag_table[j]
+      old_quicktag[j] = j..": "..quicktag_table[j]
   end
+end
+
+update_quicktag_list()
+
+local new_quicktag = dt.new_widget("entry"){
+    text = "",
+    placeholder = "new quicktag ",
+    is_password = true,
+    editable = true,
+    tooltip = "enter your tag here"
+}
+
+local set_quicktag_button = dt.new_widget("button") {
+  label = "set quicktag",
+  clicked_callback = function()
+    local old_tag = quicktag_table[old_quicktag.selected]
+    quicktag_table[old_quicktag.selected] = new_quicktag.text
+    dt.preferences.write("quickTag", "quicktag"..old_quicktag.selected, "string",  new_quicktag.text)
+    dt.print("quicktag \""..old_tag.."\" replaced by \""..new_quicktag.text.."\"")
+    update_quicktag_list()
+    new_quicktag.text = ""
+  end,
+}
+
+local new_qt_widget = dt.new_widget ("box") {
+    orientation = "horizontal",
+    dt.new_widget("label") { label = "new quicktag" },
+    new_quicktag,
+    set_quicktag_button
+}
 
 
 -- back UI elements in a table
 -- thanks to wpferguson for the hint
 local widget_table = {}
 
-
 for i=1,qnr do
-  widget_table[#widget_table  + 1] = dt.new_widget ("box") {
-   orientation = "horizontal",
-   tagentries[i],
-   button[i]}
+  widget_table[#widget_table  + 1] =  button[i]
 end
 
-local dump_to_preferences = dt.new_widget("button") {
-         label = "save taglist",
-         tooltip = "update the taglist in the preferences",
-         clicked_callback = function()
-           for j=1,qnr do
-             dt.preferences.write("quickTag", "quicktag"..j, "string",  tagentries[j].text)
-           end
-           update_buttons_lables()
-     end}
-
--- add to dump button to widget_table
 widget_table[#widget_table  + 1] = dt.new_widget("separator"){}
-widget_table[#widget_table  + 1] = dump_to_preferences
+widget_table[#widget_table  + 1] = old_quicktag
+widget_table[#widget_table  + 1] = new_qt_widget
 
 
      
@@ -197,7 +204,7 @@ dt.register_lib(
 -- create shortcuts
 for i=1,qnr do
   dt.register_event("shortcut", 
-		   function(event, shortcut) tagattach(tostring(tagentries[i].text)) end,
+		   function(event, shortcut) tagattach(tostring(quicktag_table[i])) end,
 		  "quick tag "..i)
 end
 
