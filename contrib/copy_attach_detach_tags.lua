@@ -33,10 +33,12 @@ USAGE
    darktable internal tags starting with 'darktable|' will not be touched
  * <your shortcut3> removes all expect darktable internal tags from selected images
  * <your shortcut4> replaces all tags expect darktable internals
-
+ * A module reset will empty the clipboard
 ]]
 
 local dt = require "darktable"
+local debug = require "darktable.debug"
+
 local gettext = dt.gettext
 dt.configuration.check_version(...,{3,0,0},{4,0,0})
 
@@ -156,43 +158,58 @@ end
 taglist_label.reset_callback = mcopy_tags
 
 -- create buttons and elements
-local mc_button = dt.new_widget("button") {
-         label = _('multi copy tags'),
-         clicked_callback = mcopy_tags}
-
-local p_button = dt.new_widget("button") {
-         label = _('paste tags'),
-         clicked_callback = attach_tags}
-
-local rep_button = dt.new_widget("button") {
-         label = _('replace tags'),
-         clicked_callback = replace_tags}
-
-local rem_button = dt.new_widget("button") {
-         label = _('remove all tags'),
-         clicked_callback = detach_tags}
-
 local taglabel = dt.new_widget("label") {
          label = _('tag clipboard'),
          selectable = false,
          ellipsize = "middle",
          halign = "start"}
 
+local box1 = dt.new_widget("box"){
+                  orientation = "horizontal",
+                  dt.new_widget("button") {
+                  label = _('multi copy tags'),
+                  clicked_callback = mcopy_tags},
+                  dt.new_widget("button") {
+                  label = _('paste tags'),
+                  clicked_callback = attach_tags}
+
+                  }
+
+local box2 = dt.new_widget("box"){
+                  orientation = "horizontal",
+                  dt.new_widget("button") {
+                  label = _('replace tags'),
+                  clicked_callback = replace_tags},
+                  dt.new_widget("button") {
+                  label = _('remove all tags'),
+                  clicked_callback = detach_tags}
+                  }
+
+local sep = dt.new_widget("separator"){}
+
+-- pack elements into widget table for a nicer layout
+local widget_table = {}
+
+widget_table[1] = box1
+widget_table[#widget_table+1] = box2
+
+widget_table[#widget_table+1] = sep
+widget_table[#widget_table+1] = taglabel
+widget_table[#widget_table+1] = taglist_label
+
 
 -- create modul
-dt.register_lib("tagging_addon","Tagging addon",true,false,{
+dt.register_lib("tagging_addon","Tagging addon",true,true,{
     [dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER",500}
     },
     dt.new_widget("box") {
-      orientation = "vertical",
-      mc_button,
-      p_button,
-      rep_button,
-      rem_button,
-      taglabel,
-      dt.new_widget("separator"){},
-      taglist_label
-    },
+  --    orientation = "vertical",
+      reset_callback = function()
+                    taglist_label.label = ""
+                    image_tags = {}
+                    end,
+      table.unpack(widget_table),
+      },
    nil,
    nil
   )
