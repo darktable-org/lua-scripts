@@ -40,21 +40,21 @@ end
 
 -- <GUI>
 local labelDistance = dt.new_widget("label")
-labelDistance.label = "Distance:"
+labelDistance.label = _("Distance:")
 
 local label_copy_gps_lat = dt.new_widget("check_button")
 {
-  label = "latitude:", 
+  label = _("latitude:"), 
   value = true
 }
 local label_copy_gps_lon = dt.new_widget("check_button")
 {
-  label = "longitude:", 
+  label = _("longitude:"), 
   value = true
 }
 local label_copy_gps_ele = dt.new_widget("check_button")
 {
-  label = "elevation:", 
+  label = _("elevation:"), 
   value = true
 }
 -- </GUI> 
@@ -261,9 +261,9 @@ local function copy_gps()
       end
     end
 
-    label_copy_gps_lat.label = "latitude: " .. copy_gps_latitude
-    label_copy_gps_lon.label = "longitude: " ..copy_gps_longitude
-    label_copy_gps_ele.label = "elevation: " .. copy_gps_elevation
+    label_copy_gps_lat.label = _("latitude: ") .. copy_gps_latitude
+    label_copy_gps_lon.label = _("longitude: ") ..copy_gps_longitude
+    label_copy_gps_ele.label = _("elevation: ") .. copy_gps_elevation
 
     return
   end
@@ -392,9 +392,9 @@ local function calc_distance()
 
     if (distance < 1) then
         distance = distance * 1000
-        distanceUnit = "m"
+        distanceUnit = _("m")
     else
-        distanceUnit = "km"
+        distanceUnit = _("km")
     end
     
     return string.format("Distance: %.2f %s", distance, distanceUnit)
@@ -410,7 +410,7 @@ end
 
 local altitude_file_chooser_button = dt.new_widget("file_chooser_button")
   {
-    title = "export altitude CSV",  -- The title of the window when choosing a file
+    title = _("export altitude CSV"),  -- The title of the window when choosing a file
     value = "",                     -- The currently selected file
     is_directory = true             -- True if the file chooser button only allows directories to be selecte
   }
@@ -419,12 +419,12 @@ local altitude_filename = dt.new_widget("entry")
     text = "altitude.csv", 
     placeholder = "altitude.csv",
     editable = true,
-    tooltip = "Name of the exported file",
+    tooltip = _("Name of the exported file"),
     reset_callback = function(self) self.text = "text" end
   }
 
 local function altitude_profile()
-	  dt.print("Start export")
+	  dt.print(_("Start export"))
     local sel_images = dt.gui.selection()
 
     local lat1 = 0;
@@ -485,7 +485,7 @@ local function altitude_profile()
     file = io.open(exportDirectory.."/"..exportFilename, "w")
     file:write(csv_file)
     file:close()
-    dt.print("File created in "..exportDirectory)
+    dt.print(_("File created in ")..exportDirectory)
 
 end
 
@@ -506,21 +506,21 @@ dt.register_lib(
     orientation = "vertical",
     dt.new_widget("button")
     {
-      label = "select geo images",
-      tooltip = "Select all images with GPS information",
+      label = _("select geo images"),
+      tooltip = _("Select all images with GPS information"),
       clicked_callback = select_with_gps
     },
     dt.new_widget("button")
     {
-      label = "select not geo images",
-      tooltip = "Select all images without GPS information",
+      label = _("select not geo images"),
+      tooltip = _("Select all images without GPS information"),
       clicked_callback = select_without_gps
     },
     separator,--------------------------------------------------------
     dt.new_widget("button")
     {
-      label = "copy GPS data",
-      tooltip = "Copy the GPS data",
+      label = _("copy GPS data"),
+      tooltip = _("Copy the GPS data"),
       clicked_callback = copy_gps
     },
     label_copy_gps_lat,
@@ -528,8 +528,8 @@ dt.register_lib(
     label_copy_gps_ele,
     dt.new_widget("button")
     {
-      label = "past GPS data",
-      tooltip = "Past the GPS data",
+      label = _("past GPS data"),
+      tooltip = _("Past the GPS data"),
       clicked_callback = past_gps
     },
     separator2,--------------------------------------------------------
@@ -558,18 +558,18 @@ dt.register_lib(
 ]]    
     dt.new_widget("button")
     {
-      label = "Open in Gnome Maps",
-      tooltip = "Open Location in Gnome Maps",
+      label = _("Open in Gnome Maps"),
+      tooltip = _("Open Location in Gnome Maps"),
       clicked_callback = open_location_in_gnome_maps
     },
     separator4,--------------------------------------------------------
-    dt.new_widget("label"){label = "altitude CSV export"},
+    dt.new_widget("label"){label = _("altitude CSV export")},
     altitude_file_chooser_button,
     altitude_filename,
     dt.new_widget("button")
     {
-      label = "export altitude CSV file",
-      tooltip = "create an altitude profile using the GPS data in the metadata",
+      label = _("export altitude CSV file"),
+      tooltip = _("create an altitude profile using the GPS data in the metadata"),
       clicked_callback = altitude_profile
     },
     labelDistance
@@ -580,8 +580,8 @@ dt.register_lib(
 
 
 -- Register
-dt.register_event("shortcut",print_calc_distance,_("Calculate the distance from latitude and longitude in km"))
-dt.register_event("mouse-over-image-changed",toolbox_calc_distance)
+dt.register_event("shortcut", print_calc_distance, _("Calculate the distance from latitude and longitude in km"))
+dt.register_event("mouse-over-image-changed", toolbox_calc_distance)
 
 dt.register_event("shortcut", select_with_gps, _("Select all images with GPS information"))
 dt.register_event("shortcut", select_without_gps, _("Select all images without GPS information"))
