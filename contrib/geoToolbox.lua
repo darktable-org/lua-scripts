@@ -42,24 +42,24 @@ end
 local labelDistance = dt.new_widget("label")
 labelDistance.label = "Distance:"
 
-local labelCopyGPSlat = dt.new_widget("check_button")
+local label_copy_gps_lat = dt.new_widget("check_button")
 {
   label = "latitude:", 
   value = true
 }
-local labelCopyGPSlon = dt.new_widget("check_button")
+local label_copy_gps_lon = dt.new_widget("check_button")
 {
   label = "longitude:", 
   value = true
 }
-local labelCopyGPSele = dt.new_widget("check_button")
+local label_copy_gps_ele = dt.new_widget("check_button")
 {
   label = "elevation:", 
   value = true
 }
 -- </GUI> 
 
-local function selectWithGPS()
+local function select_with_gps()
    local selection = {}
    for _,image in ipairs(dt.database) do
       if (image.longitude and image.latitude) then
@@ -69,7 +69,7 @@ local function selectWithGPS()
    dt.gui.selection(selection)
 end
 
-local function selectWithoutGPS()
+local function select_without_gps()
    local selection = {}
    for _,image in ipairs(dt.database) do
       if (not image.longitude and not image.latitude) then
@@ -88,7 +88,7 @@ function isnan(x) return x ~= x end
 -- into a Unix timestamp (number of seconds since Jan 1, 1970, the standard 
 -- used by most systems). So we use the string.match() method to fetch the 
 -- various date and time parts into their own variables: xyear, xmonth,etc.
-function makeTimeStamp(dateString)
+function make_time_stamp(dateString)
   local convertedTimestamp
 --dt.print_error(dateString)
   if (dateString) then
@@ -115,7 +115,7 @@ local first_longitude = ''
 local first_elevation = ''
 local first_image_date = 0
 
-local function getFirstCoordinate()
+local function get_first_coordinate()
   local sel_images = dt.gui.selection()
 
   first_latitude = ''    
@@ -139,7 +139,7 @@ local function getFirstCoordinate()
           first_elevation = image.elevation
       end
       if (image.exif_datetime_taken) then
-          first_image_date = makeTimeStamp(image.exif_datetime_taken)
+          first_image_date = make_time_stamp(image.exif_datetime_taken)
 --dt.print_error(image.exif_datetime_taken)
 --dt.print_error(first_image_date)      
       end
@@ -154,7 +154,7 @@ local second_longitude = ''
 local second_elevation = ''
 local second_image_date = 0
 
-local function getSecondCoordinate()
+local function get_second_coordinate()
   local sel_images = dt.gui.selection()
 
   second_latitude = ''    
@@ -178,14 +178,14 @@ local function getSecondCoordinate()
           second_elevation = image.elevation
       end
       if (image.exif_datetime_taken) then
-          second_image_date = makeTimeStamp(image.exif_datetime_taken)
+          second_image_date = make_time_stamp(image.exif_datetime_taken)
       end
     end
     return
   end
 end
 
-local calcInBetweenSlider = dt.new_widget("slider")
+local calc_in_between_slider = dt.new_widget("slider")
 {
   label = "Position between", 
   soft_min = 0,      -- The soft minimum value for the slider, the slider can't go beyond this point
@@ -196,11 +196,11 @@ local calcInBetweenSlider = dt.new_widget("slider")
 }
 
 --ToDo: this needs more love
-local function calcInBetween()
+local function calc_in_between()
   local sel_images = dt.gui.selection()
   for _,image in ipairs(sel_images) do
     if image then
-      image_date = makeTimeStamp(image.exif_datetime_taken)
+      image_date = make_time_stamp(image.exif_datetime_taken)
       if (first_have_data and second_have_data) then
         local start_new      = 0
         local end_new        = second_image_date - first_image_date
@@ -212,7 +212,7 @@ local function calcInBetween()
         else
           percent_in_between = image_date_new/end_new
         end        
-        calcInBetweenSlider.value = percent_in_between * 100
+        calc_in_between_slider.value = percent_in_between * 100
 dt.print_error(percent_in_between)
         local in_between_latitude  = first_latitude + (second_latitude - first_latitude) * percent_in_between
         local in_between_longitude = first_longitude + (second_longitude - first_longitude) * percent_in_between
@@ -233,59 +233,59 @@ dt.print_error(in_between_elevation)
   end
 end
 
-local copyGPS_have_data = false
-local copyGPS_latitude = ''
-local copyGPS_longitude = ''
-local copyGPS_elevation = ''
+local copy_gps_have_data = false
+local copy_gps_latitude = ''
+local copy_gps_longitude = ''
+local copy_gps_elevation = ''
 
-local function copyGPS()
+local function copy_gps()
   local sel_images = dt.gui.selection()
 
-  copyGPS_latitude = ''    
-  copyGPS_longitude = ''
-  copyGPS_elevation = ''
+  copy_gps_latitude = ''    
+  copy_gps_longitude = ''
+  copy_gps_elevation = ''
 
   for _,image in ipairs(sel_images) do
     if not image then
-      copyGPS_have_data = false
+      copy_gps_have_data = false
     else
-      copyGPS_have_data = true
-      if (image.latitude and labelCopyGPSlat.value) then
-        copyGPS_latitude = image.latitude    
+      copy_gps_have_data = true
+      if (image.latitude and label_copy_gps_lat.value) then
+        copy_gps_latitude = image.latitude    
       end
-      if (image.longitude and labelCopyGPSlon.value) then
-          copyGPS_longitude = image.longitude
+      if (image.longitude and label_copy_gps_lon.value) then
+          copy_gps_longitude = image.longitude
       end
-      if (image.elevation and labelCopyGPSele.value) then
-          copyGPS_elevation = image.elevation
+      if (image.elevation and label_copy_gps_ele.value) then
+          copy_gps_elevation = image.elevation
       end
     end
 
-    labelCopyGPSlat.label = "latitude: " .. copyGPS_latitude
-    labelCopyGPSlon.label = "longitude: " ..copyGPS_longitude
-    labelCopyGPSele.label = "elevation: " .. copyGPS_elevation
+    label_copy_gps_lat.label = "latitude: " .. copy_gps_latitude
+    label_copy_gps_lon.label = "longitude: " ..copy_gps_longitude
+    label_copy_gps_ele.label = "elevation: " .. copy_gps_elevation
 
     return
   end
 end
 
-local function pastGPS(image)
+local function past_gps(image)
   local sel_images = dt.gui.selection()
 
   for _,image in ipairs(sel_images) do
-    if (labelCopyGPSlat.value) then
-      image.latitude = copyGPS_latitude
+    if (label_copy_gps_lat.value) then
+      image.latitude = copy_gps_latitude
     end
-    if (labelCopyGPSlon.value) then    
-      image.longitude = copyGPS_longitude
+    if (label_copy_gps_lon.value) then    
+      image.longitude = copy_gps_longitude
     end
-    if (labelCopyGPSele.value) then
-      image.elevation = copyGPS_elevation
+    if (label_copy_gps_ele.value) then
+      image.elevation = copy_gps_elevation
     end
   end
 end
 
-local function openLocationInGnomeMaps()
+local function open_location_in_gnome_maps()
 
   if not df.check_if_bin_exists("gnome-maps") then
     dt.print_error(_("gnome-maps not found"))
@@ -323,7 +323,7 @@ end
 
 -- I used code from here:
 -- http://stackoverflow.com/questions/27928/how-do-i-calculate-distance-between-two-latitude-longitude-points
-local function getDistance(lat1, lon1, ele1, lat2, lon2, ele2)
+local function get_distance(lat1, lon1, ele1, lat2, lon2, ele2)
 
     local earthRadius = 6371; -- Radius of the earth in km
     local dLat = math.rad(lat2-lat1);  -- deg2rad below
@@ -346,7 +346,7 @@ local function getDistance(lat1, lon1, ele1, lat2, lon2, ele2)
     return distance
 end
 
-local function calcDistance()
+local function calc_distance()
 
 	local sel_images = dt.gui.selection()
 
@@ -388,7 +388,7 @@ local function calcDistance()
       end
     end
 
-    local distance = getDistance(lat1, lon1, ele1, lat2, lon2, ele2)
+    local distance = get_distance(lat1, lon1, ele1, lat2, lon2, ele2)
 
     if (distance < 1) then
         distance = distance * 1000
@@ -400,12 +400,12 @@ local function calcDistance()
     return string.format("Distance: %.2f %s", distance, distanceUnit)
 end
 
-local function printCalcDistance()
-    dt.print(calcDistance())
+local function print_calc_distance()
+    dt.print(calc_distance())
 end
 
-local function toolboxCalcDistance()
-    labelDistance.label = calcDistance()
+local function toolbox_calc_distance()
+    labelDistance.label = calc_distance()
 end
 
 local altitude_file_chooser_button = dt.new_widget("file_chooser_button")
@@ -423,7 +423,7 @@ local altitude_filename = dt.new_widget("entry")
     reset_callback = function(self) self.text = "text" end
   }
 
-local function altitudeProfile()
+local function altitude_profile()
 	  dt.print("Start export")
     local sel_images = dt.gui.selection()
 
@@ -467,7 +467,7 @@ local function altitudeProfile()
         if (i == 1) then
           distanceFromStart = 0
         else
-          local distance = getDistance(lat1, lon1, ele1, lat2, lon2, ele2)
+          local distance = get_distance(lat1, lon1, ele1, lat2, lon2, ele2)
           distanceFromStart = distanceFromStart + distance;
         end
 
@@ -508,29 +508,29 @@ dt.register_lib(
     {
       label = "select geo images",
       tooltip = "Select all images with GPS information",
-      clicked_callback = selectWithGPS
+      clicked_callback = select_with_gps
     },
     dt.new_widget("button")
     {
       label = "select not geo images",
       tooltip = "Select all images without GPS information",
-      clicked_callback = selectWithoutGPS
+      clicked_callback = select_without_gps
     },
     separator,--------------------------------------------------------
     dt.new_widget("button")
     {
       label = "copy GPS data",
       tooltip = "Copy the GPS data",
-      clicked_callback = copyGPS
+      clicked_callback = copy_gps
     },
-    labelCopyGPSlat,
-    labelCopyGPSlon,
-    labelCopyGPSele,
+    label_copy_gps_lat,
+    label_copy_gps_lon,
+    label_copy_gps_ele,
     dt.new_widget("button")
     {
       label = "past GPS data",
       tooltip = "Past the GPS data",
-      clicked_callback = pastGPS
+      clicked_callback = past_gps
     },
     separator2,--------------------------------------------------------
 --ToDo: This need a better UI
@@ -539,28 +539,28 @@ dt.register_lib(
     {
       label = "get 1st coordinate",
       tooltip = "Select first image and click this button",
-      clicked_callback = getFirstCoordinate
+      clicked_callback = get_first_coordinate
     },
     dt.new_widget("button")
     {
       label = "get 2nd coordinate",
       tooltip = "Select second image and click this button",
-      clicked_callback = getSecondCoordinate
+      clicked_callback = get_second_coordinate
     },
     dt.new_widget("button")
     {
       label = "calc in between",
       tooltip = "Select third image and click this button",
-      clicked_callback = calcInBetween
+      clicked_callback = calc_in_between
     },
-    calcInBetweenSlider,
+    calc_in_between_slider,
     separator3,--------------------------------------------------------
 ]]    
     dt.new_widget("button")
     {
       label = "Open in Gnome Maps",
       tooltip = "Open Location in Gnome Maps",
-      clicked_callback = openLocationInGnomeMaps
+      clicked_callback = open_location_in_gnome_maps
     },
     separator4,--------------------------------------------------------
     dt.new_widget("label"){label = "altitude CSV export"},
@@ -570,7 +570,7 @@ dt.register_lib(
     {
       label = "export altitude CSV file",
       tooltip = "create an altitude profile using the GPS data in the metadata",
-      clicked_callback = altitudeProfile
+      clicked_callback = altitude_profile
     },
     labelDistance
   },
@@ -580,11 +580,11 @@ dt.register_lib(
 
 
 -- Register
-dt.register_event("shortcut",printCalcDistance,_("Calculate the distance from latitude and longitude in km"))
-dt.register_event("mouse-over-image-changed",toolboxCalcDistance)
+dt.register_event("shortcut",print_calc_distance,_("Calculate the distance from latitude and longitude in km"))
+dt.register_event("mouse-over-image-changed",toolbox_calc_distance)
 
-dt.register_event("shortcut", selectWithGPS, _("Select all images with GPS information"))
-dt.register_event("shortcut", selectWithoutGPS, _("Select all images without GPS information"))
+dt.register_event("shortcut", select_with_gps, _("Select all images with GPS information"))
+dt.register_event("shortcut", select_without_gps, _("Select all images without GPS information"))
 
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
 -- kate: hl Lua;
