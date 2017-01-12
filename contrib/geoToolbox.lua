@@ -116,7 +116,7 @@ local first_elevation = ''
 local first_image_date = 0
 
 local function get_first_coordinate()
-  local sel_images = dt.gui.selection()
+  local sel_images = dt.gui.action_images
 
   first_latitude = ''    
   first_longitude = ''
@@ -155,7 +155,7 @@ local second_elevation = ''
 local second_image_date = 0
 
 local function get_second_coordinate()
-  local sel_images = dt.gui.selection()
+  local sel_images = dt.gui.action_images
 
   second_latitude = ''    
   second_longitude = ''
@@ -197,7 +197,7 @@ local calc_in_between_slider = dt.new_widget("slider")
 
 --ToDo: this needs more love
 local function calc_in_between()
-  local sel_images = dt.gui.selection()
+  local sel_images = dt.gui.action_images
   for _,image in ipairs(sel_images) do
     if image then
       image_date = make_time_stamp(image.exif_datetime_taken)
@@ -239,7 +239,7 @@ local copy_gps_longitude = ''
 local copy_gps_elevation = ''
 
 local function copy_gps()
-  local sel_images = dt.gui.selection()
+  local sel_images = dt.gui.action_images
 
   copy_gps_latitude = ''    
   copy_gps_longitude = ''
@@ -270,7 +270,7 @@ local function copy_gps()
 end
 
 local function past_gps(image)
-  local sel_images = dt.gui.selection()
+  local sel_images = dt.gui.action_images
 
   for _,image in ipairs(sel_images) do
     if (label_copy_gps_lat.value) then
@@ -292,7 +292,7 @@ local function open_location_in_gnome_maps()
     return
   end	
     
-  local sel_images = dt.gui.selection()
+  local sel_images = dt.gui.action_images
   
   local lat1 = 0;
   local lon1 = 0;
@@ -348,9 +348,7 @@ end
 
 local function calc_distance()
 
-	local sel_images = dt.gui.selection()
-
-    local lat1 = 0;
+	  local lat1 = 0;
     local lon1 = 0;
     local lat2 = 0;
     local lon2 = 0;
@@ -397,7 +395,7 @@ local function calc_distance()
         distanceUnit = _("km")
     end
     
-    return string.format("Distance: %.2f %s", distance, distanceUnit)
+    return string.format(_("Distance: %.2f %s"), distance, distanceUnit)
 end
 
 local function print_calc_distance()
@@ -425,7 +423,7 @@ local altitude_filename = dt.new_widget("entry")
 
 local function altitude_profile()
 	  dt.print(_("Start export"))
-    local sel_images = dt.gui.selection()
+    local sel_images = dt.gui.action_images
 
     local lat1 = 0;
     local lon1 = 0;
@@ -442,7 +440,7 @@ local function altitude_profile()
     local elevation = 0;
     local elevationAdd = 0;
 
-    local sel_images = dt.gui.selection()
+    local sel_images = dt.gui.action_images
     for _,image in ipairs(sel_images) do
       if ((not isnan(image.longitude) and not isnan(image.latitude) and not isnan(image.elevation) and image.elevation) and 
             (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
