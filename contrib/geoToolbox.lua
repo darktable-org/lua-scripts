@@ -558,8 +558,8 @@ dt.register_lib(
 ]]    
     dt.new_widget("button")
     {
-      label = _("Open in Gnome Maps"),
-      tooltip = _("Open Location in Gnome Maps"),
+      label = _("open in Gnome Maps"),
+      tooltip = _("Open location in Gnome Maps"),
       clicked_callback = open_location_in_gnome_maps
     },
     separator4,--------------------------------------------------------
@@ -569,7 +569,7 @@ dt.register_lib(
     dt.new_widget("button")
     {
       label = _("export altitude CSV file"),
-      tooltip = _("create an altitude profile using the GPS data in the metadata"),
+      tooltip = _("Create an altitude profile using the GPS data in the metadata"),
       clicked_callback = altitude_profile
     },
     labelDistance
