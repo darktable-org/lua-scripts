@@ -60,23 +60,46 @@ local label_copy_gps_ele = dt.new_widget("check_button")
 -- </GUI> 
 
 local function select_with_gps()
-   local selection = {}
-   for _,image in ipairs(dt.database) do
+  local selection = {}
+  job = dt.gui.create_job(_("GPS selection"), true, stop_selection)
+
+  for key,image in ipairs(dt.database) do
+    if job.valid then
+      job.percent = (key-1)/#dt.database
+
       if (image.longitude and image.latitude) then
-         table.insert(selection,image)
+        table.insert(selection,image)
       end
-   end
-   dt.gui.selection(selection)
+    else
+      break
+    end
+  end
+
+  dt.gui.selection(selection)
+  job.valid = false
 end
 
 local function select_without_gps()
-   local selection = {}
-   for _,image in ipairs(dt.database) do
+  local selection = {}
+  job = dt.gui.create_job(_("GPS selection"), true, stop_selection)
+
+  for key,image in ipairs(dt.database) do
+    if job.valid then
+      job.percent = (key-1)/#dt.database
+
       if (not image.longitude and not image.latitude) then
-         table.insert(selection,image)
+        table.insert(selection,image)
       end
-   end
-   dt.gui.selection(selection)
+    else
+      break
+    end
+  end
+  dt.gui.selection(selection)
+  job.valid = false
+end
+
+local function stop_selection(job)
+    job.valid = false
 end
 
 -- This is used for older images in the DB
