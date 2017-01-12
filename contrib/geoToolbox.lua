@@ -269,7 +269,7 @@ local function copy_gps()
   end
 end
 
-local function past_gps(image)
+local function paste_gps(image)
   local sel_images = dt.gui.action_images
 
   for _,image in ipairs(sel_images) do
@@ -526,9 +526,9 @@ dt.register_lib(
     label_copy_gps_ele,
     dt.new_widget("button")
     {
-      label = _("past GPS data"),
-      tooltip = _("Past GPS data"),
-      clicked_callback = past_gps
+      label = _("paste GPS data"),
+      tooltip = _("Paste GPS data"),
+      clicked_callback = paste_gps
     },
     separator2,--------------------------------------------------------
 --ToDo: This need a better UI
