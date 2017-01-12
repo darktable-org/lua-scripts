@@ -63,9 +63,9 @@ local function select_with_gps()
   local selection = {}
   job = dt.gui.create_job(_("GPS selection"), true, stop_selection)
 
-  for key,image in ipairs(dt.database) do
+  for key,image in ipairs(dt.collection) do
     if job.valid then
-      job.percent = (key-1)/#dt.database
+      job.percent = (key-1)/#dt.collection
 
       if (image.longitude and image.latitude) then
         table.insert(selection,image)
@@ -83,9 +83,9 @@ local function select_without_gps()
   local selection = {}
   job = dt.gui.create_job(_("GPS selection"), true, stop_selection)
 
-  for key,image in ipairs(dt.database) do
+  for key,image in ipairs(dt.collection) do
     if job.valid then
-      job.percent = (key-1)/#dt.database
+      job.percent = (key-1)/#dt.collection
 
       if (not image.longitude and not image.latitude) then
         table.insert(selection,image)
