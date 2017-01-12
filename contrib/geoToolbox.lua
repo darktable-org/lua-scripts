@@ -520,7 +520,7 @@ dt.register_lib(
     dt.new_widget("button")
     {
       label = _("copy GPS data"),
-      tooltip = _("Copy the GPS data"),
+      tooltip = _("Copy GPS data"),
       clicked_callback = copy_gps
     },
     label_copy_gps_lat,
@@ -529,7 +529,7 @@ dt.register_lib(
     dt.new_widget("button")
     {
       label = _("past GPS data"),
-      tooltip = _("Past the GPS data"),
+      tooltip = _("Past GPS data"),
       clicked_callback = past_gps
     },
     separator2,--------------------------------------------------------
