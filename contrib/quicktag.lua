@@ -36,7 +36,6 @@ USAGE
  
 TODO
    * enhance button and entry layout in the module
-   * option to add non existing tags
    * abbrevate button labels
    * maybe two colums of buttons
  ]]
@@ -89,10 +88,11 @@ local function tagattach(tag,qtagnr)
   end
   
   local tagnr = dt.tags.find(tag)
-  
+ 
+--create tag if it does not exist 
   if tagnr == nil then
-    dt.print("quick tag \""..tag.."\" not found in your taglist, please add it first!")
-    return true
+    dt.tags.create(tag)
+    tagnr = dt.tags.find(tag)
   end
   
   local sel_images = dt.gui.action_images
