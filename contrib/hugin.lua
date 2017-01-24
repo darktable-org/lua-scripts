@@ -39,7 +39,7 @@ require "official/yield"
 local gettext = dt.gettext
 
 -- works with darktable API version 2.0.0 and 3.0.0
-dt.configuration.check_version(...,{2,0,0},{3,0,0},{4,0,0})
+dt.configuration.check_version(...,{2,0,0},{3,0,0},{4,0,0},{5,0,0})
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("hugin",dt.configuration.config_dir.."/lua/")
@@ -115,7 +115,7 @@ local function create_panorama(storage, image_table, extra_data) --finalize
   
   dt.print_error(huginStartCommand)
 
-  if dt.control.execute( huginStartCommand)
+  if not dt.control.execute(huginStartCommand)
     then
     dt.print(_("Command hugin failed ..."))
   end

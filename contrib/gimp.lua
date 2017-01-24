@@ -68,7 +68,7 @@ require "official/yield"
 
 local gettext = dt.gettext
 
-dt.configuration.check_version(...,{3,0,0},{4,0,0})
+dt.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("gimp",dt.configuration.config_dir.."/lua/")
