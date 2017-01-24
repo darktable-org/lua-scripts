@@ -115,7 +115,7 @@ local function create_panorama(storage, image_table, extra_data) --finalize
   
   dt.print_error(huginStartCommand)
 
-  if dt.control.execute(huginStartCommand)
+  if not dt.control.execute(huginStartCommand)
     then
     dt.print(_("Command hugin failed ..."))
   end
