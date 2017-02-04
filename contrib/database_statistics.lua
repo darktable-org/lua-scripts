@@ -18,8 +18,9 @@
     along with darktable.  If not, see <http://www.gnu.org/licenses/>.
 ]]
 --[[
-VERSION 0.3
-    
+VERSION 2.1
+Works with darktable 2.0.X and 2.2.X
+   
 ADDITIONAL SOFTWARE NEEDED FOR THIS SCRIPT
     * sqlite3
     * rm
@@ -38,7 +39,7 @@ ADDITIONAL SOFTWARE NEEDED FOR THIS SCRIPT
 
 local dt = require "darktable"
 local gettext = dt.gettext
-dt.configuration.check_version(...,{3,0,0})
+dt.configuration.check_version(...,{3,0,0},{4,0,0})
 
 local count_discusage = "-"
 local count_filmrolls = "-"
@@ -193,7 +194,16 @@ local function checkIfBinExists(bin)
   end
   return ret
 end
-   
+
+local function checkIfDirExists(dir)
+    local dir_found=io.open(dir, "r")
+    if dir_found==nil then
+        dt.print(_([[ERROR: Directory not found. Please check ]] ..dir))
+        
+    end
+end
+
+
 
 function round(num, idp)
   local mult = 10^(idp or 0)
@@ -246,15 +256,20 @@ local function analyse_db()
     local totalrating3=0
     local totalrating4=0
     local totalrating5=0
+    
+    
 -- Calculate Rating
     while counter ~= number_filmrolls do
 -- Input dir
         InputdirStartCommand = [[sqlite3 ~/.config/darktable/library.db "SELECT folder FROM film_rolls LIMIT ]] ..counter.. [[,1" > /tmp/dt_inputdir]]
         os.execute(InputdirStartCommand)  
         local file_inputdir = io.open("/tmp/dt_inputdir", "r")
-        inputdir = file_inputdir:read()
+        xinputdir = file_inputdir:read()
+        inputdir='"'..xinputdir..'"'
         file_inputdir:close()
         os.execute[[rm /tmp/dt_inputdir]]
+-- Check Inputdir  
+        checkIfDirExists(xinputdir)        
 -- Disc usage
         DiscusageStartCommand = [[du -s ]] ..inputdir.. [[ | cut -f1 > /tmp/dt_discusage]]
         os.execute(DiscusageStartCommand)
