@@ -27,7 +27,7 @@ ADDITIONAL SOFTWARE NEEDED FOR THIS SCRIPT
 USAGE
 * require this file from your main luarc config file.
 
-This plugin will add a new storage option and calls hugin after export.
+This plugin will add a new export storage calls Steghide JPEG export.
 ]]
 
 local dt = require "darktable"
