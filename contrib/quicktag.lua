@@ -121,7 +121,7 @@ read_pref_tags()
 
 local button = {}
 
--- function to create buttons with tags as lables
+-- function to create buttons with tags as labels
 for j=1,qnr do
       button[#button+1] = dt.new_widget("button") {
          label = j..": "..quicktag_table[j],
@@ -185,8 +185,7 @@ widget_table[#widget_table  + 1] = old_quicktag
 widget_table[#widget_table  + 1] = new_qt_widget
 
 
-     
---create modul static. it would be nice to place button and entry side by side
+--create module
 dt.register_lib(
   "quicktag",     -- Module name
   "quick tag",     -- name
