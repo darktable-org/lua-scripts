@@ -160,11 +160,15 @@ local set_quicktag_button = dt.new_widget("button") {
   label = "set quicktag",
   clicked_callback = function()
     local old_tag = quicktag_table[old_quicktag.selected]
-    quicktag_table[old_quicktag.selected] = new_quicktag.text
-    dt.preferences.write("quickTag", "quicktag"..old_quicktag.selected, "string",  new_quicktag.text)
-    dt.print("quicktag \""..old_tag.."\" replaced by \""..new_quicktag.text.."\"")
-    update_quicktag_list()
-    new_quicktag.text = ""
+    if new_quicktag.text == "" then
+      dt.print("new quicktag is empty!")
+    else
+      quicktag_table[old_quicktag.selected] = new_quicktag.text
+      dt.preferences.write("quickTag", "quicktag"..old_quicktag.selected, "string",  new_quicktag.text)
+      dt.print("quicktag \""..old_tag.."\" replaced by \""..new_quicktag.text.."\"")
+      update_quicktag_list()
+      new_quicktag.text = ""
+    end
   end,
 }
 
