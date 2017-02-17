@@ -62,19 +62,6 @@ dt.preferences.register("quickTag",
 
 local qnr = dt.preferences.read("quickTag", "quickTagnumber", "integer")
 
--- set quicktag in the preferences
--- remove this for now, because the taglist can be set from within the modul now
---[[for j=1,qnr do
-   dt.preferences.register("quickTag",
-                        "quicktag"..j,
-                        "string",                    -- type
-                        "quick tag "..j,           -- label
-                        "please create the tags before in the tagging module",   -- tooltip
-                        ""                            -- default
-                        )
-  end
-]]
-
 -- get quicktags from the preferences
 local quicktag_table = {}
 
