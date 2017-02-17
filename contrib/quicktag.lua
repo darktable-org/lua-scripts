@@ -48,17 +48,29 @@ TODO
 local dt = require "darktable"
 local debug = require "darktable.debug"
 
+
+local gettext = dt.gettext
+
 dt.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
+
+-- Tell gettext where to find the .mo file translating messages for a particular domain
+gettext.bindtextdomain("quicktag",dt.configuration.config_dir.."/lua/")
+
+local function _(msgid)
+    return gettext.dgettext("quicktag", msgid)
+end
+
+
 
 -- register number of quicktags
 dt.preferences.register("quickTag",         
                         "quickTagnumber",  
                         "integer",                    -- type
-                        "number of quick tag fields",           -- label
-                        "number of quick tag fields from 2 to 10 - needs a restart",   -- tooltip
-                        3,                            -- default
+                        _("number of quicktag fields"),           -- label
+                        _("may range from 2 to 20 - needs a restart"),   -- tooltip
+                        5,                            -- default
                         2,                            -- min
-                        10)
+                        20)
 
 local qnr = dt.preferences.read("quickTag", "quickTagnumber", "integer")
 
@@ -76,7 +88,7 @@ local function read_pref_tags()
 -- quicktag function to attach tags
 local function tagattach(tag,qtagnr)
   if tag == "" then
-    dt.print("quicktag "..qtagnr.." empty, please set a tag")
+    dt.print(_("quicktag").." "..qtagnr.." ".. _("empty, please set a tag"))
     return true
   end
   
@@ -91,7 +103,7 @@ local function tagattach(tag,qtagnr)
   local sel_images = dt.gui.action_images
   
   if next(sel_images) == nil then
-    dt.print("no images selected")
+    dt.print(_("no images selected"))
     return true
   end
 
@@ -101,7 +113,7 @@ local function tagattach(tag,qtagnr)
      dt.tags.attach(tagnr,image)
      counter = counter+1
   end
-  dt.print("tag \""..tag.."\" attached to "..counter.." images")
+  dt.print(_("tag").."  \""..tag.."\" ".._("attached to").." "..counter.." ".._("image(s)"))
 end
 
 
@@ -121,8 +133,8 @@ for j=1,qnr do
 
 
 local old_quicktag = dt.new_widget("combobox"){
-    label = "old quicktag:",
-    tooltip = "select the quicktag to replace"
+    label = _("old quicktag"),
+    tooltip = _("select the quicktag to replace")
 }
 
 local function update_quicktag_list()
@@ -137,22 +149,22 @@ update_quicktag_list()
 
 local new_quicktag = dt.new_widget("entry"){
     text = "",
-    placeholder = "new quicktag ",
+    placeholder = _("new quicktag"),
     is_password = true,
     editable = true,
-    tooltip = "enter your tag here"
+    tooltip = _("enter your tag here")
 }
 
 local set_quicktag_button = dt.new_widget("button") {
-  label = "set quicktag",
+  label = _("set quicktag"),
   clicked_callback = function()
     local old_tag = quicktag_table[old_quicktag.selected]
     if new_quicktag.text == "" then
-      dt.print("new quicktag is empty!")
+      dt.print(_("new quicktag is empty!"))
     else
       quicktag_table[old_quicktag.selected] = new_quicktag.text
       dt.preferences.write("quickTag", "quicktag"..old_quicktag.selected, "string",  new_quicktag.text)
-      dt.print("quicktag \""..old_tag.."\" replaced by \""..new_quicktag.text.."\"")
+      dt.print(_("quicktag") .." \""..old_tag.."\" ".._("replaced by").." \""..new_quicktag.text.."\"")
       update_quicktag_list()
       new_quicktag.text = ""
     end
@@ -161,7 +173,7 @@ local set_quicktag_button = dt.new_widget("button") {
 
 local new_qt_widget = dt.new_widget ("box") {
     orientation = "horizontal",
-    dt.new_widget("label") { label = "new quicktag" },
+    dt.new_widget("label") { label = _("new quicktag") },
     new_quicktag,
     set_quicktag_button
 }
@@ -183,7 +195,7 @@ widget_table[#widget_table  + 1] = new_qt_widget
 --create module
 dt.register_lib(
   "quicktag",     -- Module name
-  "quick tag",     -- name
+  "quicktag",     -- name
   true,                -- expandable
   false,               -- resetable
   {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 490}},
@@ -201,7 +213,7 @@ dt.register_lib(
 for i=1,qnr do
   dt.register_event("shortcut", 
 		   function(event, shortcut) tagattach(tostring(quicktag_table[i])) end,
-		  "quick tag "..i)
+		  _("quicktag").." "..i)
 end
 
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
