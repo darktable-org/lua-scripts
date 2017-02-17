@@ -1,0 +1,79 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Christian Kanzian <christian.kanzian@gmx.at>, 2017.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-02-17 14:32+0100\n"
+"PO-Revision-Date: 2017-02-17 14:37+0100\n"
+"Last-Translator: Christian Kanzian <christian.kanzian@gmx.at>\n"
+"Language-Team: German <>\n"
+"Language: de_AT\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Lokalize 2.0\n"
+
+#: quicktag.lua:69
+msgid "number of quicktag fields"
+msgstr "Anzahl von quicktag Feldern"
+
+#: quicktag.lua:70
+msgid "may range from 2 to 20 - needs a restart"
+msgstr "Bereich von 2 bis 20 möglich - Neustart erforderlich"
+
+#: quicktag.lua:91 quicktag.lua:167 quicktag.lua:216
+msgid "quicktag"
+msgstr ""
+
+#: quicktag.lua:91
+msgid "empty, please set a tag"
+msgstr "Leer, bitte Tag eingeben"
+
+#: quicktag.lua:106
+msgid "no images selected"
+msgstr "keine Bilder ausgewählt"
+
+#: quicktag.lua:116
+msgid "tag"
+msgstr "Tag"
+
+#: quicktag.lua:116
+msgid "attached to"
+msgstr "angehängt an"
+
+#: quicktag.lua:116
+msgid "image(s)"
+msgstr "Bilder(n)"
+
+#: quicktag.lua:136
+msgid "old quicktag"
+msgstr "Alter quicktag"
+
+#: quicktag.lua:137
+msgid "select the quicktag to replace"
+msgstr "Wähle den quicktag der ersetzt werden soll"
+
+#: quicktag.lua:152 quicktag.lua:176
+msgid "new quicktag"
+msgstr "Neuer quicktag"
+
+#: quicktag.lua:155
+msgid "enter your tag here"
+msgstr "bitte Tag hier eingeben"
+
+#: quicktag.lua:159
+msgid "set quicktag"
+msgstr "Setze Tag"
+
+#: quicktag.lua:163
+msgid "new quicktag is empty!"
+msgstr "Neuer Tag ist leer!"
+
+#: quicktag.lua:167
+msgid "replaced by"
+msgstr "ersetzt durch"
+
