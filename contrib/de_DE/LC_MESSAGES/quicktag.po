@@ -1,0 +1,84 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Christian Kanzian <christian.kanzian@gmx.at>, 2017.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-02-20 17:38+0100\n"
+"PO-Revision-Date: 2017-02-20 17:50+0100\n"
+"Last-Translator: Christian Kanzian <christian.kanzian@gmx.at>\n"
+"Language-Team: German <kde-i18n-de@kde.org>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Lokalize 1.5\n"
+
+#: quicktag.lua:64
+msgid "max. length of button labels"
+msgstr "Max. Länge der Schaltflächen-Beschriftung"
+
+#: quicktag.lua:65
+msgid "may range from 15 to 60 - needs a restart"
+msgstr "Bereich von 15 bis 60 möglich - Neustart erforderlich"
+
+#: quicktag.lua:78
+msgid "number of quicktag fields"
+msgstr "Anzahl von quicktag Feldern"
+
+#: quicktag.lua:79
+msgid "may range from 2 to 20 - needs a restart"
+msgstr "Bereich von 2 bis 20 möglich - Neustart erforderlich"
+
+#: quicktag.lua:119
+#, lua-format
+msgid "quicktag %i is empty, please set a tag"
+msgstr "quicktag %i ist leer - bitte Tag eingeben"
+
+#: quicktag.lua:134
+msgid "no images selected"
+msgstr "keine Bilder ausgewählt"
+
+#: quicktag.lua:144
+#, lua-format
+msgid "tag \"%s\" attached to %i image(s)"
+msgstr "Tag \"%s\" an  %i Bild(er) angehängt"
+
+#: quicktag.lua:165
+msgid "old quicktag"
+msgstr "Alter quicktag"
+
+#: quicktag.lua:166
+msgid "select the quicktag to replace"
+msgstr "Wähle den quicktag der ersetzt werden soll"
+
+#: quicktag.lua:182 quicktag.lua:206
+msgid "new quicktag"
+msgstr "Neuer quicktag"
+
+#: quicktag.lua:185
+msgid "enter your tag here"
+msgstr "Bitte Tag hier eingeben"
+
+#: quicktag.lua:189
+msgid "set quicktag"
+msgstr "Setze Tag"
+
+#: quicktag.lua:193
+msgid "new quicktag is empty!"
+msgstr "Neuer Tag ist leer!"
+
+#: quicktag.lua:197
+#, lua-format
+msgid "quicktag \"%s\" replaced by \"%s\""
+msgstr "quicktag \"%s\" ersetzt durch \"%s\" "
+
+#: quicktag.lua:246
+#, lua-format
+msgid "quicktag %i"
+msgstr "quicktag %i"
+
+
