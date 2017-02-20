@@ -116,7 +116,7 @@ end
 -- quicktag function to attach tags
 local function tagattach(tag,qtagnr)
   if tag == "" then
-    dt.print(_("quicktag").." "..qtagnr.." ".. _("empty, please set a tag"))
+    dt.print(string.format(_("quicktag %i is empty, please set a tag"), qtagnr))
     return true
   end
   
@@ -141,7 +141,7 @@ local function tagattach(tag,qtagnr)
      dt.tags.attach(tagnr,image)
      counter = counter+1
   end
-  dt.print(_("tag").."  \""..tag.."\" ".._("attached to").." "..counter.." ".._("image(s)"))
+  dt.print(string.format(_("tag \"%s\" attached to %i image(s)"), tag, counter))
 end
 
 
@@ -194,7 +194,7 @@ local set_quicktag_button = dt.new_widget("button") {
     else
       quicktag_table[old_quicktag.selected] = new_quicktag.text
       dt.preferences.write("quickTag", "quicktag"..old_quicktag.selected, "string",  new_quicktag.text)
-      dt.print(_("quicktag") .." \""..old_tag.."\" ".._("replaced by").." \""..new_quicktag.text.."\"")
+      dt.print(string.format(_("quicktag \"%s\" replaced by \"%s\""), old_tag, new_quicktag.text))
       update_quicktag_list()
       new_quicktag.text = ""
     end
@@ -243,7 +243,7 @@ dt.register_lib(
 for i=1,qnr do
   dt.register_event("shortcut", 
 		   function(event, shortcut) tagattach(tostring(quicktag_table[i])) end,
-		  _("quicktag").." "..i)
+		  string.format(_("quicktag %i"),i))
 end
 
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
