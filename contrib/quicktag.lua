@@ -60,11 +60,23 @@ local function _(msgid)
     return gettext.dgettext("quicktag", msgid)
 end
 
+-- maximum length of button labels
+dt.preferences.register("quickTag",
+                        "labellength",
+                        "integer",                    -- type
+                        _("max length of button labels"),           -- label
+                        _("may range from 15 to 60 - needs a restart"),   -- tooltip
+                       25,                            -- default
+                       15,                            -- min
+                      60)
 
+
+
+local max_label_length = dt.preferences.read("quickTag", "labellength", "integer")
 
 -- register number of quicktags
-dt.preferences.register("quickTag",         
-                        "quickTagnumber",  
+dt.preferences.register("quickTag",
+                        "quickTagnumber",
                         "integer",                    -- type
                         _("number of quicktag fields"),           -- label
                         _("may range from 2 to 20 - needs a restart"),   -- tooltip
@@ -74,8 +86,11 @@ dt.preferences.register("quickTag",
 
 local qnr = dt.preferences.read("quickTag", "quickTagnumber", "integer")
 
+
+
 -- get quicktags from the preferences
 local quicktag_table = {}
+
 
 local function read_pref_tags()
   for j=1,qnr do
@@ -83,6 +98,22 @@ local function read_pref_tags()
     end
   end
 
+
+local quicktag_label = {}
+
+
+local function abbrevate_tags(t)
+  for i=1,qnr do
+    local taglength = string.len(t[i])
+    if taglength > max_label_length then
+      local max_2 = math.floor(max_label_length/2)
+      quicktag_label[i] = string.sub(t[i],0,max_2).."..."..string.sub(t[i],taglength - max_2)
+    else
+      quicktag_label[i] = t[i]
+    end
+    print(quicktag_label[i])
+  end
+end
 
 
 -- quicktag function to attach tags
@@ -120,6 +151,7 @@ end
 -- create quicktag module elements
 -- read tags from preferences for initialization
 read_pref_tags()
+abbrevate_tags(quicktag_table)
 
 
 local button = {}
@@ -138,9 +170,10 @@ local old_quicktag = dt.new_widget("combobox"){
 }
 
 local function update_quicktag_list()
- -- read_pref_tags()
+  -- abrevate long tags for the labels
+  abbrevate_tags(quicktag_table)
   for j=1,qnr do
-      button[j].label = j..": "..quicktag_table[j]
+      button[j].label = j..": "..quicktag_label[j]
       old_quicktag[j] = j..": "..quicktag_table[j]
   end
 end
