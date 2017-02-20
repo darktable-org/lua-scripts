@@ -4,6 +4,7 @@
 
     Thanks to
     Copyright (C) 2016 Bill Ferguson
+    Copyright (C) 2017 Tobias Jakobs
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
