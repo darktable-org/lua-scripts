@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-17 14:32+0100\n"
-"PO-Revision-Date: 2017-02-17 14:37+0100\n"
+"POT-Creation-Date: 2017-02-20 12:05+0100\n"
+"PO-Revision-Date: 2017-02-20 12:09+0100\n"
 "Last-Translator: Christian Kanzian <christian.kanzian@gmx.at>\n"
 "Language-Team: German <>\n"
 "Language: de_AT\n"
@@ -17,63 +17,71 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Lokalize 2.0\n"
 
-#: quicktag.lua:69
+#: quicktag.lua:67
+msgid "max length of button labels"
+msgstr "Max. Länge der Schaltflächen-Beschriftung"
+
+#: quicktag.lua:68
+msgid "may range from 15 to 60 - needs a restart"
+msgstr "Bereich von 15 bis 60 möglich - Neustart erforderlich"
+
+#: quicktag.lua:81
 msgid "number of quicktag fields"
 msgstr "Anzahl von quicktag Feldern"
 
-#: quicktag.lua:70
+#: quicktag.lua:82
 msgid "may range from 2 to 20 - needs a restart"
 msgstr "Bereich von 2 bis 20 möglich - Neustart erforderlich"
 
-#: quicktag.lua:91 quicktag.lua:167 quicktag.lua:216
+#: quicktag.lua:122 quicktag.lua:200 quicktag.lua:249
 msgid "quicktag"
 msgstr ""
 
-#: quicktag.lua:91
+#: quicktag.lua:122
 msgid "empty, please set a tag"
 msgstr "Leer, bitte Tag eingeben"
 
-#: quicktag.lua:106
+#: quicktag.lua:137
 msgid "no images selected"
 msgstr "keine Bilder ausgewählt"
 
-#: quicktag.lua:116
+#: quicktag.lua:147
 msgid "tag"
 msgstr "Tag"
 
-#: quicktag.lua:116
+#: quicktag.lua:147
 msgid "attached to"
 msgstr "angehängt an"
 
-#: quicktag.lua:116
+#: quicktag.lua:147
 msgid "image(s)"
 msgstr "Bilder(n)"
 
-#: quicktag.lua:136
+#: quicktag.lua:168
 msgid "old quicktag"
 msgstr "Alter quicktag"
 
-#: quicktag.lua:137
+#: quicktag.lua:169
 msgid "select the quicktag to replace"
 msgstr "Wähle den quicktag der ersetzt werden soll"
 
-#: quicktag.lua:152 quicktag.lua:176
+#: quicktag.lua:185 quicktag.lua:209
 msgid "new quicktag"
 msgstr "Neuer quicktag"
 
-#: quicktag.lua:155
+#: quicktag.lua:188
 msgid "enter your tag here"
 msgstr "bitte Tag hier eingeben"
 
-#: quicktag.lua:159
+#: quicktag.lua:192
 msgid "set quicktag"
 msgstr "Setze Tag"
 
-#: quicktag.lua:163
+#: quicktag.lua:196
 msgid "new quicktag is empty!"
 msgstr "Neuer Tag ist leer!"
 
-#: quicktag.lua:167
+#: quicktag.lua:200
 msgid "replaced by"
 msgstr "ersetzt durch"
 
