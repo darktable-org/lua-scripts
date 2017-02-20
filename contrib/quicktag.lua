@@ -108,7 +108,7 @@ local function abbrevate_tags(t)
     else
       quicktag_label[i] = t[i]
     end
-    print(quicktag_label[i])
+    -- print(quicktag_label[i])
   end
 end
 
