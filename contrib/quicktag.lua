@@ -39,10 +39,7 @@ USAGE
    * to add or change a quicktag, first select the old tag with the combobox "old quicktag",
      enter a new tag in the "new quicktag" filed and press "set quicktag"
    * use a shortcut or button to attach the tag to selected images
-
-TODO
-    * abbrevate button labels
-  ]]
+]]
 
 
 local dt = require "darktable"
@@ -64,7 +61,7 @@ end
 dt.preferences.register("quickTag",
                         "labellength",
                         "integer",                    -- type
-                        _("max length of button labels"),           -- label
+                        _("max. length of button labels"),           -- label
                         _("may range from 15 to 60 - needs a restart"),   -- tooltip
                        25,                            -- default
                        15,                            -- min
