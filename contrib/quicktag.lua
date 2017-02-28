@@ -120,17 +120,17 @@ local function tagattach(tag,qtagnr)
     dt.print(string.format(_("quicktag %i is empty, please set a tag"), qtagnr))
     return true
   end
-  
+
   local tagnr = dt.tags.find(tag)
- 
---create tag if it does not exist 
+
+--create tag if it does not exist
   if tagnr == nil then
     dt.tags.create(tag)
     tagnr = dt.tags.find(tag)
   end
-  
+
   local sel_images = dt.gui.action_images
-  
+
   if next(sel_images) == nil then
     dt.print(_("no images selected"))
     return true
@@ -230,7 +230,7 @@ dt.register_lib(
   true,                -- expandable
   false,               -- resetable
   {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 490}},
-    
+
   dt.new_widget("box"){
     orientation = "vertical",
     table.unpack(widget_table),
@@ -242,7 +242,7 @@ dt.register_lib(
 
 -- create shortcuts
 for i=1,qnr do
-  dt.register_event("shortcut", 
+  dt.register_event("shortcut",
 		   function(event, shortcut) tagattach(tostring(quicktag_table[i])) end,
 		  string.format(_("quicktag %i"),i))
 end
