@@ -163,7 +163,7 @@ for j=1,qnr do
 
 
 local old_quicktag = dt.new_widget("combobox"){
-    label = _("old quicktag"),
+    label = _("old tag"),
     tooltip = _("select the quicktag to replace")
 }
 
@@ -180,14 +180,14 @@ update_quicktag_list()
 
 local new_quicktag = dt.new_widget("entry"){
     text = "",
-    placeholder = _("new quicktag"),
+    placeholder = _("new tag"),
     is_password = true,
     editable = true,
     tooltip = _("enter your tag here")
 }
 
 local set_quicktag_button = dt.new_widget("button") {
-  label = _("set quicktag"),
+  label = _("set tag"),
   clicked_callback = function()
     local old_tag = quicktag_table[old_quicktag.selected]
     if new_quicktag.text == "" then
@@ -204,7 +204,7 @@ local set_quicktag_button = dt.new_widget("button") {
 
 local new_qt_widget = dt.new_widget ("box") {
     orientation = "horizontal",
-    dt.new_widget("label") { label = _("new quicktag") },
+    dt.new_widget("label") { label = _("new tag") },
     new_quicktag,
     set_quicktag_button
 }
