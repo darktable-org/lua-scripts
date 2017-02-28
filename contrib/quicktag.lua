@@ -120,17 +120,17 @@ local function tagattach(tag,qtagnr)
     dt.print(string.format(_("quicktag %i is empty, please set a tag"), qtagnr))
     return true
   end
-  
+
   local tagnr = dt.tags.find(tag)
- 
---create tag if it does not exist 
+
+--create tag if it does not exist
   if tagnr == nil then
     dt.tags.create(tag)
     tagnr = dt.tags.find(tag)
   end
-  
+
   local sel_images = dt.gui.action_images
-  
+
   if next(sel_images) == nil then
     dt.print(_("no images selected"))
     return true
@@ -163,7 +163,7 @@ for j=1,qnr do
 
 
 local old_quicktag = dt.new_widget("combobox"){
-    label = _("old quicktag"),
+    label = _("old tag"),
     tooltip = _("select the quicktag to replace")
 }
 
@@ -180,14 +180,14 @@ update_quicktag_list()
 
 local new_quicktag = dt.new_widget("entry"){
     text = "",
-    placeholder = _("new quicktag"),
+    placeholder = _("new tag"),
     is_password = true,
     editable = true,
     tooltip = _("enter your tag here")
 }
 
 local set_quicktag_button = dt.new_widget("button") {
-  label = _("set quicktag"),
+  label = _("set tag"),
   clicked_callback = function()
     local old_tag = quicktag_table[old_quicktag.selected]
     if new_quicktag.text == "" then
@@ -204,7 +204,7 @@ local set_quicktag_button = dt.new_widget("button") {
 
 local new_qt_widget = dt.new_widget ("box") {
     orientation = "horizontal",
-    dt.new_widget("label") { label = _("new quicktag") },
+    dt.new_widget("label") { label = _("new tag") },
     new_quicktag,
     set_quicktag_button
 }
@@ -230,7 +230,7 @@ dt.register_lib(
   true,                -- expandable
   false,               -- resetable
   {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 490}},
-    
+
   dt.new_widget("box"){
     orientation = "vertical",
     table.unpack(widget_table),
@@ -242,7 +242,7 @@ dt.register_lib(
 
 -- create shortcuts
 for i=1,qnr do
-  dt.register_event("shortcut", 
+  dt.register_event("shortcut",
 		   function(event, shortcut) tagattach(tostring(quicktag_table[i])) end,
 		  string.format(_("quicktag %i"),i))
 end
