@@ -104,12 +104,24 @@ local function abbrevate_tags(t)
   for i=1,qnr do
     local taglength = string.len(t[i])
     if taglength > max_label_length then
-      local max_2 = math.floor(max_label_length/2)
-      quicktag_label[i] = string.sub(t[i],0,max_2).."..."..string.sub(t[i],taglength - max_2)
+
+      s = {}; k = 0
+      for str in string.gmatch(t[i], "([^|]+)") do
+        s[k] = str
+        k = k + 1
+      end
+
+      quicktag_label[i] = ""
+      k = 0
+      while s[k+1] do
+        quicktag_label[i] = quicktag_label[i] .. string.sub(s[k],0,1) .. ".." .. string.sub(s[k],-1) .. "|"
+        k = k + 1
+      end
+      quicktag_label[i] = quicktag_label[i] .. s[k]
+
     else
       quicktag_label[i] = t[i]
     end
-    -- print(quicktag_label[i])
   end
 end
 
