@@ -17,7 +17,7 @@
 ]]
 --[[
 RUN ENFUSE ON THE SELECTED IMAGES
-This script uses enfuse to merge the selected images into one HDR and imports the result.
+This script uses enfuse to merge the selected images into one tonemapped image and imports the result.
 It only works on ldr images (like, JPEG).
 
 USAGE
