@@ -38,7 +38,7 @@ require "official/yield"
 
 local gettext = dt.gettext
 
--- works with darktable API version 2.0.0 and 3.0.0
+-- works with darktable API version from 2.0.0 to 5.0.0
 dt.configuration.check_version(...,{2,0,0},{3,0,0},{4,0,0},{5,0,0})
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
