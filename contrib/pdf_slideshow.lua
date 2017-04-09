@@ -39,6 +39,7 @@ format (all fields can be the empty string):
 
 ]]
 local dt = require "darktable"
+local df = require "lib/dtutils.file"
 require "official/yield"
 
 local gettext = dt.gettext
@@ -48,6 +49,11 @@ gettext.bindtextdomain("pdf_slideshow",dt.configuration.config_dir.."/lua/")
 
 local function _(msgid)
     return gettext.dgettext("pdf_slideshow", msgid)
+end
+
+if not df.check_if_bin_exists("pdflatex") then
+   dt.print_error(_("pdflatex not found"))
+   return
 end
 
 dt.configuration.check_version(...,{4,0,0},{5,0,0})
