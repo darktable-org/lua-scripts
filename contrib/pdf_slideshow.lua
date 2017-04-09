@@ -90,8 +90,8 @@ local widget = dt.new_widget("box") {
     title_widget,
     dt.new_widget("label"){label = ""},
     delay_widget,
-    check_button_title,
-    check_button_author
+    check_button_author,
+    check_button_title
 }
 
 local ending = [[
