@@ -123,6 +123,13 @@ local function my_write(latexfile,arg)
   end
 end
 
+local function img_filename(file,i)
+  local dir=string.gsub(file, "(.*)(%/.*%..*)", "%1")
+  local ext=string.gsub(file, "(.*)(%..*)", "%2")
+  local lfile = dir.."/slide"..i..ext
+  return lfile
+end
+
 local function slide(latexfile,i,image,file)
   local title = ""
   if title_widget.text ~= "" then
@@ -146,17 +153,12 @@ local function slide(latexfile,i,image,file)
   title = string.gsub(title, "\r", "")
   title = string.gsub(title, "\t", "")
 
-  local lfile = "slide"..i..".jpg"
+  local lfile = img_filename(file,i)
   os.rename(file, lfile)
 
-  --  fact is that latex will get confused if the filename has multiple dots.
-  --  so \includegraphics{file.01.jpg} wont work. We need to output the filename
-  --  and extention separated, e.g: \includegraphics{{file.01}.jpg}
-  local filenoext=string.gsub(lfile, "(.*)(%..*)", "%1")
-  local ext=string.gsub(lfile, "(.*)(%..*)", "%2")
   my_write(latexfile,"\\begin{minipage}[b]{0,99\\textwidth}\n")
 
-  my_write(latexfile,"\\includegraphics[height=0.95\\textheight]{{"..filenoext.."}"..ext.."}\\newline\n")
+  my_write(latexfile,"\\includegraphics[height=0.95\\textheight]{"..lfile.."}\\newline\n")
   my_write(latexfile,"\\centering{{\\color{white}\\verb|"..title.."|}}\n")
   my_write(latexfile,"\\end{minipage}\\quad\n")
 end
@@ -229,7 +231,7 @@ dt.register_storage("pdf_slideshow",_("pdf slideshow"),
       -- finally do some clean-up
       local i = 1
       for img,file in pairs(image_table) do
-         local lfile = "slide"..i..".jpg"
+         local lfile = img_filename(file,i)
          os.remove(lfile)
          i = i+1
       end
