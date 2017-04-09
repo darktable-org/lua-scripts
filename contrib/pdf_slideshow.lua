@@ -156,11 +156,12 @@ local function slide(latexfile,i,image,file)
   local lfile = img_filename(file,i)
   os.rename(file, lfile)
 
-  my_write(latexfile,"\\begin{minipage}[b]{0,99\\textwidth}\n")
-
-  my_write(latexfile,"\\includegraphics[height=0.95\\textheight]{"..lfile.."}\\newline\n")
-  my_write(latexfile,"\\centering{{\\color{white}\\verb|"..title.."|}}\n")
-  my_write(latexfile,"\\end{minipage}\\quad\n")
+  my_write(latexfile,"\\begin{figure}\n")
+  my_write(latexfile,"\\begin{measuredfigure}\n")
+  my_write(latexfile,"\\includegraphics[height=0.92\\textheight]{"..lfile.."}\n")
+  my_write(latexfile,"\\end{measuredfigure}\n")
+  my_write(latexfile,"\\caption{{\\color{white}"..title.."}}\n")
+  my_write(latexfile,"\\end{figure}\n")
 end
 
 dt.register_storage("pdf_slideshow",_("pdf slideshow"),
@@ -168,10 +169,11 @@ dt.register_storage("pdf_slideshow",_("pdf slideshow"),
     function(storage,image_table)
 
     local preamble = [[
-    \documentclass[a4paper,10pt,landscape]{beamer}
+    \documentclass[a4paper,12pt,landscape]{beamer}
     \usetheme{default}
     \usepackage[utf8]{inputenc}
     \usepackage{graphicx}
+    \usepackage{threeparttable}
     \usepackage[space]{grffile} % needed to support filename with spaces
     \pagestyle{empty}
     \parindent0pt
@@ -179,7 +181,7 @@ dt.register_storage("pdf_slideshow",_("pdf slideshow"),
     \usepackage{color}
     \pagecolor{black!100}
     \color{white}
-    \geometry{a4paper,landscape,left=5mm,right=5mm, top=5mm, bottom=5mm}
+    \geometry{a4paper,landscape,left=2mm,right=2mm, top=2mm, bottom=2mm}
     \mode<presentation>
     \transduration{]]..delay_widget.value..[[}
     \setbeamertemplate{footline}{}
@@ -189,6 +191,7 @@ dt.register_storage("pdf_slideshow",_("pdf slideshow"),
     \setbeamercolor{background canvas}{fg=white,bg=black!100}
     \setbeamercolor{normal text}{fg=white}
     \hypersetup{pdfstartpage=1,pdfpagemode=FullScreen}
+    \setbeamertemplate{caption}{\insertcaption}
     \begin{document}
     ]]
 
