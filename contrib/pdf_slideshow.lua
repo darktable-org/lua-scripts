@@ -159,6 +159,7 @@ dt.register_storage("pdf_slideshow",_("pdf slideshow"),
     local preamble = [[
     \documentclass[a4paper,10pt,landscape]{beamer}
     \usetheme{default}
+    \usepackage[utf8]{inputenc}
     \usepackage{graphicx}
     \usepackage[space]{grffile} % needed to support filename with spaces
     \pagestyle{empty}
