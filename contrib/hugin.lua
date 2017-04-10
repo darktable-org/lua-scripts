@@ -42,7 +42,7 @@ local gettext = dt.gettext
 dt.configuration.check_version(...,{2,0,0},{3,0,0},{4,0,0},{5,0,0})
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("hugin",dt.configuration.config_dir.."/lua/")
+gettext.bindtextdomain("hugin",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
     return gettext.dgettext("hugin", msgid)
