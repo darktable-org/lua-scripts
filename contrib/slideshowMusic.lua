@@ -23,7 +23,7 @@ You need rhythmbox-client installed to use this script
 USAGE
 * require this script from your main lua file
 ]]
-   
+
 local dt = require "darktable"
 require "official/yield"
 
@@ -65,14 +65,14 @@ local function playSlideshowMusic(_, old_view, new_view)
 
     if (new_view.id == "slideshow") then
       playCommand = 'rhythmbox-client --play-uri="'..filename..'"'
-		
+
       --dt.print_error(playCommand)
-      dt.control.execute( playCommand) 
+      dt.control.execute( playCommand)
     else
       if (old_view and old_view.id == "slideshow") then
         stopCommand = "rhythmbox-client --pause"
         --dt.print_error(stopCommand)
-        dt.control.execute( stopCommand) 
+        dt.control.execute( stopCommand)
       end
     end
   end
@@ -80,7 +80,7 @@ end
 
 -- Preferences
 dt.preferences.register("slideshowMusic", "SlideshowMusic", "file", _("Slideshow background music file"), "", "")
-dt.preferences.register("slideshowMusic",  
+dt.preferences.register("slideshowMusic",
                         "PlaySlideshowMusic",
                         "bool",
                         _("Play slideshow background music"),

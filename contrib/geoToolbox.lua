@@ -19,7 +19,7 @@
 
 USAGE
 * require this script from your main lua file
-  To do this add this line to the file .config/darktable/luarc: 
+  To do this add this line to the file .config/darktable/luarc:
 require "geoToolbox"
 
 * it creates a new geoToolbox lighttable module
@@ -44,20 +44,20 @@ labelDistance.label = _("Distance:")
 
 local label_copy_gps_lat = dt.new_widget("check_button")
 {
-  label = _("latitude:"), 
+  label = _("latitude:"),
   value = true
 }
 local label_copy_gps_lon = dt.new_widget("check_button")
 {
-  label = _("longitude:"), 
+  label = _("longitude:"),
   value = true
 }
 local label_copy_gps_ele = dt.new_widget("check_button")
 {
-  label = _("elevation:"), 
+  label = _("elevation:"),
   value = true
 }
--- </GUI> 
+-- </GUI>
 
 local function select_with_gps()
   local selection = {}
@@ -107,9 +107,9 @@ function isnan(x) return x ~= x end
 
 -- Function from:
 -- https://forums.coronalabs.com/topic/29019-convert-string-to-date/
--- This looks much scarier than it really is. The goal is to turn that string 
--- into a Unix timestamp (number of seconds since Jan 1, 1970, the standard 
--- used by most systems). So we use the string.match() method to fetch the 
+-- This looks much scarier than it really is. The goal is to turn that string
+-- into a Unix timestamp (number of seconds since Jan 1, 1970, the standard
+-- used by most systems). So we use the string.match() method to fetch the
 -- various date and time parts into their own variables: xyear, xmonth,etc.
 function make_time_stamp(dateString)
   local convertedTimestamp
@@ -119,11 +119,11 @@ function make_time_stamp(dateString)
     local xyear, xmonth, xday, xhour, xminute, xseconds = dateString:match(pattern)
 --dt.print_error(xyear)
     convertedTimestamp = os.time({
-        year = xyear, 
-        month = xmonth, 
-        day = xday, 
-        hour = xhour, 
-        min = xminute, 
+        year = xyear,
+        month = xmonth,
+        day = xday,
+        hour = xhour,
+        min = xminute,
         sec = xseconds})
   else
     convertedTimestamp = 0
@@ -141,7 +141,7 @@ local first_image_date = 0
 local function get_first_coordinate()
   local sel_images = dt.gui.action_images
 
-  first_latitude = ''    
+  first_latitude = ''
   first_longitude = ''
   first_elevation = ''
   first_image_date = 0
@@ -153,7 +153,7 @@ local function get_first_coordinate()
       image_date = image.exif_datetime_taken
       first_have_data = true
       if (image.latitude) then
-        first_latitude = image.latitude    
+        first_latitude = image.latitude
       end
       if (image.longitude) then
           first_longitude = image.longitude
@@ -164,7 +164,7 @@ local function get_first_coordinate()
       if (image.exif_datetime_taken) then
           first_image_date = make_time_stamp(image.exif_datetime_taken)
 --dt.print_error(image.exif_datetime_taken)
---dt.print_error(first_image_date)      
+--dt.print_error(first_image_date)
       end
     end
     return
@@ -180,7 +180,7 @@ local second_image_date = 0
 local function get_second_coordinate()
   local sel_images = dt.gui.action_images
 
-  second_latitude = ''    
+  second_latitude = ''
   second_longitude = ''
   second_elevation = ''
   second_image_date = 0
@@ -192,7 +192,7 @@ local function get_second_coordinate()
       image_date = image.exif_datetime_taken
       second_have_data = true
       if (image.latitude) then
-        second_latitude = image.latitude    
+        second_latitude = image.latitude
       end
       if (image.longitude) then
           second_longitude = image.longitude
@@ -210,7 +210,7 @@ end
 
 local calc_in_between_slider = dt.new_widget("slider")
 {
-  label = "Position between", 
+  label = "Position between",
   soft_min = 0,      -- The soft minimum value for the slider, the slider can't go beyond this point
   soft_max = 100,     -- The soft maximum value for the slider, the slider can't go beyond this point
   hard_min = -100,       -- The hard minimum value for the slider, the user can't manually enter a value beyond this point
@@ -234,7 +234,7 @@ local function calc_in_between()
           percent_in_between = 1
         else
           percent_in_between = image_date_new/end_new
-        end        
+        end
         calc_in_between_slider.value = percent_in_between * 100
 dt.print_error(percent_in_between)
         local in_between_latitude  = first_latitude + (second_latitude - first_latitude) * percent_in_between
@@ -264,7 +264,7 @@ local copy_gps_elevation = ''
 local function copy_gps()
   local sel_images = dt.gui.action_images
 
-  copy_gps_latitude = ''    
+  copy_gps_latitude = ''
   copy_gps_longitude = ''
   copy_gps_elevation = ''
 
@@ -274,7 +274,7 @@ local function copy_gps()
     else
       copy_gps_have_data = true
       if (image.latitude and label_copy_gps_lat.value) then
-        copy_gps_latitude = image.latitude    
+        copy_gps_latitude = image.latitude
       end
       if (image.longitude and label_copy_gps_lon.value) then
           copy_gps_longitude = image.longitude
@@ -299,7 +299,7 @@ local function paste_gps(image)
     if (label_copy_gps_lat.value) then
       image.latitude = copy_gps_latitude
     end
-    if (label_copy_gps_lon.value) then    
+    if (label_copy_gps_lon.value) then
       image.longitude = copy_gps_longitude
     end
     if (label_copy_gps_ele.value) then
@@ -313,17 +313,17 @@ local function open_location_in_gnome_maps()
   if not df.check_if_bin_exists("gnome-maps") then
     dt.print_error(_("gnome-maps not found"))
     return
-  end	
-    
+  end
+
   local sel_images = dt.gui.action_images
-  
+
   local lat1 = 0;
   local lon1 = 0;
   local i = 0;
-  
+
   -- Use the first image with geo information
   for _,image in ipairs(sel_images) do
-    if ((image.longitude and image.latitude) and 
+    if ((image.longitude and image.latitude) and
         (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
        ) then
         lat1 = image.latitude;
@@ -334,7 +334,7 @@ local function open_location_in_gnome_maps()
     local startCommand
     startCommand = "gnome-maps \"geo:" .. lat1 .. "," .. lon1 .."\""
     dt.print_error(startCommand)
-    
+
     if coroutine.yield("RUN_COMMAND", startCommand) then
       dt.print(_("Command failed ..."))
     end
@@ -350,14 +350,14 @@ local function get_distance(lat1, lon1, ele1, lat2, lon2, ele2)
 
     local earthRadius = 6371; -- Radius of the earth in km
     local dLat = math.rad(lat2-lat1);  -- deg2rad below
-    local dLon = math.rad(lon2-lon1); 
-    local a = 
+    local dLon = math.rad(lon2-lon1);
+    local a =
       math.sin(dLat/2) * math.sin(dLat/2) +
-      math.cos(math.rad(lat1)) * math.cos(math.rad(lat2)) * 
+      math.cos(math.rad(lat1)) * math.cos(math.rad(lat2)) *
       math.sin(dLon/2) * math.sin(dLon/2)
       ;
-    local angle = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a)); 
-    local distance = earthRadius * angle; -- Distance in km  
+    local angle = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a));
+    local distance = earthRadius * angle; -- Distance in km
 
     -- Add the elevation to the calculation
     local elevation = 0
@@ -385,9 +385,9 @@ local function calc_distance()
       if ((image.longitude and image.latitude) and
             (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
            ) then
-          
+
         i = i + 1;
-          
+
         if (i == 1) then
           lat1 = image.latitude
           lon1 = image.longitude
@@ -397,7 +397,7 @@ local function calc_distance()
             ele1 = 0
           end
         end
-         
+
         lat2 = image.latitude
         lon2 = image.longitude
         if (image.elevation) then
@@ -417,7 +417,7 @@ local function calc_distance()
     else
         distanceUnit = _("km")
     end
-    
+
     return string.format(_("Distance: %.2f %s"), distance, distanceUnit)
 end
 
@@ -437,7 +437,7 @@ local altitude_file_chooser_button = dt.new_widget("file_chooser_button")
   }
 local altitude_filename = dt.new_widget("entry")
   {
-    text = "altitude.csv", 
+    text = "altitude.csv",
     placeholder = "altitude.csv",
     editable = true,
     tooltip = _("Name of the exported file"),
@@ -465,12 +465,12 @@ local function altitude_profile()
 
     local sel_images = dt.gui.action_images
     for _,image in ipairs(sel_images) do
-      if ((not isnan(image.longitude) and not isnan(image.latitude) and not isnan(image.elevation) and image.elevation) and 
+      if ((not isnan(image.longitude) and not isnan(image.latitude) and not isnan(image.elevation) and image.elevation) and
             (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
            ) then
-          
+
         i = i + 1;
-          
+
         if (i == 1) then
           lat1 = image.latitude
           lon1 = image.longitude
@@ -480,7 +480,7 @@ local function altitude_profile()
           lon1 = lon2
           ele1 = ele2
         end
-         
+
         lat2 = image.latitude
         lon2 = image.longitude
         ele2 = image.elevation
@@ -576,7 +576,7 @@ dt.register_lib(
     },
     calc_in_between_slider,
     separator3,--------------------------------------------------------
-]]    
+]]
     dt.new_widget("button")
     {
       label = _("open in Gnome Maps"),
