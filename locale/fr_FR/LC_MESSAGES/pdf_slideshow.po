@@ -1,0 +1,70 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-04-10 09:30+0200\n"
+"PO-Revision-Date: 2017-04-10 09:48+0200\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Pascal Obry <pascal@obry.net>\n"
+"Language-Team: \n"
+"X-Generator: Poedit 1.8.11\n"
+
+#: pdf_slideshow.lua:55
+msgid "pdflatex not found"
+msgstr "pdflatex non trouvé"
+
+#: pdf_slideshow.lua:63
+msgid "a pdf viewer"
+msgstr "lecteur pdf"
+
+#: pdf_slideshow.lua:64
+msgid "can be an absolute pathname or the tool may be in the PATH"
+msgstr "peut être un chemin absolu où l'outil peut être dans le chemin par défaut"
+
+#: pdf_slideshow.lua:68 pdf_slideshow.lua:95
+msgid "slideshow title"
+msgstr "titre du diaporama"
+
+#: pdf_slideshow.lua:72
+msgid "transition delay (s)"
+msgstr "temporisation (s) entre diapositives"
+
+#: pdf_slideshow.lua:83
+msgid "include image title"
+msgstr "inclus le titre de l'image"
+
+#: pdf_slideshow.lua:85
+msgid "whether to include the image title (if defined) into the slide"
+msgstr "indique si le titre de l'image (si défini) doit être inclus dans la diapositive"
+
+#: pdf_slideshow.lua:89
+msgid "include image author"
+msgstr "inclus l'auteur de l'image"
+
+#: pdf_slideshow.lua:91
+msgid "whether to include the image author (if defined) into the slide"
+msgstr "indique si l'auteur de l'image (si défini) doit être inclus dans la diapositive"
+
+#: pdf_slideshow.lua:167
+msgid "pdf slideshow"
+msgstr "diaporama pdf"
+
+#: pdf_slideshow.lua:220
+msgid "problem running pdflatex"
+msgstr "impossible d'exécuter pdflatex"
+
+#: pdf_slideshow.lua:221 pdf_slideshow.lua:231
+msgid "problem running "
+msgstr "impossible d'exécuter "
+
+#: pdf_slideshow.lua:230
+msgid "problem running pdf viewer"
+msgstr "impossible d'exécuter le lecteur pdf"
