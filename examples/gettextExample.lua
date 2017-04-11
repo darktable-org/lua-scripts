@@ -64,7 +64,7 @@ dt.print_error(gettext.gettext("image"))
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 
-gettext.bindtextdomain("gettextExample",dt.configuration.config_dir.."/lua/")
+gettext.bindtextdomain("gettextExample",dt.configuration.config_dir.."/lua/locale/")
 -- Translate a string using the specified textdomain
 dt.print_error(gettext.dgettext("gettextExample", 'Hello World!'))
 

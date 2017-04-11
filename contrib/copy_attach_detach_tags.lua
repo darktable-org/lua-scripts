@@ -43,7 +43,7 @@ local gettext = dt.gettext
 dt.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("copy_attach_detach_tags",dt.configuration.config_dir.."/lua/")
+gettext.bindtextdomain("copy_attach_detach_tags",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
     return gettext.dgettext("copy_attach_detach_tags", msgid)
@@ -74,7 +74,7 @@ local function mcopy_tags()
 
       --remove duplicate and 'darktable|' tags create final image_tags
       for _,k in ipairs(tag_list_tmp) do
-        
+
          if not string.match(tostring(k), 'darktable|') then
            if not hash[k] then
              image_tags[#image_tags+1] = k
@@ -85,36 +85,36 @@ local function mcopy_tags()
 
       dt.print(_('Image tags copied ...'))
 
-     --create UI tag list     
+     --create UI tag list
      local taglist = ""
- 
+
      for _,tag in ipairs(image_tags) do
        if taglist == "" then
           taglist = tostring(tag)
        else
           taglist = taglist.."\n"..tostring(tag)
-        end    
-       end 
+        end
+       end
 
-	taglist_label.label = taglist 
+	taglist_label.label = taglist
 
      return(image_tags)
   end
-   
+
 -- attach copied tags to all selected images
 local function attach_tags()
-  
+
   if next(image_tags) == nil then
     dt.print(_('No tags to attached, please copy tags first.'))
     return true
   end
-  
+
   local sel_images = dt.gui.action_images
 
   for _,image in ipairs(sel_images) do
     local present_image_tags = {}
     present_image_tags = dt.tags.get_tags(image)
-    
+
     for _,ct in ipairs(image_tags) do
       -- check if image has tags and attach
       if next(present_image_tags) == nil then
@@ -138,7 +138,7 @@ local function detach_tags()
    for _,image in ipairs(sel_images) do
       local present_image_tags = {}
       present_image_tags = dt.tags.get_tags(image)
-   
+
       for _,present_tag in ipairs(present_image_tags) do
         if not string.match(tostring(present_tag), 'darktable|')  then
           dt.tags.detach(present_tag,image)

@@ -1,28 +1,28 @@
 --[[
-  Hugin storage for darktable 
+  Hugin storage for darktable
 
   copyright (c) 2014  Wolfgang Goetz
   copyright (c) 2015  Christian Kanzian
   copyright (c) 2015  Tobias Jakobs
-  
+
   darktable is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
-  
+
   darktable is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with darktable.  If not, see <http://www.gnu.org/licenses/>.
 ]]
 
 --[[
 HUGIN
-Add a new storage option to send images to hugin. 
-Images are exported to darktable tmp dir first. 
+Add a new storage option to send images to hugin.
+Images are exported to darktable tmp dir first.
 
 ADDITIONAL SOFTWARE NEEDED FOR THIS SCRIPT
 * hugin
@@ -42,7 +42,7 @@ local gettext = dt.gettext
 dt.configuration.check_version(...,{2,0,0},{3,0,0},{4,0,0},{5,0,0})
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("hugin",dt.configuration.config_dir.."/lua/")
+gettext.bindtextdomain("hugin",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
     return gettext.dgettext("hugin", msgid)
@@ -86,7 +86,7 @@ local function create_panorama(storage, image_table, extra_data) --finalize
     hugin_executor = true
   end
 
-  -- list of exported images 
+  -- list of exported images
   local img_list
 
   -- reset and create image list
@@ -112,7 +112,7 @@ local function create_panorama(storage, image_table, extra_data) --finalize
   else
     huginStartCommand = "hugin "..img_list
   end
-  
+
   dt.print_error(huginStartCommand)
 
   if not dt.control.execute(huginStartCommand)

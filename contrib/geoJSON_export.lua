@@ -31,15 +31,15 @@ USAGE
 * require this script from your main Lua file
 
 ]]
-   
+
 local dt = require "darktable"
 require "official/yield"
 
 local gettext = dt.gettext
 dt.configuration.check_version(...,{3,0,0},{4,0,0})
-	
+
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("geoJSON_export",dt.configuration.config_dir.."/lua/")
+gettext.bindtextdomain("geoJSON_export",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
     return gettext.dgettext("geoJSON_export", msgid)
@@ -52,7 +52,7 @@ local function spairs(_table, order) -- Code copied from http://stackoverflow.co
     for _key in pairs(_table) do keys[#keys + 1] = _key end
 
     -- if order function given, sort by it by passing the table and keys a, b,
-    -- otherwise just sort the keys 
+    -- otherwise just sort the keys
     if order then
         table.sort(keys, function(a,b) return order(_table, a, b) end)
     else
@@ -108,20 +108,20 @@ local function create_geoJSON_file(storage, image_table, extra_data)
     -- Creates dir if not exsists
     local imageFoldername = "files/"
     local mkdirCommand = "mkdir -p "..exportDirectory.."/"..imageFoldername
-    dt.control.execute( mkdirCommand) 
+    dt.control.execute( mkdirCommand)
 
     -- Create the thumbnails
     for image,exported_image in pairs(image_table) do
-        if ((image.longitude and image.latitude) and 
+        if ((image.longitude and image.latitude) and
             (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
            ) then
             local path, filename, filetype = string.match(image, "(.-)([^\\/]-%.?([^%.\\/]*))$")
 	    filename = string.upper(string.gsub(filename,"%.", "_"))
-        
+
             -- convert -size 92x92 filename.jpg -resize 92x92 +profile "*" thumbnail.jpg
-            --	In this example, '-size 120x120' gives a hint to the JPEG decoder that the image is going to be downscaled to 
-            --	120x120, allowing it to run faster by avoiding returning full-resolution images to  GraphicsMagick for the 
-            --	subsequent resizing operation. The '-resize 120x120' specifies the desired dimensions of the output image. It 
+            --	In this example, '-size 120x120' gives a hint to the JPEG decoder that the image is going to be downscaled to
+            --	120x120, allowing it to run faster by avoiding returning full-resolution images to  GraphicsMagick for the
+            --	subsequent resizing operation. The '-resize 120x120' specifies the desired dimensions of the output image. It
             --	will be scaled so its largest dimension is 120 pixels. The '+profile "*"' removes any ICM, EXIF, IPTC, or other
             --	profiles that might be present in the input and aren't needed in the thumbnail.
 
@@ -143,15 +143,15 @@ local function create_geoJSON_file(storage, image_table, extra_data)
 
     -- Create the geoJSON file
     local geoJSON_file = [[
-{ 
+{
     "type": "FeatureCollection",
     "features": [
 ]]
-  
+
     for image,exported_image in pairs(image_table) do
 	filename = string.upper(string.gsub(image.filename,"%.", "_"))
 
-	if ((image.longitude and image.latitude) and 
+	if ((image.longitude and image.latitude) and
             (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
            ) then
             geoJSON_file = geoJSON_file..
@@ -179,7 +179,7 @@ local function create_geoJSON_file(storage, image_table, extra_data)
     ,]]
         end
     end
-    
+
     geoJSON_file = geoJSON_file:sub(0,geoJSON_file:len()-1)
     geoJSON_file = geoJSON_file..
 [[
@@ -213,7 +213,7 @@ local function create_geoJSON_file(storage, image_table, extra_data)
     .setView([0,0], 5);
 
   var myLayer = L.mapbox.featureLayer()
-      .loadURL(']]..exportgeoJSONFilename..[[')      
+      .loadURL(']]..exportgeoJSONFilename..[[')
       .addTo(mapTooltipsJS);
 
   // Set a custom icon on each marker based on feature properties.
@@ -260,7 +260,7 @@ local function create_geoJSON_file(storage, image_table, extra_data)
     var polyline = L.polyline(line, polyline_options).addTo(mapTooltipsJS);
   });
 
-  
+
 </script>
 </body>
 </html>
@@ -277,11 +277,11 @@ local function create_geoJSON_file(storage, image_table, extra_data)
 
     dt.print("geoJSON file created in "..exportDirectory)
 
--- Open the file with the standard programm    
+-- Open the file with the standard programm
     if ( dt.preferences.read("geoJSON_export","OpengeoJSONFile","bool") == true ) then
         local geoJSONFileOpenCommand
         geoJSONFileOpenCommand = "xdg-open "..exportDirectory.."/\""..exportgeoJSONFilename.."\""
-        dt.control.execute( geoJSONFileOpenCommand) 
+        dt.control.execute( geoJSONFileOpenCommand)
     end
 
 
