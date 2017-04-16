@@ -183,7 +183,7 @@ dt.register_storage("pdf_slideshow",_("pdf slideshow"),
     \color{white}
     \geometry{a4paper,landscape,left=2mm,right=2mm, top=2mm, bottom=2mm}
     \mode<presentation>
-    \transduration{]]..delay_widget.value..[[}
+    \transduration{]]..string.gsub(delay_widget.value, ",", ".")..[[}
     \setbeamertemplate{footline}{}
     \setbeamertemplate{headline}{}
     \setbeamertemplate{frametitle}{}
