@@ -27,6 +27,7 @@ require "geoToolbox"
 
 local dt = require "darktable"
 local df = require "lib/dtutils.file"
+require "official/yield"
 local gettext = dt.gettext
 
 dt.configuration.check_version(...,{3,0,0},{4,0,0})
@@ -326,20 +327,17 @@ local function open_location_in_gnome_maps()
     if ((image.longitude and image.latitude) and
         (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
        ) then
-        lat1 = image.latitude;
-        lon1 = image.longitude;
+        lat1 = string.gsub(image.latitude, ",", ".");
+        lon1 = string.gsub(image.longitude, ",", ".");
         break
     end
-
-    local startCommand
-    startCommand = "gnome-maps \"geo:" .. lat1 .. "," .. lon1 .."\""
-    dt.print_error(startCommand)
-
-    if coroutine.yield("RUN_COMMAND", startCommand) then
-      dt.print(_("Command failed ..."))
-    end
-
   end
+
+  local startCommand
+  startCommand = "gnome-maps \"geo:" .. lat1 .. "," .. lon1 .."\""
+  dt.print_error(startCommand)
+
+  dt.control.execute(startCommand)
 
 end
 
