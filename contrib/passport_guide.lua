@@ -24,7 +24,7 @@ GPLv2
 ]]
 
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,0},{3,0,0},{4,0,0})
+dt.configuration.check_version(...,{2,0,0},{3,0,0},{4,0,0},{5,0,0})
 
 dt.guides.register_guide("passport",
 -- draw
