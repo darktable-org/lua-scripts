@@ -43,40 +43,40 @@ dt.configuration.check_version(...,{2,0,0},{3,0,0},{4,0,0},{5,0,0})
 
 dt.guides.register_guide("passport",
 -- draw
-function(cr, x, y, w, h, zoom_scale)
-  local _w, _h
+function(cairo, x, y, width, height, zoom_scale)
+  local _width, _height
 
   -- get the max 36x47 rectangle
   local aspect_ratio = 47 / 36
-  if w * aspect_ratio > h then
-    _w = h / aspect_ratio
-    _h = h
+  if width * aspect_ratio > height then
+    _width = height / aspect_ratio
+    _height = height
   else
-    _w = w
-    _h = w * aspect_ratio
+    _width = width
+    _height = width * aspect_ratio
   end
 
-  cr:save()
+  cairo:save()
 
-  cr:translate(x + (w - _w) / 2, y + (h - _h) / 2)
-  cr:scale(_w / 36, _h / 47)
+  cairo:translate(x + (width - _width) / 2, y + (height - _height) / 2)
+  cairo:scale(_width / 36, _height / 47)
 
   -- the outer rectangle
-  cr:rectangle( 0, 0, 36, 47)
+  cairo:rectangle( 0, 0, 36, 47)
 
   -- vertical bars
-  cr:draw_line(16.5, 8, 16.5, 36)
-  cr:draw_line(19.5, 8, 19.5, 36)
+  cairo:draw_line(16.5, 8, 16.5, 36)
+  cairo:draw_line(19.5, 8, 19.5, 36)
 
   -- long horisontal bars
-  cr:draw_line(6, 4, 30, 4)
-  cr:draw_line(6, 40, 30, 40)
+  cairo:draw_line(6, 4, 30, 4)
+  cairo:draw_line(6, 40, 30, 40)
 
   -- short horisontal bars
-  cr:draw_line(9, 6, 27, 6)
-  cr:draw_line(9, 38, 27, 38)
+  cairo:draw_line(9, 6, 27, 6)
+  cairo:draw_line(9, 38, 27, 38)
 
-  cr:restore()
+  cairo:restore()
 end,
 -- gui
 function()
