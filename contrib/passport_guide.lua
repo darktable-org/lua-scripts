@@ -22,9 +22,6 @@ PASSPORT CROPPING GUIDE
 guides for cropping passport photos based on documents from the Finnish police
 (https://www.poliisi.fi/instancedata/prime_product_julkaisu/intermin/embeds/poliisiwwwstructure/38462_Passikuvaohje_EN.pdf) describing passport photo dimensions of 47x36 mm and 500x653 px for digital biometric data stored in passports. They use ISO 19794-5 standard based on ICAO 9303 regulations which should also be compliant for all of Europe.
 
-AUTHOR
-Kåre Hampf (k.hampf@gmail.com)
-
 INSTALLATION
 * copy this file in $CONFIGDIR/lua/ where CONFIGDIR is your darktable configuration directory
 * add the following line in the file $CONFIGDIR/luarc
@@ -39,7 +36,16 @@ USAGE
 ]]
 
 local dt = require "darktable"
+local gettext = dt.gettext
+
 dt.configuration.check_version(...,{2,0,0},{3,0,0},{4,0,0},{5,0,0})
+
+-- Tell gettext where to find the .mo file translating messages for a particular domain
+gettext.bindtextdomain("passport_guide",dt.configuration.config_dir.."/lua/locale/")
+
+local function _(msgid)
+  return gettext.dgettext("passport_guide", msgid)
+end
 
 dt.guides.register_guide("passport",
 -- draw
@@ -80,7 +86,7 @@ function(cairo, x, y, width, height, zoom_scale)
 end,
 -- gui
 function()
-  return dt.new_widget("label"){label = "ISO 19794-5/ICAO 9309 passport", halign = "start"}
+  return dt.new_widget("label"){label = _("ISO 19794-5/ICAO 9309 passport"), halign = "start"}
 end
 )
 
