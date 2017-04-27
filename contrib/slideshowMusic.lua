@@ -25,9 +25,10 @@ USAGE
 ]]
 
 local dt = require "darktable"
+local df = require "lib/dtutils.file"
 require "official/yield"
-
 local gettext = dt.gettext
+
 dt.configuration.check_version(...,{2,0,2},{3,0,0},{4,0,0})
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
@@ -37,26 +38,14 @@ local function _(msgid)
     return gettext.dgettext("slideshowMusic", msgid)
 end
 
-local function checkIfBinExists(bin)
-  local handle = io.popen("which "..bin)
-  local result = handle:read()
-  local ret
-  handle:close()
-  if (not result) then
-    dt.print_error(bin.." not found")
-    ret = false
-  end
-  ret = true
-  return ret
-end
-
 local function playSlideshowMusic(_, old_view, new_view)
   local filename, playMusic
 
   filename = dt.preferences.read("slideshowMusic","SlideshowMusic","string")
   playMusic = dt.preferences.read("slideshowMusic","PlaySlideshowMusic","bool")
 
-  if not checkIfBinExists("rhythmbox-client") then
+  if not df.check_if_bin_exists("rhythmbox-client") then
+    dt.print_error(_("rhythmbox-client not found"))
     return
   end
 
