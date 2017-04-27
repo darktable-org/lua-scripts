@@ -341,6 +341,68 @@ local function open_location_in_gnome_maps()
 
 end
 
+-- Trim Funktion from: http://lua-users.org/wiki/StringTrim
+local function trim12(s)
+ local from = s:match"^%s*()"
+ return from > #s and "" or s:match(".*%S", from)
+end
+
+local function reverse_geocode()
+
+  if not df.check_if_bin_exists("curl") then
+    dt.print_error(_("curl not found"))
+    return
+  end	
+
+  if not df.check_if_bin_exists("jq") then
+    dt.print_error(_("jq not found"))
+    return
+  end	
+
+  local sel_images = dt.gui.selection() --action_images
+  
+  local lat1 = 0;
+  local lon1 = 0;
+  local i = 0;
+
+  -- Use the first image with geo information
+  for _,image in ipairs(sel_images) do
+    if ((image.longitude and image.latitude) and
+        (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
+       ) then
+        lat1 = string.gsub(image.latitude, ",", ".");
+        lon1 = string.gsub(image.longitude, ",", ".");
+        break
+      end
+    end
+
+    local startCommand
+    
+    local tokan = dt.preferences.read("geoToolbox","mapBoxKey","string")
+    local types = "country";
+    local types = "region";
+    local types = "place";
+    local types = "poi";
+
+    -- MapBox documentation
+    -- https://www.mapbox.com/api-documentation/#retrieve-places-near-a-location
+    -- curl -s, --silent        Silent mode (don't output anything)
+    -- jq could be replaced with a Lua JSON parser
+    startCommand = string.format("curl --silent \"https://api.mapbox.com/geocoding/v5/mapbox.places/%s,%s.json?types=%s&access_token=%s\" | jq '.features | .[0] | '.text''", lon1, lat1, types, tokan)
+
+    local handle = io.popen(startCommand)
+    local result = trim12(handle:read("*a"))
+    handle:close()
+    
+    -- Errorhandling would be nice
+    --dt.print_error("startCommand: "..startCommand)
+    --dt.print_error("result: '"..result.."'")
+
+    if (result ~= "null") then
+      dt.print(string.sub(result, 2, string.len(result)-2))   
+    end
+
+end
 
 -- I used code from here:
 -- http://stackoverflow.com/questions/27928/how-do-i-calculate-distance-between-two-latitude-longitude-points
@@ -433,6 +495,7 @@ local altitude_file_chooser_button = dt.new_widget("file_chooser_button")
     value = "",                     -- The currently selected file
     is_directory = true             -- True if the file chooser button only allows directories to be selecte
   }
+
 local altitude_filename = dt.new_widget("entry")
   {
     text = "altitude.csv",
@@ -513,6 +576,7 @@ local separator = dt.new_widget("separator"){}
 local separator2 = dt.new_widget("separator"){}
 local separator3 = dt.new_widget("separator"){}
 local separator4 = dt.new_widget("separator"){}
+local separator5 = dt.new_widget("separator"){}
 
 dt.register_lib(
   "geoToolbox",        -- Module name
@@ -582,6 +646,13 @@ dt.register_lib(
       clicked_callback = open_location_in_gnome_maps
     },
     separator4,--------------------------------------------------------
+    dt.new_widget("button")
+    {
+      label = _("reverse geocode"),
+      tooltip = _("This just shows the name of the location, but doesn't add it as tag"),
+      clicked_callback = reverse_geocode
+    },
+    separator5,--------------------------------------------------------
     dt.new_widget("label"){label = _("altitude CSV export")},
     altitude_file_chooser_button,
     altitude_filename,
@@ -597,6 +668,13 @@ dt.register_lib(
   nil -- view_leave
 )
 
+-- Preferences
+dt.preferences.register("geoToolbox",
+	"mapBoxKey",
+	"string",
+	_("geoToolbox export: MapBox Key"),
+	_("https://www.mapbox.com/studio/account/tokens"),
+	'' )
 
 -- Register
 dt.register_event("shortcut", print_calc_distance, _("Calculate the distance from latitude and longitude in km"))
