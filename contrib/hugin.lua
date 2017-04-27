@@ -33,10 +33,10 @@ USAGE
 This plugin will add a new storage option and calls hugin after export.
 ]]
 
-local dt = require "darktable"
-require "official/yield"
-
 local gettext = dt.gettext
+local dt = require "darktable"
+local df = require "lib/dtutils.file"
+require "official/yield"
 
 -- works with darktable API version from 2.0.0 to 5.0.0
 dt.configuration.check_version(...,{2,0,0},{3,0,0},{4,0,0},{5,0,0})
@@ -48,30 +48,13 @@ local function _(msgid)
     return gettext.dgettext("hugin", msgid)
 end
 
-local function checkIfBinExists(bin)
-  local handle = io.popen("which "..bin)
-  local result = handle:read()
-  local ret
-  handle:close()
-  if (result) then
-    dt.print_error("true checkIfBinExists: "..bin)
-    ret = true
-  else
-    dt.print_error(bin.." not found")
-    ret = false
-  end
-
-
-  return ret
-end
-
 local function show_status(storage, image, format, filename,
   number, total, high_quality, extra_data)
   dt.print("Export to Hugin "..tostring(number).."/"..tostring(total))
 end
 
 local function create_panorama(storage, image_table, extra_data) --finalize
-  if not checkIfBinExists("hugin") then
+  if not df.check_if_bin_exists("hugin") then
     dt.print_error(_("hugin not found"))
     return
   end
@@ -82,7 +65,7 @@ local function create_panorama(storage, image_table, extra_data) --finalize
 -- http://hugin.sourceforge.net/docs/manual/Pto_gen.html
 
   local hugin_executor = false
-  if (checkIfBinExists("hugin_executor") and checkIfBinExists("pto_gen")) then
+  if (df.check_if_bin_exists("hugin_executor") and df.check_if_bin_exists("pto_gen")) then
     hugin_executor = true
   end
 
