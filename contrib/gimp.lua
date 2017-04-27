@@ -64,8 +64,8 @@
 ]]
 
 local dt = require "darktable"
+local df = require "lib/dtutils.file"
 require "official/yield"
-
 local gettext = dt.gettext
 
 dt.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
@@ -102,21 +102,6 @@ end
 
 local function _(msgid)
     return gettext.dgettext("gimp", msgid)
-end
-
-local function checkIfBinExists(bin)
-  local handle = io.popen("which "..bin)
-  local result = handle:read()
-  local ret
-  handle:close()
-  if (result) then
-    dt.print_error("true checkIfBinExists: "..bin)
-    ret = true
-  else
-    dt.print_error(bin.." not found")
-    ret = false
-  end
-  return ret
 end
 
 -- Thanks Tobias Jakobs for the idea and the correction
@@ -199,7 +184,7 @@ end
 local function fileCopy(fromFile, toFile)
   local result = nil
   -- if cp exists, use it
-  if checkIfBinExists("cp") then
+  if df.check_if_bin_exists("cp") then
     result = os.execute("cp '" .. fromFile .. "' '" .. toFile .. "'")
   end
   -- if cp was not present, or if cp failed, then a pure lua solution
@@ -230,7 +215,7 @@ local function fileMove(fromFile, toFile)
   local success = os.rename(fromFile, toFile)
   if not success then
     -- an error occurred, so let's try using the operating system function
-    if checkIfBinExists("mv") then
+    if df.check_if_bin_exists("mv") then
       success = os.execute("mv '" .. fromFile .. "' '" .. toFile .. "'")
     end
     -- if the mv didn't exist or succeed, then...
@@ -249,7 +234,7 @@ local function fileMove(fromFile, toFile)
 end
 
 local function gimp_edit(storage, image_table, extra_data) --finalize
-  if not checkIfBinExists("gimp") then
+  if not df.check_if_bin_exists("gimp") then
     dt.print_error(_("GIMP not found"))
     return
   end
