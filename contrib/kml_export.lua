@@ -37,9 +37,10 @@ USAGE
 ]]
 
 local dt = require "darktable"
+local df = require "lib/dtutils.file"
 require "official/yield"
-
 local gettext = dt.gettext
+
 dt.configuration.check_version(...,{3,0,0},{4,0,0})
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
@@ -75,19 +76,6 @@ end
 
 local function show_status(storage, image, format, filename, number, total, high_quality, extra_data)
     dt.print(string.format(_("Export Image %i/%i"), number, total))
-end
-
-local function checkIfBinExists(bin)
-    local handle = io.popen("which "..bin)
-    local result = handle:read()
-    local ret
-    handle:close()
-    if (not result) then
-        dt.print_error(bin.." not found")
-        ret = false
-    end
-    ret = true
-    return ret
 end
 
 -- Strip accents from a string
@@ -176,16 +164,20 @@ end
 
 local function create_kml_file(storage, image_table, extra_data)
 
-    if not checkIfBinExists("mkdir") then
+    if not df.check_if_bin_exists("mkdir") then
+        dt.print_error(_("mkdir not found"))
         return
     end
-    if not checkIfBinExists("convert") then
+    if not df.check_if_bin_exists("convert") then
+        dt.print_error(_("convert not found"))
         return
     end
-    if not checkIfBinExists("xdg-open") then
+    if not df.check_if_bin_exists("xdg-open"") then
+        dt.print_error(_("xdg-open" not found"))
         return
     end
-    if not checkIfBinExists("xdg-user-dir") then
+    if not df.check_if_bin_exists("xdg-user-dir") then
+        dt.print_error(_("xdg-user-dir not found"))
         return
     end
 
@@ -193,7 +185,8 @@ local function create_kml_file(storage, image_table, extra_data)
 
     local imageFoldername
     if ( dt.preferences.read("kml_export","CreateKMZ","bool") == true ) then
-        if not checkIfBinExists("zip") then
+        if not df.check_if_bin_exists("zip") then
+            dt.print_error(_("zip not found"))
             return
         end
 
