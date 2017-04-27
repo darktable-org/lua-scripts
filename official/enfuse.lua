@@ -33,30 +33,22 @@ TODO
 ]]
 
 local dt = require "darktable"
+local df = require "lib/dtutils.file"
 require "official/yield"
-
+local gettext = dt.gettext
 
 dt.configuration.check_version(...,{3,0,0},{4,0,0})
 
--- thanks Tobias Jakobs for this function (taken from contrib/hugin.lua)
-local function checkIfBinExists(bin)
-  local handle = io.popen("which "..bin)
-  local result = handle:read()
-  local ret
-  handle:close()
-  if (result) then
-    dt.print_error("true checkIfBinExists: "..bin)
-    ret = true
-  else
-    dt.print_error(bin.." not found")
-    ret = false
-  end
-  return ret
+-- Tell gettext where to find the .mo file translating messages for a particular domain
+gettext.bindtextdomain("enfuse",dt.configuration.config_dir.."/lua/locale/")
+
+local function _(msgid)
+    return gettext.dgettext("enfuse", msgid)
 end
 
 -- add a new lib
 -- is enfuse installed?
-local enfuse_installed = checkIfBinExists("enfuse")
+local enfuse_installed = df.check_if_bin_exists("enfuse")
 
 -- initialize exposure_mu value and depth setting in config to sane defaults (would be 0 otherwise)
 if dt.preferences.read("enfuse", "depth", "integer") == 0 then
