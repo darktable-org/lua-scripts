@@ -31,38 +31,34 @@ USAGE
 ]]
 
 local dt = require "darktable"
+local df = require "lib/dtutils.file"
 require "official/yield"
+local gettext = dt.gettext
 
 dt.configuration.check_version(...,{2,0,1},{3,0,0},{4,0,0})
+
+-- Tell gettext where to find the .mo file translating messages for a particular domain
+gettext.bindtextdomain("video_mencoder",dt.configuration.config_dir.."/lua/locale/")
+
+local function _(msgid)
+    return gettext.dgettext("video_mencoder", msgid)
+end
 
 local function show_status(storage, image, format, filename, number, total, high_quality, extra_data)
     dt.print("Export Image "..tostring(number).."/"..tostring(total))
 end
 
-local function checkIfBinExists(bin)
-    local handle = io.popen("which "..bin)
-    local result = handle:read()
-    local ret
-    handle:close()
-    if (result) then
-        --dt.print_error("true checkIfBinExists: "..bin)
-        ret = true
-    else
-        dt.print_error(bin.." not found")
-        ret = false
-    end
-  
-    return ret
-end
-
 local function create_video_mencoder(storage, image_table, extra_data)
-    if not checkIfBinExists("mencoder") then
+    if not df.check_if_bin_exists("mencoder") then
+        dt.print_error(_("mencoder not found"))
         return
     end
-    if not checkIfBinExists("xdg-open") then
+    if not df.check_if_bin_exists("xdg-open") then
+        dt.print_error(_("xdg-open not found"))
         return
     end
-    if not checkIfBinExists("xdg-user-dir") then
+    if not df.check_if_bin_exists("xdg-user-dir") then
+        dt.print_error(_("xdg-user-dir not found"))
         return
     end
 
