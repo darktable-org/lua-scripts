@@ -595,7 +595,7 @@ dt.register_lib(
     },
     dt.new_widget("button")
     {
-      label = _("select not geo images"),
+      label = _("select non-geo images"),
       tooltip = _("Select all images without GPS information"),
       clicked_callback = select_without_gps
     },
