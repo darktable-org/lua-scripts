@@ -94,7 +94,7 @@ local function create_geoJSON_file(storage, image_table, extra_data)
 
     dt.print_error("Will try to export geoJSON file now")
 
-    local xportDirectory = dt.preferences.read("geoJSON_export","ExportDirectory","string")
+    local exportDirectory = dt.preferences.read("geoJSON_export","ExportDirectory","string")
 
     -- Creates dir if not exsists
     local imageFoldername = "files/"
@@ -106,8 +106,8 @@ local function create_geoJSON_file(storage, image_table, extra_data)
         if ((image.longitude and image.latitude) and
             (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
            ) then
-            local path, filename, filetype = string.match(image, "(.-)([^\\/]-%.?([^%.\\/]*))$")
-	    filename = string.upper(string.gsub(filename,"%.", "_"))
+            local path, filename, filetype = string.match(exported_image, "(.-)([^\\/]-%.?([^%.\\/]*))$")
+            filename = string.upper(string.gsub(filename,"%.%w*", ""))
 
             -- convert -size 92x92 filename.jpg -resize 92x92 +profile "*" thumbnail.jpg
             --	In this example, '-size 120x120' gives a hint to the JPEG decoder that the image is going to be downscaled to
@@ -123,7 +123,7 @@ local function create_geoJSON_file(storage, image_table, extra_data)
         end
 
         -- delete the original image to not get into the kmz file
-        os.remove(image)
+        os.remove(exported_image)
 
         local pattern = "[/]?([^/]+)$"
         filmName = string.match(image.film.path, pattern)
@@ -140,11 +140,24 @@ local function create_geoJSON_file(storage, image_table, extra_data)
 ]]
 
     for image,exported_image in pairs(image_table) do
-	filename = string.upper(string.gsub(image.filename,"%.", "_"))
+	--filename = string.upper(string.gsub(image.filename,"%.", "_"))
+        -- Extract filename, e.g DSC9784.ARW -> DSC9784
+        filename = string.upper(string.gsub(image.filename,"%.%w*", ""))
+        -- Extract extension from exported image (user can choose JPG or PNG), e.g DSC9784.JPG -> .JPG
+        extension = string.match(exported_image,"%.%w*$")
 
 	if ((image.longitude and image.latitude) and
             (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
            ) then
+
+            local image_title, image_description
+            if (image.title and image.title ~= "") then
+                image_title = image.title
+            else
+                image_title = image.filename
+            end
+            image_description = image.description
+
             geoJSON_file = geoJSON_file..
 [[    {
       "type": "Feature",
@@ -155,8 +168,8 @@ local function create_geoJSON_file(storage, image_table, extra_data)
             geoJSON_file = geoJSON_file..
 [[    },
       "properties": {
-        "title": "]]..image.title..[[",
-        "description": "]]..image.description..[[",
+        "title": "]]..image_title..[[",
+        "description": "]]..image_description..[[",
         "image": "]]..imageFoldername..filename..[[.jpg",
         "icon": {
           "iconUrl": "]]..imageFoldername.."thumb_"..filename..[[.jpg",
@@ -187,7 +200,7 @@ local function create_geoJSON_file(storage, image_table, extra_data)
 <html>
 <head>
   <meta charset=utf-8 />
-  <title>2014-05-31 Rieselfelder</title>
+  <title>]]..filmName..[[</title>
   <script src='https://api.tiles.mapbox.com/mapbox.js/v2.2.4/mapbox.js'></script>
   <link href='https://api.tiles.mapbox.com/mapbox.js/v2.2.4/mapbox.css' rel='stylesheet' />
   <style>
