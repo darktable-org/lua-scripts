@@ -1,0 +1,112 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Lua image path\n"
+"POT-Creation-Date: 2016-10-20 20:33+0100\n"
+"PO-Revision-Date: 2016-10-20 21:32+0100\n"
+"Last-Translator: Holger Klemm\n"
+"Language-Team: \n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.4\n"
+"X-Poedit-Basepath: .\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-KeywordsList: \n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: database_statistics.lua:60
+msgid "Disc usage:\t\t\t\t"
+msgstr "Speicherbelegung:\t\t\t"
+#: database_statistics.lua:60
+msgid "Filmrolls:\t\t\t\t\t"
+msgstr "Filmrollen:\t\t\t\t\t"
+#: database_statistics.lua:68
+msgid "Images:\t\t\t\t\t"
+msgstr "Bilder:\t\t\t\t\t"
+#: database_statistics.lua:68
+msgid "Images without stars:\t\t"
+msgstr "Bilder ohne Sterne:\t\t\t"
+#: database_statistics.lua:68
+msgid "Images with 1 star:\t\t\t"
+msgstr "Bilder mit 1 Stern:\t\t\t"
+#: database_statistics.lua:68
+msgid "Images with 2 stars:\t\t\t"
+msgstr "Bilder mit 2 Sternen:\t\t\t"
+#: database_statistics.lua:68
+msgid "Images with 3 stars:\t\t\t"
+msgstr "Bilder mit 3 Sternen:\t\t\t"
+#: database_statistics.lua:68
+msgid "Images with 4 stars:\t\t\t"
+msgstr "Bilder mit 4 Sternen:\t\t\t"
+#: database_statistics.lua:68
+msgid "Images with 5 stars:\t\t\t"
+msgstr "Bilder mit 5 Sternen:\t\t\t"
+#: database_statistics.lua:78
+msgid "Images with red labels:\t\t"
+msgstr "Bilder mit roter Markierung:\t"
+#: database_statistics.lua:85
+msgid "Images with yellow labels:\t\t"
+msgstr "Bilder mit gelber Markierung:\t"
+#: database_statistics.lua:93
+msgid "Images with green labels:\t\t"
+msgstr "Bilder mit grüner Markierung:\t"
+#: database_statistics.lua:100
+msgid "Images with blue labels:\t\t"
+msgstr "Bilder mit blauer Markierung:\t"
+#: database_statistics.lua:108
+msgid "Images with magenta labels:\t"
+msgstr "Bilder mit magenta Markierung:\t"
+#: database_statistics.lua:115
+msgid "Images without labels:\t\t"
+msgstr "Bilder ohne Markierung:\t\t"
+#: database_statistics.lua:122
+msgid "ERROR: sqlite3 not found! Please install sqlite3."
+msgstr "ERROR: sqlite3 nicht gefunden! Bitte sqlite3 installieren."
+#: database_statistics.lua:122
+msgid "ERROR: rm not found! Please install core utilities."
+msgstr "ERROR: rm nicht gefunden! Bitte die Core Utilities installieren."
+#: database_statistics.lua:122
+msgid "ERROR: grep not found! Please install core utilities."
+msgstr "ERROR: grep nicht gefunden! Bitte die Core Utilities installieren."
+#: database_statistics.lua:122
+msgid "ERROR: wc not found! Please install core utilities."
+msgstr "ERROR: wc nicht gefunden! Bitte die Core Utilities installieren."
+#: database_statistics.lua:122
+msgid "Analyze database. Please wait..."
+msgstr "Bitte warten. Analysiere die Datenbank..."
+#: database_statistics.lua:177
+msgid "Database statistics"
+msgstr "Datenbank Statistik"
+#: database_statistics.lua:194
+msgid "Analyse database"
+msgstr "Datenbank analysieren"
+#: database_statistics.lua:194
+msgid "Analyzed "
+msgstr "Analysiert "
+#: database_statistics.lua:194
+msgid "Analyse finished"
+msgstr "Analyse beendet"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
