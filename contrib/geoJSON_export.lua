@@ -122,7 +122,7 @@ local function create_geoJSON_file(storage, image_table, extra_data)
             dt.control.execute( concertCommand)
         end
 
-        -- delete the original image to not get into the kmz file
+        -- delete the original image
         os.remove(exported_image)
 
         local pattern = "[/]?([^/]+)$"
