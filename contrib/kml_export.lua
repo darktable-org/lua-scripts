@@ -172,8 +172,8 @@ local function create_kml_file(storage, image_table, extra_data)
         dt.print_error(_("convert not found"))
         return
     end
-    if not df.check_if_bin_exists("xdg-open"") then
-        dt.print_error(_("xdg-open" not found"))
+    if not df.check_if_bin_exists("xdg-open") then
+        dt.print_error(_("xdg-open not found"))
         return
     end
     if not df.check_if_bin_exists("xdg-user-dir") then
