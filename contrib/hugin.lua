@@ -33,10 +33,10 @@ USAGE
 This plugin will add a new storage option and calls hugin after export.
 ]]
 
-local gettext = dt.gettext
 local dt = require "darktable"
 local df = require "lib/dtutils.file"
 require "official/yield"
+local gettext = dt.gettext
 
 -- works with darktable API version from 2.0.0 to 5.0.0
 dt.configuration.check_version(...,{2,0,0},{3,0,0},{4,0,0},{5,0,0})
