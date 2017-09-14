@@ -19,7 +19,6 @@ Enable selection of untagged images (darktable|* tags are ignored)
 ]]
 
 local dt = require "darktable"
-require "official/yield"
 local gettext = dt.gettext
 
 dt.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
