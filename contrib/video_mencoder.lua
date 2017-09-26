@@ -35,7 +35,7 @@ local df = require "lib/dtutils.file"
 require "official/yield"
 local gettext = dt.gettext
 
-dt.configuration.check_version(...,{2,0,1},{3,0,0},{4,0,0})
+dt.configuration.check_version(...,{2,0,1},{3,0,0},{4,0,0},{5,0,0})
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("video_mencoder",dt.configuration.config_dir.."/lua/locale/")
@@ -107,6 +107,9 @@ dt.preferences.register("video_mencoder", "OpenVideo", "bool", "Video exort (MEn
 local handle = io.popen("xdg-user-dir VIDEOS")
 local result = handle:read()
 handle:close()
+if (result == nil) then
+	result = ""
+end
 dt.preferences.register("video_mencoder", "ExportDirectory", "directory", "Video exort (MEncoder): Video export directory","A directory that will be used to export a Video",result)
 
 -- Get the MEncoder codec list with: mencoder -ovc help
