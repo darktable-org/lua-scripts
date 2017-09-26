@@ -314,6 +314,9 @@ dt.preferences.register("geoJSON_export",
 local handle = io.popen("xdg-user-dir DESKTOP")
 local result = handle:read()
 handle:close()
+if (result == nil) then
+	result = ""
+end
 dt.preferences.register("geoJSON_export",
 	"ExportDirectory",
 	"directory",
