@@ -32,7 +32,7 @@ https://www.darktable.org/lua-api/index.html.php#darktable_new_widget
 
 local dt = require "darktable"
 
-dt.configuration.check_version(...,{3,0,0},{4,0,0})
+dt.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
 
 -- add a new lib
 local check_button = dt.new_widget("check_button"){label = "MyCheck_button", value = true}
