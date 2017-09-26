@@ -32,7 +32,7 @@ local dt = require "darktable"
 
 local log = require "lib/dtutils.log"
 
-dt.configuration.check_version(...,{3,0,0},{4,0,0})
+dt.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
 
 dtutils.libdoc.functions["split"] = {
   Name = [[split]],
