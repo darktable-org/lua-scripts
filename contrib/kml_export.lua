@@ -163,7 +163,6 @@ function string.escapeXmlCharacters( str )
 end
 
 local function create_kml_file(storage, image_table, extra_data)
-
     if not df.check_if_bin_exists("mkdir") then
         dt.print_error(_("mkdir not found"))
         return
@@ -357,13 +356,13 @@ local function create_kml_file(storage, image_table, extra_data)
 
 -- Open the file with the standard programm
     if ( dt.preferences.read("kml_export","OpenKmlFile","bool") == true ) then
-	local kmlFileOpenCommand
+		local kmlFileOpenCommand
 
         if ( dt.preferences.read("kml_export","CreateKMZ","bool") == true ) then
             kmlFileOpenCommand = "xdg-open "..exportDirectory.."/\""..exportKMZFilename.."\""
         else
             kmlFileOpenCommand = "xdg-open "..exportDirectory.."/\""..exportKMLFilename.."\""
-	end
+		end
         dt.control.execute(kmlFileOpenCommand)
     end
 
@@ -380,6 +379,9 @@ dt.preferences.register("kml_export",
 
 local handle = io.popen("xdg-user-dir DESKTOP")
 local result = handle:read()
+if (result == nil) then
+	result = ""
+end
 handle:close()
 dt.preferences.register("kml_export",
 	"ExportDirectory",
