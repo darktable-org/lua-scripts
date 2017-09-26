@@ -22,7 +22,7 @@ USAGE
 * require this script from your main lua file
 ]] 
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,1},{3,0,0},{4,0,0})
+dt.configuration.check_version(...,{2,0,1},{3,0,0},{4,0,0},{5,0,0})
 
 dt.preferences.register("preferenceExamples",        -- script: This is a string used to avoid name collision in preferences (i.e namespace). Set it to something unique, usually the name of the script handling the preference.
                         "preferenceExamplesString",  -- name
