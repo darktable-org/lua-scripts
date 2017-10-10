@@ -70,33 +70,69 @@ local slider = dt.new_widget("slider")
   value = 52          -- The current value of the slider
 }
 
-dt.register_lib(
-  "exampleModule",     -- Module name
-  "exampleModule",     -- name
-  true,                -- expandable
-  false,               -- resetable
-  {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},   -- containers
-  dt.new_widget("box") -- widget
+if (dt.configuration.api_version_major >= 6) then
+  local section_label = dt.new_widget("section_label")
   {
-    orientation = "vertical",
-    dt.new_widget("button")
+    label = "MySectionLabel"
+  }
+
+  dt.register_lib(
+    "exampleModule",     -- Module name
+    "exampleModule",     -- name
+    true,                -- expandable
+    false,               -- resetable
+    {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},   -- containers
+    dt.new_widget("box") -- widget
     {
-      label = "MyButton",
-      clicked_callback = function (_)
-        dt.print("Button clicked")
-      end
+      orientation = "vertical",
+      dt.new_widget("button")
+      {
+        label = "MyButton",
+        clicked_callback = function (_)
+          dt.print("Button clicked")
+        end
+      },
+      check_button,
+      combobox,   
+      entry,
+      file_chooser_button,
+      label,
+      separator,
+      slider,
+	  section_label
     },
-    check_button,
-    combobox,   
-    entry,
-    file_chooser_button,
-    label,
-    separator,
-    slider
-  },
-  nil,-- view_enter
-  nil -- view_leave
-)
+    nil,-- view_enter
+    nil -- view_leave
+  )
+else
+  dt.register_lib(
+    "exampleModule",     -- Module name
+    "exampleModule",     -- name
+    true,                -- expandable
+    false,               -- resetable
+    {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},   -- containers
+    dt.new_widget("box") -- widget
+    {
+      orientation = "vertical",
+      dt.new_widget("button")
+      {
+        label = "MyButton",
+        clicked_callback = function (_)
+          dt.print("Button clicked")
+        end
+      },
+      check_button,
+      combobox,   
+      entry,
+      file_chooser_button,
+      label,
+      separator,
+      slider
+    },
+    nil,-- view_enter
+    nil -- view_leave
+  )
+end
 
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
 -- kate: hl Lua;
