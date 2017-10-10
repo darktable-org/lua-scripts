@@ -25,21 +25,6 @@ USAGE
 local dt = require "darktable"
 local yield_orig = coroutine.yield
 
--- ToDo: Test with dt master
---[[
-if (dt.configuration.api_version_major >= 4) then
-  coroutine.yield = function(yield_type, command)
-    if (yield_type == "RUN_COMMAND") then
-      dt.control.execute(command)
-    elseif (yield_type == "FILE_READABLE") then
-      dt.control.read(command)
-    elseif (yield_type == "WAIT_MS") then
-      dt.control.sleep(command)
-    end  
-  end
-end
-]]
-
 if (dt.configuration.api_version_major < 4) then
   dt.control = {}
   dt.control.execute = function(command)
