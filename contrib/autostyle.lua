@@ -28,6 +28,8 @@ USAGE
   > exiftool -AutoDynamicRange XE021351.RAF
   Auto Dynamic Range              : 200%
 
+ADDITIONAL SOFTWARE NEEDED FOR THIS SCRIPT
+* exiftool
 
 LICENSE
 GPLv2
@@ -41,7 +43,7 @@ local darktable = require "darktable"
 local autostyle_apply_one_image,autostyle_apply_one_image_event,autostyle_apply,exiftool_attribute,capture
 
 -- Tested it with darktable 1.6.1 and darktable git from 2014-01-25
-darktable.configuration.check_version(...,{2,0,2},{2,1,0},{3,0,0},{4,0,0})
+darktable.configuration.check_version(...,{2,0,2},{2,1,0},{3,0,0},{4,0,0},{5,0,0})
 
 -- Receive the event triggered
 function autostyle_apply_one_image_event(event,image)
@@ -66,7 +68,11 @@ function autostyle_apply_one_image (image)
 	  darktable.print("style name not found in " .. darktable.preferences.read("autostyle","exif_tag","string"))
 	  return
   end
-
+  if not checkIfBinExists("exiftool") then
+     return
+  end
+	
+	
   -- First find the style (we have its name)
   local styles= darktable.styles
   local style
