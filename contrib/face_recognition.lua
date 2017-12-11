@@ -54,14 +54,21 @@ local function _(msgid)
     return gettext.dgettext("face_recognition", msgid)
 end
 
--- Register preference for known faces path
+-- Preference: Tag for unknown_person
 dt.preferences.register("FaceRecognition",
-                        "knownImagePath",
-                        "directory",                                                            -- type
-                        _("Face recognition: Known images"),                                    -- label
-                        _("Path to images with known faces, files named after tag to apply"),   -- tooltip
-                        "~/.config/darktable/face_recognition")                                 -- default
--- ...and number of CPU cores to use
+                        "unknownTag",
+                        "string",                                                               -- type
+                        _("Face recognition: Unknown tag"),                                     -- label
+                        _("Tag for faces that are not recognized"),                             -- tooltip
+                        "unknown_person")
+-- Preference: Images with this substring in tags are ignored
+dt.preferences.register("FaceRecognition",
+                        "ignoreTags",
+                        "string",                                                               -- type
+                        _("Face recognition: Ignore tag"),                                      -- label
+                        _("Images with this substring in tags are ignored, separate multiple strings with ,"),   -- tooltip
+                        "")
+-- Preference: Number of CPU cores to use
 dt.preferences.register("FaceRecognition",
                         "nrCores",
                         "integer",                                                              -- type
@@ -70,9 +77,35 @@ dt.preferences.register("FaceRecognition",
                         0,                                                                      -- default
                         0,                                                                      -- min
                         64)                                                                     -- max
+-- Preference: Known faces path
+dt.preferences.register("FaceRecognition",
+                        "knownImagePath",
+                        "directory",                                                            -- type
+                        _("Face recognition: Known images"),                                    -- label
+                        _("Path to images with known faces, files named after tag to apply"),   -- tooltip
+                        "~/.config/darktable/face_recognition")                                 -- default                                                                  -- default
                         
 local function show_status (storage, image, format, filename, number, total, high_quality, extra_data)
   dt.print("Export to Face recognition "..tostring(number).."/"..tostring(total))
+end
+
+-- Check if image has ignored tag attached
+local function ignoreByTag (image, ignoreTags)
+  local tags = image:get_tags ()
+  local ignoreImage = false
+  -- For each image tag
+  for _,t in ipairs (tags) do
+    -- Check if it contains a ignore tag
+    for _,it in ipairs (ignoreTags) do
+      if string.find (t.name, it, 1, true) then
+        -- The image has ignored tag attached
+        ignoreImage = true
+        dt.print_error ("Face recognition: Ignored tag: " .. it .. " found in " .. image.id .. ":" .. t.name)
+      end
+    end
+  end
+  
+  return ignoreImage
 end
 
 local function face_recognition (storage, image_table, extra_data) --finalize
@@ -81,30 +114,40 @@ local function face_recognition (storage, image_table, extra_data) --finalize
     return
   end
 
+  -- Get preferences
+  local knownPath = dt.preferences.read("FaceRecognition", "knownImagePath", "directory")
+  local nrCores = dt.preferences.read("FaceRecognition", "nrCores", "integer")
+  local ignoreTagString = dt.preferences.read("FaceRecognition", "ignoreTags", "string")
+  local unknownTag = dt.preferences.read("FaceRecognition", "unknownTag", "string")
+
+  -- face_recognition uses -1 for all cores, we use 0 in preferences
+  if nrCores < 1 then
+    nrCores = -1
+  end
+  
+  -- Split ignore tags (if any)
+  ignoreTags = {}
+  for tag in string.gmatch(ignoreTagString, '([^,]+)') do
+    table.insert (ignoreTags, tag)
+    dt.print_error ("Face recognition: Ignore tag: " .. tag)
+  end
+  
   -- list of exported images
   local img_list = {}
 
-  for _,v in pairs(image_table) do
+  for img,v in pairs(image_table) do
     table.insert (img_list, v)
   end
 
   -- Get path of exported images
   local path = df.get_path (img_list[1])
-  dt.print_error ("FR: Unknown path: " .. path)
+  dt.print_error ("Face recognition: Path to unknown images: " .. path)
 
-  -- Path to known images and number of CPU cores to use
-  local knownPath = dt.preferences.read("FaceRecognition", "knownImagePath", "directory")
-  local nrCores = dt.preferences.read("FaceRecognition", "nrCores", "integer")
-
-  if nrCores < 1 then
-    nrCores = -1
-  end
-    
   -- Output file
-  local output = path .. "fr.txt"
+  local output = path .. "facerecognition.txt"
   
   local command = "face_recognition --cpus " .. nrCores .. " " .. knownPath .. " " .. path .. " > " .. output
-  dt.print_error("FR: " .. command)
+  dt.print_error("Face recognition: Running command: " .. command)
   dt.print(_("Starting face recognition..."))
 
   dt.control.execute(command)
@@ -129,7 +172,7 @@ local function face_recognition (storage, image_table, extra_data) --finalize
   for line in io.lines(output) do 
     local file, tag = string.match (line, "(.*),(.*)$")
     tag = string.gsub (tag, "%d*$", "")
-    dt.print_error ("F:"..file .." T:".. tag)
+    dt.print_error ("File:"..file .." Tag:".. tag)
     if result[file] ~= nil then
       table.insert (result[file], tag)
     else
@@ -143,10 +186,19 @@ local function face_recognition (storage, image_table, extra_data) --finalize
     for img,file2 in pairs(image_table) do
       if file == file2 then
         for _,t in ipairs (tags) do
-          dt.print_error ("I:" .. img.id .. " T: ".. t)
-          -- Create tag if it does not exists
-          local tag = dt.tags.create (t)
-          img:attach_tag (tag)
+          -- Check if image is ignored
+          if ignoreByTag (img, ignoreTags) then
+            dt.print_error("Face recognition: Ignoring image with ID " .. img.id)
+          else
+            -- Check of unrecognized unknown_person
+            if t == "unknown_person" then
+              t = unknownTag
+            end
+            dt.print_error ("ImgId:" .. img.id .. " Tag:".. t)
+            -- Create tag if it does not exists
+            local tag = dt.tags.create (t)
+            img:attach_tag (tag)
+          end
         end
       end
     end
