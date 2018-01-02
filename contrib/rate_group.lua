@@ -41,7 +41,7 @@
 local dt = require "darktable"
 
 -- added version check
-dt.configuration.check_version(...,{3,0,0},{4,0,0})
+dt.configuration.check_version(...,{3,0,0},{4,0,0},{4,0,0})
 
 local function apply_rating(rating)
   local images = dt.gui.action_images
