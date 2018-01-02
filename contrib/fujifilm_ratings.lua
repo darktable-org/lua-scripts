@@ -27,7 +27,7 @@ local dt = require "darktable"
 local df = require "lib/dtutils.file"
 local gettext = dt.gettext
 
-dt.configuration.check_version(..., {4,0,0})
+dt.configuration.check_version(...,{4,0,0},{5,0,0})
 
 gettext.bindtextdomain("fujifilm_ratings", dt.configuration.config_dir.."/lua/locale/")
 
