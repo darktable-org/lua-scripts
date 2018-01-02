@@ -38,7 +38,7 @@ local dt = require "darktable"
 require "darktable.debug"
 require "official/yield"
 
-dt.configuration.check_version(...,{2,1,0},{3,0,0},{4,0,0})
+dt.configuration.check_version(...,{2,1,0},{3,0,0},{4,0,0},{5,0,0})
 
 dt.preferences.register("generate_image_txt",
                         "enabled",
