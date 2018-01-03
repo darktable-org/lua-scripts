@@ -1,6 +1,7 @@
 --[[
   This file is part of darktable,
   copyright (c) 2014 Jérémy Rosen
+  copyright (c) 2018 Bill Ferguson
   
   darktable is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -33,14 +34,20 @@ Note that you need to restart DT for your changes to enabled scripts to take eff
 ]]
 local dt = require "darktable"
 local io = require "io"
-dt.configuration.check_version(...,{3,0,0})
 
-local output = io.popen("cd "..dt.configuration.config_dir.."/lua ;find . -name \\*.lua -print")
+-- must be loaded for scripts using darktable.control_execute to work
+require "official/yield"
+
+dt.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
+
+-- find all scripts, but skip the lib and tools directories
+local output = io.popen("cd "..dt.configuration.config_dir.."/lua ;find . -name lib -prune -o -name tools -prune -o -name \\*.lua -print")
+
 local my_name={...}
 my_name = my_name[1]
 for line in output:lines() do
   local req_name = line:sub(3,-5)
-  if req_name ~= my_name then
+  if req_name ~= my_name and not string.match(req_name, "yield") then
     dt.preferences.register(my_name,req_name,"bool","enable "..req_name,
     "Should the script "..req_name.." be enabled at next startup",false)
 
