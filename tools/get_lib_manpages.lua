@@ -10,7 +10,7 @@ local df = require "lib/dtutils.file"
 local log = require "lib/dtutils.log"
 local libname = nil
 
-dt.configuration.check_version(...,{3,0,0})
+dt.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
 
 local keys = {"Name", "Synopsis", "Usage", "Description", "Return_Value", "Limitations", 
               "Example", "See_Also", "Reference", "License", "Copyright"}
