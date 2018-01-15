@@ -357,7 +357,7 @@ local function create_kml_file(storage, image_table, extra_data)
       kml_file = kml_file.."    <LineString>\n"
       kml_file = kml_file.."      <coordinates>\n"
 
-      for image,exported_image in spairs(image_table, function(t,a,b) return t[b] < t[a] end) do
+      for image,exported_image in spairs(image_table, function(t,a,b) return b.exif_datetime_taken > a.exif_datetime_taken end) do
 	  if ((image.longitude and image.latitude) and
               (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
              ) then
