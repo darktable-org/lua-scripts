@@ -213,6 +213,20 @@ function string.escapeXmlCharacters( str )
     return str
 end
 
+-- Add duplicate index to filename
+-- image.filename does not have index, exported_image has index
+function addDuplicateIndex( index, filename )
+    if index > 0 then
+        filename = filename.."_"
+        if index < 10 then
+            filename = filename.."0"
+        end
+        filename = filename..index
+    end
+
+    return filename 
+end
+
 local function create_kml_file(storage, image_table, extra_data)
     if not df.check_if_bin_exists("mkdir") then
         dt.print_error(_("mkdir not found"))
@@ -297,6 +311,8 @@ local function create_kml_file(storage, image_table, extra_data)
     for image,exported_image in pairs(image_table) do
     -- Extract filename, e.g DSC9784.ARW -> DSC9784
     filename = string.upper(string.gsub(image.filename,"%.%w*", ""))
+    -- Handle duplicates
+    filename = addDuplicateIndex( image.duplicate_index, filename )
     -- Extract extension from exported image (user can choose JPG or PNG), e.g DSC9784.JPG -> .JPG
     extension = string.match(exported_image,"%.%w*$")
 
@@ -309,7 +325,7 @@ local function create_kml_file(storage, image_table, extra_data)
             if (image.title and image.title ~= "") then
                 image_title = string.escapeXmlCharacters(image.title)
             else
-                image_title = image.filename
+                image_title = filename..extension
             end
             -- Characters should not be escaped in CDATA, but we are using HTML fragment, so we must escape them
             image_description = string.escapeXmlCharacters(image.description)
@@ -396,7 +412,8 @@ local function create_kml_file(storage, image_table, extra_data)
               (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
              ) then
             local filename = string.upper(string.gsub(image.filename,"%.%w*", ""))
-
+            -- Handle duplicates
+            filename = addDuplicateIndex( image.duplicate_index, filename )
             createKMZCommand = createKMZCommand .."\""..dt.configuration.tmp_dir.."/"..imageFoldername.."thumb_"..filename..".jpg\" " -- thumbnails
             createKMZCommand = createKMZCommand .."\""..exported_image.."\" "  -- images
           end
