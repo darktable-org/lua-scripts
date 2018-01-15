@@ -1,7 +1,7 @@
 --[[
     This file is part of darktable,
-    Copyright 2016 by Tobias Jakobs.
-    Copyright 2016 by Erik Augustin.
+    Copyright 2018 by Tobias Jakobs.
+    Copyright 2018 by Erik Augustin.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -81,7 +81,7 @@ end
 -- Strip accents from a string
 -- Copied from https://forums.coronalabs.com/topic/43048-remove-special-characters-from-string/
 function string.stripAccents( str )
-  local tableAccents = {}
+    local tableAccents = {}
     -- A
     tableAccents["à"] = "a"
     tableAccents["À"] = "A"
@@ -185,18 +185,17 @@ function string.stripAccents( str )
     tableAccents["ž"] = "z"
     tableAccents["Ž"] = "Z"
 
-  local normalizedString = ""
+    local normalizedString = ""
 
-  for strChar in string.gmatch(str, "([%z\1-\127\194-\244][\128-\191]*)") do
-    if tableAccents[strChar] ~= nil then
-      normalizedString = normalizedString..tableAccents[strChar]
-    else
-      normalizedString = normalizedString..strChar
+    for strChar in string.gmatch(str, "([%z\1-\127\194-\244][\128-\191]*)") do
+        if tableAccents[strChar] ~= nil then
+            normalizedString = normalizedString..tableAccents[strChar]
+        else
+            normalizedString = normalizedString..strChar
+        end
     end
-  end
 
-  return normalizedString
-
+    return normalizedString
 end
 
 -- Escape XML characters
@@ -245,7 +244,7 @@ local function create_kml_file(storage, image_table, extra_data)
         return
     end
 
-    dt.print_error("Will try to export KML file now")
+    dt.print_log("Will try to export KML file now")
 
     local imageFoldername
     if ( dt.preferences.read("kml_export","CreateKMZ","bool") == true ) then
@@ -265,7 +264,6 @@ local function create_kml_file(storage, image_table, extra_data)
         dt.control.execute(mkdirCommand)
     end
 
-
     -- Create the thumbnails
     for image,exported_image in pairs(image_table) do
         if ((image.longitude and image.latitude) and
@@ -275,11 +273,11 @@ local function create_kml_file(storage, image_table, extra_data)
             filename = string.upper(string.gsub(filename,"%.%w*", ""))
 
             -- convert -size 92x92 filename.jpg -resize 92x92 +profile "*" thumbnail.jpg
-            --	In this example, '-size 120x120' gives a hint to the JPEG decoder that the image is going to be downscaled to
-            --	120x120, allowing it to run faster by avoiding returning full-resolution images to  GraphicsMagick for the
-            --	subsequent resizing operation. The '-resize 120x120' specifies the desired dimensions of the output image. It
-            --	will be scaled so its largest dimension is 120 pixels. The '+profile "*"' removes any ICM, EXIF, IPTC, or other
-            --	profiles that might be present in the input and aren't needed in the thumbnail.
+            -- In this example, '-size 120x120' gives a hint to the JPEG decoder that the image is going to be downscaled to
+            -- 120x120, allowing it to run faster by avoiding returning full-resolution images to  GraphicsMagick for the
+            -- subsequent resizing operation. The '-resize 120x120' specifies the desired dimensions of the output image. It
+            -- will be scaled so its largest dimension is 120 pixels. The '+profile "*"' removes any ICM, EXIF, IPTC, or other
+            -- profiles that might be present in the input and aren't needed in the thumbnail.
 
             local convertToThumbCommand = "convert -size 96x96 "..exported_image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory.."/"..imageFoldername.."thumb_"..filename..".jpg"
             dt.control.execute(convertToThumbCommand)
@@ -309,14 +307,14 @@ local function create_kml_file(storage, image_table, extra_data)
     kml_file = kml_file.."    <description>Exported from darktable</description>\n"
 
     for image,exported_image in pairs(image_table) do
-    -- Extract filename, e.g DSC9784.ARW -> DSC9784
-    filename = string.upper(string.gsub(image.filename,"%.%w*", ""))
-    -- Handle duplicates
-    filename = addDuplicateIndex( image.duplicate_index, filename )
-    -- Extract extension from exported image (user can choose JPG or PNG), e.g DSC9784.JPG -> .JPG
-    extension = string.match(exported_image,"%.%w*$")
+        -- Extract filename, e.g DSC9784.ARW -> DSC9784
+        filename = string.upper(string.gsub(image.filename,"%.%w*", ""))
+        -- Handle duplicates
+        filename = addDuplicateIndex( image.duplicate_index, filename )
+        -- Extract extension from exported image (user can choose JPG or PNG), e.g DSC9784.JPG -> .JPG
+        extension = string.match(exported_image,"%.%w*$")
 
-	if ((image.longitude and image.latitude) and
+        if ((image.longitude and image.latitude) and
             (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
            ) then
             kml_file = kml_file.."  <Placemark>\n"
@@ -357,37 +355,39 @@ local function create_kml_file(storage, image_table, extra_data)
         end
     end
 
--- Connects all images with an path
+    -- Connects all images with an path
     if ( dt.preferences.read("kml_export","CreatePath","bool") == true ) then
-      kml_file = kml_file.."  <Placemark>\n"
-      kml_file = kml_file.."    <name>Path</name>\n"  -- ToDo: I think a better name would be nice
-      --kml_file = kml_file.."    <description></description>\n"
+        kml_file = kml_file.."  <Placemark>\n"
+        kml_file = kml_file.."    <name>Path</name>\n"  -- ToDo: I think a better name would be nice
+        --kml_file = kml_file.."    <description></description>\n"
 
-      kml_file = kml_file.."   <Style>\n"
-      kml_file = kml_file.."     <LineStyle>\n"
-      kml_file = kml_file.."       <color>ff0000ff</color>\n"
-      kml_file = kml_file.."       <width>5</width>\n"
-      kml_file = kml_file.."     </LineStyle>\n"
-      kml_file = kml_file.."   </Style>\n"
+        kml_file = kml_file.."   <Style>\n"
+        kml_file = kml_file.."     <LineStyle>\n"
+        kml_file = kml_file.."       <color>ff0000ff</color>\n"
+        kml_file = kml_file.."       <width>5</width>\n"
+        kml_file = kml_file.."     </LineStyle>\n"
+        kml_file = kml_file.."   </Style>\n"
 
-      kml_file = kml_file.."    <LineString>\n"
-      kml_file = kml_file.."      <coordinates>\n"
+        kml_file = kml_file.."    <LineString>\n"
+        kml_file = kml_file.."      <coordinates>\n"
 
-      for image,exported_image in spairs(image_table, function(t,a,b) return b.exif_datetime_taken > a.exif_datetime_taken end) do
-	  if ((image.longitude and image.latitude) and
-              (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
-             ) then
-              local altitude = 0;
-              if (image.elevation) then
-                altitude = image.elevation;
-              end
-              kml_file = kml_file.."        "..string.gsub(tostring(image.longitude),",", ".")..","..string.gsub(tostring(image.latitude),",", ".")..",altitude\n"
-          end
-      end
-      kml_file = kml_file.."      </coordinates>\n"
-      kml_file = kml_file.."    </LineString>\n"
+        for image,exported_image in spairs(image_table, function(t,a,b) return b.exif_datetime_taken > a.exif_datetime_taken end) do
+            if ((image.longitude and image.latitude) and
+                (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
+               ) then
+                local altitude = 0;
+                if (image.elevation) then
+                    altitude = image.elevation;
+                end
 
-      kml_file = kml_file.."  </Placemark>\n"
+                kml_file = kml_file.."        "..string.gsub(tostring(image.longitude),",", ".")..","..string.gsub(tostring(image.latitude),",", ".")..",altitude\n"
+            end
+        end
+
+        kml_file = kml_file.."      </coordinates>\n"
+        kml_file = kml_file.."    </LineString>\n"
+
+        kml_file = kml_file.."  </Placemark>\n"
     end
 
     kml_file = kml_file.."</Document>\n"
@@ -399,77 +399,79 @@ local function create_kml_file(storage, image_table, extra_data)
 
     dt.print("KML file created in "..exportDirectory)
 
--- Compress the files to create a KMZ file
+    -- Compress the files to create a KMZ file
     if ( dt.preferences.read("kml_export","CreateKMZ","bool") == true ) then
-       exportDirectory = dt.preferences.read("kml_export","ExportDirectory","string")
+        exportDirectory = dt.preferences.read("kml_export","ExportDirectory","string")
 
         local createKMZCommand = "zip --test --move --junk-paths "
         createKMZCommand = createKMZCommand .."\""..exportDirectory.."/"..exportKMZFilename.."\" "           -- KMZ filename
         createKMZCommand = createKMZCommand .."\""..dt.configuration.tmp_dir.."/"..exportKMLFilename.."\" "  -- KML file
 
         for image,exported_image in pairs(image_table) do
-          if ((image.longitude and image.latitude) and
-              (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
-             ) then
-            local filename = string.upper(string.gsub(image.filename,"%.%w*", ""))
-            -- Handle duplicates
-            filename = addDuplicateIndex( image.duplicate_index, filename )
-            createKMZCommand = createKMZCommand .."\""..dt.configuration.tmp_dir.."/"..imageFoldername.."thumb_"..filename..".jpg\" " -- thumbnails
-            createKMZCommand = createKMZCommand .."\""..exported_image.."\" "  -- images
-          end
+            if ((image.longitude and image.latitude) and
+                (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
+               ) then
+                local filename = string.upper(string.gsub(image.filename,"%.%w*", ""))
+                -- Handle duplicates
+                filename = addDuplicateIndex( image.duplicate_index, filename )
+
+                createKMZCommand = createKMZCommand .."\""..dt.configuration.tmp_dir.."/"..imageFoldername.."thumb_"..filename..".jpg\" " -- thumbnails
+                createKMZCommand = createKMZCommand .."\""..exported_image.."\" "  -- images
+            end
         end
 
-	dt.control.execute(createKMZCommand)
+       dt.control.execute(createKMZCommand)
     end
 
--- Open the file with the standard programm
+    -- Open the file with the standard programm
     if ( dt.preferences.read("kml_export","OpenKmlFile","bool") == true ) then
-		local kmlFileOpenCommand
+        local kmlFileOpenCommand
 
         if ( dt.preferences.read("kml_export","CreateKMZ","bool") == true ) then
             kmlFileOpenCommand = "xdg-open "..exportDirectory.."/\""..exportKMZFilename.."\""
         else
             kmlFileOpenCommand = "xdg-open "..exportDirectory.."/\""..exportKMLFilename.."\""
-		end
+        end
         dt.control.execute(kmlFileOpenCommand)
     end
-
 
 end
 
 -- Preferences
 dt.preferences.register("kml_export",
-	"OpenKmlFile",
-	"bool",
-	_("KML export: Open KML/KMZ file after export"),
-	_("Opens the KML file after the export with the standard program for KML files"),
-	false )
+    "OpenKmlFile",
+    "bool",
+    _("KML export: Open KML/KMZ file after export"),
+    _("Opens the KML file after the export with the standard program for KML files"),
+    false )
 
 local handle = io.popen("xdg-user-dir DESKTOP")
 local result = handle:read()
 if (result == nil) then
-	result = ""
+    result = ""
 end
 handle:close()
-dt.preferences.register("kml_export",
-	"ExportDirectory",
-	"directory",
-	_("KML export: Export directory"),
-	_("A directory that will be used to export the KML/KMZ files"),
-	result )
 
 dt.preferences.register("kml_export",
-	"CreatePath",
-	"bool",
-	_("KML export: Connect images with path"),
-	_("connect all images with a path"),
-	false )
+    "ExportDirectory",
+    "directory",
+    _("KML export: Export directory"),
+    _("A directory that will be used to export the KML/KMZ files"),
+    result )
+
 dt.preferences.register("kml_export",
-	"CreateKMZ",
-	"bool",
-	_("KML export: Create KMZ file"),
-	_("Compress all imeges to one KMZ file"),
-	true )
+    "CreatePath",
+    "bool",
+    _("KML export: Connect images with path"),
+    _("connect all images with a path"),
+    false )
+
+dt.preferences.register("kml_export",
+    "CreateKMZ",
+    "bool",
+    _("KML export: Create KMZ file"),
+    _("Compress all imeges to one KMZ file"),
+    true )
 
 -- Register
 dt.register_storage("kml_export", _("KML/KMZ Export"), nil, create_kml_file)
