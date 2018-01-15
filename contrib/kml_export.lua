@@ -82,57 +82,108 @@ end
 -- Copied from https://forums.coronalabs.com/topic/43048-remove-special-characters-from-string/
 function string.stripAccents( str )
   local tableAccents = {}
+    -- A
     tableAccents["à"] = "a"
-    tableAccents["á"] = "a"
-    tableAccents["â"] = "a"
-    tableAccents["ã"] = "a"
-    tableAccents["ä"] = "a"
-    tableAccents["ç"] = "c"
-    tableAccents["è"] = "e"
-    tableAccents["é"] = "e"
-    tableAccents["ê"] = "e"
-    tableAccents["ë"] = "e"
-    tableAccents["ì"] = "i"
-    tableAccents["í"] = "i"
-    tableAccents["î"] = "i"
-    tableAccents["ï"] = "i"
-    tableAccents["ñ"] = "n"
-    tableAccents["ò"] = "o"
-    tableAccents["ó"] = "o"
-    tableAccents["ô"] = "o"
-    tableAccents["õ"] = "o"
-    tableAccents["ö"] = "o"
-    tableAccents["ù"] = "u"
-    tableAccents["ú"] = "u"
-    tableAccents["û"] = "u"
-    tableAccents["ü"] = "u"
-    tableAccents["ý"] = "y"
-    tableAccents["ÿ"] = "y"
     tableAccents["À"] = "A"
+    tableAccents["á"] = "a"
     tableAccents["Á"] = "A"
+    tableAccents["â"] = "a"
     tableAccents["Â"] = "A"
+    tableAccents["ã"] = "a"
     tableAccents["Ã"] = "A"
+    tableAccents["ä"] = "a"
     tableAccents["Ä"] = "A"
+    -- B
+    -- C
+    tableAccents["ç"] = "c"
     tableAccents["Ç"] = "C"
+    tableAccents["č"] = "c"
+    tableAccents["Č"] = "C"
+    -- D
+    tableAccents["ď"] = "d"
+    tableAccents["Ď"] = "d"
+    -- E
+    tableAccents["è"] = "e"
     tableAccents["È"] = "E"
+    tableAccents["é"] = "e"
     tableAccents["É"] = "E"
+    tableAccents["ê"] = "e"
     tableAccents["Ê"] = "E"
+    tableAccents["ë"] = "e"
     tableAccents["Ë"] = "E"
+    tableAccents["ě"] = "e"
+    tableAccents["Ě"] = "E"
+    -- F
+    -- G
+    -- H
+    -- I
+    tableAccents["ì"] = "i"
     tableAccents["Ì"] = "I"
+    tableAccents["í"] = "i"
     tableAccents["Í"] = "I"
+    tableAccents["î"] = "i"
     tableAccents["Î"] = "I"
+    tableAccents["ï"] = "i"
     tableAccents["Ï"] = "I"
+    -- J
+    -- K
+    -- L
+    tableAccents["ĺ"] = "l"
+    tableAccents["Ĺ"] = "L"
+    tableAccents["ľ"] = "l"
+    tableAccents["Ľ"] = "L"
+    -- M
+    -- N
+    tableAccents["ñ"] = "n"
     tableAccents["Ñ"] = "N"
+    tableAccents["ň"] = "n"
+    tableAccents["Ň"] = "N"
+    -- O
+    tableAccents["ò"] = "o"
     tableAccents["Ò"] = "O"
+    tableAccents["ó"] = "o"
     tableAccents["Ó"] = "O"
+    tableAccents["ô"] = "o"
     tableAccents["Ô"] = "O"
+    tableAccents["õ"] = "o"
     tableAccents["Õ"] = "O"
+    tableAccents["ö"] = "o"
     tableAccents["Ö"] = "O"
+    -- P
+    -- Q
+    -- R
+    tableAccents["ŕ"] = "r"
+    tableAccents["Ŕ"] = "R"
+    tableAccents["ř"] = "r"
+    tableAccents["Ř"] = "R"
+    -- S
+    tableAccents["š"] = "s"
+    tableAccents["Š"] = "S"
+    -- T
+    tableAccents["ť"] = "t"
+    tableAccents["Ť"] = "T"
+    -- U
+    tableAccents["ù"] = "u"
     tableAccents["Ù"] = "U"
+    tableAccents["ú"] = "u"
     tableAccents["Ú"] = "U"
+    tableAccents["û"] = "u"
     tableAccents["Û"] = "U"
+    tableAccents["ü"] = "u"
     tableAccents["Ü"] = "U"
+    tableAccents["ů"] = "u"
+    tableAccents["Ů"] = "U"
+    -- V
+    -- W
+    -- X
+    -- Y
+    tableAccents["ý"] = "y"
     tableAccents["Ý"] = "Y"
+    tableAccents["ÿ"] = "y"
+    tableAccents["Ÿ"] = "Y"
+    -- Z
+    tableAccents["ž"] = "z"
+    tableAccents["Ž"] = "Z"
 
   local normalizedString = ""
 
