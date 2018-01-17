@@ -1,6 +1,6 @@
 --[[
     This file is part of darktable,
-    copyright (c) 2014 Tobias Ellinghaus
+    copyright (c) 2014--2018 Tobias Ellinghaus
 
     darktable is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 ]]
 --[[
 DELETE LONG TAGS
-A simple script that will automatically delete all tag longer than a set length
+A simple script that will automatically delete all tags longer than a set length
 
 USAGE
 * require this script from your main lua file
@@ -38,10 +38,18 @@ dt.preferences.register("delete_long_tags", "length", "integer",
 
 local max_length = dt.preferences.read("delete_long_tags", "length", "integer")
 
+-- deleting while iterating the tags list seems to break the iterator!
+local long_tags = {}
+
 for _,t in ipairs(dt.tags) do
   local len = #t.name
   if len > max_length then
     print("deleting tag `"..t.name.."' (length: "..len..")")
-    t:delete()
+    table.insert(long_tags, t.name)
   end
+end
+
+for _,name in pairs(long_tags) do
+  tag = dt.tags.find(name)
+  tag:delete()
 end
