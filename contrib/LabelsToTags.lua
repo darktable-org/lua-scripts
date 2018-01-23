@@ -43,8 +43,12 @@
    LGPLv2+
 
 ]]
+
 local darktable = require("darktable")
 darktable.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
+
+-- Lua 5.3 no longer has "unpack" but "table.unpack"
+unpack = unpack or table.unpack
 
 local LIB_ID = "LabelsToTags"
 
@@ -151,7 +155,7 @@ local function doTagging(selfC)
    local job = darktable.gui.create_job(string.format("labels to tags (%d image" .. (#(darktable.gui.action_images) == 1 and "" or "s") .. ")",#(darktable.gui.action_images)),true)
    job.percent = 0.0
    local pctIncrement = 1.0 / #(darktable.gui.action_images)
-   
+
    local availableMappings = getAvailableMappings()
    local memoizedTags = {}
    for _,img in ipairs(darktable.gui.action_images) do
