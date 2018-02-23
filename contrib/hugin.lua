@@ -71,38 +71,59 @@ local function create_panorama(storage, image_table, extra_data) --finalize
 
   -- list of exported images
   local img_list
+  local img_set = {}
 
   -- reset and create image list
   img_list = ""
-
-  for _,v in pairs(image_table) do
+  for k,v in pairs(image_table) do
     img_list = img_list ..v.. " "
+	table.insert(img_set, k)
+  end
+
+  -- use first file as basename
+  table.sort(img_set, function(a,b) return a.filename<b.filename end);
+  local first_file
+  for _, k in ipairs(img_set) do
+	first_file = k break
+  end
+
+  local filepath = df.split_filepath(first_file.filename)
+  local output_file = filepath['basename'].."_pano.tif"
+  local output_path = first_file.path.."/"..output_file
+  local pto_path = '"'..dt.configuration.tmp_dir..'/project.pto"'
+
+  if df.check_if_file_exists(output_path) then
+	output_path = df.create_unique_filename(output_path)
   end
 
   dt.print(_("Will try to stitch now"))
-
   local huginStartCommand
   if (hugin_executor) then
-    huginStartCommand = "pto_gen "..img_list.." -o "..dt.configuration.tmp_dir.."/project.pto"
-    dt.print(_("Creating pto file"))
-    dt.control.execute( huginStartCommand)
+    huginStartCommand = "pto_gen "..img_list.." -o "..pto_path
+	dt.print(_("Creating pto file"))
+	dt.control.execute( huginStartCommand)
 
-    dt.print(_("Running Assistent"))
-    huginStartCommand = "hugin_executor --assistant "..dt.configuration.tmp_dir.."/project.pto"
-    dt.control.execute( huginStartCommand)
+	dt.print(_("Running Assistent"))
+	huginStartCommand = "hugin_executor --assistant "..pto_path
+	dt.control.execute( huginStartCommand)
 
-    huginStartCommand = "hugin "..dt.configuration.tmp_dir.."/project.pto"
+	huginStartCommand = 'hugin_executor --stitching --prefix="'..output_path..'" '..pto_path
   else
-    huginStartCommand = "hugin "..img_list
+	huginStartCommand = "hugin "..img_list
   end
 
-  dt.print_error(huginStartCommand)
+  --dt.print_error(huginStartCommand)
 
-  if not dt.control.execute(huginStartCommand)
-    then
-    dt.print(_("Command hugin failed ..."))
+  if not dt.control.execute(huginStartCommand) then
+	dt.print(_("Command hugin failed ..."))
+  else
+	dt.database.import(output_path)
   end
 
+  -- cleanup the temp files
+  for k,v in pairs(image_table) do
+	os.remove(v)
+  end
 end
 
 -- Register
