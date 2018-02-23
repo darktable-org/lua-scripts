@@ -51,7 +51,13 @@ dtutils_file.libdoc.functions["check_if_bin_exists"] = {
 }
 
 function dtutils_file.check_if_bin_exists(bin)
-  local result = os.execute("which " .. bin)
+  local cmd
+  if package.config:sub(1,1) == '/' then
+	cmd = 'which '
+  else
+    cmd = 'where '
+  end
+  local result = os.execute(cmd .. bin)
   if not result then
     result = false
   end
@@ -194,10 +200,13 @@ dtutils_file.libdoc.functions["check_if_file_exists"] = {
 }
 
 function dtutils_file.check_if_file_exists(filepath)
-  local result = os.execute("test -e " .. filepath)
-  if not result then
-    result = false
+  local file = io.open(filepath, "r")
+  local result = false
+  if file then
+    result = true
+	file:close()
   end
+
   return result
 end
 
@@ -384,7 +393,7 @@ function dtutils_file.create_unique_filename(filepath)
   while dtutils_file.check_if_file_exists(filepath) do
     filepath = dtutils_file.filename_increment(filepath)
     -- limit to 99 more exports of the original export
-    if string.match(dtfileutils.get_basename(filepath), "_(d-)$") == "99" then 
+    if string.match(dtutils_file.get_basename(filepath), "_(d-)$") == "99" then
       break 
     end
   end
