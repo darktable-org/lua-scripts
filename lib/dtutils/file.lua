@@ -51,16 +51,17 @@ dtutils_file.libdoc.functions["check_if_bin_exists"] = {
 }
 
 function dtutils_file.check_if_bin_exists(bin)
-  local cmd
-  if package.config:sub(1,1) == '/' then
-	cmd = 'which '
+  local result
+  if (dt.configuration.running_os == 'linux') then
+    result = os.execute("which "..bin)
   else
-    cmd = 'where '
+    result = dtutils_file.check_if_file_exists(bin)
   end
-  local result = os.execute(cmd .. bin)
+
   if not result then
     result = false
   end
+
   return result
 end
 
@@ -200,11 +201,26 @@ dtutils_file.libdoc.functions["check_if_file_exists"] = {
 }
 
 function dtutils_file.check_if_file_exists(filepath)
-  local file = io.open(filepath, "r")
-  local result = false
-  if file then
-    result = true
-	file:close()
+  local result
+  if (dt.configuration.running_os == 'windows') then
+    filepath = string.gsub(filepath, '[\\/]+', '\\')
+    result = os.execute('if exist "'..filepath..'" (cmd /c exit 0) else (cmd /c exit 1)')
+    if not result then
+      result = false
+    end
+  elseif (dt.configuration.running_os == "linux") then
+    result = os.execute('test -e ' .. filepath)
+    if not result then
+      result = false
+    end
+  else
+    local file = io.open(filepath, "r")
+    if file then
+      result = true
+      file:close()
+    else
+      result = false
+    end
   end
 
   return result
