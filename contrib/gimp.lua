@@ -67,109 +67,38 @@ local dt = require "darktable"
 local df = require "lib/dtutils.file"
 require "official/yield"
 local gettext = dt.gettext
+local gimp_widget = nil
 
-dt.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
+dt.configuration.check_version(...,{5,0,0})
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("gimp",dt.configuration.config_dir.."/lua/locale/")
-
-local function split_filepath(str)
-  local result = {}
-  -- Thank you Tobias Jakobs for the awesome regular expression, which I tweaked a little
-  result["path"], result["filename"], result["basename"], result["filetype"] = string.match(str, "(.-)(([^\\/]-)%.?([^%.\\/]*))$")
-  return result
-end
-
-local function get_path(str)
-  local parts = split_filepath(str)
-  return parts["path"]
-end
-
-local function get_filename(str)
-  local parts = split_filepath(str)
-  return parts["filename"]
-end
-
-local function get_basename(str)
-  local parts = split_filepath(str)
-  return parts["basename"]
-end
-
-local function get_filetype(str)
-  local parts = split_filepath(str)
-  return parts["filetype"]
-end
 
 local function _(msgid)
     return gettext.dgettext("gimp", msgid)
 end
 
--- Thanks Tobias Jakobs for the idea and the correction
-function checkIfFileExists(filepath)
-  local file = io.open(filepath,"r")
-  local ret
-  if file ~= nil then
-    io.close(file)
-    dt.print_error("true checkIfFileExists: "..filepath)
-    ret = true
-  else
-    dt.print_error(filepath.." not found")
-    ret = false
-  end
-  return ret
-end
-
-local function filename_increment(filepath)
-
-  -- break up the filepath into parts
-  local path = get_path(filepath)
-  local basename = get_basename(filepath)
-  local filetype = get_filetype(filepath)
-
-  -- check to see if we've incremented before
-  local increment = string.match(basename, "_(%d-)$")
-
-  if increment then
-    -- we do 2 digit increments so make sure we didn't grab part of the filename
-    if string.len(increment) > 2 then
-      -- we got the filename so set the increment to 01
-      increment = "01"
-    else
-      increment = string.format("%02d", tonumber(increment) + 1)
-      basename = string.gsub(basename, "_(%d-)$", "")
-    end
-  else
-    increment = "01"
-  end
-  local incremented_filepath = path .. basename .. "_" .. increment .. "." .. filetype
-
-  dt.print_error("original file was " .. filepath)
-  dt.print_error("incremented file is " .. incremented_filepath)
-
-  return incremented_filepath
-end
-
-local function groupIfNotMember(img, new_img)
+local function group_if_not_member(img, new_img)
   local image_table = img:get_group_members()
   local is_member = false
   for _,image in ipairs(image_table) do
-    dt.print_error(image.filename .. " is a member")
+    dt.print_log(image.filename .. " is a member")
     if image.filename == new_img.filename then
       is_member = true
-      dt.print_error("Already in group")
+      dt.print_log("Already in group")
     end
   end
   if not is_member then
-    dt.print_error("group leader is "..img.group_leader.filename)
+    dt.print_log("group leader is "..img.group_leader.filename)
     new_img:group_with(img.group_leader)
-    dt.print_error("Added to group")
+    dt.print_log("Added to group")
   end
 end
 
 local function sanitize_filename(filepath)
-  local path = get_path(filepath)
-  local basename = get_basename(filepath)
-  local filetype = get_filetype(filepath)
+  local path = df.get_path(filepath)
+  local basename = df.get_basename(filepath)
+  local filetype = df.get_filetype(filepath)
 
   local sanitized = string.gsub(basename, " ", "\\ ")
 
@@ -181,60 +110,11 @@ local function show_status(storage, image, format, filename,
     dt.print(string.format(_("Export Image %i/%i"), number, total))
 end
 
-local function fileCopy(fromFile, toFile)
-  local result = nil
-  -- if cp exists, use it
-  if df.check_if_bin_exists("cp") then
-    result = os.execute("cp '" .. fromFile .. "' '" .. toFile .. "'")
-  end
-  -- if cp was not present, or if cp failed, then a pure lua solution
-  if not result then
-    local fileIn, err = io.open(fromFile, 'rb')
-    if fileIn then
-      local fileOut, errr = io.open(toFile, 'w')
-      if fileOut then
-        local content = fileIn:read(4096)
-        while content do
-          fileOut:write(content)
-          content = fileIn:read(4096)
-        end
-        result = true
-        fileIn:close()
-        fileOut:close()
-      else
-        dt.print_error("fileCopy Error: " .. errr)
-      end
-    else
-      dt.print_error("fileCopy Error: " .. err)
-    end
-  end
-  return result
-end
-
-local function fileMove(fromFile, toFile)
-  local success = os.rename(fromFile, toFile)
-  if not success then
-    -- an error occurred, so let's try using the operating system function
-    if df.check_if_bin_exists("mv") then
-      success = os.execute("mv '" .. fromFile .. "' '" .. toFile .. "'")
-    end
-    -- if the mv didn't exist or succeed, then...
-    if not success then
-      -- pure lua solution
-      success = fileCopy(fromFile, toFile)
-      if success then
-        os.remove(fromFile)
-      else
-        dt.print_error("fileMove Error: Unable to move " .. fromFile .. " to " .. toFile .. ".  Leaving " .. fromFile .. " in place.")
-        dt.print(string.format(_("Unable to move edited file into collection. Leaving it as %s"), fromFile))
-      end
-    end
-  end
-  return success  -- nil on error, some value if success
-end
-
 local function gimp_edit(storage, image_table, extra_data) --finalize
-  if not df.check_if_bin_exists("gimp") then
+
+  local gimp_executable = df.check_if_bin_exists("gimp")
+
+  if not gimp_executable then
     dt.print_error(_("GIMP not found"))
     return
   end
@@ -253,9 +133,9 @@ local function gimp_edit(storage, image_table, extra_data) --finalize
   dt.print(_("Launching GIMP..."))
 
   local gimpStartCommand
-  gimpStartCommand = "gimp "..img_list
+  gimpStartCommand = gimp_executable .. " " .. img_list
 
-  dt.print_error(gimpStartCommand)
+  dt.print_log(gimpStartCommand)
 
   dt.control.execute( gimpStartCommand)
 
@@ -266,28 +146,28 @@ local function gimp_edit(storage, image_table, extra_data) --finalize
 
   for image,exported_image in pairs(image_table) do
 
-    local myimage_name = image.path .. "/" .. get_filename(exported_image)
+    local myimage_name = image.path .. "/" .. df.get_filename(exported_image)
 
-    while checkIfFileExists(myimage_name) do
-      myimage_name = filename_increment(myimage_name)
+    while df.check_if_file_exists(myimage_name) do
+      myimage_name = df.filename_increment(myimage_name)
       -- limit to 99 more exports of the original export
-      if string.match(get_basename(myimage_name), "_(d-)$") == "99" then
+      if string.match(df.get_basename(myimage_name), "_(d-)$") == "99" then
         break
       end
     end
 
-    dt.print_error("moving " .. exported_image .. " to " .. myimage_name)
-    local result = fileMove(exported_image, myimage_name)
+    dt.print_log("moving " .. exported_image .. " to " .. myimage_name)
+    local result = df.file_move(exported_image, myimage_name)
 
     if result then
-      dt.print_error("importing file")
+      dt.print_log("importing file")
       local myimage = dt.database.import(myimage_name)
 
-      groupIfNotMember(image, myimage)
+      group_if_not_member(image, myimage)
 
       for _,tag in pairs(dt.tags.get_tags(image)) do
         if not (string.sub(tag.name,1,9) == "darktable") then
-          dt.print_error("attaching tag")
+          dt.print_log("attaching tag")
           dt.tags.attach(tag,myimage)
         end
       end
@@ -297,6 +177,13 @@ local function gimp_edit(storage, image_table, extra_data) --finalize
 end
 
 -- Register
-dt.register_storage("module_gimp", _("Edit with GIMP"), show_status, gimp_edit)
+
+local executables = {"gimp"}
+
+if dt.configuration.running_os ~= "linux" then
+  gimp_widget = df.executable_path_widget(executables)
+end
+
+dt.register_storage("module_gimp", _("Edit with GIMP"), show_status, gimp_edit, nil, nil, gimp_widget)
 
 --
