@@ -32,7 +32,7 @@ local dt = require "darktable"
 
 local log = require "lib/dtutils.log"
 
-dt.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
+dt.configuration.check_version(...,{5,0,0})
 
 dtutils.libdoc.functions["split"] = {
   Name = [[split]],
@@ -213,6 +213,39 @@ function dtutils.spairs(_table, order) -- Code copied from http://stackoverflow.
       return keys[i], _table[keys[i]]
     end
   end
+end
+
+dtutils.libdoc.functions["check_os"] = {
+  Name = [[check_os]],
+  Synopsis = [[check that the operating system is supported]],
+  Usage = [[local du = require "lib/dtutils"
+
+    local result = du.check_os(operating_systems)
+      operating_systems - a table of operating system names such as {"windows","linux","macos","unix"}]],
+  Description = [[check_os checks a supplied table of operating systems against the operating system the
+    script is running on and returns true if the OS is in the list, otherwise false]],
+  Return_Value = [[result - boolean - true if the operating system is supported, false if not.]],
+  Limitations = [[]],
+  Example = [[local du = require "lib/dtutils"
+              if du.check_os({"windows"}) then
+                -- run the script
+              else
+                dt.print("Script <script name> only runs on windows")
+                return
+              end]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils.check_os(operating_systems)
+  for _,os in pairs(operating_systems) do
+    if dt.configuration.running_os == os then
+      return true
+    end
+  end
+  return false
 end
 
 return dtutils
