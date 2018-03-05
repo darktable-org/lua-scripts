@@ -29,7 +29,7 @@ ADDITIONAL SOFTWARE NEEDED FOR THIS SCRIPT
 
 USAGE
 * require this file from your main luarc config file
-* set the hugin tool paths in preferences
+* set the hugin tool paths (on some platforms)
 * if hugin gui mode is used, save the final result in the tmp directory with the first file name and _pano as suffix for the image to be automatically imported to DT afterwards
 
 This plugin will add a new storage option and calls hugin after export.
@@ -39,7 +39,13 @@ local dt = require "darktable"
 local df = require "lib/dtutils.file"
 require "official/yield"
 local gettext = dt.gettext
+
 local namespace = 'module_hugin'
+local user_pref_str = 'prefer_gui'
+local user_prefer_gui = dt.preferences.read(namespace, user_pref_str, "bool")
+local hugin_widget = nil
+local exec_widget = nil
+local executable_table = {"hugin", "hugin_executor", "pto_gen"}
 
 -- works with darktable API version from 2.0.0 to 5.0.0
 dt.configuration.check_version(...,{2,0,0},{3,0,0},{4,0,0},{5,0,0})
@@ -51,9 +57,14 @@ local function _(msgid)
   return gettext.dgettext("hugin", msgid)
 end
 
+local function user_preference_changed(widget)
+  user_prefer_gui = widget.value
+  dt.preferences.write(namespace, user_pref_str, "bool", user_prefer_gui)
+end
+
 local function show_status(storage, image, format, filename,
   number, total, high_quality, extra_data)
-  dt.print("exporting to Hugin: "..tostring(number).."/"..tostring(total))
+  dt.print("exporting to hugin: "..tostring(number).."/"..tostring(total))
 end
 
 local function create_panorama(storage, image_table, extra_data) --finalize
@@ -62,19 +73,21 @@ local function create_panorama(storage, image_table, extra_data) --finalize
 -- We need pto_gen to create pto file for hugin_executor
 -- http://hugin.sourceforge.net/docs/manual/Pto_gen.html
 
-  local hugin = '"'..dt.preferences.read(namespace, "hugin", "file")..'"'
-  local hugin_executor = '"'..dt.preferences.read(namespace, "hugin_executor", "file")..'"'
-  local pto_gen = '"'..dt.preferences.read(namespace, "pto_gen", "file")..'"'
-  local user_prefer_gui = dt.preferences.read(namespace, "hugin_prefer_gui", "bool")
-
-  local cmd_line_available = false
-  if df.check_if_bin_exists(hugin_executor) and df.check_if_bin_exists(pto_gen) then
-    cmd_line_available = true
-  end
+  local hugin = df.check_if_bin_exists("hugin")
+  local hugin_executor = df.check_if_bin_exists("hugin_executor")
+  local pto_gen = df.check_if_bin_exists("pto_gen")
 
   local gui_available = false
-  if df.check_if_bin_exists(hugin) then
+  if hugin then
     gui_available = true
+  else
+    dt.print(_("hugin is not found, did you set the path?"))
+    return
+  end
+
+  local cmd_line_available = false
+  if hugin_executor and pto_gen then
+    cmd_line_available = true
   end
 
   -- list of exported images
@@ -93,6 +106,11 @@ local function create_panorama(storage, image_table, extra_data) --finalize
   local first_file
   for _, k in ipairs(img_set) do
     first_file = k break
+  end
+
+  if first_file == nil then
+    dt.print("no file selected")
+    return
   end
 
   local pto_path = dt.configuration.tmp_dir..'/project.pto'
@@ -124,16 +142,16 @@ local function create_panorama(storage, image_table, extra_data) --finalize
     if (user_prefer_gui) then
       dt.print(_("launching hugin"))
     else
-      dt.print(_("unable to find command line tools, launching hugin")
+      dt.print(_("unable to find command line tools, launching hugin"))
     end
     huginStartCommand = hugin..' '..img_list
   else
-    dt.print(_("hugin isn't available, please set the paths in preferences."))
+    dt.print(_("hugin isn't available."))
   end
 
   if not (huginStartCommand==nil) then
     if not dt.control.execute(huginStartCommand) then
-      dt.print(_("command hugin failed ..."))
+      dt.print(_("hugin failed ..."))
     else
       if df.check_if_file_exists(src_path) then
         df.file_move(src_path, dst_path)
@@ -150,11 +168,23 @@ local function create_panorama(storage, image_table, extra_data) --finalize
 end
 
 -- Register
-dt.register_storage(namespace, _("hugin panorama"), show_status, create_panorama)
-dt.preferences.register(namespace, "pto_gen", "file", _("pto_gen location"), "choose the pto_gen executable.", "/usr/bin/pto_gen")
-dt.preferences.register(namespace, "hugin_executor", "file", _("hugin_executor location"), "choose the hugin_executor executable.", "/usr/bin/hugin_executor")
-dt.preferences.register(namespace, "hugin", "file", _("hugin location"), "choose the hugin executable", "/usr/bin/hugin")
-dt.preferences.register(namespace, "hugin_prefer_gui", "bool", _("prefer hugin gui over command line"), "always launches hugin gui instead of automated from command line.", false)
+if dt.configuration.running_os ~= "linux" then
+  exec_widget = df.executable_path_widget(executable_table)
+end
+
+hugin_widget = dt.new_widget("box") {
+  orientation = "vertical",
+  dt.new_widget("check_button")
+  {
+    label = _("  launch hugin gui"),
+    value = user_prefer_gui,
+    tooltip = _('launch hugin in gui mode'),
+    clicked_callback = user_preference_changed
+  },
+  exec_widget
+}
+
+dt.register_storage(namespace, _("hugin panorama"), show_status, create_panorama, nil, nil, hugin_widget)
 
 --
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
