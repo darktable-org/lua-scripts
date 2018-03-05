@@ -23,7 +23,7 @@ dtutils_file.libdoc = {
 
 local gettext = dt.gettext
 
-dt.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
+dt.configuration.check_version(...,{5,0,0})
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("dtutils.file",dt.configuration.config_dir.."/lua/locale/")
@@ -34,14 +34,18 @@ end
 
 dtutils_file.libdoc.functions["check_if_bin_exists"] = {
   Name = [[check_if_bin_exists]],
-  Synopsis = [[check if an executable is in the path]],
+  Synopsis = [[check if an executable exists]],
   Usage = [[local df = require "lib/dtutils.file"
 
     local result = df.check_if_bin_exists(bin)
       bin - string - the binary to check for]],
-  Description = [[check_if_bin_exists checks to see if the specified binary executable is
-    in the path.]],
-  Return_Value = [[result - boolean - true if the executable was found, false if not]],
+  Description = [[check_if_bin_exists checks to see if the specified binary exists.
+    check_if_bin_exists first checks to see if a preference for the binary has been
+    registered and uses that if found.  The presence of the file is verified, then 
+    quoted and returned.  If no preference is specified and the operating system is
+    linux then the which command is used to check for a binary in the path.  If found
+    that path is returned.  If no binary is found, false is returned.]],
+  Return_Value = [[result - string - the path of the binary, false if not found]],
   Limitations = [[]],
   Example = [[]],
   See_Also = [[]],
@@ -51,17 +55,27 @@ dtutils_file.libdoc.functions["check_if_bin_exists"] = {
 }
 
 function dtutils_file.check_if_bin_exists(bin)
-  local result
-  if (dt.configuration.running_os == 'linux') then
-    result = os.execute("which "..bin)
+  local result = false
+  local path = nil
+
+  if string.match(bin, "/") or string.match(bin, "\\") then 
+    path = bin
   else
-    result = dtutils_file.check_if_file_exists(bin)
+    path = dtutils_file.get_executable_path_preference(bin)
   end
 
-  if not result then
-    result = false
+  if string.len(path) > 0 then
+    if dtutils_file.check_if_file_exists(path) then
+      result = "\"" .. path .. "\""
+    end
+  elseif dt.configuration.running_os == "linux" then
+    local p = io.popen("which " .. bin)
+    local output = p:read("*a")
+    p:close()
+    if string.len(output) > 0 then
+      result = output:sub(1,-2)
+    end
   end
-
   return result
 end
 
@@ -414,6 +428,101 @@ function dtutils_file.create_unique_filename(filepath)
     end
   end
   return filepath
+end
+
+
+dtutils_file.libdoc.functions["set_executable_path_preference"] = {
+  Name = [[set_executable_path_preference]],
+  Synopsis = [[set a preference for the path to an executable]],
+  Usage = [[local df = require "lib/dtutils.file"
+
+    df.set_executable_path_preference(executable, path)
+      executable - string - the name of the executable to set the path for
+      path - string - the path to the binary]],
+  Description = [[set_executable_path_preference takes an executable name and path to the
+  executable and registers the preference for later use.]],
+  Return_Value = [[]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_file.set_executable_path_preference(executable, path)
+  dt.preferences.write("executable_paths", executable, "string", path)
+end
+
+
+dtutils_file.libdoc.functions["get_executable_path_preference"] = {
+  Name = [[get_executable_path_preference]],
+  Synopsis = [[return the path to an executable from a preference]],
+  Usage = [[local df = require "lib/dtutils.file"
+
+    local result = df.get_executable_path_preference(executable)
+      executable - string - the name of the executable to get the path for]],
+  Description = [[get_executable_path_preference returns the path preference to
+    the requested executable.]],
+  Return_Value = [[result - string - path to the executable]],
+  Limitations = [[executable should be the basename of the executable without extensions]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_file.get_executable_path_preference(executable)
+  return dt.preferences.read("executable_paths", executable, "string")
+end
+
+
+dtutils_file.libdoc.functions["executable_path_widget"] = {
+  Name = [[executable_path_widget]],
+  Synopsis = [[create a widget to get executable path preferences]],
+  Usage = [[local df = require "lib/dtutils.file"
+
+    local widget = df.executable_path_widget(executables)
+      executables - table - a table of strings that are executable names]],
+  Description = [[executable_path_widget takes a table of executable names
+    and builds a set of file selector widgets to get the path to the executable. 
+    The resulting widgets are wrapped in a box widget and returned.]],
+  Return_Value = [[widget - widget - a widget containing a file selector widget for
+    each executable.]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_file.executable_path_widget(executables)
+  local box_widgets = {}
+  table.insert(box_widgets, dt.new_widget("section_label"){label = "select executable(s)"})
+  for _, executable in pairs(executables) do 
+    table.insert(box_widgets, dt.new_widget("label"){label = "select " .. executable .. " executable"})
+    local path = dtutils_file.get_executable_path_preference(executable)
+    if not path then 
+      path = ""
+    end
+    table.insert(box_widgets, dt.new_widget("file_chooser_button"){
+      title = "select " .. executable .. " executable",
+      value = path,
+      is_directory = false,
+      changed_callback = function(self)
+        if dtutils_file.check_if_bin_exists(self.value) then
+          dtutils_file.set_executable_path_preference(executable, self.value)
+        end
+      end}
+    )
+  end
+  local box = dt.new_widget("box"){
+    orientation = "vertical",
+    table.unpack(box_widgets)
+  }
+  return box
 end
 
 return dtutils_file
