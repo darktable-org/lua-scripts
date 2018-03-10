@@ -523,7 +523,6 @@ function dtutils_file.executable_path_widget(executables)
       value = path,
       is_directory = false,
       changed_callback = function(self)
-        dt.print_log("checking that " .. self.value .. " exists")
         if dtutils_file.check_if_bin_exists(self.value) then
           dtutils_file.set_executable_path_preference(executable, self.value)
         end
