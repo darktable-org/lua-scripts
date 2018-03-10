@@ -66,7 +66,17 @@ function dtutils_file.check_if_bin_exists(bin)
 
   if string.len(path) > 0 then
     if dtutils_file.check_if_file_exists(path) then
-      result = "\"" .. path .. "\""
+      path = "\"" .. path .. "\""
+      if (string.match(path, ".exe$") or string.match(path, ".EXE%")) and 
+        (dt.configuration.running_os == "linux" or 
+         dt.configuration.running_os == "unix" or
+         dt.configuration.running_os == "macos") then
+        result = "wine " .. path
+      elseif dt.configuration.running_os == "macos" then
+        result = "open -a -W " .. path
+      else
+        result = path
+      end
     end
   elseif dt.configuration.running_os == "linux" then
     local p = io.popen("which " .. bin)
@@ -215,10 +225,11 @@ dtutils_file.libdoc.functions["check_if_file_exists"] = {
 }
 
 function dtutils_file.check_if_file_exists(filepath)
+  filepath = "\"" .. filepath .. "\""
   local result
   if (dt.configuration.running_os == 'windows') then
     filepath = string.gsub(filepath, '[\\/]+', '\\')
-    result = os.execute('if exist "'..filepath..'" (cmd /c exit 0) else (cmd /c exit 1)')
+    result = os.execute('if exist '..filepath..' (cmd /c exit 0) else (cmd /c exit 1)')
     if not result then
       result = false
     end
@@ -512,6 +523,7 @@ function dtutils_file.executable_path_widget(executables)
       value = path,
       is_directory = false,
       changed_callback = function(self)
+        dt.print_log("checking that " .. self.value .. " exists")
         if dtutils_file.check_if_bin_exists(self.value) then
           dtutils_file.set_executable_path_preference(executable, self.value)
         end
