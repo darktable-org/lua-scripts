@@ -67,12 +67,7 @@ function dtutils_file.check_if_bin_exists(bin)
   if string.len(path) > 0 then
     if dtutils_file.check_if_file_exists(path) then
       path = "\"" .. path .. "\""
-      if (string.match(path, ".exe$") or string.match(path, ".EXE%")) and 
-        (dt.configuration.running_os == "linux" or 
-         dt.configuration.running_os == "unix" or
-         dt.configuration.running_os == "macos") then
-        result = "wine " .. path
-      elseif dt.configuration.running_os == "macos" then
+      if (string.match(path, ".exe$") or string.match(path, ".EXE%")) and dt.configuration.running_os ~= "windows" then
         result = "open -a -W " .. path
       else
         result = path
