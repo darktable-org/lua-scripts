@@ -66,13 +66,12 @@ function dtutils_file.check_if_bin_exists(bin)
 
   if string.len(path) > 0 then
     if dtutils_file.check_if_file_exists(path) then
-      path = "\"" .. path .. "\""
-      if (string.match(path, ".exe\"$") or string.match(path, ".EXE\"$")) and dt.configuration.running_os ~= "windows" then
-        result = "wine " .. path
+      if (string.match(path, ".exe$") or string.match(path, ".EXE$")) and dt.configuration.running_os ~= "windows" then
+       result = "wine " .. "\"" .. path .. "\""      
       elseif dt.configuration.running_os == "macos" then
-        result = "open -a -W " .. path
+        result = "open -W -a " .. "\"" .. path .. "\""
       else
-        result = path
+        result = "\"" .. path .. "\""
       end
     end
   elseif dt.configuration.running_os == "linux" then
@@ -222,16 +221,15 @@ dtutils_file.libdoc.functions["check_if_file_exists"] = {
 }
 
 function dtutils_file.check_if_file_exists(filepath)
-  filepath = "\"" .. filepath .. "\""
   local result
   if (dt.configuration.running_os == 'windows') then
     filepath = string.gsub(filepath, '[\\/]+', '\\')
-    result = os.execute('if exist '..filepath..' (cmd /c exit 0) else (cmd /c exit 1)')
+    result = os.execute('if exist "'..filepath..'" (cmd /c exit 0) else (cmd /c exit 1)')
     if not result then
       result = false
     end
   elseif (dt.configuration.running_os == "linux") then
-    result = os.execute('test -e ' .. filepath)
+    result = os.execute('test -e ' .. "\"" .. filepath .. "\"")
     if not result then
       result = false
     end
