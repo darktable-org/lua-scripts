@@ -1,0 +1,17 @@
+.TH GET_EXECUTABLE_PATH_PREFERENCE 3 "" "" "Darktable dtutils.file functions"
+.SH NAME
+get_executable_path_preference
+.SH SYNOPSIS
+return the path to an executable from a preference
+.SH USAGE
+local df = require "lib/dtutils.file"
+
+    local result = df.get_executable_path_preference(executable)
+      executable - string - the name of the executable to get the path for
+.SH DESCRIPTION
+get_executable_path_preference returns the path preference to
+    the requested executable.
+.SH RETURN VALUE
+result - string - path to the executable
+.SH LIMITATIONS
+executable should be the basename of the executable without extensions

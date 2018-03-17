@@ -1,0 +1,22 @@
+.TH SPLIT 3 "" "" "Darktable dtutils functions"
+.SH NAME
+split
+.SH SYNOPSIS
+split a string on a specified separator
+.SH USAGE
+local du = require "lib/dtutils"
+
+    local result = du.split(str, pat)
+      str - string - the string to split
+      pat - string - the pattern to split on
+.SH DESCRIPTION
+split separates a string into a table of strings.  The strings are separated at each
+    occurrence of the supplied pattern. The pattern may be any pattern as described in the lua docs.
+    Each match of the pattern is consumed and not returned.
+.SH RETURN VALUE
+result - a table of strings on success, or an empty table on error
+.SH EXAMPLE
+split("/a/long/path/name/to/a/file.txt", "/") would return a table like
+      {a, "long", "path", "name", "to", a, "file.txt"}
+.SH REFERENCE
+http://lua-users.org/wiki/SplitJoin

@@ -1,0 +1,14 @@
+.TH CHOP_FILETYPE 3 "" "" "Darktable dtutils.file functions"
+.SH NAME
+chop_filetype
+.SH SYNOPSIS
+remove a filetype from a filename
+.SH USAGE
+local df = require "lib/dtutils.file"
+
+    local result = df.chop_filetype(path)
+      path - string - a filename with or without a path
+.SH DESCRIPTION
+chop_filetype removes the filetype from the filename
+.SH RETURN VALUE
+result - string - the path and filename without the filetype

@@ -1,0 +1,15 @@
+.TH CALLER 3 "" "" "Darktable dtutils.log functions"
+.SH NAME
+caller
+.SH SYNOPSIS
+get the name and line number of the calling routine
+.SH USAGE
+local log = require "lib/dtutils.log"
+
+result = log.caller(level)
+      level - number - the  number of stack levels to go down to retrieve the caller routine information
+.SH DESCRIPTION
+caller gets the name and line number of the calling routine and returns it
+.SH RETURN VALUE
+result - string - the name and line number of the calling function or 'callback: ' if the attempt to get the 
+    caller returns nil

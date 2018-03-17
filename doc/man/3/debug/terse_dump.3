@@ -1,0 +1,12 @@
+.TH TERSE_DUMP 3 "" "" "Darktable dtutils.debug functions"
+.SH NAME
+terse_dump
+.SH SYNOPSIS
+set dt.debug.known to shorten all image dumps to a single line
+.SH USAGE
+local dd = require "lib/dtutils.debug"
+
+    dd.terse_dump()
+.SH DESCRIPTION
+terse_dump sets dt.debug.known to shorten all images to a single line.
+    If you don't need to debug the content of images, this will avoid them flooding your logs

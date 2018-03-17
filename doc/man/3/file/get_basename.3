@@ -1,0 +1,15 @@
+.TH GET_BASENAME 3 "" "" "Darktable dtutils.file functions"
+.SH NAME
+get_basename
+.SH SYNOPSIS
+get the filename without the path or extension
+.SH USAGE
+local df = require "lib/dtutils.file"
+
+    local result = df.get_basename(filepath)
+      filepath - string - path and filename
+.SH DESCRIPTION
+get_basename returns the name of the file without the path or filetype
+
+.SH RETURN VALUE
+result - string - the basename of the file

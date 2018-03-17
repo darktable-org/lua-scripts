@@ -1,0 +1,23 @@
+.TH NEW_TRACEPOINT 3 "" "" "Darktable dtutils.debug functions"
+.SH NAME
+new_tracepoint
+.SH SYNOPSIS
+create a function returning a tracepoint
+.SH USAGE
+local dd = require "lib/dtutils.debug"
+
+    local result = new_tracepoint(name, ...)
+      name - string - the name of the tracepoint to print out
+      ... - arguments - variables to dump the contents of
+.SH DESCRIPTION
+A function that returns a tracepoint function with the given name
+    This is mainly used to debug callbacks.
+.SH RETURN VALUE
+result - function - a function that returns the result of a tracepoint
+.SH EXAMPLE
+register_event(event, dd.new_tracepoint("hit callback"))
+
+    will print the following each time the callback is called
+
+    **** hit callback ****
+    <all the callback's parameters dumped>

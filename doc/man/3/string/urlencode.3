@@ -1,0 +1,17 @@
+.TH URLENCODE 3 "" "" "Darktable dtutils.string functions"
+.SH NAME
+urlencode
+.SH SYNOPSIS
+encode a string in a websage manner
+.SH USAGE
+local ds = require "lib/dtutils.string"
+
+    local result = ds.urlencode(str)
+      str - string - the string that needs to be made websafe
+.SH DESCRIPTION
+urlencode converts a string into a websafe version suitable for
+    use in a web browser.
+.SH RETURN VALUE
+result - string - a websafe string
+.SH REFERENCE
+https://forums.coronalabs.com/topic/43048-remove-special-characters-from-string/

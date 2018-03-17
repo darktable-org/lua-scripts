@@ -1,0 +1,19 @@
+.TH ENGINE 3 "" "" "Darktable dtutils.log functions"
+.SH NAME
+engine
+.SH SYNOPSIS
+get and set the output engine
+.SH USAGE
+local log = require "lib/dtutils.log"
+
+result = log.engine(level, ...)
+      level - table - the log level to get or set the engine for, one of log.debug, log.info, log.warn, log.error
+      log.success, log.always, log.screen, log.critical
+      ... - function - the output function, one of dt.print, dt.print_error, dt.print_log, print
+      if not function is included, the current engine is returned for the specified log level
+.SH DESCRIPTION
+engine returns the output engine for the specified log level if a second argument is not
+  supplied.  If a function is supplied as the second argment, then the output engine for the specified log level
+  is set to that.
+.SH RETURN VALUE
+result - function - the current output engine

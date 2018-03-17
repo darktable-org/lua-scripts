@@ -1,0 +1,19 @@
+.TH CHECK_IF_BIN_EXISTS 3 "" "" "Darktable dtutils.file functions"
+.SH NAME
+check_if_bin_exists
+.SH SYNOPSIS
+check if an executable exists
+.SH USAGE
+local df = require "lib/dtutils.file"
+
+    local result = df.check_if_bin_exists(bin)
+      bin - string - the binary to check for
+.SH DESCRIPTION
+check_if_bin_exists checks to see if the specified binary exists.
+    check_if_bin_exists first checks to see if a preference for the binary has been
+    registered and uses that if found.  The presence of the file is verified, then 
+    quoted and returned.  If no preference is specified and the operating system is
+    linux then the which command is used to check for a binary in the path.  If found
+    that path is returned.  If no binary is found, false is returned.
+.SH RETURN VALUE
+result - string - the path of the binary, false if not found

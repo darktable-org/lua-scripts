@@ -1,0 +1,32 @@
+.TH MSG 3 "" "" "Darktable dtutils.log functions"
+.SH NAME
+msg
+.SH SYNOPSIS
+print a log message
+.SH USAGE
+local log = require "lib/log"
+
+    log.msg(level, ...)
+      level - table - the type of message, one of: 
+        log.debug    - debugging messages
+        log.info     - informational messages
+        log.warn     - warning messages 
+        log.error    - error messages 
+        log.success  - success messages
+        log.always   - an internal message for debugging
+        log.screen   - output 1 line of text to the screen
+        log.critical - print a critical message to the console
+
+      ... - string(s) - the message to print, which could be a comma separated set of strings
+.SH DESCRIPTION
+msg checks the level to see if it is enabled, then prints the level type and message if it is.
+    Messages are output using the engine configured in each log level.
+.SH LIMITATIONS
+If you use log.msg in a callback, the name of the calling routine can't be determined.  A solution
+    is to include some means of reference such as the name of the callback as an argument, i.e. 
+
+      log.msg(log.debug, "libPlugin.format_combobox:", "value is " .. self.value)
+
+    which would result in
+
+      DEBUG: callback: libPlugin.format_combobox: value is JPEG

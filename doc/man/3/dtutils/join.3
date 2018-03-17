@@ -1,0 +1,21 @@
+.TH JOIN 3 "" "" "Darktable dtutils functions"
+.SH NAME
+join
+.SH SYNOPSIS
+join a table of strings with a specified separator
+.SH USAGE
+local du = require "lib/dtutils"
+
+    local result = du.join(tabl, pat)
+      tabl - a table of strings
+      pat - a separator
+.SH DESCRIPTION
+join assembles a table of strings into a string with the specified pattern 
+    in between each string
+.SH RETURN VALUE
+result - string - the joined string on success, or an empty string on failure
+.SH EXAMPLE
+join({a, "long", "path", "name", "to", a, "file.txt"}, " ") would return the string
+      "a long path name to a file.txt"
+.SH REFERENCE
+http://lua-users.org/wiki/SplitJoin

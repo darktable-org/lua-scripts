@@ -1,0 +1,17 @@
+.TH FILENAME_INCREMENT 3 "" "" "Darktable dtutils.file functions"
+.SH NAME
+filename_increment
+.SH SYNOPSIS
+add a two digit increment to a filename
+.SH USAGE
+local df = require "lib/dtutils.file"
+
+    local result = df.filename_increment(filepath)
+      filepath - string - filename to increment
+.SH DESCRIPTION
+filename_increment solves the problem of filename confllict by adding an 
+    increment to the filename.  If the supplied filename has no increment then 
+    "01" is added to the basename.  If the filename already has an increment, then
+    1 is added to it and the filename returned.
+.SH RETURN VALUE
+result - string - the incremented filename

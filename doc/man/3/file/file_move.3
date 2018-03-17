@@ -1,0 +1,16 @@
+.TH FILE_MOVE 3 "" "" "Darktable dtutils.file functions"
+.SH NAME
+file_move
+.SH SYNOPSIS
+move a file from one directory to another
+.SH USAGE
+local df = require "lib/dtutils.file"
+
+    local result = df.file_move(fromFile, toFile)
+      fromFile - string - name of the original file
+      toFile - string - the new file location and name
+.SH DESCRIPTION
+Move a file from one place to another.  Try a succession of methods from
+    builtin to operating system to a pure lua solution.
+.SH RETURN VALUE
+result - boolean - nil on error, some value on success
