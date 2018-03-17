@@ -1,0 +1,13 @@
+.TH DPRINT 3 "" "" "Darktable dtutils.debug functions"
+.SH NAME
+dprint
+.SH SYNOPSIS
+pass a variable to dt.debug.dump and print the results to stdout
+.SH USAGE
+local dd = require "lib/dtutils.debug"
+
+    dd.dprint(var)
+      var - variable - any variable that you want to see the contents of
+.SH DESCRIPTION
+Wrapper around debug.dump, will directly print to stdout,
+    same calling convention

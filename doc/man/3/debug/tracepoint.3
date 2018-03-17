@@ -1,0 +1,16 @@
+.TH TRACEPOINT 3 "" "" "Darktable dtutils.debug functions"
+.SH NAME
+tracepoint
+.SH SYNOPSIS
+print out a tracepoint and dump the arguments
+.SH USAGE
+local dd = require "lib/dtutils.debug"
+
+    local result = tracepoint(name, ...)
+      name - string - the name of the tracepoint to print out
+      ... - arguments - variables to dump the contents of
+.SH DESCRIPTION
+tracepoint prints its name and dumps its parameters using
+    dt.debug
+.SH RETURN VALUE
+result - ... - the supplied argument list

@@ -1,0 +1,14 @@
+.TH SET_EXECUTABLE_PATH_PREFERENCE 3 "" "" "Darktable dtutils.file functions"
+.SH NAME
+set_executable_path_preference
+.SH SYNOPSIS
+set a preference for the path to an executable
+.SH USAGE
+local df = require "lib/dtutils.file"
+
+    df.set_executable_path_preference(executable, path)
+      executable - string - the name of the executable to set the path for
+      path - string - the path to the binary
+.SH DESCRIPTION
+set_executable_path_preference takes an executable name and path to the
+  executable and registers the preference for later use.

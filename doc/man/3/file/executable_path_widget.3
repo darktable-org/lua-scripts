@@ -1,0 +1,17 @@
+.TH EXECUTABLE_PATH_WIDGET 3 "" "" "Darktable dtutils.file functions"
+.SH NAME
+executable_path_widget
+.SH SYNOPSIS
+create a widget to get executable path preferences
+.SH USAGE
+local df = require "lib/dtutils.file"
+
+    local widget = df.executable_path_widget(executables)
+      executables - table - a table of strings that are executable names
+.SH DESCRIPTION
+executable_path_widget takes a table of executable names
+    and builds a set of file selector widgets to get the path to the executable. 
+    The resulting widgets are wrapped in a box widget and returned.
+.SH RETURN VALUE
+widget - widget - a widget containing a file selector widget for
+    each executable.

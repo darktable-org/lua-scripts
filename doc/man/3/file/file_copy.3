@@ -1,0 +1,16 @@
+.TH FILE_COPY 3 "" "" "Darktable dtutils.file functions"
+.SH NAME
+file_copy
+.SH SYNOPSIS
+copy a file to another name/location
+.SH USAGE
+local df = require "lib/dtutils.file"
+
+    local result = df.file_copy(fromFile, toFile)
+      fromFile - string - name of file to copy from
+      toFile - string - name of file to copy to
+.SH DESCRIPTION
+copy a file using a succession of methods from operating system
+    to a pure lua solution
+.SH RETURN VALUE
+result - boolean - nil on error, true on success

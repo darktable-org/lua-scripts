@@ -1,0 +1,14 @@
+.TH GET_PATH 3 "" "" "Darktable dtutils.file functions"
+.SH NAME
+get_path
+.SH SYNOPSIS
+get the path from a file path
+.SH USAGE
+local df = require "lib/dtutils.file"
+
+    local result = df.get_path(filepath)
+      filepath - string - path and filename
+.SH DESCRIPTION
+get_path strips the filename and filetype from a path and returns the path
+.SH RETURN VALUE
+result - string - the path

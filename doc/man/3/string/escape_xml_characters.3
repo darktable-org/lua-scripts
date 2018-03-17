@@ -1,0 +1,18 @@
+.TH ESCAPE_XML_CHARACTERS 3 "" "" "Darktable dtutils.string functions"
+.SH NAME
+escape_xml_characters
+.SH SYNOPSIS
+escape characters for xml documents
+.SH USAGE
+local ds = require "lib/dtutils.string"
+    
+    local result = ds.escape_xml_characters(str)
+      str - string - the string that needs escaped
+.SH DESCRIPTION
+escape_xml_characters provides the escape sequences for
+    "&", '"', "'", "<", and ">" with the corresponding "&amp;",
+    "&quot;", "&apos;", "&lt;", and "&gt;".
+.SH RETURN VALUE
+result - string - the string containing escapes for the xml characters
+.SH REFERENCE
+https://stackoverflow.com/questions/1091945/what-characters-do-i-need-to-escape-in-xml-documents

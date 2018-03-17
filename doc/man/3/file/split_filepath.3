@@ -1,0 +1,15 @@
+.TH SPLIT_FILEPATH 3 "" "" "Darktable dtutils.file functions"
+.SH NAME
+split_filepath
+.SH SYNOPSIS
+split a filepath into parts
+.SH USAGE
+local df = require "lib/dtutils.file"
+
+    local result = df.split_filepath(filepath)
+      filepath - string - path and filename
+.SH DESCRIPTION
+split_filepath splits a filepath into the path, filename, basename and filetype and puts
+    that in a table
+.SH RETURN VALUE
+result - table - a table containing the path, filename, basename, and filetype

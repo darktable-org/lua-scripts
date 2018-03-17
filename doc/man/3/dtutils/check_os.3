@@ -1,0 +1,23 @@
+.TH CHECK_OS 3 "" "" "Darktable dtutils functions"
+.SH NAME
+check_os
+.SH SYNOPSIS
+check that the operating system is supported
+.SH USAGE
+local du = require "lib/dtutils"
+
+    local result = du.check_os(operating_systems)
+      operating_systems - a table of operating system names such as {"windows","linux","macos","unix"}
+.SH DESCRIPTION
+check_os checks a supplied table of operating systems against the operating system the
+    script is running on and returns true if the OS is in the list, otherwise false
+.SH RETURN VALUE
+result - boolean - true if the operating system is supported, false if not.
+.SH EXAMPLE
+local du = require "lib/dtutils"
+              if du.check_os({"windows"}) then
+                -- run the script
+              else
+                dt.print("Script <script name> only runs on windows")
+                return
+              end

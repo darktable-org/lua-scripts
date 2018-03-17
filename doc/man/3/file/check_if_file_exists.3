@@ -1,0 +1,14 @@
+.TH CHECK_IF_FILE_EXISTS 3 "" "" "Darktable dtutils.file functions"
+.SH NAME
+check_if_file_exists
+.SH SYNOPSIS
+check if a file or path exist
+.SH USAGE
+local df = require "lib/dtutils.file"
+
+    local result = df.check_if_file_exists(filepath)
+      filepath - string - a file or path to check
+.SH DESCRIPTION
+check_if_file_exists checks to see if a file or path exists
+.SH RETURN VALUE
+result - boolean - true if the file or path exists, false if it doesn't

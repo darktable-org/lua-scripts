@@ -1,0 +1,17 @@
+.TH STRIP_ACCENTS 3 "" "" "Darktable dtutils.string functions"
+.SH NAME
+strip_accents
+.SH SYNOPSIS
+strip accents from characters
+.SH USAGE
+local ds = require "lib/dtutils.string"
+
+    local result = ds.strip_accents(str)
+      str - string - the string with characters that need accents removed
+.SH DESCRIPTION
+strip_accents removes accents from accented characters returning the 
+    unaccented character.
+.SH RETURN VALUE
+result - string - the string containing unaccented characters
+.SH REFERENCE
+Copied from https://forums.coronalabs.com/topic/43048-remove-special-characters-from-string/

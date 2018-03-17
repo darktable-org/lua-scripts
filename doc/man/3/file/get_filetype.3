@@ -1,0 +1,14 @@
+.TH GET_FILETYPE 3 "" "" "Darktable dtutils.file functions"
+.SH NAME
+get_filetype
+.SH SYNOPSIS
+get the filetype from a filename
+.SH USAGE
+local df = require "lib/dtutils.file"
+
+    local result = df.get_filetype(filepath)
+      filepath - string - path and filename
+.SH DESCRIPTION
+get_filetype returns the filetype from the supplied filepath
+.SH RETURN VALUE
+result - string - the filetype
