@@ -30,6 +30,13 @@ Documentation
 
 Each script includes its own documentation and usage in its header, please refer to them.
 
+More information about the scripting with lua can be found in the darktable user manual:
+https://www.darktable.org/usermanual/en/lua_chapter.html
+
+The darktable Lua API documentation is here:
+https://www.darktable.org/lua-api/
+
+
 Contribution
 ------------
 
