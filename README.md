@@ -16,8 +16,8 @@ To clone the scripts with git, you just need this commands:
 
 That allows to update all your scripts with a simple call to `git pull`.
 
-Enableling 
-----------
+Enabling 
+--------
 
 To enable one of the scripts you have to add a line like `require "examples/hello_world"` to your: `~/.config/darktable/luarc` (Linux/Unix) or `%LOCALAPPDATA%\darktable\luarc` (Windows) file which will enable the example script in `examples/hello_world.lua` (note the lack of the `.lua` suffix).
 
