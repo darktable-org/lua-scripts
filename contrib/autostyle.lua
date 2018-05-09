@@ -58,18 +58,19 @@ function autostyle_apply_one_image (image)
   -- check they all exist (correct syntax)
   if (not tag) then
 	  darktable.print("EXIF TAG not found in " .. darktable.preferences.read("autostyle","exif_tag","string"))
-	  return
+	  return 0
   end
   if (not value) then
 	  darktable.print("value to match not found in " .. darktable.preferences.read("autostyle","exif_tag","string"))
-	  return
+	  return 0
   end
   if (not style_name) then
 	  darktable.print("style name not found in " .. darktable.preferences.read("autostyle","exif_tag","string"))
-	  return
+	  return 0
   end
   if not filelib.check_if_bin_exists("exiftool") then
-     return
+	  darktable.print("Can't find exiftool")
+          return 0
   end
 	
 	
@@ -83,6 +84,7 @@ function autostyle_apply_one_image (image)
   end
   if (not style) then
 	  darktable.print("style not found for autostyle: " .. style_name)
+          return 0
   end
 
   -- Apply the style to image, if it is tagged
@@ -90,23 +92,29 @@ function autostyle_apply_one_image (image)
   --darktable.print_error("dr_attr:" .. auto_dr_attr)
   -- If the lookup fails, stop here
   if (not ok) then
-    darktable.print("Couldn't get attribute" )
-    return
+    darktable.print("Couldn't get attribute " .. auto_dr_attr .. " from exiftool's output")
+    return 0
   end
   if auto_dr_attr==value then
-	  darktable.print_error("Image " .. image.filename .. ": autostyle automatically applied " .. darktable.preferences.read("autostyle","exif_tag","string") )
+	  darktable.print_log("Image " .. image.filename .. ": autostyle automatically applied " .. darktable.preferences.read("autostyle","exif_tag","string") )
 	  darktable.styles.apply(style,image)
+	  return 1
   else
-	  darktable.print_error("Image " .. image.filename .. ": autostyle not applied, exif tag " .. darktable.preferences.read("autostyle","exif_tag","string")  .. " not matched: " .. auto_dr_attr)
+	  darktable.print_log("Image " .. image.filename .. ": autostyle not applied, exif tag " .. darktable.preferences.read("autostyle","exif_tag","string")  .. " not matched: " .. auto_dr_attr)
+	  return 0
   end
 end 
 
 
 function autostyle_apply( shortcut)
   local images = darktable.gui.action_images
+  local images_processed =0
+  local images_submitted =0
   for _,image in pairs(images) do
-    autostyle_apply_one_image(image)
+    images_submitted = images_submitted +1
+    images_processed = images_processed + autostyle_apply_one_image(image)
   end
+  darktable.print("Applied auto style to " .. images_processed .. " out of " .. images_submitted .. " image(s)")
 end
 
 -- Retrieve the attribute through exiftool
@@ -119,7 +127,7 @@ function exiftool_attribute(path,attr)
     -- Raise an error to the caller
     error( "Could not find the attribute " .. attr .. " using the command: <" .. cmd .. ">");
   end
-  darktable.print_error("Returning attribute: " .. attribute)
+--  darktable.print_error("Returning attribute: " .. attribute)
   return attribute
 end
 
