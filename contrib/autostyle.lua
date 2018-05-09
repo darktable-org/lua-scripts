@@ -37,7 +37,7 @@ GPLv2
 ]]
 
 local darktable = require "darktable"
-
+local filelib = require "lib/dtutils.file"
 
 -- Forward declare the functions
 local autostyle_apply_one_image,autostyle_apply_one_image_event,autostyle_apply,exiftool_attribute,capture
@@ -58,18 +58,19 @@ function autostyle_apply_one_image (image)
   -- check they all exist (correct syntax)
   if (not tag) then
 	  darktable.print("EXIF TAG not found in " .. darktable.preferences.read("autostyle","exif_tag","string"))
-	  return
+	  return 0
   end
   if (not value) then
 	  darktable.print("value to match not found in " .. darktable.preferences.read("autostyle","exif_tag","string"))
-	  return
+	  return 0
   end
   if (not style_name) then
 	  darktable.print("style name not found in " .. darktable.preferences.read("autostyle","exif_tag","string"))
-	  return
+	  return 0
   end
-  if not checkIfBinExists("exiftool") then
-     return
+  if not filelib.check_if_bin_exists("exiftool") then
+	  darktable.print("Can't find exiftool")
+          return 0
   end
 	
 	
@@ -83,40 +84,50 @@ function autostyle_apply_one_image (image)
   end
   if (not style) then
 	  darktable.print("style not found for autostyle: " .. style_name)
+          return 0
   end
 
   -- Apply the style to image, if it is tagged
   local ok,auto_dr_attr= pcall(exiftool_attribute,image.path .. '/' .. image.filename,tag)
+  --darktable.print_error("dr_attr:" .. auto_dr_attr)
   -- If the lookup fails, stop here
   if (not ok) then
-    return
+    darktable.print("Couldn't get attribute " .. auto_dr_attr .. " from exiftool's output")
+    return 0
   end
   if auto_dr_attr==value then
---	  darktable.print("Image " .. image.filename .. ": autostyle automatically applied " .. darktable.preferences.read("autostyle","exif_tag","string") )
+	  darktable.print_log("Image " .. image.filename .. ": autostyle automatically applied " .. darktable.preferences.read("autostyle","exif_tag","string") )
 	  darktable.styles.apply(style,image)
---  else
---	  darktable.print("Image " .. image.filename .. ": autostyle not applied, exif tag " .. darktable.preferences.read("autostyle","exif_tag","string")  .. " not matched: " .. auto_dr_attr)
+	  return 1
+  else
+	  darktable.print_log("Image " .. image.filename .. ": autostyle not applied, exif tag " .. darktable.preferences.read("autostyle","exif_tag","string")  .. " not matched: " .. auto_dr_attr)
+	  return 0
   end
 end 
 
 
 function autostyle_apply( shortcut)
   local images = darktable.gui.action_images
+  local images_processed =0
+  local images_submitted =0
   for _,image in pairs(images) do
-    autostyle_apply_one_image(image)
+    images_submitted = images_submitted +1
+    images_processed = images_processed + autostyle_apply_one_image(image)
   end
+  darktable.print("Applied auto style to " .. images_processed .. " out of " .. images_submitted .. " image(s)")
 end
 
 -- Retrieve the attribute through exiftool
 function exiftool_attribute(path,attr)
-  local cmd="exiftool -" .. attr .. " '" ..path.. "'";
+  local cmd="exiftool -" .. attr .. " '" .. path .. "'";
   local exifresult=get_stdout(cmd)
   local attribute=string.match(exifresult,": (.*)")
   if (attribute == nil) then
-    darktable.print( "Could not find the attribute " .. attr .. " using the command: <" .. cmd .. ">")
+    darktable.print_error( "Could not find the attribute " .. attr .. " using the command: <" .. cmd .. ">")
     -- Raise an error to the caller
     error( "Could not find the attribute " .. attr .. " using the command: <" .. cmd .. ">");
   end
+--  darktable.print_error("Returning attribute: " .. attribute)
   return attribute
 end
 
@@ -124,7 +135,7 @@ end
 function get_stdout(cmd)
   -- Open the command, for reading
   local fd = assert(io.popen(cmd, 'r'))
-  dt.control.read(fd)
+  darktable.control.read(fd)
   -- slurp the whole file
   local data = assert(fd:read('*a'))
 
