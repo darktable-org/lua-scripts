@@ -242,6 +242,7 @@ function dtutils_log.log_level(...)
     for _,v in ipairs(levels) do
       if dtutils_log[v].enabled == true then
         log_level = dtutils_log[v]
+        break
       end
     end
   end
