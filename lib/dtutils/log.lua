@@ -48,8 +48,7 @@ dtutils_log.libdoc = {
 
 local dt = require "darktable"
 local dt_print_error = dt.print_error
--- work around until dt.print_log()
-local dt_print_log = dt.print_error
+local dt_print_log = dt.print_log
 local dt_print = dt.print
 
 -- set the default log levels
@@ -243,6 +242,7 @@ function dtutils_log.log_level(...)
     for _,v in ipairs(levels) do
       if dtutils_log[v].enabled == true then
         log_level = dtutils_log[v]
+        break
       end
     end
   end
