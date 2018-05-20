@@ -1,15 +1,15 @@
-# lua-scripts
+# Lua scripts
 
 ## Description
 
-Darktable can be customized and extended using the lua programming language.  This repository contains the collected 
-efforts of the darktable developers, maintainers, contributors and community.  The following sections list the scripts
-contained in the repository, whether they can be run by themselves (Standalone - Yes) or depend on other 
+darktable can be customized and extended using the Lua programming language. This repository contains the collected
+efforts of the darktable developers, maintainers, contributors and community. The following sections list the scripts
+contained in the repository, whether they can be run by themselves (Standalone - Yes) or depend on other
 scripts (Standalone - No), what operating systems they are known to work on (L - Linux, M - MacOS, W - Windows), and their purpose.
 
 ### Official Scripts
 
-These scripts are written primarily by the darktable developers and maintained by the authors and/or repository maintainers.  They are located in the official/ directory.
+These scripts are written primarily by the darktable developers and maintained by the authors and/or repository maintainers. They are located in the official/ directory.
 
 Name|Standalone|OS   |Purpose
 ----|:--------:|:---:|-------
@@ -21,14 +21,14 @@ enfuse|No|L|Exposure blend several images (HDR)
 generate_image_txt|No|L|Generate txt sidecar files to be overlaid on zoomed images
 image_path_in_ui|Yes|LMW|Plugin to display selected image path
 import_filter_manager|Yes|LMW|Manager for import filters
-import_filters|Yes|LMW|Two import filters for use with import_filter_manager
+import_filters|No|LMW|Two import filters for use with import_filter_manager
 save_selection|Yes|LMW|Provide save and restore from multiple selection buffers
-selection_to_pdf|No|L|Generate a pdf file from the selected images
+selection_to_pdf|No|L|Generate a PDF file from the selected images
 
 
 ### Contributed Scripts
 
-These scripts are contributed by users.  They are meant to have an "owner", i.e. the author, who maintains them.  Over time the community has helped maintain these scripts, as well as the authors.  They are located in the contrib/ directory.
+These scripts are contributed by users. They are meant to have an "owner", i.e. the author, who maintains them. Over time the community has helped maintain these scripts, as well as the authors. They are located in the contrib/ directory.
 
 Name|Standalone|OS   |Purpose
 ----|:--------:|:---:|-------
@@ -36,16 +36,16 @@ autostyle|Yes|LMW|Automatically apply styles on import
 clear_GPS|Yes|LMW|Reset GPS information for selected images
 copy_attach_detach_tags|Yes|LMW|Copy and paste tags from/to images
 cr2hdr|Yes|L|Process image created with Magic Lantern Dual ISO
-fujifilm_ratings|No|LM|Support importing fuji film ratings
+fujifilm_ratings|No|LM|Support importing Fujifilm ratings
 geoJSON_export|No|L|Create a geo JSON script with thumbnails for use in ...
 geoToolbox|No|LMW|A toolbox of geo functions
 gimp|No|LMW|Open an image in GIMP for editing and return the result
-gpx_export|No|LMW|Export a gpx track file from selected images GPS data
+gpx_export|No|LMW|Export a GPX track file from selected images GPS data
 hugin|No|LMW|Combine selected images into a panorama and return the result
-kml_export|No|L|Export photos with a kml file for usage in Google Earth
+kml_export|No|L|Export photos with a KML file for usage in Google Earth
 LabelsToTags|?|LMW|Apply tags based on color labels and ratings
 passport_guide|Yes|LMW|Add passport cropping guide to darkroom crop tool
-pdf_slideshow|No|LM|Export images to a pdf slideshow
+pdf_slideshow|No|LM|Export images to a PDF slideshow
 quicktag|Yes|LMW|Create shortcuts for quickly applying tags
 rate_group|Yes|LMW|Apply or remove a star rating from grouped images
 rename-tags|Yes|LMW|Change a tag name
@@ -55,50 +55,49 @@ video_mencoder|No|L|Export video from darktable
 
 ### Example Scripts
 
-These scripts provide examples of how to use specific portions of the API.  They run, but are meant for demonstrattion purposes only.  They are located in the examples/ directory.
+These scripts provide examples of how to use specific portions of the API. They run, but are meant for demonstrattion purposes only. They are located in the examples/ directory.
 
 Name|Standalone|OS   |Purpose
 ----|:--------:|:---:|-------
 api_version|Yes|LMW|Print the current API version
-gettextExample|Yes|LM|How to use translation 
+gettextExample|Yes|LM|How to use translation
 hello_world|Yes|LMW|Prints hello world when darktable starts
-moduleExample|Yes|LMW|How to create a lightroom module
+moduleExample|Yes|LMW|How to create a lighttable module
 preferenceExamples|Yes|LMW|How to use preferences in a script
 printExamples|Yes|LMW|How to use various print functions from a script
 running_os|Yes|LMW|Print out the running operating system
 
 ### Tools
 
-Tool scripts perform functions relating to the repository, such as generating documentation.  They are located in the tools/ directory.
+Tool scripts perform functions relating to the repository, such as generating documentation. They are located in the tools/ directory.
 
 Name|Standalone|OS   |Purpose
 ----|:--------:|:---:|-------
-get_lib_manpages|No|LM|Retrieve the library documentation and output it in man page and pdf format
+get_lib_manpages|No|LM|Retrieve the library documentation and output it in man page and PDF format
 get_libdoc|No|LMW|Retrieve the library documentation and output it as text
 
 ## Download and Install
 
-The recommended method of installation is using git to clone the repository.  This ensures that all dependencies on other scripts 
-are met as well as providing an easy update path.  Single scripts listed as standalone may be downloaded and installed by themselves.
+The recommended method of installation is using git to clone the repository. This ensures that all dependencies on other scripts
+are met as well as providing an easy update path. Single scripts listed as standalone may be downloaded and installed by themselves.
 
 ### Linux and MacOS
 
-Ensure git is installed on your system.  If it isn't, use the package manager to install it. Then:
+Ensure git is installed on your system. If it isn't, use the package manager to install it. Then:
 
-`cd ~/.config/darktable`
-`git clone https://github.com/darktable-org/lua-scripts.git lua`
+    cd ~/.config/darktable/
+    git clone https://github.com/darktable-org/lua-scripts.git lua
 
 ### Windows
 
-Ensure git is installed on your system.  Git can be obtained from https://gitforwindows.org, as well as other places.  If you use the gitforwindows.org distribution, install the Git Bash Shell also as it will aid in debugging the scripts if necessary. Then:
+Ensure git is installed on your system. Git can be obtained from https://gitforwindows.org/, as well as other places. If you use the gitforwindows.org distribution, install the Git Bash Shell also as it will aid in debugging the scripts if necessary. Then open a command prompt and run:
 
-Open a command prompt.
-`cd %LOCALAPPDATA%\darktable`
-`git clone https://github.com/darktable-org/lua-scripts.git lua`
+    cd %LOCALAPPDATA%\darktable
+    git clone https://github.com/darktable-org/lua-scripts.git lua
 
-## Enabling 
+## Enabling
 
-When darktable starts it looks for a file name `~/.config/darktable/luarc` (`%LOCALAPPDATA%\darktable\luarc` for windows) and reads it to see which scripts to include.  The file is a plain text file with entries of the form `require "<directory>/<name>"` where directory is the directory containing the scripts, from the above list, and name is the name from the above list.  To include GIMP the line would be `require "contrib/gimp"`.
+When darktable starts it looks for a file name `~/.config/darktable/luarc` (`%LOCALAPPDATA%\darktable\luarc` for windows) and reads it to see which scripts to include. The file is a plain text file with entries of the form `require "<directory>/<name>"` where directory is the directory containing the scripts, from the above list, and name is the name from the above list. To include GIMP the line would be `require "contrib/gimp"`.
 
 You can also create or add lines to the luarc file from the command line:
 
@@ -120,13 +119,13 @@ To update the script repository, open a terminal or command prompt and do the fo
 
 ### Linux and MacOS
 
-`cd ~/.config/darktable/lua`
-`git pull`
+    cd ~/.config/darktable/lua
+    git pull
 
 ### Windows
 
-`cd %LOCALAPPDATA%\darktable\lua`
-`git pull`
+    cd %LOCALAPPDATA%\darktable\lua
+    git pull
 
 ## Documentation
 
@@ -134,7 +133,7 @@ Each script includes its own documentation and usage in its header, please refer
 
 Lua-script libraries documentation may be generated using the tools in the tools/ directory.
 
-More information about the scripting with lua can be found in the darktable user manual:
+More information about the scripting with Lua can be found in the darktable user manual:
 https://www.darktable.org/usermanual/en/lua_chapter.html
 
 The darktable Lua API documentation is here:
@@ -142,16 +141,16 @@ https://www.darktable.org/lua-api/
 
 ## Troubleshooting
 
-Running darktable with lua debugging enabled provides more information about what is occurring within the scripts.
+Running darktable with Lua debugging enabled provides more information about what is occurring within the scripts.
 
 ### Linux and MacOS
 
-Open a terminal and start darktable with the command `darktable -d lua`.  This provides debugging information to give you insight into what is happening.
+Open a terminal and start darktable with the command `darktable -d lua`. This provides debugging information to give you insight into what is happening.
 
 ### Windows
 
-Open the Git Bash Shell.  Start darktable with the command `/c/Program\ Files/darktable/bin/darktable -d lua`.  This provides debugging information to give you insight into what is happening.
+Open the Git Bash Shell. Start darktable with the command `/c/Program\ Files/darktable/bin/darktable -d lua`. This provides debugging information to give you insight into what is happening.
 
 ## Contributing
 
-In order to have your own scripts added here they have to be under a free license (GPL2+ will definitely work, others can be discussed). 
+In order to have your own scripts added here they have to be under a free license (GPL2+ will definitely work, others can be discussed).
