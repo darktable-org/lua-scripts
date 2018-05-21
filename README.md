@@ -89,17 +89,17 @@ These packages run in their own environment and don't have access to a lua inter
 
 Ensure git is installed on your system. If it isn't, use the package manager to install it. Then:
 
-`cd ~/.config/darktable`\
-`git clone https://github.com/darktable-org/lua-scripts.git lua`
-
+    cd ~/.config/darktable/
+    git clone https://github.com/darktable-org/lua-scripts.git lua
 
 ### Windows
 
 Ensure git is installed on your system. Git can be obtained from https://gitforwindows.org/, as well as other places. If you use the gitforwindows.org distribution, install the Git Bash Shell also as it will aid in debugging the scripts if necessary. Then open a command prompt and run:
 
 Open a command prompt.
-`cd %LOCALAPPDATA%\darktable`\
-`git clone https://github.com/darktable-org/lua-scripts.git lua`
+
+    cd %LOCALAPPDATA%\darktable
+    git clone https://github.com/darktable-org/lua-scripts.git lua
 
 ## Enabling
 
@@ -125,13 +125,13 @@ To update the script repository, open a terminal or command prompt and do the fo
 
 ### Linux and MacOS
 
-`cd ~/.config/darktable/lua`\
-`git pull`
+    cd ~/.config/darktable/lua/
+    git pull
 
 ### Windows
 
-`cd %LOCALAPPDATA%\darktable\lua`\
-`git pull`
+    cd %LOCALAPPDATA%\darktable\lua
+    git pull
 
 ## Documentation
 
