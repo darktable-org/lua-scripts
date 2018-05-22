@@ -81,16 +81,25 @@ get_libdoc|No|LMW|Retrieve the library documentation and output it as text
 The recommended method of installation is using git to clone the repository. This ensures that all dependencies on other scripts
 are met as well as providing an easy update path. Single scripts listed as standalone may be downloaded and installed by themselves.
 
-### snap, flatpak, and appimage packages
+### snap packages
+
+The snap version of darktable comes with lua included starting with version 2.4.3snap2.  It is currently in the edge channel, but should reach the stable channel soon.
+
+Ensure git is installed on your system. If it isn't, use the package manager to install it. Then open a terminal and:
+
+`cd ~/snap/darktable/current`\
+`git clone https://github.com/darktable-org/lua-scripts.git lua`
+
+### flatpak and appimage packages
 
 These packages run in their own environment and don't have access to a lua interpreter, therefore the scripts can't run.  The packagers could enable the internal interpreter, or allow the package to link the interpreter from the operating system, or bundle a copy of lua with the package.  If you use one of these packages and wish to use the lua scripts, please contact the package maintainer and suggest the above fixes.
 
 ### Linux and MacOS
 
-Ensure git is installed on your system. If it isn't, use the package manager to install it. Then:
+Ensure git is installed on your system. If it isn't, use the package manager to install it. Then open a terminal and:
 
-    cd ~/.config/darktable/
-    git clone https://github.com/darktable-org/lua-scripts.git lua
+    `cd ~/.config/darktable/`\
+    `git clone https://github.com/darktable-org/lua-scripts.git lua`
 
 ### Windows
 
@@ -98,8 +107,8 @@ Ensure git is installed on your system. Git can be obtained from https://gitforw
 
 Open a command prompt.
 
-    cd %LOCALAPPDATA%\darktable
-    git clone https://github.com/darktable-org/lua-scripts.git lua
+    `cd %LOCALAPPDATA%\darktable`\
+    `git clone https://github.com/darktable-org/lua-scripts.git lua`
 
 ## Enabling
 
@@ -123,15 +132,20 @@ To disable a script open the luarc file in your text editor and insert `--` at t
 
 To update the script repository, open a terminal or command prompt and do the following:
 
+### Snap
+
+    `cd ~/snap/darktable/current/lua`\
+    `git pull`
+
 ### Linux and MacOS
 
-    cd ~/.config/darktable/lua/
-    git pull
+    `cd ~/.config/darktable/lua/`\
+    `git pull`
 
 ### Windows
 
-    cd %LOCALAPPDATA%\darktable\lua
-    git pull
+    `cd %LOCALAPPDATA%\darktable\lua`\
+    `git pull`
 
 ## Documentation
 
@@ -148,6 +162,10 @@ https://www.darktable.org/lua-api/
 ## Troubleshooting
 
 Running darktable with Lua debugging enabled provides more information about what is occurring within the scripts.
+
+### Snap
+
+Open a terminal and start darktable with the command `snap run darktable -d lua`.  ....This provides debugging information to give you insight into what is happening.
 
 ### Linux and MacOS
 
