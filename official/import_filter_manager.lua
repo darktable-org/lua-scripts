@@ -67,7 +67,7 @@ end)
 -- add a new global function to register import filters
 dt.register_import_filter = function(name, callback)
   local active_filter = dt.preferences.read("import_filter_manager", "active_filter", "string")
-  dt.print_error("registering import filter `" .. name .. "'")
+  dt.print_log("registering import filter `" .. name .. "'")
   import_filter_list[name] = callback
   n_import_filters = n_import_filters  + 1
   filter_dropdown[n_import_filters] = name
