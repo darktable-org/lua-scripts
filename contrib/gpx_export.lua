@@ -18,7 +18,8 @@
 Simple darktable GPX generator script
 
 This script generates a GPX track from all images having GPS latitude
-and longitude information
+and longitude information.
+For each source folder, a separate <trk> is generated in the gpx file.
 ]]
 
 local dt = require "darktable"
@@ -60,44 +61,60 @@ local function create_gpx_file()
 
   job = dt.gui.create_job(_("gpx export"), true, stop_job)
 
-  local gpx_file = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n"
-  gpx_file = gpx_file.."<gpx xmlns=\"http://www.topografix.com/GPX/1/1\" creator=\"Darktable GPX Exporter\"\n version=\"1.1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">\n"
-  gpx_file = gpx_file.."\t<trk>\n"
-  gpx_file = gpx_file.."\t\t<trkseg>\n";
-
   local sel_images = dt.gui.action_images
-  for key,image in dl.spairs(sel_images, function(t, a, b) return t[b].exif_datetime_taken > t[a].exif_datetime_taken end) do
+  local segments = {}
+  for key,image in dl.spairs(sel_images, function(t, a, b) return t[b].path > t[a].path end) do
 
-    if(job.valid) then
+    print(image.path)
+
+    if (job.valid) then
       job.percent = (key - 1) / #sel_images
 
       if ((image.longitude and image.latitude) and
         (image.longitude ~= 0 and image.latitude ~= 90) -- Just in case
       ) then
+        if (segments[image.path] == nil) then
+          segments[image.path] = {}
+        end
 
-        if(image.exif_datetime_taken == "") then
+        if (image.exif_datetime_taken == "") then
           dt.print(image.path.."/"..image.filename.._(" does not have date information and won't be processed"))
           print(image.path.."/"..image.filename.._(" does not have date information and won't be processed")) -- Also print to terminal
         else
-          date_format = "(%d+):(%d+):(%d+) (%d+):(%d+):(%d+)"
-          my_year, my_month, my_day, my_hour, my_min, my_sec = image.exif_datetime_taken:match(date_format)
-
-          local my_timestamp = os.time({year=my_year, month=my_month, day=my_day, hour=my_hour, min=my_min, sec=my_sec})
-
-          gpx_file = gpx_file.."\t\t\t<trkpt lat=\""..string.gsub(tostring(image.latitude), ",", ".").."\" lon=\""..string.gsub(tostring(image.longitude), ",", ".").."\">\n"
-          gpx_file = gpx_file.."\t\t\t\t<time>"..os.date("!%Y-%m-%dT%H:%M:%SZ",my_timestamp).."</time>\n"
-          gpx_file = gpx_file.."\t\t\t</trkpt>\n"
+          segments[image.path][image.filename] = image
         end
       end
-      else
-        break
+    else
+      break
     end
+  end
+
+  local gpx_file = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n"
+  gpx_file = gpx_file.."<gpx xmlns=\"http://www.topografix.com/GPX/1/1\" creator=\"Darktable GPX Exporter\"\n"
+  gpx_file = gpx_file.."version=\"1.1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+  gpx_file = gpx_file.."xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">\n"
+
+  for key, folder in dl.spairs(segments) do
+    gpx_file = gpx_file.."\t<trk>\n"
+    gpx_file = gpx_file.."\t\t<name>"..key.."</name>\n";
+    gpx_file = gpx_file.."\t\t<trkseg>\n";
+    for key2, image in dl.spairs(folder, function(t, a, b) return t[b].exif_datetime_taken > t[a].exif_datetime_taken end) do
+      date_format = "(%d+):(%d+):(%d+) (%d+):(%d+):(%d+)"
+      my_year, my_month, my_day, my_hour, my_min, my_sec = image.exif_datetime_taken:match(date_format)
+
+      local my_timestamp = os.time({year=my_year, month=my_month, day=my_day, hour=my_hour, min=my_min, sec=my_sec})
+
+      gpx_file = gpx_file.."\t\t\t<trkpt lat=\""..string.gsub(tostring(image.latitude), ",", ".").."\" lon=\""..string.gsub(tostring(image.longitude), ",", ".").."\">\n"
+      gpx_file = gpx_file.."\t\t\t\t<time>"..os.date("!%Y-%m-%dT%H:%M:%SZ", my_timestamp).."</time>\n"
+      gpx_file = gpx_file.."\t\t\t\t<name>"..image.path.."/"..image.filename.."</name>\n"
+      gpx_file = gpx_file.."\t\t\t</trkpt>\n"
+    end
+    gpx_file = gpx_file.."\t\t</trkseg>\n";
+    gpx_file = gpx_file.."\t</trk>\n";
   end
 
   job.valid = false
 
-  gpx_file = gpx_file.."\t\t</trkseg>\n";
-  gpx_file = gpx_file.."\t</trk>\n";
   gpx_file = gpx_file.."</gpx>\n";
 
   local file = io.open(path, "w")
