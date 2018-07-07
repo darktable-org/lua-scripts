@@ -1,4 +1,5 @@
---[[Enfuse professional plugin for darktable 2.2.X and 2.4.X
+--[[
+  Enfuse professional plugin for darktable 2.2.X and 2.4.X
 
   copyright (c) 2017, 2018  Holger Klemm (Original Linux-only version)
   
@@ -26,16 +27,17 @@ ADDITIONAL SOFTWARE NEEDED FOR THIS SCRIPT
 
 USAGE
 * require this file from your main luarc config file.
+* On the initial startup go to darktable settings > lua options and set your executable paths and other preferences, then restart darktable
 
-This plugin will add the new export modul "fusion to DRI or DFF image".
+This plugin will add the new export module "fusion to DRI or DFF image".
 ]]
 
 local dt = require "darktable"
 local df = require "lib/dtutils.file"
 local gettext = dt.gettext
 
--- works with LUA API version 4.0.0 and 5.0.0
-dt.configuration.check_version(...,{4,0,0},{5,0,0})
+-- works with LUA API version 5.0.0
+dt.configuration.check_version(...,{5,0,0})
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("enfuse_pro",dt.configuration.config_dir.."/lua/")
@@ -55,28 +57,46 @@ end
 pref_style = dt.preferences.read("module_enfuse_pro", "style", "string")
 pref_cpytags = dt.preferences.read("module_enfuse_pro", "copy_tags", "bool")
 pref_addtags = dt.preferences.read("module_enfuse_pro", "add_tags", "string")
---[[
-cmd_tmp_path=""
-cmd_output_path=""
-cmd_output_image=""
-cmd_output_image_index = 0
-path_with_filename=""
-homepath=os.getenv("Public")
-tmppath=homepath.."/.local/tmp"
-cmd_exif_copy_exif=""
-cmd_suffix_output_format=""
-alignStartCommand=""
-enfuseStartCommand=""
-exifStartCommand=""
-outputindex = 0
-job = 0
-]]
 if dt.configuration.running_os == "windows" then
 	os_path_seperator = "\\"
 else
 	os_path_seperator = "/"
 end
 
+--Ensure Required Software is Installed--
+not_installed = 0
+dt.print_log("enfuse_pro_2 - Executable Path Preference: "..df.get_executable_path_preference("align_image_stack"))
+local AIS_path = df.check_if_bin_exists("align_image_stack")
+if not AIS_path then
+	dt.print_error("align image stack not found")
+	dt.print("ERROR - align image stack not found")
+	not_installed = 1
+end
+
+dt.print_log("enfuse_pro_2 - Executable Path Preference: "..df.get_executable_path_preference("enfuse"))
+local enfuse_path = df.check_if_bin_exists("enfuse")
+if not enfuse_path then
+	dt.print_error("enfuse not found")
+	dt.print("ERROR - enfuse not found")
+	not_installed = 1
+end
+
+dt.print_log("enfuse_pro_2 - Executable Path Preference: "..df.get_executable_path_preference("exiftool"))
+local exiftool_path = df.check_if_bin_exists("exiftool")
+if not exiftool_path then
+	dt.print_error("exiftool not found")
+	dt.print("ERROR - exiftool not found")
+	not_installed = 1
+end
+	
+--Ensure proper version of Enfuse installed--
+	--[[
+	enfuseVersionStartCommand='enfuse --version | grep "enfuse 4.2"'
+	enfuse_version=dt.control.execute(enfuseVersionStartCommand)
+	if (enfuse_version ~= 0) then
+		dt.print(_('ERROR: wrong enfuse version found. the plugin works only with enfuse 4.2! please install enfuse version 4.2'))
+		not_installed = 1
+	end]]
 
 -- align defaults
 --dt.preferences.write("enfuse_pro",  "initialized", "bool", false)
@@ -565,15 +585,6 @@ end
 local function replace_comma_to_dot(s)
 	return string.gsub(s, "%,", ".")
 end
-local function file_exists(name)
-   local f=io.open(""..name.."","r")
-   if f~=nil then 
-       io.close(f) 
-       return true 
-   else 
-       return false 
-   end
-end
 local function remove_temp_files()
 	if dt.configuration.running_os == "windows" then
 		dt.print_log("Deleting temp files...")
@@ -586,24 +597,14 @@ local function remove_temp_files()
 		dt.control.execute("rm "..images_to_blend)
 		dt.print_log("Done deleting")
 	end
-	
-	--[[
-	dt.print_error("rm "..images_to_align)
-	result_to_align_images=dt.control.execute("rm "..images_to_align)
-	dt.print_error("rm "..tmppath.."/aligned_*.tif")
-	result_aligned_images=dt.control.execute("rm "..tmppath.."/aligned_*.tif")
-	]]
 end
 local function build_execute_command(cmd, args, file_list)
 	local result = false
 
 	if dt.configuration.running_os == "macos" then
-		cmd = string.gsub(cmd, "open", "", 1)
-		cmd = string.gsub(cmd, "-W", "", 1)
-		cmd = string.gsub(cmd, "-a", "", 1)
-	--	result = cmd.." "..file_list.." "..args
-	--else
-	--	result = cmd..""..args.." "..file_list
+		cmd = string.gsub(cmd, "open", "")
+		cmd = string.gsub(cmd, "-W", "")
+		cmd = string.gsub(cmd, "-a", "")
 	end
 	result = cmd.." "..args.." "..file_list
 	return result
@@ -612,7 +613,11 @@ function copy_exif()
 	exiftool_path = string.gsub(exiftool_path, "open", "")
 	exiftool_path = string.gsub(exiftool_path, "-W", "")
 	exiftool_path = string.gsub(exiftool_path, "-a", "")
-	exifStartCommand = exiftool_path.." -TagsFromFile "..source_file.." -exif:all --subifd:all -overwrite_original "..path_with_filename
+	if dt.configuration.running_os == "windows" then
+		exifStartCommand = exiftool_path.." -TagsFromFile "..source_file.." -exif:all --subifd:all -overwrite_original "..path_with_filename
+	else
+		exifStartCommand = exiftool_path.." -TagsFromFile "..'"'..source_file..'"'.." -exif:all --subifd:all -overwrite_original "..'"'..path_with_filename..'"'
+	end
 	dt.print_log("EXIFTool Start Command: "..exifStartCommand)
 	resultexif=dt.control.execute(exifStartCommand)
 	if (resultexif == 0) then
@@ -638,8 +643,11 @@ function align_images()
 	align_args = align_args.." -t "..cmbx_control_points_remove.value
 	align_args = align_args.." --corr="..cmbx_correlation.value
 	if (dt.preferences.read("module_enfuse_pro", "align_use_gpu", "bool")) then align_args = align_args.." --gpu" end
-	
-	align_args = align_args.." -a "..first_path.."aligned_ "
+	if dt.configuration.running_os == "windows" then
+		align_args = align_args.." -a "..first_path.."aligned_ "
+	else
+		align_args = align_args.." -a "..'"'..first_path..'aligned_" '
+	end
 	alignStartCommand = build_execute_command(AIS_path, align_args, images_to_align)
 	dt.print_log("Align Start Command: "..alignStartCommand)
 	resp = dt.control.execute(alignStartCommand)
@@ -695,27 +703,23 @@ function blend_images()
 	if (chkbtn_source_location.value) then
 		cmd_output_path = source_path
 	else
-	cmd_output_path=file_chooser_button_path.value --FUTURE FEATURE: add gui option for "same as source images"
+	cmd_output_path=file_chooser_button_path.value 
 	end
 	path_with_filename = cmd_output_path..os_path_seperator..first_filename.."-"..last_id.."."..cmd_suffix_output_format
 	
 	--Create unique name with index if GUI selection create unique name (don't overwrite), also do this if user selected to make variants from presets
-	if (cmbx_existing_file.selected == 1) or (from_preset) then	
-		cmd_output_image_index=0
-		while (file_exists(path_with_filename)) do
-			cmd_output_image_index = cmd_output_image_index+1
-			if cmd_output_image_index <= 9 then
-				outputindex="0"..tostring(cmd_output_image_index)
-			else
-				outputindex=tostring(cmd_output_image_index)   
-			end
-			path_with_filename = cmd_output_path..os_path_seperator..first_filename.."-"..last_id.."-"..outputindex.."."..cmd_suffix_output_format
-		end 
+	if (cmbx_existing_file.selected == 1) or (from_preset) then
+		path_with_filename = df.create_unique_filename(path_with_filename)
 	end
-	cmd_output_image = " --output="..path_with_filename
+	
+	if dt.configuration.running_os == "windows" then
+		cmd_output_image = " --output="..path_with_filename
+	else
+		cmd_output_image = " --output="..'"'..path_with_filename..'"'
+		
+	end
 	blend_args = blend_args..cmd_output_image
 
-	--images_to_blend = first_path.."aligned_*.tif"
 	images_to_blend = ""
 	for j=0, counted_images-1 do
 		if j < 10 then
@@ -723,9 +727,12 @@ function blend_images()
 		else
 			id = "00"..tostring(j)
 		end
-		images_to_blend = images_to_blend..first_path.."aligned_"..id..".tif "
+		if dt.configuration.running_os == "windows" then
+			images_to_blend = images_to_blend..first_path.."aligned_"..id..".tif "
+		else
+			images_to_blend = images_to_blend..'"'..first_path.."aligned_"..id..".tif"..'" '
+		end
 	end
-	
 	BlendStartCommand=build_execute_command(enfuse_path, blend_args, images_to_blend)
 	
 	dt.print_log("Blend Start Command: "..BlendStartCommand)
@@ -747,7 +754,11 @@ function create_image_fusion(storage, image_table, extra_data) --Finalize: Calle
 	last_id = "0"
 	for source_image,image_path in pairs(image_table) do
 		counted_images=counted_images+1
-		images_to_align = images_to_align..image_path.." "
+		if dt.configuration.running_os == "windows" then
+			images_to_align = images_to_align..image_path..' '
+		else
+			images_to_align = images_to_align..'"'..image_path..'" '
+		end
 		curr_path, curr_filename, curr_id, curr_ext = GetFileName(image_path)
 		if (curr_id < first_id) then 
 			first_path = curr_path
@@ -774,45 +785,13 @@ function create_image_fusion(storage, image_table, extra_data) --Finalize: Calle
 		return
 	end
 
---Ensure Required Software is Installed--
-	df.set_executable_path_preference("align_image_stack", dt.preferences.read("module_enfuse_pro", "ais_path", "string"))
-	dt.print_log("Executable Path Preference: "..df.get_executable_path_preference("align_image_stack"))
-	AIS_path = df.check_if_bin_exists("align_image_stack")
-	if not AIS_path then
-		dt.print_error("align image stack not found")
-		dt.print("ERROR - align image stack not found")
+--Ensure Proper Software Installed--
+	if not_installed == 1 then
+		dt.print_log("Required software not installed")
+		dt.print("Required software not installed")
 		remove_temp_files()
 		return
-	end
-	
-	df.set_executable_path_preference("enfuse", dt.preferences.read("module_enfuse_pro", "enfuse_path", "string"))
-	dt.print_log("Executable Path Preference: "..df.get_executable_path_preference("enfuse"))
-	enfuse_path = df.check_if_bin_exists("enfuse")
-	if not enfuse_path then
-		dt.print_error("enfuse not found")
-		dt.print("ERROR - enfuse not found")
-		remove_temp_files()
-		return
-	end
-	
-	df.set_executable_path_preference("exiftool", dt.preferences.read("module_enfuse_pro", "exiftool_path", "string"))
-	dt.print_log("Executable Path Preference: "..df.get_executable_path_preference("exiftool"))
-	exiftool_path = df.check_if_bin_exists("exiftool")
-	if not exiftool_path then
-		dt.print_error("exiftool not found")
-		dt.print("ERROR - exiftool not found")
-		remove_temp_files()
-		return
-	end
-	
---Ensure proper version of Enfuse installed--
-	--[[
-	enfuseVersionStartCommand='enfuse --version | grep "enfuse 4.2"'
-	enfuse_version=dt.control.execute(enfuseVersionStartCommand)
-	if (enfuse_version ~= 0) then
-		dt.print(_('ERROR: wrong enfuse version found. the plugin works only with enfuse 4.2! please install enfuse version 4.2'))
-		return
-	end]]
+	end	
 
 --Check that output path selected
 	cmd_output_path = file_chooser_button_path.value
@@ -995,7 +974,6 @@ dt.preferences.register("module_enfuse_pro", "image_color_depth",  -- name
 	"8","32","r32","r64")                -- values
 
 --AIS bin location
-AIS_path = df.get_executable_path_preference("align_image_stack")
 if not AIS_path then 
 	AIS_path = ""
 end
@@ -1004,7 +982,7 @@ AIS_path_widget = dt.new_widget("file_chooser_button"){
 	value = AIS_path,
 	is_directory = false,
 }
-dt.preferences.register("module_enfuse_pro", "ais_path",	-- name
+dt.preferences.register("executable_paths", "align_image_stack",	-- name
 	"file",	-- type
 	'enfuse_pro: Align Image Stack Location',	-- label
 	'Install location of align_image_stack. Requires restart to take effect.',	-- tooltip
@@ -1013,7 +991,6 @@ dt.preferences.register("module_enfuse_pro", "ais_path",	-- name
 )
 
 --enfuse bin location
-enfuse_path = df.get_executable_path_preference("enfuse")
 if not enfuse_path then 
 	enfuse_path = ""
 end
@@ -1022,7 +999,7 @@ enfuse_path_widget = dt.new_widget("file_chooser_button"){
 	value = enfuse_path,
 	is_directory = false,
 }
-dt.preferences.register("module_enfuse_pro", "enfuse_path",	-- name
+dt.preferences.register("executable_paths", "enfuse",	-- name
 	"file",	-- type
 	'enfuse_pro: enfuse Location',	-- label
 	'Install location of enfuse. Requires restart to take effect.',	-- tooltip
@@ -1031,7 +1008,6 @@ dt.preferences.register("module_enfuse_pro", "enfuse_path",	-- name
 )
 
 --exiftool bin location
-exiftool_path = df.get_executable_path_preference("exiftool")
 if not exiftool_path then 
 	exiftool_path = ""
 end
@@ -1040,7 +1016,7 @@ exiftool_path_widget = dt.new_widget("file_chooser_button"){
 	value = exiftool_path,
 	is_directory = false,
 }
-dt.preferences.register("module_enfuse_pro", "exiftool_path",	-- name
+dt.preferences.register("executable_paths", "exiftool",	-- name
 	"file",	-- type
 	'enfuse_pro: exiftool Location',	-- label
 	'Install location of exiftool. Requires restart to take effect.',	-- tooltip
