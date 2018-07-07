@@ -119,6 +119,10 @@ local function gimp_edit(storage, image_table, extra_data) --finalize
     return
   end
 
+  if dt.configuration.running_os == "macos" then
+    gimp_executable = "open -W -a " .. gimp_executable
+  end
+
   -- list of exported images
   local img_list
 
