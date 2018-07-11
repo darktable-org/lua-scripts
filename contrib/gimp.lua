@@ -95,17 +95,7 @@ local function group_if_not_member(img, new_img)
     dt.print_log("Added to group")
   end
 end
---[[
-local function sanitize_filename(filepath)
-  local path = df.get_path(filepath)
-  local basename = df.get_basename(filepath)
-  local filetype = df.get_filetype(filepath)
 
-  local sanitized = string.gsub(basename, " ", "\\ ")
-
-  return path .. sanitized .. "." .. filetype
-end
-]]
 local function show_status(storage, image, format, filename,
   number, total, high_quality, extra_data)
     dt.print(string.format(_("Export Image %i/%i"), number, total))
