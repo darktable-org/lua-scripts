@@ -1,5 +1,6 @@
 local dtutils_file = {}
 local dt = require "darktable"
+local ds = require "lib/dtutils.string"
 
 local log = require "lib/dtutils.log"
 
@@ -529,4 +530,28 @@ function dtutils_file.executable_path_widget(executables)
   return box
 end
 
+dtutils_file.libdoc.functions["sanitize_filename"] = {
+  Name = [[sanitize_filename]],
+  Synopsis = [[make a filename safe to pass as an argument]],
+  Usage = [[local df = require "lib/dtutils.file"
+
+    local sanitized_filename = df.sanitize_filename(filename)
+      filename - string - a filepath and filename]],
+  Description = [[sanitize_file places quotes around the filename in an
+    operating system specific manner.  The result is safe to pass as 
+    an argument to the operating system.]],
+  Return_Value = [[sanitized_filename - string - quoted filename]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_file.sanitize_filename(filename)
+  return ds.sanitize(filename)
+end
+
 return dtutils_file
+

@@ -1,4 +1,7 @@
 local dtutils_string = {}
+
+local dt = require "darktable"
+
 dtutils_string.libdoc = {
   Name = [[dtutils.string]],
   Synopsis = [[a library of string utilities for use in darktable lua scripts]],
@@ -168,6 +171,37 @@ function dtutils_string.urlencode(str)
     str = string.gsub (str, " ", "+")
   end
   return str
+end
+
+
+dtutils_string.libdoc.functions["sanitize"] = {
+  Name = [[sanitize]],
+  Synopsis = [[surround a string in quotes making it safe to pass as an argument]],
+  Usage = [[local ds = require "lib/dtutils.string"
+
+    local result = ds.sanitize(str)
+      str - string - the string that needs to be made safe]],
+  Description = [[sanitize converts a string into a version suitable for
+    use passing as an argument in a system command.]],
+  Return_Value = [[result - string - a websafe string]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_string.sanitize(str)
+  local result = ""
+
+  if dt.configuration.running_os == "windows" then
+    result = '"' .. str .. '"'
+  else
+    result = "'" .. str .. "'"
+  end
+  
+  return result
 end
 
 return dtutils_string
