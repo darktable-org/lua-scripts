@@ -60,7 +60,7 @@ end
 local function convert_image(image)
     if string.sub(image.filename, -3) == "CR2" then
         local filename = image.path .. "/" .. image.filename
-        local result = dt.control.execute( "cr2hdr " .. filename)
+        local result = darktable.control.execute( "cr2hdr " .. filename)
         local out_filename = string.gsub(filename, ".CR2", ".DNG")
         local file = io.open(out_filename)
         if file then
