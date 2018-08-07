@@ -65,7 +65,7 @@
 
 local dt = require "darktable"
 local df = require "lib/dtutils.file"
-require "official/yield"
+local dtsys = require "lib/dtutils.system"
 local gettext = dt.gettext
 local gimp_widget = nil
 
@@ -95,16 +95,6 @@ local function group_if_not_member(img, new_img)
   end
 end
 
-local function sanitize_filename(filepath)
-  local path = df.get_path(filepath)
-  local basename = df.get_basename(filepath)
-  local filetype = df.get_filetype(filepath)
-
-  local sanitized = string.gsub(basename, " ", "\\ ")
-
-  return path .. sanitized .. "." .. filetype
-end
-
 local function show_status(storage, image, format, filename,
   number, total, high_quality, extra_data)
     dt.print(string.format(_("Export Image %i/%i"), number, total))
@@ -130,7 +120,7 @@ local function gimp_edit(storage, image_table, extra_data) --finalize
   img_list = ""
 
   for _,exp_img in pairs(image_table) do
-    exp_img = sanitize_filename(exp_img)
+    exp_img = df.sanitize_filename(exp_img)
     img_list = img_list ..exp_img.. " "
   end
 
@@ -141,7 +131,7 @@ local function gimp_edit(storage, image_table, extra_data) --finalize
 
   dt.print_log(gimpStartCommand)
 
-  dt.control.execute( gimpStartCommand)
+  dtsys.external_command(gimpStartCommand)
 
   -- for each of the image, exported image pairs
   --   move the exported image into the directory with the original
