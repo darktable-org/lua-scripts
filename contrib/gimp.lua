@@ -66,7 +66,6 @@
 local dt = require "darktable"
 local df = require "lib/dtutils.file"
 local dtsys = require "lib/dtutils.system"
-require "official/yield"
 local gettext = dt.gettext
 local gimp_widget = nil
 
