@@ -63,6 +63,7 @@ api_version|Yes|LMW|Print the current API version
 gettextExample|Yes|LM|How to use translation
 hello_world|Yes|LMW|Prints hello world when darktable starts
 moduleExample|Yes|LMW|How to create a lighttable module
+multi_os|No|LMW|How to create a cross platform script that calls an external executable
 preferenceExamples|Yes|LMW|How to use preferences in a script
 printExamples|Yes|LMW|How to use various print functions from a script
 running_os|Yes|LMW|Print out the running operating system
