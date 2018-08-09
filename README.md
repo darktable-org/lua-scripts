@@ -42,6 +42,7 @@ geoToolbox|No|LMW|A toolbox of geo functions
 gimp|No|LMW|Open an image in GIMP for editing and return the result
 gpx_export|No|LMW|Export a GPX track file from selected images GPS data
 hugin|No|LMW|Combine selected images into a panorama and return the result
+image_stack|No|LMW|Combine a stack of images to remove noise or transient objects
 kml_export|No|L|Export photos with a KML file for usage in Google Earth
 LabelsToTags|?|LMW|Apply tags based on color labels and ratings
 passport_guide|Yes|LMW|Add passport cropping guide to darkroom crop tool
