@@ -50,21 +50,50 @@ end
 -- is enfuse installed?
 local enfuse_installed = df.check_if_bin_exists("enfuse")
 
+-- check the version so that we can use the correct arguments
+
+local version = nil
+
+local p = io.popen(enfuse_installed .. " --version | grep enfuse | grep -e \"[0123456789\\.]\"")
+local f = p:read("all")
+version = string.match(f, "[%d\\.]+" )
+dt.print_log("enfuse version is " .. version)
+p:close()
+
+
 -- initialize exposure_mu value and depth setting in config to sane defaults (would be 0 otherwise)
 if dt.preferences.read("enfuse", "depth", "integer") == 0 then
   dt.preferences.write("enfuse", "depth", "integer", 2)
   dt.preferences.write("enfuse", "exposure_mu", "float", 0.5)
+  dt.preferences.write("enfuse", "exposure_optimum", "float", 0.5)
 end
 
 -- set up some widgets, initialized from config
-local exposure_mu = dt.new_widget("slider")
-{
-  label = "exposure mu",
-  tooltip = "center also known as MEAN of Gaussian weighting function (0 <= MEAN <= 1); default: 0.5",
-  hard_min = 0,
-  hard_max = 1,
-  value = dt.preferences.read("enfuse", "exposure_mu", "float")
-}
+
+local exposure_mu = nil
+
+if version < "4.2" then
+  exposure_mu = dt.new_widget("slider")
+  {
+    label = "exposure mu",
+    tooltip = "center also known as MEAN of Gaussian weighting function (0 <= MEAN <= 1); default: 0.5",
+    hard_min = 0,
+    hard_max = 1,
+    value = dt.preferences.read("enfuse", "exposure_mu", "float")
+  }
+else
+  exposure_mu = dt.new_widget("slider")
+  {
+    label = "exposure optimum",
+    tooltip = "optimum exposure value, usually the maximum of the weighting function (0 <= OPTIMUM <=1); default 0.5",
+    hard_min = 0,
+    hard_max = 1,
+    value = dt.preferences.read("enfuse", "exposure_optimum", "float")
+  }
+end
+  
+
+
 
 local depth = dt.new_widget("combobox")
 {
@@ -95,7 +124,11 @@ dt.register_lib(
         -- remember exposure_mu
         -- TODO: find a way to save it whenever the value changes
         local mu = exposure_mu.value
-        dt.preferences.write("enfuse", "exposure_mu", "float", mu)
+        if version < "4.2" then
+          dt.preferences.write("enfuse", "exposure-mu", "float", mu)
+        else
+          dt.preferences.write("enfuse", "exposure-optimum", "float", mu)
+        end
 
         -- create a temp response file
         local response_file = os.tmpname()
@@ -139,7 +172,11 @@ dt.register_lib(
         local ugly_decimal_point_hack = string.gsub(string.format("%.04f", mu), ",", ".")
         -- TODO: make filename unique
         local output_image = target_dir.."/enfuse.tiff"
-        local command = "enfuse --depth "..depth.value.." --exposure-mu "..ugly_decimal_point_hack
+        local exposure_option = " --exposure-optimum "
+        if version < "4.2" then
+          exposure_option = " --exposure-mu "
+        end
+        local command = "enfuse --depth "..depth.value..exposure_option..ugly_decimal_point_hack
                         .." -o \""..output_image.."\" \"@"..response_file.."\""
         if dt.control.execute( command) > 0 then
           dt.print("enfuse failed, see terminal output for details")
