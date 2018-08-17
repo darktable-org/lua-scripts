@@ -74,6 +74,7 @@ Tool scripts perform functions relating to the repository, such as generating do
 
 Name|Standalone|OS   |Purpose
 ----|:--------:|:---:|-------
+executable_manager|Yes|LMW|Manage the external executables used by the lua scripts
 get_lib_manpages|No|LM|Retrieve the library documentation and output it in man page and PDF format
 get_libdoc|No|LMW|Retrieve the library documentation and output it as text
 
