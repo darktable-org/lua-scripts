@@ -76,6 +76,7 @@ Name|Standalone|OS   |Purpose
 ----|:--------:|:---:|-------
 get_lib_manpages|No|LM|Retrieve the library documentation and output it in man page and PDF format
 get_libdoc|No|LMW|Retrieve the library documentation and output it as text
+script_manager|No|LMW|Manage (install, update, enable, disable) the lua scripts
 
 ## Download and Install
 
