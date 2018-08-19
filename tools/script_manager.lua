@@ -247,6 +247,7 @@ local function activate(script, scriptname)
   local status, err = prequire(sm.script_paths[script])
   -- do it
   if status then
+    dt.preferences.write("script_manager", script, "bool", true)
     dt.print("Loaded " .. scriptname)
   else
     dt.print(scriptname .. " failed to load")
