@@ -29,10 +29,11 @@
     scripts directory that matched the current repository the categories would be contrib, examples, 
     offical, and tools.  Each script has an Enable/Disable button to enable or disable the script.
 
-    A link is created to the user's Downloads directory on linux, unix and mac os.  Windows users must create the 
+    A link is created to the user's Downloads directory on linux, unix and MacOS.  Windows users must create the 
     link manually using mklink.exe.  Additional "un-official" scripts may be downloaded 
     from other sources and placed in the users Downloads directory.  These scripts all fall in a downloads category.  
     They also each have an Enable/Disable button.
+
 ]]
 
 local dt = require "darktable"
@@ -248,8 +249,9 @@ local function activate(script, scriptname)
   if status then
     dt.print("Loaded " .. scriptname)
   else
+    dt.print(scriptname .. " failed to load")
     dt.print_error("Error loading " .. scriptname)
-    dt.print_error("Error message: " .. lib)
+    dt.print_error("Error message: " .. err)
   end
   return status
 end
