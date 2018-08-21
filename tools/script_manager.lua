@@ -679,7 +679,7 @@ if dt.configuration.running_os == "windows" or sm.need_git then
 end
 
 if dt.configuration.running_os ~= "windows" then
-  --sm.configuration_widgets[#sm.configuration_widgets + 1] = sm.use_lua_scripts_version
+  sm.configuration_widgets[#sm.configuration_widgets + 1] = sm.use_lua_scripts_version
   sm.configuration_widgets[#sm.configuration_widgets + 1] = sm.link_downloads_directory
 end
 sm.configuration_widgets[#sm.configuration_widgets + 1] = sm.apply_configuration
