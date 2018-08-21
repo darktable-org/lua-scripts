@@ -213,14 +213,18 @@ local function scan_scripts()
   for line in output:lines() do
     local l = string.gsub(line, LUA_DIR .. PS, "") -- strip the lua dir off
     local script_file = l:sub(1,-5)
-    if not string.match(script_file, "script_manager") and  -- let's not include ourself
-       not string.match(script_file, "plugins") and         -- skip plugins
-       not string.match(script_file, "lib" .. PS) and       -- let's not try and run libraries
-       not string.match(script_file, "include_all") and     -- skip include_all.lua
-       not string.match(script_file, "yield") then          -- special case, because everything needs this
-        add_script_data(script_file)
-    else
-        prequire(script_file) -- load yield.lua
+    if not string.match(script_file, "script_manager") then  -- let's not include ourself
+      if not string.match(script_file, "plugins") then         -- skip plugins
+        if not string.match(script_file, "lib" .. PS) then       -- let's not try and run libraries
+          if not string.match(script_file, "include_all") then     -- skip include_all.lua
+            if not string.match(script_file, "yield") then          -- special case, because everything needs this
+              add_script_data(script_file)
+            else
+              prequire(script_file) -- load yield.lua
+            end
+          end
+        end
+      end
     end
   end
   -- work around because we can't dynamically add a new stack child.  We create an empty child that will be
