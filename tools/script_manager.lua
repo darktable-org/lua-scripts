@@ -621,9 +621,9 @@ sm.update_reset = dt.new_widget("box"){
 sm.use_lua_scripts_version = dt.new_widget("check_button"){
   label = "Use lua scripts distributed version",
   tooltip = "Use the standalone version (false) or the distributed version (true)",
-  value = dt.preferences.read("script_manger", "use_distro_version", "bool"),
+  value = dt.preferences.read("script_manager", "use_distro_version", "bool"),
   clicked_callback = function(self)
-    if dt.preferences.read("script_manger", "use_distro_version", "bool") == self.value then
+    if dt.preferences.read("script_manager", "use_distro_version", "bool") == self.value then
       -- do nothing
     else
       sm.apply_configuration.sensitive = true
