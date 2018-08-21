@@ -166,8 +166,20 @@ end
 
 local function add_script_data(script_file)
 
+  -- the script file supplied is category/filename.filetype
+  -- the following pattern splits the string into category, path, name, fileename, and filetype
+  -- for example contrib/gimp.lua becomes
+  -- category - contrib
+  -- path - 
+  -- name - gimp.lua
+  -- filename - gimp
+  -- filetype - lua
+
+  -- Thanks Tobias Jakobs for the awesome regulary expression
+
   local pattern = "(.-)/(.-)(([^\\/]-)%.?([^%.\\/]*))$"
   if dt.configuration.running_os == "windows" then
+    -- change the path separator from / to \ for windows
     pattern = "(.-)\\(.-)(([^\\]-)%.?([^%.\\]*))$"
   end
 
@@ -201,18 +213,14 @@ local function scan_scripts()
   for line in output:lines() do
     local l = string.gsub(line, LUA_DIR .. PS, "") -- strip the lua dir off
     local script_file = l:sub(1,-5)
-    if not string.match(script_file, "script_manager") then  -- let's not include ourself
-      if not string.match(script_file, "plugins") then -- skip plugins
-        if not string.match(script_file, "lib" .. PS) then -- let's not try and run libraries
-          if not string.match(script_file, "include_all") then -- skip include_all.lua
-            if not string.match(script_file, "yield") then -- special case, because everything needs this
-              add_script_data(script_file)
-            else
-              prequire(script_file) -- load yield.lua
-            end
-          end
-        end
-      end
+    if not string.match(script_file, "script_manager") and  -- let's not include ourself
+       not string.match(script_file, "plugins") and         -- skip plugins
+       not string.match(script_file, "lib" .. PS) and       -- let's not try and run libraries
+       not string.match(script_file, "include_all") and     -- skip include_all.lua
+       not string.match(script_file, "yield") then          -- special case, because everything needs this
+        add_script_data(script_file)
+    else
+        prequire(script_file) -- load yield.lua
     end
   end
   -- work around because we can't dynamically add a new stack child.  We create an empty child that will be
@@ -224,8 +232,7 @@ end
 -- get the script documentation, with some assumptions
 local function get_script_doc(script)
   local description = nil
-  local ps = dt.configuration.running_os == windows and "\\" or "/"
-  f = io.open(LUA_DIR .. ps .. script .. ".lua")
+  f = io.open(LUA_DIR .. PS .. script .. ".lua")
   if f then
     -- slurp the file
     local content = f:read("*all")
@@ -245,7 +252,6 @@ end
 local function activate(script, scriptname)
   dt.print_log("activating " .. scriptname)
   local status, err = prequire(sm.script_paths[script])
-  -- do it
   if status then
     dt.preferences.write("script_manager", script, "bool", true)
     dt.print("Loaded " .. scriptname)
@@ -308,12 +314,12 @@ local function load_script_stack()
         local req = du.join({cat, sname}, "/")
         local btext = "Enable "
         if dt.preferences.read("script_manager", req, "bool") then
-          status, lib = prequire(sm.script_paths[req])
+          local status, err = prequire(sm.script_paths[req])
           if status then 
             btext = "Disable "
           else
             dt.print_error("Error loading " .. sname)
-  --          dt.print_error("Error message: " .. lib)
+            dt.print_error("Error message: " .. err)
           end
         else
           dt.preferences.write("script_manager", req, "bool", false)
@@ -452,10 +458,6 @@ sm.script_paths = {}
 sm.main_menu_choices = {}
 sm.main_stack_items = {}
 
--- figure out the path separator
-
-local ps = dt.configuration.running_os == "windows" and "\\" or "/"
-
 -- see if we've run this before
 
 sm.initialized = dt.preferences.read("script_manager", "initialized", "bool")
@@ -470,7 +472,7 @@ end
 
 sm.have_scripts = df.check_if_file_exists(LUA_DIR)
 
-sm.git_managed = df.check_if_file_exists(LUA_DIR .. ps .. ".git")
+sm.git_managed = df.check_if_file_exists(LUA_DIR .. PS .. ".git")
 
 if sm.have_scripts then
   dt.print_log("found lua scripts directory")
