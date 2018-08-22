@@ -67,6 +67,9 @@ local dtsys = require "lib/dtutils.system"
 local gettext = dt.gettext
 local job = nil
 
+-- path separator constant
+local PS = dt.configuration.running_os == "windows" and "\\" or "/"
+
 -- works with LUA API version 5.0.0
 dt.configuration.check_version(...,{5,0,0})
 
@@ -323,7 +326,7 @@ local function list_files(search_string)
   local ls = "ls "
   local files = {}
   local dir_path = nil
-  local cnt = 1
+  local count = 1
 
   if dt.configuration.running_os == "windows" then
     ls = "dir /b/s "
@@ -334,8 +337,8 @@ local function list_files(search_string)
   if f then
     local found_file = f:read()
     while found_file do 
-      files[cnt] = found_file
-      cnt = cnt + 1
+      files[count] = found_file
+      count = count + 1
       found_file = f:read()
     end
     f:close()
@@ -440,7 +443,7 @@ local function copy_image_attributes(from, to, ...)
       to.rights = from.rights
       to.description = from.description
     else
-      dt.print_error("Unrecognized option to copy_image_attributes: " .. arg)
+      dt.print_error(_("Unrecognized option to copy_image_attributes: " .. arg))
     end
   end
 end
@@ -457,7 +460,7 @@ local function image_stack(storage, image_table, extra_data)
 
   local will_align = chkbtn_will_align.value
   local img_list, image_count = extract_image_list(image_table)
-  local tmp_dir = dt.configuration.tmp_dir .. "/"
+  local tmp_dir = dt.configuration.tmp_dir .. PS
   local stack_function = cmbx_stack_function.value
   local output_format = cmbx_output_format.value
   local tag_source = chkbtn_tag_source_file.value
@@ -535,11 +538,13 @@ local function image_stack(storage, image_table, extra_data)
       -- import image
       dt.print(_("importing result"))
       local film_roll_path = extract_collection_path(image_table)
-      local import_filename = df.create_unique_filename(film_roll_path .. "/" .. df.get_filename(output_filename))
+      local import_filename = df.create_unique_filename(film_roll_path .. PS .. df.get_filename(output_filename))
       df.file_move(output_filename, import_filename)
       imported_image = dt.database.import(import_filename)
-      local created_tag = dt.tags.create("Created with|image_stack")
+      local created_tag = dt.tags.create(_("Created with|image_stack"))
       dt.tags.attach(created_tag, imported_image)
+      -- all the images are the same except for time, so just copy the  attributes
+      -- from the first
       for img,_ in pairs(image_table) do
         copy_image_attributes(img, imported_image)
         break
@@ -550,7 +555,7 @@ local function image_stack(storage, image_table, extra_data)
 
       if tag_source then
         dt.print(_("tagging source images"))
-        local source_tag = dt.tags.create("Source file|" .. imported_image.filename)
+        local source_tag = dt.tags.create(_("Source file|" .. imported_image.filename))
         for img, _ in pairs(image_table) do 
           dt.tags.attach(source_tag, img)
         end
