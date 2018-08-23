@@ -195,7 +195,7 @@ local function add_script_data(script_file)
   if name then
     if not string.match(du.join(sm.script_names[category], " "), name) then
       sm.script_names[category][#sm.script_names[category] + 1] = name
-      sm.script_paths[category .. PS .. name] = category .. PS .. path .. name
+      sm.script_paths[category .. "/" .. name] = category .. "/" .. path .. name
       if category == "downloads" then
         sm.have_downloads = true
       end
@@ -293,7 +293,7 @@ local function create_enable_disable_button(btext, sname, req)
           scat = scatn 
         end
       end
-      local starget = du.join({scat, target}, PS)
+      local starget = du.join({scat, target}, "/")
       if action == "Enable" then
         local status = activate(starget, target)
         if status then
