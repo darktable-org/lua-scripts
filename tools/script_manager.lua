@@ -187,12 +187,16 @@ local function add_script_data(script_file)
 
   -- add the script data
   local category,path,name,filename,filetype = string.match(script_file, pattern)
+  dt.print_log("category is " .. category)
+  dt.print_log("name is " .. name)
 
   if #sm.script_categories == 0 or not string.match(du.join(sm.script_categories, " "), category) then
     sm.script_categories[#sm.script_categories + 1] = category
     sm.script_names[category] = {}
   end
   if name then
+    dt.print_log("category is " .. category)
+    dt.print_log("name is " .. name)
     if not string.match(du.join(sm.script_names[category], " "), name) then
       sm.script_names[category][#sm.script_names[category] + 1] = name
       sm.script_paths[category .. "/" .. name] = category .. "/" .. path .. name
@@ -289,11 +293,20 @@ local function create_enable_disable_button(btext, sname, req)
       -- load the script if it's not loaded
       local scat = ""
       for _,scatn in ipairs(sm.script_categories) do
-        if string.match(table.concat(sm.script_names[scatn]), target) then
+        -- check, and fix, the filename for a - since it is a lua magic character in string match
+        local mtarget = target
+        if string.match(mtarget, "-") then
+          mtarget = string.gsub(mtarget, "%-", "%%-")
+          dt.print_log("fixed target is " .. mtarget)
+        end
+        if string.match(table.concat(sm.script_names[scatn]), mtarget) then
+          dt.print_log("got a string match")
           scat = scatn 
         end
       end
       local starget = du.join({scat, target}, "/")
+      dt.print_log("starget to activate is " .. starget)
+      dt.print_log("target to activate is " .. target)
       if action == "Enable" then
         local status = activate(starget, target)
         if status then
