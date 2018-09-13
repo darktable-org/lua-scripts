@@ -1,4 +1,8 @@
 --[[
+  Copyright (c) 2016 Sebastian Witt <se.witt@gmx.net>
+  Copyright (c) 2018 Bill Ferguson <wpferguson@gmail.com>
+]]
+--[[
 Rename tags
 
 AUTHOR
@@ -18,6 +22,10 @@ USAGE
 LICENSE
 GPLv2
 
+Changes
+* 20180912 - Did an RTFM and read a bug (12277, thanks Christian G) that showed 
+  a way to get the images containing the old tag one by one instead of searching 
+  the entire database.  Changed rename_tags() function to use this method.
 ]]
 
 local darktable = require "darktable"
@@ -27,8 +35,13 @@ local debug = require "darktable.debug"
 local old_tag = darktable.new_widget("entry") { tooltip = "Enter old tag" }
 local new_tag = darktable.new_widget("entry") { tooltip = "Enter new tag" }
 
+local function rename_reset()
+    old_tag.text = ''
+    new_tag.text = ''
+end
+
 -- This function does the renaming
-local function rename_tags(widget)
+local function rename_tags()
   -- If entries are empty, return
   if old_tag.text == '' then
     darktable.print ("Old tag can't be empty")
@@ -39,7 +52,7 @@ local function rename_tags(widget)
     return
   end
   
-  local Count = 0
+  local count = 0
 
   -- Check if old tag exists
   local ot = darktable.tags.find (old_tag.text)
@@ -58,29 +71,28 @@ local function rename_tags(widget)
   -- Create if it does not exists
   local nt = darktable.tags.create (new_tag.text)
 
-  -- Search images for old tag
-  dbcount = #darktable.database
-  for i,image in ipairs(darktable.database) do
+  -- Get number of images for old tag
+  local dbcount = #ot
+
+  -- loop through the images containing the old tag, and attach the new tag
+  for i=1, #ot do
     -- Update progress bar
     job.percent = i / dbcount
-    
-    local tags = image:get_tags ()
-    for _,t in ipairs (tags) do
-      if t.name == old_tag.text then
-        -- Found it, attach new tag
-        image:attach_tag (nt)
-        Count = Count + 1
-      end
-    end
+    ot[i]:attach_tag(nt)
+    count = count + 1
   end
 
   -- Delete old tag, this removes it from all images
   darktable.tags.delete (ot)
 
   job.valid = false
-  darktable.print ("Renamed tags for " .. Count .. " images")
+  darktable.print ("Renamed tags for " .. count .. " images")
   old_tag.editable = true
   new_tag.editable = true
+
+  -- reset the gui fields
+
+  rename_reset()
 end
 
 -- GUI
@@ -95,11 +107,6 @@ local new_widget = darktable.new_widget ("box") {
     darktable.new_widget("label") { label = "New tag" },
     new_tag
 }
-
-local function rename_reset(widget)
-    old_tag.text = ''
-    new_tag.text = ''
-end
 
 local rename_widget = darktable.new_widget ("box") {
     orientation = "vertical",
