@@ -130,7 +130,7 @@ end
 ]]
 
 if dt.preferences.read("enfuseAdvanced",  "pref_version", "integer") ~= preferences_version then
-	dt.print_log("enfuseAdvanced - (Re)Initializing preferences due to script load\changes detected")
+	dt.print_log("enfuseAdvanced - (Re)Initializing preferences due to script load/changes detected")
 	-- align defaults
    dt.preferences.write("enfuseAdvanced", "selected_fusion", "integer", 1)
    dt.preferences.write("align_image_stack", "def_radial_distortion", "bool", false)
