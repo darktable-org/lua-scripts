@@ -2,45 +2,45 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Lua gettextTest\n"
 "POT-Creation-Date: 2016-01-22 15:33+0100\n"
-"PO-Revision-Date: 2016-01-22 23:28+0100\n"
-"Last-Translator: Tobias Jakobs <tobias.jakobs@gmail.com>\n"
+"PO-Revision-Date: 2018-09-18 10:21+0200\n"
+"Last-Translator: Simon Legner <Simon.Legner@gmail.com>\n"
 "Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.4\n"
+"X-Generator: Poedit 2.1.1\n"
 "X-Poedit-Basepath: .\n"
-"Plural-Forms: nplurals=2;t" plural=(n != 1);\n"
+"Plural-Forms: nplurals=2;t\" plural=(n != 1);\n"
 "X-Poedit-KeywordsList: gettext;dgettext:2;dcgettext:2;ngettext:1,2;dngettext:2,3\n"
 "X-Poedit-SearchPath-0: .\n"
 
 msgid "KML/KMZ Export"
-msgstr "KML/KMZ Expor
+msgstr "KML/KMZ-Export"
 
 msgid "Export Image %i/%i"
 msgstr "Exportiere Bild %i/%i"
 
 msgid "KML export: Open KML/KMZ file after export"
-msgstr "KML export: KML/KMZ-Datei nach dem exportieren öffnen"
+msgstr "KML-Export KML/KMZ-Datei nach dem Export öffnen"
 
 msgid "Opens the KML file after the export with the standard programm for KML files"
 msgstr "Öffnet die KML-Datei mit dem Standardprogram für KML-Dateien"
 
 msgid "KML export: Export directory"
-msgstr "KML export: Export-Verzeichnis"
+msgstr "KML-Export: Export-Verzeichnis"
 
 msgid "A directory that will be used to export the KML/KMZ files"
 msgstr "Verzeichnis in das die KML/KMZ-Dateien exportiert werden"
 
 msgid "KML export: Connect images with path"
-msgstr "KML export: Bilder mit einer Linie verbinden"
+msgstr "KML-Export: Bilder mit einer Linie verbinden"
 
 msgid "connect all images with a path"
 msgstr "Verbinde alle Bilder mit einer Linie"
 
 msgid "KML export: Create KMZ file"
-msgstr "KML export: KMZ-Datei erstellen"
+msgstr "KML-Export: KMZ-Datei erstellen"
 
 msgid "Compress all imeges to one KMZ file"
 msgstr "Alle Bilder in einer KMZ-Datei komprimieren"
