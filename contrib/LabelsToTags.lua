@@ -12,6 +12,9 @@
    * Add the following line in the file $CONFIGDIR/luarc:
    require "LabelsToTags"
 
+   ADDITIONAL SOFTWARE NEEDED FOR THIS SCRIPT
+   None.
+
    USAGE
    In your 'luarc' file or elsewhere, use the function
    'register_tag_mapping', defined in this module, to specify
