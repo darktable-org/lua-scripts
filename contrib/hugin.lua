@@ -38,6 +38,7 @@ This plugin will add a new storage option and calls hugin after export.
 local dt = require "darktable"
 local df = require "lib/dtutils.file"
 local log = require "lib/dtutils.log"
+local dtsys = require "lib/dtutils.system"
 require "official/yield"
 local gettext = dt.gettext
 
@@ -48,6 +49,9 @@ log.msg(log.info, "user_prefer_gui set to ", user_prefer_gui)
 local hugin_widget = nil
 local exec_widget = nil
 local executable_table = {"hugin", "hugin_executor", "pto_gen"}
+
+-- get the proper path quoting quote
+local PQ = dt.configuration.running_os == "windows" and '"' or "'"
 
 -- works with darktable API version from 5.0.0 on
 dt.configuration.check_version(...,{5,0,0})
@@ -112,7 +116,7 @@ local function create_panorama(storage, image_table, extra_data) --finalize
   -- reset and create image list
   for k,v in pairs(image_table) do
     log.msg(log.debug, "k is ", k, " and v is ", v)
-    img_list = img_list .. "'" .. v .. "'" .. ' '  -- surround the filename with single quotes to handle spaces
+    img_list = img_list .. PQ .. v .. PQ .. ' '  -- surround the filename with single quotes to handle spaces
     table.insert(img_set, k)
   end
 
@@ -157,11 +161,11 @@ local function create_panorama(storage, image_table, extra_data) --finalize
     huginStartCommand = pto_gen.." "..img_list.." -o "..pto_path
     dt.print(_("creating pto file"))
     log.msg(log.info, "pto creation command is ", huginStartCommand)
-    dt.control.execute(huginStartCommand)
+    dtsys.external_command(huginStartCommand)
 
     dt.print(_("running assistant"))
     huginStartCommand = hugin_executor.." --assistant "..pto_path
-    dt.control.execute(huginStartCommand)
+    dtsys.external_command(huginStartCommand)
 
     huginStartCommand = hugin_executor..' --stitching --prefix=' .. "'" .. src_path .. "'" .. ' ' .. pto_path
     log.msg(log.info, "command line huginStartCommand is ", huginStartCommand)
@@ -181,7 +185,7 @@ local function create_panorama(storage, image_table, extra_data) --finalize
   end
 
   if not (huginStartCommand==nil) then
-    if not dt.control.execute(huginStartCommand) then
+    if not dtsys.external_command(huginStartCommand) then
       dt.print(_("hugin failed ..."))
       log.msg(log.error, huginStartCommand, " failed")
     else
