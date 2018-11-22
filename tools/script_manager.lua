@@ -291,19 +291,10 @@ local function create_enable_disable_button(btext, sname, req)
       -- split the label into action and target
       local action, target = string.match(self.label, "(.+) (.+)")
       -- load the script if it's not loaded
-      local scat = ""
-      for _,scatn in ipairs(sm.script_categories) do
-        -- check, and fix, the filename for a - since it is a lua magic character in string match
-        local mtarget = target
-        if string.match(mtarget, "-") then
-          mtarget = string.gsub(mtarget, "%-", "%%-")
-          dt.print_log("fixed target is " .. mtarget)
-        end
-        if string.match(table.concat(sm.script_names[scatn]), mtarget) then
-          dt.print_log("got a string match")
-          scat = scatn 
-        end
-      end
+      dt.print_log("Looking for target " .. target)
+      local scat = sm.category_selector.value
+      -- check, and fix, the filename for a - since it is a lua magic character in string match
+      dt.print_log("checking category " .. scat .. " for target " .. target)
       local starget = du.join({scat, target}, "/")
       dt.print_log("starget to activate is " .. starget)
       dt.print_log("target to activate is " .. target)
