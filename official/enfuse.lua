@@ -49,6 +49,7 @@ end
 -- add a new lib
 -- is enfuse installed?
 local enfuse_installed = df.check_if_bin_exists("enfuse")
+local darktable_cli_installed = df.check_if_bin_exists("darktable-cli")
 
 -- check the version so that we can use the correct arguments
 
@@ -148,6 +149,14 @@ dt.register_lib(
           if i.is_ldr then
             cnt = cnt + 1
             f:write(i.path.."/"..i.filename.."\n")
+            target_dir = i.path
+          elseif i.is_raw and darktable_cli_installed then
+            local tmp_exported = os.tmpname()..".tif"
+            os.execute("darktable-cli \""..i.path.."/"..i.filename.."\" \""..tmp_exported.."\"")
+            dt.print("Raw file "..i.filename.." automatically converted to tiff")
+
+            cnt = cnt + 1
+            f:write(tmp_exported.."\n")
             target_dir = i.path
           else
             dt.print("skipping "..i.filename)
