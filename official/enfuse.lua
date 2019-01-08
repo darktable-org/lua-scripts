@@ -49,7 +49,12 @@ end
 -- add a new lib
 -- is enfuse installed?
 local enfuse_installed = df.check_if_bin_exists("enfuse")
-local darktable_cli_installed = df.check_if_bin_exists("darktable-cli")
+
+-- instance of DT tiff exporter
+local tiff_exporter = dt.new_format("tiff")
+tiff_exporter.bpp = 16
+tiff_exporter.max_height = 0
+tiff_exporter.max_width = 0
 
 -- check the version so that we can use the correct arguments
 
@@ -145,19 +150,25 @@ dt.register_lib(
         local n_skipped = 0
         local target_dir
         for i_, i in ipairs(dt.gui.action_images) do
-          -- only use ldr files as enfuse can't open raws. alternatively we could export raws that we encounter
+
+          -- only use ldr files as enfuse can't open raws
           if i.is_ldr then
             cnt = cnt + 1
             f:write(i.path.."/"..i.filename.."\n")
             target_dir = i.path
-          elseif i.is_raw and darktable_cli_installed then
-            local tmp_exported = os.tmpname()..".tif"
+
+          -- alternatively raws will be exported as tiff
+          elseif i.is_raw then
+            local tmp_exported = os.tmpname()..".tiff"
             dt.print(string.format(_("Converting raw file '%s' to tiff..."), i.filename)) 
-            os.execute("darktable-cli \""..i.path.."/"..i.filename.."\" \""..tmp_exported.."\"")
+            tiff_exporter.write_image(tiff_exporter, i, tmp_exported, false)
+            dt.print_log(string.format("Raw file '%s' converted to '%s'", i.filename, tmp_exported))
 
             cnt = cnt + 1
             f:write(tmp_exported.."\n")
             target_dir = i.path
+            
+          -- other images will be skipped
           else
             dt.print(string.format(_("Skipping %s..."), i.filename))
             n_skipped = n_skipped + 1
@@ -184,7 +195,7 @@ dt.register_lib(
         if version < "4.2" then
           exposure_option = " --exposure-mu "
         end
-        local command = "enfuse --depth "..depth.value..exposure_option..ugly_decimal_point_hack
+        local command = enfuse_installed.." --depth "..depth.value..exposure_option..ugly_decimal_point_hack
                         .." -o \""..output_image.."\" \"@"..response_file.."\""
         if dt.control.execute( command) > 0 then
           dt.print(_("Enfuse failed, see terminal output for details"))
