@@ -56,7 +56,7 @@ video_mencoder|No|L|Export video from darktable
 
 ### Example Scripts
 
-These scripts provide examples of how to use specific portions of the API. They run, but are meant for demonstrattion purposes only. They are located in the examples/ directory.
+These scripts provide examples of how to use specific portions of the API. They run, but are meant for demonstration purposes only. They are located in the examples/ directory.
 
 Name|Standalone|OS   |Purpose
 ----|:--------:|:---:|-------
