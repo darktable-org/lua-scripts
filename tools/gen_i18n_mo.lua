@@ -50,8 +50,6 @@ if msgfmt_executable then
     find_cmd = "dir /b/s " .. LUA_DIR .. "\\*.po"
   end
 
-  -- local output = io.popen("cd "..LUA_DIR..";find . -name \\*.po -print")
-
   local output = io.popen(find_cmd)
 
   -- for each .po file....
@@ -88,7 +86,7 @@ else
 end
 dt.preferences.register("executable_paths", "msgfmt",  -- name
   "file", -- type
-  'gen_mo: msgfmt location', -- label
+  'gen_i18n_mo: msgfmt location', -- label
   'Install location of msgfmt. Requires restart to take effect.',  -- tooltip
   "msgfmt",  -- default
   dt.new_widget("file_chooser_button"){
