@@ -1,5 +1,5 @@
 --[[
-    gen_mo.lua - generate .mo files from .po files and put them in the correct place
+    gen_18n_mo.lua - generate .mo files from .po files and put them in the correct place
 
     Copyright (C) 2016,2018 Bill Ferguson <wpferguson@gmail.com>
 
@@ -17,9 +17,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]]
 --[[
-    gen_mo - generate translation files from the source and place them in the appropriate locale directory
+    gen_i18n_mo - generate translation files from the source and place them in the appropriate locale directory
     
-    gen_mo finds all the .po files scattered throughout the script tree, compiles them into
+    gen_i18n_mo finds all the .po files scattered throughout the script tree, compiles them into
     .mo files and places them in the correct locale directory for use by the gettext tools.
 
 ]]
