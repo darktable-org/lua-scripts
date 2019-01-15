@@ -36,6 +36,7 @@ autostyle|Yes|LMW|Automatically apply styles on import
 clear_GPS|Yes|LMW|Reset GPS information for selected images
 copy_attach_detach_tags|Yes|LMW|Copy and paste tags from/to images
 cr2hdr|Yes|L|Process image created with Magic Lantern Dual ISO
+enfuseAdvanced|No|LMW|Merge multiple images into Dynamic Range Increase (DRI) or Depth From Focus (DFF) images
 fujifilm_ratings|No|LM|Support importing Fujifilm ratings
 geoJSON_export|No|L|Create a geo JSON script with thumbnails for use in ...
 geoToolbox|No|LMW|A toolbox of geo functions
@@ -76,6 +77,7 @@ Tool scripts perform functions relating to the repository, such as generating do
 Name|Standalone|OS   |Purpose
 ----|:--------:|:---:|-------
 executable_manager|Yes|LMW|Manage the external executables used by the lua scripts
+gen_i18n_mo|No|LMW|Generate compiled translation files (.mo) from source files (.po)
 get_lib_manpages|No|LM|Retrieve the library documentation and output it in man page and PDF format
 get_libdoc|No|LMW|Retrieve the library documentation and output it as text
 script_manager|No|LMW|Manage (install, update, enable, disable) the lua scripts
