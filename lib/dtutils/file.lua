@@ -1,6 +1,7 @@
 local dtutils_file = {}
 local dt = require "darktable"
 local ds = require "lib/dtutils.string"
+local dsys = require "lib/dtutils.system"
 
 local log = require "lib/dtutils.log"
 
@@ -552,6 +553,51 @@ dtutils_file.libdoc.functions["sanitize_filename"] = {
 function dtutils_file.sanitize_filename(filename)
   return ds.sanitize(filename)
 end
+
+dtutils_file.libdoc.functions["mkdir"] = {
+  Name = [[mkdir]],
+  Synopsis = [[create the directory(ies) if they do not already exists]],
+  Usage = [[local df = require "lib/dtutils.file"
+
+     df.mkdir(path)
+      path - string - a directory path]],
+  Description = [[mkdir creates directories if not already exists. It 
+    create whole parents subtree if needed
+  ]],
+  Return_Value = [[path - string - a directory path]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+function dtutils_file.mkdir(path) 
+  local mkdir_cmd = dt.configuration.running_os == "windows" and "mkdir" or "mkdir -p"
+  return dsys.external_command(mkdir_cmd.." "..dtutils_file.sanitize_filename(path))
+end
+
+dtutils_file.libdoc.functions["rm"] = {
+  Name = [[rm]],
+  Synopsis = [[remove file or directory]],
+  Usage = [[local df = require "lib/dtutils.file"
+
+     df.rm(path)
+      path - string - a file or directory path]],
+  Description = [[rm allow to recursively remove files or directories]],
+  Return_Value = [[path - string - a file or directory path]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+function dtutils_file.rm(path)
+  local rm_cmd = dt.configuration.running_os == "windows" and "rmdir /S /Q" or "rm -r"
+  return dsys.external_command(rm_cmd.." "..dtutils_file.sanitize_filename(path))
+end
+
 
 return dtutils_file
 

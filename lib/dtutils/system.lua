@@ -101,4 +101,34 @@ function dtutils_system.windows_command(command)
   return result
 end
 
+
+dtutils_system.libdoc.functions["launch_default_app"] = {
+  Name = [[launch_default_app]],
+  Synopsis = [[try to open file in default application]],
+  Usage = [[local dsys = require "lib/dtutils.file"
+
+    dsys.launch_default_app(path)
+      path - string - a file path]],
+  Description = [[launch_default_app allow to open file in application that is assigned as default 
+    one in users's system for given filetype
+  ]],
+  Return_Value = [[path - string - a file path]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+function dtutils_system.launch_default_app(path) 
+  local open_cmd = "xdg-open"
+  if (dt.configuration.running_os == "windows") then
+    open_cmd = "start"
+  elseif  (dt.configuration.running_os == "macos") then
+    open_cmd = "open"
+  end   
+  return dtutils_system.external_command(open_cmd..' "'..path..'"')
+end
+
+
 return dtutils_system
