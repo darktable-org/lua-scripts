@@ -272,11 +272,22 @@ local destination_label = dt.new_widget("section_label"){
   tooltip = _("settings of output file destination and name")
 }
 
+local defaultVideoDir = ''
+if dt.configuration.running_os == "windows" then
+  defaultVideoDir = os.getenv("USERPROFILE")..PS .."videos"
+elseif dt.configuration.running_os == "macos" then
+  defaultVideoDir =  os.getenv("home")..PS.."videos"
+else
+  handle = io.popen("xdg-user-dir VIDEOS")
+  defaultVideoDir = handle:read()
+  handle:close()
+end
+
 local output_directory_chooser = dt.new_widget("file_chooser_button"){
   title = _("Select export path"),
   is_directory = true,
   tooltip =_("select the target directory for the timelapse. \nthe filename is created automatically."),
-  value = string_pref_read("export_path", os.getenv("HOME")),
+  value = string_pref_read("export_path", defaultVideoDir),
   changed_callback = string_pref_write("export_path")
 }
 
@@ -336,7 +347,7 @@ local open_after_export_cb = dt.new_widget("check_button"){
 
 local widgets_list = {}
 if not df.check_if_bin_exists("ffmpeg") then
-  table.insert(timelapse_widgets, df.executable_path_widget("ffmpeg"))
+  table.insert(widgets_list, df.executable_path_widget({"ffmpeg"}))
 end
 table.insert(widgets_list, res_selector)
 table.insert(widgets_list, framerates_selector)
