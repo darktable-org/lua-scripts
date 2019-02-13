@@ -34,20 +34,18 @@ A file explorer window will be opened for each selected file at the file's locat
 ]]
 
 local dt = require "darktable"
-local df = require "lib/dtutils.file"
 local dsys = require "lib/dtutils.system"
-require "official/yield"
 
 --Detect OS and modify accordingly--	
-local proper_install = 0
+local proper_install = false
 if dt.configuration.running_os == "windows" then
-	proper_install = 1
+	proper_install = true
 end
 
 -- FUNCTION --
 local function OpenInExplorer() --Open in Explorer
 	--Inits--
-	if proper_install ~= 1 then
+	if not proper_install then
 		return
 	end
 	local images = dt.gui.selection()
@@ -62,19 +60,10 @@ local function OpenInExplorer() --Open in Explorer
 end
 
 -- GUI --
-OpenInExplorer_btn_run = dt.new_widget("button"){
-	label = "Go to Folder",
-	tooltip = "Opens selected image(s) location(s) in file explorer",
-	clicked_callback = function() OpenInExplorer() end
-	}
-dt.register_lib( --OpenInExplorer
-	"OpenInExplorer_Lib",	-- Module name
-	"Open In Explorer",	-- name
-	true,	-- expandable
-	false,	-- resetable
-	{[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 99}},	-- containers
-	dt.new_widget("box"){
-		orientation = "vertical",
-		OpenInExplorer_btn_run
-	}
-)
+if proper_install then
+	dt.gui.libs.image.register_action(
+		"show in file explorer",
+		function() OpenInExplorer() end,
+		"Opens File Explorer at the selecte image's location"
+	)
+end
