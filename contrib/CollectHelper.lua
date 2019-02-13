@@ -152,27 +152,27 @@ end
 
 -- GUI --
 dt.gui.libs.image.register_action(
-	"Return to Previous Collection",
+	"collect: previous",
 	function() PreviousCollection() end,
 	"Sets the Collect parameters to be the previously active parameters"
 )
 if dt.preferences.read('module_CollectHelper','folder','bool') then
 	dt.gui.libs.image.register_action(
-		"Collect on image's Folder",
+		"collect: folder",
 		function() CollectOnFolder() end,
 		"Sets the Collect parameters to be the selected images's folder"
 	)
 end
 if dt.preferences.read('module_CollectHelper','colors','bool') then
 	dt.gui.libs.image.register_action(
-		"Collect on image's Color Label(s)",
+		"collect: color label(s)",
 		function() CollectOnColors() end,
 		"Sets the Collect parameters to be the selected images's color label(s)"
 	)
 end
 if dt.preferences.read('module_CollectHelper','all_and','bool') then
 	dt.gui.libs.image.register_action(
-		"Collect on All (AND)",
+		"collect: all (AND)",
 		function() CollectOnAll_AND() end,
 		"Sets the Collect parameters based on all activated CollectHelper options"
 	)
