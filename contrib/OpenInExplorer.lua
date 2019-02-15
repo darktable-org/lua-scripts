@@ -40,6 +40,8 @@ local dsys = require "lib/dtutils.system"
 local proper_install = false
 if dt.configuration.running_os == "windows" then
 	proper_install = true
+else
+	dt.print_error('OpenInExplorer plug-in only supports Windows OS at this time')
 end
 
 -- FUNCTION --
@@ -50,12 +52,17 @@ local function OpenInExplorer() --Open in Explorer
 	end
 	local images = dt.gui.selection()
 	local curr_image = ""
-	
-	for _,image in pairs(images) do 
-		curr_image = image.path..'\\'..image.filename
-		local run_cmd = "explorer.exe /select, "..curr_image
-		dt.print_log("OpenInExplorer run_cmd = "..run_cmd)
-		resp = dsys.external_command(run_cmd)
+	if #images == 0 then
+		dt.print('please select an image')
+	elseif #images <= 15 then
+		for _,image in pairs(images) do 
+			curr_image = image.path..'\\'..image.filename
+			local run_cmd = "explorer.exe /select, "..curr_image
+			dt.print_log("OpenInExplorer run_cmd = "..run_cmd)
+			resp = dsys.external_command(run_cmd)
+		end
+	else
+		dt.print('please select fewer images (max 15)')
 	end
 end
 
@@ -64,6 +71,6 @@ if proper_install then
 	dt.gui.libs.image.register_action(
 		"show in file explorer",
 		function() OpenInExplorer() end,
-		"Opens File Explorer at the selecte image's location"
+		"Opens File Explorer at the selected image's location"
 	)
 end
