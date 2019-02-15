@@ -46,30 +46,29 @@ In the "Selected Images" module click on "Collect on this Image"
 ]]
 
 local dt = require "darktable"
-previous = nil
-all_active = false
+local previous = nil
+local all_active = false
 
 -- FUNCTION --
 local function CheckSingleImage(selection)
 	if #selection ~= 1 then
 		dt.print("Please select a single image")
-		return 1
+		return true
 	end
-	return 0
+	return false
 end
 local function PreviousCollection()
 	if previous ~= nil then
 		previous = dt.gui.libs.collect.filter(previous)
 	end
 end
-local function CollectOnFolder()
+local function CollectOnFolder(all_rules, all_active)
 	local images = dt.gui.selection()
-	if CheckSingleImage(images) == 1 then
+	if CheckSingleImage(images) then
 		return
 	end
-	rules = {}
-	all_rules = {}
-	rule = dt.gui.libs.collect.new_rule()
+	local rules = {}
+	local rule = dt.gui.libs.collect.new_rule()
 	rule.mode = "DT_LIB_COLLECT_MODE_AND"
 	rule.data = images[1].path
 	rule.item = "DT_COLLECTION_PROP_FOLDERS"
@@ -78,47 +77,48 @@ local function CollectOnFolder()
 		for _,active_rule in pairs(rules) do
 			table.insert(all_rules, active_rule)
 		end
+		return all_rules
 	else
 		previous = dt.gui.libs.collect.filter(rules)
 	end
 end
-local function CollectOnColors()
+local function CollectOnColors(all_rules, all_active)
 	local images = dt.gui.selection()
-	if CheckSingleImage(images) == 1 then
+	if CheckSingleImage(images) then
 		return
 	end
 	for _,image in pairs(images) do
-		rules = {}
+		local rules = {}
 		if image.red then
-			red_rule = dt.gui.libs.collect.new_rule()
+			local red_rule = dt.gui.libs.collect.new_rule()
 			red_rule.mode = "DT_LIB_COLLECT_MODE_AND"
 			red_rule.data = "red"
 			red_rule.item = "DT_COLLECTION_PROP_COLORLABEL"
 			table.insert(rules, red_rule)
 		end
 		if image.blue then
-			blue_rule = dt.gui.libs.collect.new_rule()
+			local blue_rule = dt.gui.libs.collect.new_rule()
 			blue_rule.mode = "DT_LIB_COLLECT_MODE_AND"
 			blue_rule.data = "blue"
 			blue_rule.item = "DT_COLLECTION_PROP_COLORLABEL"
 			table.insert(rules, blue_rule)
 		end
 		if image.green then
-			green_rule = dt.gui.libs.collect.new_rule()
+			local green_rule = dt.gui.libs.collect.new_rule()
 			green_rule.mode = "DT_LIB_COLLECT_MODE_AND"
 			green_rule.data = "green"
 			green_rule.item = "DT_COLLECTION_PROP_COLORLABEL"
 			table.insert(rules, green_rule)
 		end
 		if image.yellow then
-			yellow_rule = dt.gui.libs.collect.new_rule()
+			local yellow_rule = dt.gui.libs.collect.new_rule()
 			yellow_rule.mode = "DT_LIB_COLLECT_MODE_AND"
 			yellow_rule.data = "yellow"
 			yellow_rule.item = "DT_COLLECTION_PROP_COLORLABEL"
 			table.insert(rules, yellow_rule)
 		end
 		if image.purple then
-			purple_rule = dt.gui.libs.collect.new_rule()
+			local purple_rule = dt.gui.libs.collect.new_rule()
 			purple_rule.mode = "DT_LIB_COLLECT_MODE_AND"
 			purple_rule.data = "purple"
 			purple_rule.item = "DT_COLLECTION_PROP_COLORLABEL"
@@ -128,6 +128,7 @@ local function CollectOnColors()
 			for _,active_rule in pairs(rules) do
 				table.insert(all_rules, active_rule)
 			end
+			return all_rules
 		else
 			previous = dt.gui.libs.collect.filter(rules)
 		end
@@ -135,19 +136,17 @@ local function CollectOnColors()
 end
 local function CollectOnAll_AND()
 	local images = dt.gui.selection()
-	if CheckSingleImage(images) == 1 then
+	if CheckSingleImage(images) then
 		return
 	end
-	all_rules = {}
-	all_active = true
+	local rules = {}
 	if dt.preferences.read('module_CollectHelper','folder','bool') then
-		CollectOnFolder()
+		rules = CollectOnFolder(rules, true)
 	end
 	if dt.preferences.read('module_CollectHelper','colors','bool') then
-		CollectOnColors()
+		rules = CollectOnColors(rules, true)
 	end
-	all_active = false
-	previous = dt.gui.libs.collect.filter(all_rules)
+	previous = dt.gui.libs.collect.filter(rules)
 end
 
 -- GUI --
@@ -159,14 +158,14 @@ dt.gui.libs.image.register_action(
 if dt.preferences.read('module_CollectHelper','folder','bool') then
 	dt.gui.libs.image.register_action(
 		"collect: folder",
-		function() CollectOnFolder() end,
+		function() CollectOnFolder(_ , false) end,
 		"Sets the Collect parameters to be the selected images's folder"
 	)
 end
 if dt.preferences.read('module_CollectHelper','colors','bool') then
 	dt.gui.libs.image.register_action(
 		"collect: color label(s)",
-		function() CollectOnColors() end,
+		function() CollectOnColors(_ , false) end,
 		"Sets the Collect parameters to be the selected images's color label(s)"
 	)
 end
