@@ -52,14 +52,9 @@ local dsys = require "lib/dtutils.system"
 require "official/yield"
 
 --Check if HDRMerge is installed--
-local not_installed = 0
-dt.print_log("HDRMerge - Executable Path Preference: "..df.get_executable_path_preference("HDRMerge"))
-local HDRMerge_path = df.check_if_bin_exists("HDRMerge")
-if not HDRMerge_path then
-	dt.print_error("HDRMerge not found")
-	dt.print("ERROR - HDRMerge not found")
-	not_installed = 1
-end
+local first_run = true
+local not_installed = false
+local HDRMerge_path
 
 --Detect OS and modify accordingly--	
 local os_path_seperator = "/"
@@ -101,7 +96,16 @@ local function build_execute_command(cmd, args, file_list)
 	return result
 end
 local function HDRMerge()
-	if not_installed == 1 then
+	if first_run then
+		HDRMerge_path = df.check_if_bin_exists("HDRMerge")
+		if not HDRMerge_path then
+			dt.print_error("HDRMerge not found")
+			dt.print("ERROR - HDRMerge not found")
+			not_installed = true
+		end
+		first_run = false
+	end
+	if not_installed then
 		dt.print("Required software not found")
 		dt.print_log("Required software not found - HDRMerge did not run")
 		return
@@ -350,15 +354,6 @@ dt.preferences.register("module_HDRMerge", "bits_per_sample",	-- name
 	"16",	-- default
 	"24","32"	--value
 )
-
-if not HDRMerge_path then 
-	HDRMerge_path = ""
-end
-HDRMerge_path_widget = dt.new_widget("file_chooser_button"){
-	title = "Select HDRMerge[.exe] file",
-	value = HDRMerge_path,
-	is_directory = false,
-}
 dt.preferences.register("executable_paths", "HDRMerge",	-- name
 	"file",	-- type
 	'HDRMerge: Binary Location',	-- label
