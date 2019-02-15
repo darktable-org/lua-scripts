@@ -308,31 +308,17 @@ dt.register_lib(
 )
 
 -- PREFERENCES --
-HDRMerge_entry_widget_tags = dt.new_widget("entry"){
-	tooltip = "Seperate with commas, all spaces will be removed",
-	text = nil,
-	placeholder = "Enter default tags",
-	editable = true
-}
 dt.preferences.register("module_HDRMerge", "add_tags",	-- name
 	"string",	-- type
 	'HDRMerge: Defualt additional tags',	-- label
 	'Changes DEFAULT entry in the additional tags option. Requires restart to take effect.',	-- tooltip
-	"",	-- default
-	HDRMerge_entry_widget_tags
+	""	-- default
 ) 
-HDRMerge_entry_widget_style = dt.new_widget("entry"){
-	tooltip = "Enter the style name exactly as it is",
-	text = nil,
-	placeholder = "Enter Style name",
-	editable = true
-}
 dt.preferences.register("module_HDRMerge", "style",	-- name
 	"string",	-- type
 	'HDRMerge: Defualt Style',	-- label
 	'Changes DEFAULT entry in the Style option. Requires restart to take effect.',	-- tooltip
-	"",	-- default
-	HDRMerge_entry_widget_style
+	""	-- default
 ) 
 dt.preferences.register("module_HDRMerge", "copy_tags",	-- name
 	"bool",	-- type
@@ -358,6 +344,5 @@ dt.preferences.register("executable_paths", "HDRMerge",	-- name
 	"file",	-- type
 	'HDRMerge: Binary Location',	-- label
 	'Install location of HDRMerge[.exe]. Requires restart to take effect.',	-- tooltip
-	"HDRMerge",	-- default
-	HDRMerge_path_widget
+	"HDRMerge"	-- default
 )
