@@ -42,6 +42,7 @@ if dt.configuration.running_os == "windows" then
 	proper_install = true
 else
 	dt.print_error('OpenInExplorer plug-in only supports Windows OS at this time')
+	return
 end
 
 -- FUNCTION --
