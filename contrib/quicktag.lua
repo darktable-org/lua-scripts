@@ -44,12 +44,16 @@ USAGE
 
 
 local dt = require "darktable"
+local du = require "lib/dtutils"
 local debug = require "darktable.debug"
 
 
 local gettext = dt.gettext
 
-dt.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
+if not du.check_min_api_version("3.0.0") then
+  dt.print("ERROR:quicktag failed to load.  Lua API version 3.0.0 or later required.")
+  return
+end
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("quicktag",dt.configuration.config_dir.."/lua/locale/")

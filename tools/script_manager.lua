@@ -455,7 +455,10 @@ end
 
 -- api check
 
-dt.configuration.check_version(...,{5,0,0})
+if not du.check_min_api_version("5.0.0") then
+  dt.print("ERROR:script_manager failed to load.  Lua API version 5.0.0 or greater required.")
+  return
+end
 
 -- set up tables to contain all the widgets and choices
 

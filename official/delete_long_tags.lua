@@ -29,7 +29,12 @@ all tags longer than the given length will be automatically deleted at every res
 ]]
 
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,0},{3,0,0},{4,0,0},{5,0,0})
+local du = require "lib/dtutils"
+
+if not du.check_min_api_version("2.0.0") then
+  dt.print("ERROR:delete_long_tags not loaded.  Lua API version 2.0.0 or greater required.")
+  return
+end
 
 dt.preferences.register("delete_long_tags", "length", "integer",
                         "maximum length of tags to keep",

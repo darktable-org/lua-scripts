@@ -64,12 +64,16 @@
 ]]
 
 local dt = require "darktable"
+local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 local dtsys = require "lib/dtutils.system"
 local gettext = dt.gettext
 local gimp_widget = nil
 
-dt.configuration.check_version(...,{5,0,0})
+if not du.check_min_api_version("5.0.0") then
+  dt.print("ERROR:gimp failed to load.  Lua API version 5.0.0 or greater required.")
+  return
+end
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("gimp",dt.configuration.config_dir.."/lua/locale/")

@@ -29,7 +29,14 @@ Changes
 ]]
 
 local darktable = require "darktable"
+local du = require "lib/dtutils"
 local debug = require "darktable.debug"
+
+-- check API version
+if not du.check_min_api_version("3.0.0") then
+  darktable.print("ERROR:rename_tags failed to load.  Lua API version 3.0.0 or later required.")
+  return
+end
 
 -- GUI entries
 local old_tag = darktable.new_widget("entry") { tooltip = "Enter old tag" }

@@ -31,8 +31,12 @@ https://www.darktable.org/lua-api/index.html.php#darktable_new_widget
 ]]
 
 local dt = require "darktable"
+local du = require "lib/dtutils"
 
-dt.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
+if not du.check_min_api_version("3.0.0") then
+  dt.print("ERROR:moduleExample failed to load.  Lua API version 3.0.0 or greater required.")
+  return
+end
 
 -- add a new lib
 local check_button = dt.new_widget("check_button"){label = "MyCheck_button", value = true}

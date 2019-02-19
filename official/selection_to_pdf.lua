@@ -34,9 +34,13 @@ Plugin allows you to choose how many thumbnails you need per row
 
 ]]
 local dt = require "darktable"
+local du = require "lib/dtutils"
 require "official/yield"
 
-dt.configuration.check_version(...,{2,0,0},{3,0,0},{4,0,0},{5,0,0})
+if not du.check_min_api_version("2.0.0") then
+  dt.print("ERROR:selection_to_pdf not loaded.  Lua API version 2.0.0 or greater required.")
+  return
+end
 
 dt.preferences.register
    ("selection_to_pdf","Open with","string",

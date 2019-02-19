@@ -1,5 +1,6 @@
 local dtutils_file = {}
 local dt = require "darktable"
+local du = require "lib/dtutils"
 local ds = require "lib/dtutils.string"
 
 local log = require "lib/dtutils.log"
@@ -24,7 +25,9 @@ dtutils_file.libdoc = {
 
 local gettext = dt.gettext
 
-dt.configuration.check_version(...,{5,0,0})
+if not du.check_min_api_version("5.0.0") then
+  return
+end
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("dtutils.file",dt.configuration.config_dir.."/lua/locale/")

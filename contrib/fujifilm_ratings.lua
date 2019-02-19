@@ -24,10 +24,14 @@ Dependencies:
 --]]
 
 local dt = require "darktable"
+local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 local gettext = dt.gettext
 
-dt.configuration.check_version(...,{4,0,0},{5,0,0})
+if not du.check_min_api_version("4.0.0") then
+  dt.print("ERROR:fujifilm_ratings failed to load.  Lua API version 4.0.0 or later required.")
+  return
+end
 
 gettext.bindtextdomain("fujifilm_ratings", dt.configuration.config_dir.."/lua/locale/")
 

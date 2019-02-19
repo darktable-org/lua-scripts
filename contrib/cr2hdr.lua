@@ -33,9 +33,13 @@ USAGE
 ]]
 
 local darktable = require "darktable"
+local du = require "lib/dtutils"
 
 -- Tested with darktable 2.0.1
-darktable.configuration.check_version(...,{2,0,0},{3,0,0},{4,0,0},{5,0,0})
+if not du.check_min_api_version("2.0.0") then
+  darktable.print("ERROR:cr2hdr failed to load.  Lua API version 2.0.0 or later required.")
+  return
+end
 
 local queue = {}
 local processed_files = {}

@@ -32,7 +32,40 @@ local dt = require "darktable"
 
 local log = require "lib/dtutils.log"
 
-dt.configuration.check_version(...,{5,0,0})
+dtutils.libdoc.functions["check_min_api_version"] = {
+  Name = [[check_min_api_version]],
+  Synopsis = [[check the minimum required api version against the current api version]],
+  Usage = [[local du = require "lib/dtutils"
+
+    local result = du.check_min_api_version(min_api)
+      min_api - string - the api version that the application was written for (example: "5.0.0")]],
+  Description = [[check_min_api_version compares the minimum api required for the appllication to
+    run against the current api version.  The minimum api version is typically the api version that 
+    was current when the application was created.  If the minimum api version is not met, then an 
+    error message is printed to the log.
+
+    This function is intended to replace darktable.configuration.check_version().  The application code
+    won't have to be updated each time the api changes because this only checks the minimum version required.]],
+  Return_Value = [[result - true if the minimum api version is available, false if not.]],
+  Limitations = [[]],
+  Example = [[check_min_api_version("5.0.0") returns true if the api is greater or equal to 5.0.0 otherwise an
+    error message is printed to the log and false is returned.]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils.check_min_api_version(min_api)
+  local current_api = dt.configuration.api_version_string
+  if min_api <= current_api then
+    return true
+  else
+    dt.print_error("This application is written for lua api version " .. min_api .. " or later.")
+    dt.print_error("The current lua api version is " .. current_api)
+    return false
+  end
+end
 
 dtutils.libdoc.functions["split"] = {
   Name = [[split]],

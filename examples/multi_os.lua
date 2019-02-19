@@ -80,12 +80,16 @@ local function _(msgid)
 end
 
 --[[
-    Specify the version(s) of the lua API that this script is compatible with.  This script uses new
-    features released in the latest version of darktable and is only compatible with the latest API version.
-    Multiple API versions may be specified, seperated by commas.
+    Check that the current api version is greater than or equal to the specified minimum.  If it's not
+    then du.check_min_api_version will print an error to the log and return false.  If the minimum api is
+    not met, then just refuse to load and return.  Optionally, you could print an error message to the 
+    screen stating that you couldn't load because the minimum api version wasn't met.
 ]]
 
-dt.configuration.check_version(...,{5,0,0})
+if not du.check_min_api_version("5.0.0") then
+  dt.print("ERROR:mulit_os failed to load:  Lua API version 5.0.0 or greater required.")
+  return
+end
 
 --[[
     copy_image_attributes is a local subroutine to copy image attributes in the database from the raw image

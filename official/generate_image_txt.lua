@@ -35,10 +35,14 @@ USAGE
 --  * make filenames with double quotes (") work
 
 local dt = require "darktable"
+local du = require "lib/dtutils"
 require "darktable.debug"
 require "official/yield"
 
-dt.configuration.check_version(...,{2,1,0},{3,0,0},{4,0,0},{5,0,0})
+if not du.check_min_api_version("2.1.0") then
+  dt.print("ERROR:generate_image_txt not loaded.  Lua API version 2.1.0 or greater required.")
+  return
+end
 
 dt.preferences.register("generate_image_txt",
                         "enabled",

@@ -48,7 +48,12 @@
 ]]
 
 local darktable = require("darktable")
-darktable.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
+local du = require "lib/dtutils"
+
+if not du.check_min_api_version("3.0.0") then
+  darktable.print("ERROR:LabelsToTags failed to load.  Lua API version 3.0.0 or later required.")
+  return
+end
 
 -- Lua 5.3 no longer has "unpack" but "table.unpack"
 unpack = unpack or table.unpack

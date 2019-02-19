@@ -39,6 +39,7 @@ format (all fields can be the empty string):
 
 ]]
 local dt = require "darktable"
+local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 require "official/yield"
 
@@ -56,7 +57,10 @@ if not df.check_if_bin_exists("pdflatex") then
    return
 end
 
-dt.configuration.check_version(...,{4,0,0},{5,0,0})
+if not du.check_min_api_version("4.0.0") then
+  dt.print("ERROR:pdf_slideshow failed to load.  Lua API version 4.0.0 or greater required.")
+  return
+end
 
 dt.preferences.register
    ("pdf_slideshow","open with","string",

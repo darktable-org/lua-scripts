@@ -53,7 +53,13 @@ LUA ERROR Hallo Welt!
 
 ]] 
 local dt = require "darktable"
-dt.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0}))
+local du = require "lib/dtutils"
+
+--check API version
+if not du.check_min_api_version("3.0.0") then
+  dt.print("ERROR:gettextExample failed to load.  Lua API version 3.0.0 or greater required.")
+  return
+end
 
 -- Not translated Text
 dt.print_error("Hello World!")

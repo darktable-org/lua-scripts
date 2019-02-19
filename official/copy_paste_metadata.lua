@@ -26,8 +26,12 @@ USAGE
 ]]
 
 local dt = require "darktable"
+local du = require "lib/dtutils"
 
-dt.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
+if not du.check_min_api_version("3.0.0") then
+  dt.print("ERROR:copy_paste_metadata not loaded.  Lua API version 3.0.0 or greater required.")
+  return
+end
 
 -- set this to "false" if you don't want to overwrite metadata fields
 -- (title, description, creator, publisher and rights) that are already set
