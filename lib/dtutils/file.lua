@@ -573,8 +573,12 @@ dtutils_file.libdoc.functions["mkdir"] = {
   Copyright = [[]],
 }
 function dtutils_file.mkdir(path) 
-  local mkdir_cmd = dt.configuration.running_os == "windows" and "mkdir" or "mkdir -p"
-  return dsys.external_command(mkdir_cmd.." "..dtutils_file.sanitize_filename(path))
+  if not dtutils_file.check_if_file_exists(path) then
+    local mkdir_cmd = dt.configuration.running_os == "windows" and "mkdir" or "mkdir -p"
+    return dsys.external_command(mkdir_cmd.." "..dtutils_file.sanitize_filename(path))
+  else
+    return 0
+  end
 end
 
 dtutils_file.libdoc.functions["rm"] = {
