@@ -276,7 +276,7 @@ local defaultVideoDir = ''
 if dt.configuration.running_os == "windows" then
   defaultVideoDir = os.getenv("USERPROFILE")..PS .."videos"
 elseif dt.configuration.running_os == "macos" then
-  defaultVideoDir =  os.getenv("home")..PS.."videos"
+  defaultVideoDir =  os.getenv("home")..PS.."Videos"
 else
   handle = io.popen("xdg-user-dir VIDEOS")
   defaultVideoDir = handle:read()
@@ -373,7 +373,7 @@ local function init_export(storage, img_format, images, high_quality, extra_data
   string_pref_write("filename_entry", "text")(filename_entry)
 
   extra_data["images"] = images -- needed, to preserve images order
-  extra_data["tmp_dir"] = dt.configuration.tmp_dir .. "/"..MODULE_NAME .. "_" .. os.time()
+  extra_data["tmp_dir"] = dt.configuration.tmp_dir..PS..MODULE_NAME.."_"..os.time()
   extra_data["fps"] = framerates_selector.value
   extra_data["res"] = extract_resolution(res_selector.value)
   extra_data["codec"] = codec_selector.value
