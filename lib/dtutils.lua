@@ -64,7 +64,7 @@ function dtutils.check_min_api_version(min_api, script_name)
   if min_api > current_api then
     dt.print_error("This application is written for lua api version " .. min_api .. " or later.")
     dt.print_error("The current lua api version is " .. current_api)
-    dt.print("ERROR:" .. script_name .. " failed to load. Lua API version " .. min_api .. " or later required.")
+    dt.print("ERROR: " .. script_name .. " failed to load. Lua API version " .. min_api .. " or later required.")
     error("Minimum API " .. min_api .. " not met for " .. script_name .. ".", 0)
   end
 end
