@@ -34,7 +34,11 @@ A file explorer window will be opened for each selected file at the file's locat
 ]]
 
 local dt = require "darktable"
+local du = require "lib/dtutils"
 local dsys = require "lib/dtutils.system"
+
+--Check API version
+du.check_min_api_version("5.0.0", "OpenInExplorer") 
 
 --Detect OS and modify accordingly--	
 local proper_install = false

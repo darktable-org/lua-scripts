@@ -39,9 +39,10 @@
 ]]
 
 local dt = require "darktable"
+local du = require "lib/dtutils"
 
 -- added version check
-dt.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
+du.check_min_api_version("3.0.0", "rate_group") 
 
 local function apply_rating(rating)
   local images = dt.gui.action_images

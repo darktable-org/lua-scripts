@@ -5,8 +5,9 @@
 ]]
 
 local dt = require "darktable"
+local du = require "lib/dtutils"
 
-dt.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
+du.check_min_api_version("3.0.0", "get_libdoc") 
 
 local keys = {"Name", "Synopsis", "Usage", "Description", "Return_Value", "Limitations", 
               "Example", "See_Also", "Reference", "License", "Copyright"}

@@ -25,11 +25,12 @@ USAGE
 ]]
 
 local dt = require "darktable"
+local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 require "official/yield"
 local gettext = dt.gettext
 
-dt.configuration.check_version(...,{2,0,2},{3,0,0},{4,0,0},{5,0,0})
+du.check_min_api_version("2.0.2", "slideshowMusic") 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("slideshowMusic",dt.configuration.config_dir.."/lua/locale/")

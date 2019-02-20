@@ -53,7 +53,10 @@ LUA ERROR Hallo Welt!
 
 ]] 
 local dt = require "darktable"
-dt.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0}))
+local du = require "lib/dtutils"
+
+--check API version
+du.check_min_api_version("3.0.0", "gettextExample")
 
 -- Not translated Text
 dt.print_error("Hello World!")

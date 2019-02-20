@@ -455,7 +455,7 @@ end
 
 -- api check
 
-dt.configuration.check_version(...,{5,0,0})
+du.check_min_api_version("5.0.0")
 
 -- set up tables to contain all the widgets and choices
 

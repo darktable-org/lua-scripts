@@ -29,7 +29,11 @@ Changes
 ]]
 
 local darktable = require "darktable"
+local du = require "lib/dtutils"
 local debug = require "darktable.debug"
+
+-- check API version
+du.check_min_api_version("3.0.0", "rename-tags") 
 
 -- GUI entries
 local old_tag = darktable.new_widget("entry") { tooltip = "Enter old tag" }

@@ -20,7 +20,9 @@ USAGE
 * require this file from your main lua config file:
 ]]
 local dt = require "darktable"
-dt.configuration.check_version(...,{5,0,0})
+local du = require "lib/dtutils"
+
+du.check_min_api_version("5.0.0", "printExamples") 
 
 -- Will print a string to the darktable control log (the long
 -- overlayed window that appears over the main panel).

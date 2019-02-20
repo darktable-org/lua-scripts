@@ -35,10 +35,11 @@ USAGE
 --  * make filenames with double quotes (") work
 
 local dt = require "darktable"
+local du = require "lib/dtutils"
 require "darktable.debug"
 require "official/yield"
 
-dt.configuration.check_version(...,{2,1,0},{3,0,0},{4,0,0},{5,0,0})
+du.check_min_api_version("2.1.0", "generate_image_txt") 
 
 dt.preferences.register("generate_image_txt",
                         "enabled",
