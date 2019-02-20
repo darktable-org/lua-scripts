@@ -36,10 +36,7 @@ increase it if you need more temporary selection buffers
 local dt = require "darktable"
 local du = require "lib/dtutils"
 
-if not du.check_min_api_version("2.0.0") then
-  dt.print("ERROR:save_selection not loaded.  Lua API version 2.0.0 or greater required.")
-  return
-end
+du.check_min_api_version("2.0.0", "save_selection") 
 
 local buffer_count = 5
 

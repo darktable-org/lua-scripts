@@ -38,10 +38,7 @@ local df = require "lib/dtutils.file"
 require "official/yield"
 local gettext = dt.gettext
 
-if not du.check_min_api_version("3.0.0") then
-  dt.print("ERROR:enfuse not loaded.  Lua API version 3.0.0 or greater required.")
-  return
-end
+du.check_min_api_version("3.0.0", "enfuse")
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("enfuse",dt.configuration.config_dir.."/lua/locale/")

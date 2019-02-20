@@ -70,10 +70,7 @@ local dtsys = require "lib/dtutils.system"
 local gettext = dt.gettext
 local gimp_widget = nil
 
-if not du.check_min_api_version("5.0.0") then
-  dt.print("ERROR:gimp failed to load.  Lua API version 5.0.0 or greater required.")
-  return
-end
+du.check_min_api_version("5.0.0", "gimp") 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("gimp",dt.configuration.config_dir.."/lua/locale/")

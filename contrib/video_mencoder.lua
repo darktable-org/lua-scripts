@@ -36,10 +36,7 @@ local df = require "lib/dtutils.file"
 require "official/yield"
 local gettext = dt.gettext
 
-if not du.check_min_api_version("2.0.1") then
-  dt.print("ERROR:video_mencoder failed to load.  Lua API version 2.0.1 or later required.")
-  return
-end
+du.check_min_api_version("2.0.1", "video_mencoder") 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("video_mencoder",dt.configuration.config_dir.."/lua/locale/")

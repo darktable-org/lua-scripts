@@ -42,10 +42,7 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 
 -- added version check
-if not du.check_min_api_version("3.0.0") then
-  dt.print("ERROR:rate_group failed to load.  Lua API version 3.0.0 or later required.")
-  return
-end
+du.check_min_api_version("3.0.0", "rate_group") 
 
 local function apply_rating(rating)
   local images = dt.gui.action_images

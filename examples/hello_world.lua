@@ -29,10 +29,7 @@ USAGE
 local dt = require "darktable"
 local du = require "lib/dtutils"
 
-if not du.check_min_api_version("2.0.0") then
-  dt.print("ERROR:hello_world failed to load.  Lua API version 2.0.0 or greater required.")
-  return
-end
+du.check_min_api_version("2.0.0", "hello_world") 
 
 dt.print("hello, world")
 

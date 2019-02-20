@@ -67,10 +67,7 @@ local gettext = dt.gettext
 local preferences_version = 1 --When releasing an update increment this number by one if changes have been made to the preferences structure that would require a re-initialization
 
 -- works with LUA API version 5.0.0
-if not du.check_min_api_version("5.0.0") then
-  dt.print("ERROR:enfuseAdvanced failed to load.  Lua API version 5.0.0 or later required.")
-  return
-end
+du.check_min_api_version("5.0.0", "enfuseAdvanced") 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("enfuseAdvanced",dt.configuration.config_dir.."/lua/")

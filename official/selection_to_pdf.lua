@@ -37,10 +37,7 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 require "official/yield"
 
-if not du.check_min_api_version("2.0.0") then
-  dt.print("ERROR:selection_to_pdf not loaded.  Lua API version 2.0.0 or greater required.")
-  return
-end
+du.check_min_api_version("2.0.0", "selection_to_pdf")
 
 dt.preferences.register
    ("selection_to_pdf","Open with","string",

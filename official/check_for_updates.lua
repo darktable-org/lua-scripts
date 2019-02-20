@@ -32,10 +32,7 @@ local du = require "lib/dtutils"
 local https = require "ssl.https"
 local cjson = require "cjson"
 
-if not du.check_min_api_version("2.0.0") then
-  dt.print("ERROR:check_for_updates not loaded.  Lua API version 2.0.0 or greater required.")
-  return
-end
+du.check_min_api_version("2.0.0", "check_for_updates") 
 
 -- compare two version strings of the form "major.minor.patch"
 -- returns -1, 0, 1 if the first version is smaller, equal, greater than the second version,

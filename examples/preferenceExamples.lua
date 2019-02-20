@@ -24,10 +24,7 @@ USAGE
 local dt = require "darktable"
 local du = require "lib/dtutils"
 
-if not du.check_min_api_version("2.0.1") then
-  dt.print("ERROR:preferenceExamples failed to load.  Lua API version 2.0.1 or greater required.")
-  return
-end
+du.check_min_api_version("2.0.1", "preferenceExamples") 
 
 dt.preferences.register("preferenceExamples",        -- script: This is a string used to avoid name collision in preferences (i.e namespace). Set it to something unique, usually the name of the script handling the preference.
                         "preferenceExamplesString",  -- name

@@ -38,10 +38,7 @@ local du = require "lib/dtutils"
 local dsys = require "lib/dtutils.system"
 
 --Check API version
-if not du.check_min_api_version("5.0.0") then
-  dt.print("ERROR:OpenInExplorer failed to load.  Lua API version 5.0.0 or greater required.")
-  return
-end
+du.check_min_api_version("5.0.0", "OpenInExplorer") 
 
 --Detect OS and modify accordingly--	
 local proper_install = false

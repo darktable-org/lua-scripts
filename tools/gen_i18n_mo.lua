@@ -30,6 +30,8 @@ local df = require "lib/dtutils.file"
 local log = require "lib/dtutils.log"
 local dtsys = require "lib/dtutils.system"
 
+du.check_min_api_version("5.0.0", "gen_I18n_mo")
+
 -- figure out the path separator
 
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"

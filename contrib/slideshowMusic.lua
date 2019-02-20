@@ -30,10 +30,7 @@ local df = require "lib/dtutils.file"
 require "official/yield"
 local gettext = dt.gettext
 
-if not du.check_min_api_version("2.0.2") then
-  dt.print("ERROR:slideshowMusic failed to load.  Lua API version 2.0.2 or greater required.")
-  return
-end
+du.check_min_api_version("2.0.2", "slideshowMusic") 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("slideshowMusic",dt.configuration.config_dir.."/lua/locale/")

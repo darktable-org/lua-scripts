@@ -27,10 +27,7 @@ local df = require "lib/dtutils.file"
 local dl = require "lib/dtutils"
 local gettext = dt.gettext
 
-if not dl.check_min_api_version("3.0.0") then
-  dt.print("ERROR:gpx-export failed to load.  Lua API version 3.0.0 or later required.")
-  return
-end
+dl.check_min_api_version("3.0.0", "gpx-export") 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("gpx_export",dt.configuration.config_dir.."/lua/locale/")

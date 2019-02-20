@@ -86,10 +86,7 @@ end
     screen stating that you couldn't load because the minimum api version wasn't met.
 ]]
 
-if not du.check_min_api_version("5.0.0") then
-  dt.print("ERROR:mulit_os failed to load:  Lua API version 5.0.0 or greater required.")
-  return
-end
+du.check_min_api_version("5.0.0", "multi_os") 
 
 --[[
     copy_image_attributes is a local subroutine to copy image attributes in the database from the raw image

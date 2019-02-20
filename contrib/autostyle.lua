@@ -44,10 +44,7 @@ local filelib = require "lib/dtutils.file"
 local autostyle_apply_one_image,autostyle_apply_one_image_event,autostyle_apply,exiftool_attribute,capture
 
 -- Tested it with darktable 1.6.1 and darktable git from 2014-01-25
-if not du.check_min_api_version("2.0.2") then
-  darktable.print("ERROR:autostyle failed to load.  Lua API version 2.0.2 or later required.")
-  return
-end
+du.check_min_api_version("2.0.2", "autostyle") 
 
 -- Receive the event triggered
 function autostyle_apply_one_image_event(event,image)

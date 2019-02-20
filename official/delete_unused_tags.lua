@@ -29,10 +29,7 @@ all tags that are not used will be automatically deleted at every restart
 local dt = require "darktable"
 local du = require "lib/dtutils"
 
-if not du.check_min_api_version("5.0.0") then
-  dt.print("ERROR:delete_unused_tags not loaded.  Lua API version 5.0.0 or greater required.")
-  return
-end
+du.check_min_api_version("5.0.0", "delete_unused_tags") 
 
 -- deleting while iterating the tags list seems to break the iterator!
 local unused_tags = {}

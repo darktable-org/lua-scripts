@@ -37,33 +37,35 @@ dtutils.libdoc.functions["check_min_api_version"] = {
   Synopsis = [[check the minimum required api version against the current api version]],
   Usage = [[local du = require "lib/dtutils"
 
-    local result = du.check_min_api_version(min_api)
-      min_api - string - the api version that the application was written for (example: "5.0.0")]],
+    local result = du.check_min_api_version(min_api, script_name)
+      min_api - string - the api version that the application was written for (example: "5.0.0")
+      script_name - string - the name of the script]],
   Description = [[check_min_api_version compares the minimum api required for the appllication to
-    run against the current api version.  The minimum api version is typically the api version that 
-    was current when the application was created.  If the minimum api version is not met, then an 
-    error message is printed to the log.
+    run against the current api version. The minimum api version is typically the api version that 
+    was current when the application was created. If the minimum api version is not met, then an 
+    error message is printed saying the script_name failed to load, then an error is thrown causing the
+    program to stop executing. 
 
-    This function is intended to replace darktable.configuration.check_version().  The application code
+    This function is intended to replace darktable.configuration.check_version(). The application code
     won't have to be updated each time the api changes because this only checks the minimum version required.]],
   Return_Value = [[result - true if the minimum api version is available, false if not.]],
-  Limitations = [[]],
-  Example = [[check_min_api_version("5.0.0") returns true if the api is greater or equal to 5.0.0 otherwise an
-    error message is printed to the log and false is returned.]],
+  Limitations = [[When using the default handler on a script being executed from the luarc file, the error thrown
+    will stop the luarc file from executing any remaining statements. This limitation does not apply to script_manger.]],
+  Example = [[check_min_api_version("5.0.0") does nothing if the api is greater or equal to 5.0.0 otherwise an
+    error message is printed and an error is thrown stopping execution of the script.]],
   See_Also = [[]],
   Reference = [[]],
   License = [[]],
   Copyright = [[]],
 }
 
-function dtutils.check_min_api_version(min_api)
+function dtutils.check_min_api_version(min_api, script_name)
   local current_api = dt.configuration.api_version_string
-  if min_api <= current_api then
-    return true
-  else
+  if min_api > current_api then
     dt.print_error("This application is written for lua api version " .. min_api .. " or later.")
     dt.print_error("The current lua api version is " .. current_api)
-    return false
+    dt.print("ERROR:" .. script_name .. " failed to load. Lua API version " .. min_api .. " or later required.")
+    error("Minimum API " .. min_api .. " not met for " .. script_name .. ".", 0)
   end
 end
 

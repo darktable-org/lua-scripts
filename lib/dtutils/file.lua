@@ -25,9 +25,7 @@ dtutils_file.libdoc = {
 
 local gettext = dt.gettext
 
-if not du.check_min_api_version("5.0.0") then
-  return
-end
+du.check_min_api_version("5.0.0", "dtutils.file")
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("dtutils.file",dt.configuration.config_dir.."/lua/locale/")

@@ -43,10 +43,7 @@ local gettext = dt.gettext
 -- not a number
 local NaN = 0/0
 
-if not du.check_min_api_version("3.0.0") then
-  dt.print("ERROR:clear_GPS failed to load.  Lua API version 3.0.0 or later required.")
-  return
-end
+du.check_min_api_version("3.0.0", "clear_GPS") 
 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain

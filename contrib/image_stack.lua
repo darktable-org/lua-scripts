@@ -71,10 +71,7 @@ local job = nil
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 
 -- works with LUA API version 5.0.0
-if not du.check_min_api_version("5.0.0") then
-  dt.print("ERROR:image_stack failed to load.  Lua API version 5.0.0 or greater required.")
-  return
-end
+du.check_min_api_version("5.0.0", "image_stack") 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("image_stack",dt.configuration.config_dir.."/lua/locale/")

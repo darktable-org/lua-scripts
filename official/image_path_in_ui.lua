@@ -31,10 +31,7 @@ This plugin will add a widget at the bottom of the left column in lighttable mod
 local dt = require "darktable"
 local du = require "lib/dtutils"
 
-if not du.check_min_api_version("2.0.0") then
-  dt.print("ERROR:image_path_in_ui not loaded.  Lua API version 2.0.0 or greater required.")
-  return
-end
+du.check_min_api_version("2.0.0", "image_path_in_ui") 
 
 local main_label = dt.new_widget("label"){selectable = true, ellipsize = "middle", halign = "start"}
 

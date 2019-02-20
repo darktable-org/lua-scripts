@@ -57,10 +57,7 @@ if not df.check_if_bin_exists("pdflatex") then
    return
 end
 
-if not du.check_min_api_version("4.0.0") then
-  dt.print("ERROR:pdf_slideshow failed to load.  Lua API version 4.0.0 or greater required.")
-  return
-end
+du.check_min_api_version("4.0.0", "pdf_slideshow") 
 
 dt.preferences.register
    ("pdf_slideshow","open with","string",

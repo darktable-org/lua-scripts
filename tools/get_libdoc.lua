@@ -7,10 +7,7 @@
 local dt = require "darktable"
 local du = require "lib/dtutils"
 
-if not du.check_min_api_version("3.0.0") then
-  dt.print("ERROR: get_libdoc failed to load.  Lua API version 3.0.0 or greater required.")
-  return 
-end
+du.check_min_api_version("3.0.0", "get_libdoc") 
 
 local keys = {"Name", "Synopsis", "Usage", "Description", "Return_Value", "Limitations", 
               "Example", "See_Also", "Reference", "License", "Copyright"}

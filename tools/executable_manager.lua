@@ -32,6 +32,8 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 
+du.check_min_api_version("5.0.0", "executable_manager")
+
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 
 local gettext = dt.gettext

@@ -22,10 +22,7 @@ USAGE
 local dt = require "darktable"
 local du = require "lib/dtutils"
 
-if not du.check_min_api_version("5.0.0") then
-  dt.print("ERROR:printExamples failed to load.  Lua API version 5.0.0 or greater required.")
-  return
-end
+du.check_min_api_version("5.0.0", "printExamples") 
 
 -- Will print a string to the darktable control log (the long
 -- overlayed window that appears over the main panel).

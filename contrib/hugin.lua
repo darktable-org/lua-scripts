@@ -55,10 +55,7 @@ local executable_table = {"hugin", "hugin_executor", "pto_gen"}
 local PQ = dt.configuration.running_os == "windows" and '"' or "'"
 
 -- works with darktable API version from 5.0.0 on
-if not du.check_min_api_version("5.0.0") then
-  dt.print("ERROR:hugin failed to load.  Lua API version 5.0.0 or greater required.")
-  return
-end
+du.check_min_api_version("5.0.0", "hugin") 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("hugin",dt.configuration.config_dir.."/lua/locale/")

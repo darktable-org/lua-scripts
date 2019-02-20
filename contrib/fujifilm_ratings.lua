@@ -28,10 +28,7 @@ local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 local gettext = dt.gettext
 
-if not du.check_min_api_version("4.0.0") then
-  dt.print("ERROR:fujifilm_ratings failed to load.  Lua API version 4.0.0 or later required.")
-  return
-end
+du.check_min_api_version("4.0.0", "fujifilm_ratings")
 
 gettext.bindtextdomain("fujifilm_ratings", dt.configuration.config_dir.."/lua/locale/")
 

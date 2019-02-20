@@ -39,10 +39,7 @@ local du = require "lib/dtutils"
 require "darktable.debug"
 require "official/yield"
 
-if not du.check_min_api_version("2.1.0") then
-  dt.print("ERROR:generate_image_txt not loaded.  Lua API version 2.1.0 or greater required.")
-  return
-end
+du.check_min_api_version("2.1.0", "generate_image_txt") 
 
 dt.preferences.register("generate_image_txt",
                         "enabled",
