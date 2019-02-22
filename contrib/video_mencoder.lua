@@ -50,6 +50,10 @@ local function show_status(storage, image, format, filename, number, total, high
 end
 
 local function create_video_mencoder(storage, image_table, extra_data)
+    dt.print("video_mencoder is deprecated.  Please use video_ffmpeg instead.  Please see the log for more details.")
+    dt.print_log("The mencoder executable is no longer distributed as part of most distributions,\n
+     therefore video_mencoder is deprecated. video_ffmpeg should be used in it's place.  video_mencoder\n
+     will be removed when darktable 2.8 is released.")
     if not df.check_if_bin_exists("mencoder") then
         dt.print_error(_("mencoder not found"))
         return
