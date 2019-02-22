@@ -34,11 +34,12 @@ This script has been tested under Linux only
 ]]
 
 local dt = require "darktable"
+local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 local dsys = require "lib/dtutils.system"
 local gettext = dt.gettext
 
-dt.configuration.check_version(...,{5,0,0})
+du.check_min_api_version("5.0.0")
 
 local MODULE_NAME = "video_ffmpeg"
 
@@ -444,7 +445,7 @@ local function finalize_export(storage, images_table, extra_data)
       end
     end
 
-    df.rm(tmp_dir)
+    df.rmdir(tmp_dir)
 end
 
 dt.register_storage(
