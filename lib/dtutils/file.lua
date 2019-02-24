@@ -582,14 +582,14 @@ function dtutils_file.mkdir(path)
   end
 end
 
-dtutils_file.libdoc.functions["rmdir"] = {
-  Name = [[rm]],
+dtutils_file.libdoc.functions["rm"] = {
+  Name = [[rmdir]],
   Synopsis = [[recursively remove a directory]],
   Usage = [[local df = require "lib/dtutils.file"
 
      df.rmdir(path)
       path - string - a directory path]],
-  Description = [[rmdir recursively removes directories and any files contained within]],
+  Description = [[rm allow to recursively remove directories]],
   Return_Value = [[path - string - a directory path]],
   Limitations = [[]],
   Example = [[]],
@@ -598,9 +598,10 @@ dtutils_file.libdoc.functions["rmdir"] = {
   License = [[]],
   Copyright = [[]],
 }
+
 function dtutils_file.rmdir(path)
-  local rmdir_cmd = dt.configuration.running_os == "windows" and "rmdir /S /Q" or "rm -r"
-  return dsys.external_command(rmdir_cmd.." "..dtutils_file.sanitize_filename(path))
+  local rm_cmd = dt.configuration.running_os == "windows" and "rmdir /S /Q" or "rm -r"
+  return dsys.external_command(rm_cmd.." "..dtutils_file.sanitize_filename(path))
 end
 
 
