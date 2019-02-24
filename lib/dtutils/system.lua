@@ -104,15 +104,14 @@ end
 
 dtutils_system.libdoc.functions["launch_default_app"] = {
   Name = [[launch_default_app]],
-  Synopsis = [[try to open file in default application]],
+  Synopsis = [[open file in default application]],
   Usage = [[local dsys = require "lib/dtutils.file"
 
-    dsys.launch_default_app(path)
+    result = dsys.launch_default_app(path)
       path - string - a file path]],
-  Description = [[launch_default_app allow to open file in application that is assigned as default 
-    one in users's system for given filetype
-  ]],
-  Return_Value = [[path - string - a file path]],
+  Description = [[launch_default_app allows opening a file in the application that is assigned as default 
+    for that filetype in the users's system]],
+  Return_Value = [[result - the return value signalling success or failure.]],
   Limitations = [[]],
   Example = [[]],
   See_Also = [[]],
