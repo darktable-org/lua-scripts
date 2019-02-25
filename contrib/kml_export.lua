@@ -20,11 +20,9 @@
 darktable KML export script
 
 ADDITIONAL SOFTWARE NEEDED FOR THIS SCRIPT
-* mkdir
-* zip (only if you create KMZ files)
+* zip (at the moment Linux only and only if you create KMZ files)
 * convert (ImageMagick)
-* xdg-open
-* xdg-user-dir
+* xdg-user-dir (Linux)
 
 WARNING
 This script is only tested with Linux
@@ -39,6 +37,7 @@ USAGE
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+local dsys = require "lib/dtutils.system"
 require "official/yield"
 local gettext = dt.gettext
 
@@ -230,23 +229,16 @@ function addDuplicateIndex( index, filename )
 end
 
 local function create_kml_file(storage, image_table, extra_data)
-  if not df.check_if_bin_exists("mkdir") then
-    dt.print_error(_("mkdir not found"))
-    return
-  end
   if not df.check_if_bin_exists("convert") then
     dt.print_error(_("convert not found"))
     return
   end
-  if not df.check_if_bin_exists("xdg-open") then
-    dt.print_error(_("xdg-open not found"))
-    return
+  if dt.configuration.running_os == "windows" then
+    if not df.check_if_bin_exists("xdg-user-dir") then
+      dt.print_error(_("xdg-user-dir not found"))
+      return
+    end
   end
-  if not df.check_if_bin_exists("xdg-user-dir") then
-    dt.print_error(_("xdg-user-dir not found"))
-    return
-  end
-
   dt.print_error("Will try to export KML file now")
 
   local imageFoldername
@@ -263,8 +255,7 @@ local function create_kml_file(storage, image_table, extra_data)
 
     -- Creates dir if not exsists
     imageFoldername = "files"..PS
-    local mkdirCommand = "mkdir -p "..exportDirectory..PS..imageFoldername
-    dt.control.execute(mkdirCommand)
+    df.mkdir(exportDirectory..PS..imageFoldername)
   end
 
   -- Create the thumbnails
@@ -428,14 +419,15 @@ local function create_kml_file(storage, image_table, extra_data)
 
   -- Open the file with the standard programm
   if ( dt.preferences.read("kml_export","OpenKmlFile","bool") == true ) then
-    local kmlFileOpenCommand
+    local path
 
     if ( dt.preferences.read("kml_export","CreateKMZ","bool") == true ) then
-      kmlFileOpenCommand = "xdg-open "..exportDirectory..PS.."\""..exportKMZFilename.."\""
+      path = exportDirectory..PS.."\""..exportKMZFilename.."\""
     else
-      kmlFileOpenCommand = "xdg-open "..exportDirectory..PS.."\""..exportKMLFilename.."\""
+      path = exportDirectory..PS.."\""..exportKMLFilename.."\""
     end
-    dt.control.execute(kmlFileOpenCommand)
+
+	dsys.launch_default_app(path)
   end
 
 end
@@ -448,19 +440,24 @@ dt.preferences.register("kml_export",
   _("Opens the KML file after the export with the standard program for KML files"),
   false )
 
-local handle = io.popen("xdg-user-dir DESKTOP")
-local result = handle:read()
-if (result == nil) then
-  result = ""
+local defaultDir = ''
+if dt.configuration.running_os == "windows" then
+  defaultDir = os.getenv("USERPROFILE")
+elseif dt.configuration.running_os == "macos" then
+  defaultDir =  os.getenv("home")
+else
+  local handle = io.popen("xdg-user-dir DESKTOP")
+  defaultDir = handle:read()
+  handle:close()
 end
-handle:close()
+
 
 dt.preferences.register("kml_export",
   "ExportDirectory",
   "directory",
   _("KML export: Export directory"),
   _("A directory that will be used to export the KML/KMZ files"),
-  result )
+  defaultDir )
 
 dt.preferences.register("kml_export",
   "CreatePath",
@@ -469,12 +466,14 @@ dt.preferences.register("kml_export",
   _("connect all images with a path"),
   false )
 
-dt.preferences.register("kml_export",
-  "CreateKMZ",
-  "bool",
-  _("KML export: Create KMZ file"),
-  _("Compress all imeges to one KMZ file"),
-  true )
+if dt.configuration.running_os == "linux" then  
+  dt.preferences.register("kml_export",
+    "CreateKMZ",
+    "bool",
+    _("KML export: Create KMZ file"),
+    _("Compress all imeges to one KMZ file"),
+    true )
+end
 
 -- Register
 dt.register_storage("kml_export", _("KML/KMZ Export"), nil, create_kml_file)
