@@ -229,11 +229,13 @@ function addDuplicateIndex( index, filename )
 end
 
 local function create_kml_file(storage, image_table, extra_data)
-  if not df.check_if_bin_exists("convert") then
+
+  local convertPath = dt.preferences.read("kml_export","convertPath","string")
+  if not df.check_if_bin_exists(convertPath) then
     dt.print_error(_("convert not found"))
     return
   end
-  if dt.configuration.running_os == "windows" then
+  if dt.configuration.running_os == "linux" then
     if not df.check_if_bin_exists("xdg-user-dir") then
       dt.print_error(_("xdg-user-dir not found"))
       return
@@ -273,7 +275,7 @@ local function create_kml_file(storage, image_table, extra_data)
       -- will be scaled so its largest dimension is 120 pixels. The '+profile "*"' removes any ICM, EXIF, IPTC, or other
       -- profiles that might be present in the input and aren't needed in the thumbnail.
 
-      local convertToThumbCommand = "convert -size 96x96 "..exported_image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory..PS..imageFoldername.."thumb_"..filename..".jpg"
+      local convertToThumbCommand = convertPath .. " -size 96x96 "..exported_image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory..PS..imageFoldername.."thumb_"..filename..".jpg"
       dt.control.execute(convertToThumbCommand)
     else
       -- Remove exported image if it has no GPS data
@@ -459,6 +461,15 @@ dt.preferences.register("kml_export",
   _("A directory that will be used to export the KML/KMZ files"),
   defaultDir )
 
+if dt.configuration.running_os ~= "linux" then  
+  dt.preferences.register("kml_export", 
+    "convertPath",	-- name
+	"file",	-- type
+	_("KML export: convert binary Location"),	-- label
+	_("Install location of convert[.exe]. Requires restart to take effect."),	-- tooltip
+	"convert")	-- default
+end  
+  
 dt.preferences.register("kml_export",
   "CreatePath",
   "bool",
