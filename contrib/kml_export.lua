@@ -21,7 +21,7 @@ darktable KML export script
 
 ADDITIONAL SOFTWARE NEEDED FOR THIS SCRIPT
 * zip (at the moment Linux only and only if you create KMZ files)
-* convert (ImageMagick)
+* magick (ImageMagick)
 * xdg-user-dir (Linux)
 
 WARNING
@@ -230,9 +230,9 @@ end
 
 local function create_kml_file(storage, image_table, extra_data)
 
-  local convertPath = dt.preferences.read("kml_export","convertPath","string")
-  if not df.check_if_bin_exists(convertPath) then
-    dt.print_error(_("convert not found"))
+  local magickPath = dt.preferences.read("kml_export","magickPath","string")
+  if not df.check_if_bin_exists(magickPath) then
+    dt.print_error(_("magick not found"))
     return
   end
   if dt.configuration.running_os == "linux" then
@@ -244,7 +244,8 @@ local function create_kml_file(storage, image_table, extra_data)
   dt.print_error("Will try to export KML file now")
 
   local imageFoldername
-  if ( dt.preferences.read("kml_export","CreateKMZ","bool") == true ) then
+  if ( dt.preferences.read("kml_export","CreateKMZ","bool") == true 
+       and dt.configuration.running_os == "linux") then
     if not df.check_if_bin_exists("zip") then
       dt.print_error(_("zip not found"))
       return
@@ -268,14 +269,14 @@ local function create_kml_file(storage, image_table, extra_data)
       local path, filename, filetype = string.match(exported_image, "(.-)([^\\/]-%.?([^%.\\/]*))$")
       filename = string.upper(string.gsub(filename,"%.%w*", ""))
 
-      -- convert -size 92x92 filename.jpg -resize 92x92 +profile "*" thumbnail.jpg
+      -- magick -size 92x92 filename.jpg -resize 92x92 +profile "*" thumbnail.jpg
       -- In this example, '-size 120x120' gives a hint to the JPEG decoder that the image is going to be downscaled to
       -- 120x120, allowing it to run faster by avoiding returning full-resolution images to  GraphicsMagick for the
       -- subsequent resizing operation. The '-resize 120x120' specifies the desired dimensions of the output image. It
       -- will be scaled so its largest dimension is 120 pixels. The '+profile "*"' removes any ICM, EXIF, IPTC, or other
       -- profiles that might be present in the input and aren't needed in the thumbnail.
 
-      local convertToThumbCommand = convertPath .. " -size 96x96 "..exported_image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory..PS..imageFoldername.."thumb_"..filename..".jpg"
+      local convertToThumbCommand = magickPath .. " -size 96x96 "..exported_image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory..PS..imageFoldername.."thumb_"..filename..".jpg"
       dt.control.execute(convertToThumbCommand)
     else
       -- Remove exported image if it has no GPS data
@@ -390,13 +391,15 @@ local function create_kml_file(storage, image_table, extra_data)
   kml_file = kml_file.."</kml>"
 
   local file = io.open(exportDirectory..PS..exportKMLFilename, "w")
+
   file:write(kml_file)
   file:close()
 
   dt.print("KML file created in "..exportDirectory)
 
   -- Compress the files to create a KMZ file
-  if ( dt.preferences.read("kml_export","CreateKMZ","bool") == true ) then
+  if ( dt.preferences.read("kml_export","CreateKMZ","bool") == true 
+       and dt.configuration.running_os == "linux") then
     exportDirectory = dt.preferences.read("kml_export","ExportDirectory","string")
 
     local createKMZCommand = "zip --test --move --junk-paths "
@@ -463,11 +466,11 @@ dt.preferences.register("kml_export",
 
 if dt.configuration.running_os ~= "linux" then  
   dt.preferences.register("kml_export", 
-    "convertPath",	-- name
+    "magickPath",	-- name
 	"file",	-- type
-	_("KML export: convert binary Location"),	-- label
-	_("Install location of convert[.exe]. Requires restart to take effect."),	-- tooltip
-	"convert")	-- default
+	_("KML export: ImageMagick binary Location"),	-- label
+	_("Install location of magick[.exe]. Requires restart to take effect."),	-- tooltip
+	"magick")	-- default
 end  
   
 dt.preferences.register("kml_export",
