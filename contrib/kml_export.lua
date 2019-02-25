@@ -42,6 +42,8 @@ local df = require "lib/dtutils.file"
 require "official/yield"
 local gettext = dt.gettext
 
+local PS = dt.configuration.running_os == "windows" and "\\" or "/"
+
 du.check_min_api_version("3.0.0", kml_export) 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
@@ -260,8 +262,8 @@ local function create_kml_file(storage, image_table, extra_data)
     exportDirectory = dt.preferences.read("kml_export","ExportDirectory","string")
 
     -- Creates dir if not exsists
-    imageFoldername = "files/"
-    local mkdirCommand = "mkdir -p "..exportDirectory.."/"..imageFoldername
+    imageFoldername = "files"..PS
+    local mkdirCommand = "mkdir -p "..exportDirectory..PS..imageFoldername
     dt.control.execute(mkdirCommand)
   end
 
@@ -280,7 +282,7 @@ local function create_kml_file(storage, image_table, extra_data)
       -- will be scaled so its largest dimension is 120 pixels. The '+profile "*"' removes any ICM, EXIF, IPTC, or other
       -- profiles that might be present in the input and aren't needed in the thumbnail.
 
-      local convertToThumbCommand = "convert -size 96x96 "..exported_image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory.."/"..imageFoldername.."thumb_"..filename..".jpg"
+      local convertToThumbCommand = "convert -size 96x96 "..exported_image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory..PS..imageFoldername.."thumb_"..filename..".jpg"
       dt.control.execute(convertToThumbCommand)
     else
       -- Remove exported image if it has no GPS data
@@ -394,7 +396,7 @@ local function create_kml_file(storage, image_table, extra_data)
   kml_file = kml_file.."</Document>\n"
   kml_file = kml_file.."</kml>"
 
-  local file = io.open(exportDirectory.."/"..exportKMLFilename, "w")
+  local file = io.open(exportDirectory..PS..exportKMLFilename, "w")
   file:write(kml_file)
   file:close()
 
@@ -405,8 +407,8 @@ local function create_kml_file(storage, image_table, extra_data)
     exportDirectory = dt.preferences.read("kml_export","ExportDirectory","string")
 
     local createKMZCommand = "zip --test --move --junk-paths "
-    createKMZCommand = createKMZCommand .."\""..exportDirectory.."/"..exportKMZFilename.."\" "           -- KMZ filename
-    createKMZCommand = createKMZCommand .."\""..dt.configuration.tmp_dir.."/"..exportKMLFilename.."\" "  -- KML file
+    createKMZCommand = createKMZCommand .."\""..exportDirectory..PS..exportKMZFilename.."\" "           -- KMZ filename
+    createKMZCommand = createKMZCommand .."\""..dt.configuration.tmp_dir..PS..exportKMLFilename.."\" "  -- KML file
 
     for image,exported_image in pairs(image_table) do
       if ((image.longitude and image.latitude) and
@@ -416,7 +418,7 @@ local function create_kml_file(storage, image_table, extra_data)
         -- Handle duplicates
         filename = addDuplicateIndex( image.duplicate_index, filename )
 
-        createKMZCommand = createKMZCommand .."\""..dt.configuration.tmp_dir.."/"..imageFoldername.."thumb_"..filename..".jpg\" " -- thumbnails
+        createKMZCommand = createKMZCommand .."\""..dt.configuration.tmp_dir..PS..imageFoldername.."thumb_"..filename..".jpg\" " -- thumbnails
         createKMZCommand = createKMZCommand .."\""..exported_image.."\" "  -- images
       end
     end
@@ -429,9 +431,9 @@ local function create_kml_file(storage, image_table, extra_data)
     local kmlFileOpenCommand
 
     if ( dt.preferences.read("kml_export","CreateKMZ","bool") == true ) then
-      kmlFileOpenCommand = "xdg-open "..exportDirectory.."/\""..exportKMZFilename.."\""
+      kmlFileOpenCommand = "xdg-open "..exportDirectory..PS.."\""..exportKMZFilename.."\""
     else
-      kmlFileOpenCommand = "xdg-open "..exportDirectory.."/\""..exportKMLFilename.."\""
+      kmlFileOpenCommand = "xdg-open "..exportDirectory..PS.."\""..exportKMLFilename.."\""
     end
     dt.control.execute(kmlFileOpenCommand)
   end
