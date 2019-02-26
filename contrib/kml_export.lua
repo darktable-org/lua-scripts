@@ -28,7 +28,6 @@ WARNING
 This script is only tested with Linux
 
 USAGE
-* require script "official/yield" from your main Lua file in the first line
 * require this script from your main Lua file
 * when choosing file format, pick JPEG or PNG as Google Earth doesn't support other formats
 
@@ -37,13 +36,14 @@ USAGE
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+local ds = require "lib/dtutils.string"
 local dsys = require "lib/dtutils.system"
-require "official/yield"
+
 local gettext = dt.gettext
 
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 
-du.check_min_api_version("3.0.0", kml_export) 
+du.check_min_api_version("5.0.0", kml_export) 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("kml_export",dt.configuration.config_dir.."/lua/locale/")
@@ -52,166 +52,8 @@ local function _(msgid)
   return gettext.dgettext("kml_export", msgid)
 end
 
--- Sort a table
-local function spairs(_table, order) -- Code copied from http://stackoverflow.com/questions/15706270/sort-a-table-in-lua
-  -- collect the keys
-  local keys = {}
-  for _key in pairs(_table) do keys[#keys + 1] = _key end
-
-  -- if order function given, sort by it by passing the table and keys a, b,
-  -- otherwise just sort the keys
-  if order then
-    table.sort(keys, function(a,b) return order(_table, a, b) end)
-  else
-    table.sort(keys)
-  end
-
-  -- return the iterator function
-  local i = 0
-  return function()
-    i = i + 1
-    if keys[i] then
-      return keys[i], _table[keys[i]]
-    end
-  end
-end
-
 local function show_status(storage, image, format, filename, number, total, high_quality, extra_data)
   dt.print(string.format(_("Export Image %i/%i"), number, total))
-end
-
--- Strip accents from a string
--- Copied from https://forums.coronalabs.com/topic/43048-remove-special-characters-from-string/
-function string.stripAccents( str )
-  local tableAccents = {}
-  -- A
-  tableAccents["à"] = "a"
-  tableAccents["À"] = "A"
-  tableAccents["á"] = "a"
-  tableAccents["Á"] = "A"
-  tableAccents["â"] = "a"
-  tableAccents["Â"] = "A"
-  tableAccents["ã"] = "a"
-  tableAccents["Ã"] = "A"
-  tableAccents["ä"] = "a"
-  tableAccents["Ä"] = "A"
-  -- B
-  -- C
-  tableAccents["ç"] = "c"
-  tableAccents["Ç"] = "C"
-  tableAccents["č"] = "c"
-  tableAccents["Č"] = "C"
-  -- D
-  tableAccents["ď"] = "d"
-  tableAccents["Ď"] = "d"
-  -- E
-  tableAccents["è"] = "e"
-  tableAccents["È"] = "E"
-  tableAccents["é"] = "e"
-  tableAccents["É"] = "E"
-  tableAccents["ê"] = "e"
-  tableAccents["Ê"] = "E"
-  tableAccents["ë"] = "e"
-  tableAccents["Ë"] = "E"
-  tableAccents["ě"] = "e"
-  tableAccents["Ě"] = "E"
-  -- F
-  -- G
-  -- H
-  -- I
-  tableAccents["ì"] = "i"
-  tableAccents["Ì"] = "I"
-  tableAccents["í"] = "i"
-  tableAccents["Í"] = "I"
-  tableAccents["î"] = "i"
-  tableAccents["Î"] = "I"
-  tableAccents["ï"] = "i"
-  tableAccents["Ï"] = "I"
-  -- J
-  -- K
-  -- L
-  tableAccents["ĺ"] = "l"
-  tableAccents["Ĺ"] = "L"
-  tableAccents["ľ"] = "l"
-  tableAccents["Ľ"] = "L"
-  -- M
-  -- N
-  tableAccents["ñ"] = "n"
-  tableAccents["Ñ"] = "N"
-  tableAccents["ň"] = "n"
-  tableAccents["Ň"] = "N"
-  -- O
-  tableAccents["ò"] = "o"
-  tableAccents["Ò"] = "O"
-  tableAccents["ó"] = "o"
-  tableAccents["Ó"] = "O"
-  tableAccents["ô"] = "o"
-  tableAccents["Ô"] = "O"
-  tableAccents["õ"] = "o"
-  tableAccents["Õ"] = "O"
-  tableAccents["ö"] = "o"
-  tableAccents["Ö"] = "O"
-  -- P
-  -- Q
-  -- R
-  tableAccents["ŕ"] = "r"
-  tableAccents["Ŕ"] = "R"
-  tableAccents["ř"] = "r"
-  tableAccents["Ř"] = "R"
-  -- S
-  tableAccents["š"] = "s"
-  tableAccents["Š"] = "S"
-  -- T
-  tableAccents["ť"] = "t"
-  tableAccents["Ť"] = "T"
-  -- U
-  tableAccents["ù"] = "u"
-  tableAccents["Ù"] = "U"
-  tableAccents["ú"] = "u"
-  tableAccents["Ú"] = "U"
-  tableAccents["û"] = "u"
-  tableAccents["Û"] = "U"
-  tableAccents["ü"] = "u"
-  tableAccents["Ü"] = "U"
-  tableAccents["ů"] = "u"
-  tableAccents["Ů"] = "U"
-  -- V
-  -- W
-  -- X
-  -- Y
-  tableAccents["ý"] = "y"
-  tableAccents["Ý"] = "Y"
-  tableAccents["ÿ"] = "y"
-  tableAccents["Ÿ"] = "Y"
-  -- Z
-  tableAccents["ž"] = "z"
-  tableAccents["Ž"] = "Z"
-
-  local normalizedString = ""
-
-  for strChar in string.gmatch(str, "([%z\1-\127\194-\244][\128-\191]*)") do
-    if tableAccents[strChar] ~= nil then
-      normalizedString = normalizedString..tableAccents[strChar]
-    else
-      normalizedString = normalizedString..strChar
-    end
-  end
-
-  return normalizedString
-end
-
--- Escape XML characters
--- Keep &amp; first, otherwise it will double escape other characters
--- https://stackoverflow.com/questions/1091945/what-characters-do-i-need-to-escape-in-xml-documents
-function string.escapeXmlCharacters( str )
-
-  str = string.gsub(str,"&", "&amp;")
-  str = string.gsub(str,"\"", "&quot;")
-  str = string.gsub(str,"'", "&apos;")
-  str = string.gsub(str,"<", "&lt;")
-  str = string.gsub(str,">", "&gt;")
-
-  return str
 end
 
 -- Add duplicate index to filename
@@ -241,7 +83,7 @@ local function create_kml_file(storage, image_table, extra_data)
       return
     end
   end
-  dt.print_error("Will try to export KML file now")
+  dt.print_log("Will try to export KML file now")
 
   local imageFoldername
   if ( dt.preferences.read("kml_export","CreateKMZ","bool") == true 
@@ -276,8 +118,8 @@ local function create_kml_file(storage, image_table, extra_data)
       -- will be scaled so its largest dimension is 120 pixels. The '+profile "*"' removes any ICM, EXIF, IPTC, or other
       -- profiles that might be present in the input and aren't needed in the thumbnail.
 
-      local convertToThumbCommand = magickPath .. " -size 96x96 "..exported_image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory..PS..imageFoldername.."thumb_"..filename..".jpg"
-      dt.control.execute(convertToThumbCommand)
+      local convertToThumbCommand = ds.sanitize(magickPath) .. " -size 96x96 "..exported_image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory..PS..imageFoldername.."thumb_"..filename..".jpg"
+	  dsys.external_command(convertToThumbCommand)
     else
       -- Remove exported image if it has no GPS data
       os.remove(exported_image)
@@ -288,7 +130,18 @@ local function create_kml_file(storage, image_table, extra_data)
 
     -- Strip accents from the filename, because GoogleEarth can't open them
     -- https://github.com/darktable-org/lua-scripts/issues/54
-    filmName = string.stripAccents(filmName)
+    filmName = ds.strip_accents(filmName)
+
+	-- Remove chars we don't like to have in filenames
+	filmName = string.gsub(filmName, [[\]], "") 
+	filmName = string.gsub(filmName, [[/]], "")
+	filmName = string.gsub(filmName, [[:]], "") 
+	filmName = string.gsub(filmName, [["]], "")
+	filmName = string.gsub(filmName, "<", "") 
+	filmName = string.gsub(filmName, ">", "") 
+	filmName = string.gsub(filmName, "|", "")
+	filmName = string.gsub(filmName, "*", "")
+	filmName = string.gsub(filmName, "?", "")
   end
 
   exportKMLFilename = filmName..".kml"
@@ -318,12 +171,12 @@ local function create_kml_file(storage, image_table, extra_data)
 
       local image_title, image_description
       if (image.title and image.title ~= "") then
-        image_title = string.escapeXmlCharacters(image.title)
+        image_title = ds.escape_xml_characters(image.title)
       else
         image_title = filename..extension
       end
       -- Characters should not be escaped in CDATA, but we are using HTML fragment, so we must escape them
-      image_description = string.escapeXmlCharacters(image.description)
+      image_description = ds.escape_xml_characters(image.description)
 
       kml_file = kml_file.."    <name>"..image_title.."</name>\n"
       kml_file = kml_file.."    <description>"..image_description.."</description>\n"
@@ -368,7 +221,7 @@ local function create_kml_file(storage, image_table, extra_data)
     kml_file = kml_file.."    <LineString>\n"
     kml_file = kml_file.."      <coordinates>\n"
 
-    for image,exported_image in spairs(image_table, function(t,a,b) return b.exif_datetime_taken > a.exif_datetime_taken end) do
+    for image,exported_image in du.spairs(image_table, function(t,a,b) return b.exif_datetime_taken > a.exif_datetime_taken end) do
       if ((image.longitude and image.latitude) and
         (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
          ) then
@@ -426,10 +279,11 @@ local function create_kml_file(storage, image_table, extra_data)
   if ( dt.preferences.read("kml_export","OpenKmlFile","bool") == true ) then
     local path
 
-    if ( dt.preferences.read("kml_export","CreateKMZ","bool") == true ) then
-      path = exportDirectory..PS.."\""..exportKMZFilename.."\""
+    if ( dt.preferences.read("kml_export","CreateKMZ","bool") == true
+	     and dt.configuration.running_os == "linux") then
+      path = exportDirectory..PS..exportKMZFilename
     else
-      path = exportDirectory..PS.."\""..exportKMLFilename.."\""
+      path = exportDirectory..PS..exportKMLFilename
     end
 
 	dsys.launch_default_app(path)
