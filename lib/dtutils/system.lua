@@ -120,13 +120,13 @@ dtutils_system.libdoc.functions["launch_default_app"] = {
   Copyright = [[]],
 }
 function dtutils_system.launch_default_app(path) 
-  local open_cmd = "xdg-open"
+  local open_cmd = "xdg-open "
   if (dt.configuration.running_os == "windows") then
-    open_cmd = "start"
+    open_cmd = "start "
   elseif  (dt.configuration.running_os == "macos") then
-    open_cmd = "open"
+    open_cmd = "open "
   end   
-  return dtutils_system.external_command(open_cmd..' "'..path..'"')
+  return dtutils_system.external_command(open_cmd .. path)
 end
 
 
