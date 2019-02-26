@@ -46,16 +46,35 @@ In the "Selected Images" module click on "Collect on this Image"
 ]]
 
 local dt = require "darktable"
+local gettext = dt.gettext
 local previous = nil
 local all_active = false
+
+-- Tell gettext where to find the .mo file translating messages for a particular domain
+gettext.bindtextdomain("gimp",dt.configuration.config_dir.."/lua/locale/")
+
+local function _(msgid)
+    return gettext.dgettext("CollectHelper", msgid)
+end
 
 -- FUNCTION --
 local function CheckSingleImage(selection)
 	if #selection ~= 1 then
-		dt.print("Please select a single image")
+		dt.print(_("Please select a single image"))
 		return true
 	end
 	return false
+end
+local function CheckHasColorLabel(selection)
+	local ret = false
+	for _,image in pairs(selection) do
+		if image.red then ret = true end
+		if image.blue then ret = true end
+		if image.green then ret = true end
+		if image.yellow then ret = true end
+		if image.purple then ret = true end
+	end
+	return ret
 end
 local function PreviousCollection()
 	if previous ~= nil then
@@ -85,6 +104,10 @@ end
 local function CollectOnColors(all_rules, all_active)
 	local images = dt.gui.selection()
 	if CheckSingleImage(images) then
+		return
+	end
+	if not CheckHasColorLabel(images) then
+		dt.print(_('select an image with an active color label'))
 		return
 	end
 	for _,image in pairs(images) do
@@ -151,48 +174,48 @@ end
 
 -- GUI --
 dt.gui.libs.image.register_action(
-	"collect: previous",
+	_("collect: previous"),
 	function() PreviousCollection() end,
-	"Sets the Collect parameters to be the previously active parameters"
+	_("Sets the Collect parameters to be the previously active parameters")
 )
 if dt.preferences.read('module_CollectHelper','folder','bool') then
 	dt.gui.libs.image.register_action(
-		"collect: folder",
+		_("collect: folder"),
 		function() CollectOnFolder(_ , false) end,
-		"Sets the Collect parameters to be the selected images's folder"
+		_("Sets the Collect parameters to be the selected images's folder")
 	)
 end
 if dt.preferences.read('module_CollectHelper','colors','bool') then
 	dt.gui.libs.image.register_action(
-		"collect: color label(s)",
+		_("collect: color label(s)"),
 		function() CollectOnColors(_ , false) end,
-		"Sets the Collect parameters to be the selected images's color label(s)"
+		_("Sets the Collect parameters to be the selected images's color label(s)")
 	)
 end
 if dt.preferences.read('module_CollectHelper','all_and','bool') then
 	dt.gui.libs.image.register_action(
-		"collect: all (AND)",
+		_("collect: all (AND)"),
 		function() CollectOnAll_AND() end,
-		"Sets the Collect parameters based on all activated CollectHelper options"
+		_("Sets the Collect parameters based on all activated CollectHelper options")
 	)
 end
 
 -- PREFERENCES --
 dt.preferences.register("module_CollectHelper", "all_and",	-- name
 	"bool",	-- type
-	'CollectHelper: All',	-- label
-	'Will create a collect parameter set that utelizes all enabled CollectHelper types (AND)',	-- tooltip
+	_('CollectHelper: All'),	-- label
+	_('Will create a collect parameter set that utelizes all enabled CollectHelper types (AND)'),	-- tooltip
 	true	-- default
 )
 dt.preferences.register("module_CollectHelper", "colors",	-- name
 	"bool",	-- type
-	'CollectHelper: Color Label(s)',	-- label
-	'Enable the button that allows you to swap to a collection based on selected image\'s COLOR LABEL(S)',	-- tooltip
+	_('CollectHelper: Color Label(s)'),	-- label
+	_('Enable the button that allows you to swap to a collection based on selected image\'s COLOR LABEL(S)'),	-- tooltip
 	true	-- default
 )
 dt.preferences.register("module_CollectHelper", "folder",	-- name
 	"bool",	-- type
-	'CollectHelper: Folder',	-- label
-	'Enable the button that allows you to swap to a collection based on selected image\'s FOLDER location',	-- tooltip
+	_('CollectHelper: Folder'),	-- label
+	_('Enable the button that allows you to swap to a collection based on selected image\'s FOLDER location'),	-- tooltip
 	true	-- default
 )
