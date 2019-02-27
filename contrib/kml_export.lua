@@ -286,7 +286,7 @@ local function create_kml_file(storage, image_table, extra_data)
       path = exportDirectory..PS..exportKMLFilename
     end
 
-	dsys.launch_default_app(path)
+    dsys.launch_default_app(df.sanitize_filename(path))
   end
 
 end
