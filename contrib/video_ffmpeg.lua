@@ -441,7 +441,7 @@ local function finalize_export(storage, images_table, extra_data)
     else
       dt.print(_("SUCCESS"))
       if extra_data["open_after_export"] then
-        dsys.launch_default_app(path)
+        dsys.launch_default_app(df.sanitize_filename(path))
       end
     end
 
