@@ -576,13 +576,13 @@ dtutils_file.libdoc.functions["mkdir"] = {
 function dtutils_file.mkdir(path) 
   if not dtutils_file.check_if_file_exists(path) then
     local mkdir_cmd = dt.configuration.running_os == "windows" and "mkdir" or "mkdir -p"
-    return dsys.external_command(mkdir_cmd.." "..dtutils_file.sanitize_filename(path))
+    return dsys.external_command(mkdir_cmd.." "..path)
   else
     return 0
   end
 end
 
-dtutils_file.libdoc.functions["rm"] = {
+dtutils_file.libdoc.functions["rmdir"] = {
   Name = [[rmdir]],
   Synopsis = [[recursively remove a directory]],
   Usage = [[local df = require "lib/dtutils.file"
@@ -601,7 +601,7 @@ dtutils_file.libdoc.functions["rm"] = {
 
 function dtutils_file.rmdir(path)
   local rm_cmd = dt.configuration.running_os == "windows" and "rmdir /S /Q" or "rm -r"
-  return dsys.external_command(rm_cmd.." "..dtutils_file.sanitize_filename(path))
+  return dsys.external_command(rm_cmd.." "..path)
 end
 
 
