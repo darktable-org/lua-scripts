@@ -424,7 +424,7 @@ local function finalize_export(storage, images_table, extra_data)
     
     dt.print(_("prepare merge process"))
     
-    local result = df.mkdir(df.sanitize_filename())
+    local result = df.mkdir(df.sanitize_filename(tmp_dir))
     if result ~= 0 then dt.print(_("ERROR: cannot create temp directory")) end
     
     local images = extra_data["images"]
