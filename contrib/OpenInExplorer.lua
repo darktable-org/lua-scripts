@@ -1,4 +1,5 @@
---[[OpenInExplorer plugin for darktable
+--[[
+OpenInExplorer plugin for darktable
 
   copyright (c) 2018  Kevin Ertel
   
@@ -20,7 +21,7 @@
 This plugin adds the module "OpenInExplorer" to darktable's lighttable view
 
 ----REQUIRED SOFTWARE----
-Microsoft Windows Operating System
+Microsoft Windows or Linux with installed Nautilus
 
 ----USAGE----
 Install: (see here for more detail: https://github.com/darktable-org/lua-scripts )
@@ -35,47 +36,78 @@ A file explorer window will be opened for each selected file at the file's locat
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
+local df = require "lib/dtutils.file"
 local dsys = require "lib/dtutils.system"
 
 --Check API version
 du.check_min_api_version("5.0.0", "OpenInExplorer") 
 
+local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
+
 --Detect OS and modify accordingly--	
 local proper_install = false
-if dt.configuration.running_os == "windows" then
-	proper_install = true
+if dt.configuration.running_os ~= "macos" then
+  proper_install = true
 else
-	dt.print_error('OpenInExplorer plug-in only supports Windows OS at this time')
-	return
+  dt.print_error('OpenInExplorer plug-in only supports Windows and Linux at this time')
+  return
 end
 
--- FUNCTION --
-local function OpenInExplorer() --Open in Explorer
-	--Inits--
-	if not proper_install then
-		return
-	end
-	local images = dt.gui.selection()
-	local curr_image = ""
-	if #images == 0 then
-		dt.print('please select an image')
-	elseif #images <= 15 then
-		for _,image in pairs(images) do 
-			curr_image = image.path..'\\'..image.filename
-			local run_cmd = "explorer.exe /select, "..curr_image
-			dt.print_log("OpenInExplorer run_cmd = "..run_cmd)
-			resp = dsys.external_command(run_cmd)
-		end
-	else
-		dt.print('please select fewer images (max 15)')
-	end
+
+-- FUNCTIONS --
+
+local function open_in_explorer() --Open in Explorer
+  local images = dt.gui.selection()
+  local curr_image = ""
+  if #images == 0 then
+    dt.print('please select an image')
+  elseif #images <= 15 then
+    for _,image in pairs(images) do 
+      curr_image = image.path..PS..image.filename
+      local run_cmd = "explorer.exe /select, "..curr_image
+      dt.print_log("OpenInExplorer run_cmd = "..run_cmd)
+      resp = dsys.external_command(run_cmd)
+    end
+  else
+    dt.print('please select fewer images (max 15)')
+  end
+end
+
+local function open_in_nautilus() --Open in Nautilus
+  local images = dt.gui.selection()
+  local curr_image = ""
+  if #images == 0 then
+    dt.print('please select an image')
+  elseif #images <= 15 then
+    for _,image in pairs(images) do 
+      curr_image = image.path..PS..image.filename
+      local run_cmd = "nautilus --select " .. df.sanitize_filename(curr_image)
+      dt.print_log("OpenInExplorer run_cmd = "..run_cmd)
+      resp = dsys.external_command(run_cmd)
+    end
+  else
+    dt.print('please select fewer images (max 15)')
+  end
+end
+
+local function open_in_filemanager() --Open
+  --Inits--
+  if not proper_install then
+    return
+  end
+
+  if (dt.configuration.running_os == "windows") then
+    open_in_explorer()
+  elseif (dt.configuration.running_os == "linux") then
+    open_in_nautilus()
+  end  
 end
 
 -- GUI --
 if proper_install then
-	dt.gui.libs.image.register_action(
-		"show in file explorer",
-		function() OpenInExplorer() end,
-		"Opens File Explorer at the selected image's location"
-	)
+  dt.gui.libs.image.register_action(
+    "show in file explorer",
+    function() open_in_filemanager() end,
+    "Opens File Explorer at the selected image's location"
+  )
 end
