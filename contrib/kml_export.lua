@@ -100,7 +100,7 @@ local function create_kml_file(storage, image_table, extra_data)
 
     -- Creates dir if not exsists
     imageFoldername = "files"..PS
-    df.mkdir(exportDirectory..PS..imageFoldername)
+    df.mkdir(df.sanitize_filename(xportDirectory..PS..imageFoldername))
   end
 
   -- Create the thumbnails
