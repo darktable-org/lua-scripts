@@ -53,7 +53,7 @@ local function InRange(test, low, high) --tests if test value is within range of
 	end
 end
 
-local function CompTime(first, second)
+local function CompTime(first, second) --compares the timestamps and returns true if first was taken before second
 	first_time = first.exif_datetime_taken
 	if string.match(first_time, '[0-9]') == nil then first_time = '9999:99:99 99:99:99' end
 	first_time = tonumber(string.gsub(first_time, '[^0-9]*',''))
@@ -63,7 +63,7 @@ local function CompTime(first, second)
 	return first_time < second_time
 end
 
-local function SeperateTime(str)
+local function SeperateTime(str) --seperates the timestamp into individual components for used with OS.time operations
 	local cleaned = string.gsub(str, '[^%d]',':')
 	cleaned = string.gsub(cleaned, '::*',':')  --YYYY:MM:DD:hh:mm:ss
 	local year = string.sub(cleaned,1,4)
@@ -75,7 +75,7 @@ local function SeperateTime(str)
 	return {year = year, month = month, day = day, hour = hour, min = min, sec = sec}
 end
 
-local function GetTimeDiff(curr_image, prev_image)
+local function GetTimeDiff(curr_image, prev_image) --returns the time difference (in sec.) from current image and the previous image
 	local curr_time = SeperateTime(curr_image.exif_datetime_taken)
 	local prev_time = SeperateTime(prev_image.exif_datetime_taken)
 	return os.time(curr_time)-os.time(prev_time)
@@ -93,14 +93,14 @@ local function main(on_collection)
 	end
 	dt.preferences.write(mod, 'active_gap', 'integer', GUI.gap.value)
 	if #images < 2 then return end
-	table.sort(images, function(first, second) return CompTime(first,second) end)  --sort images into 
+	table.sort(images, function(first, second) return CompTime(first,second) end)  --sort images by timestamp
 	
 	for i, image in ipairs(images) do
 		if i == 1 then 
 			prev_image = image
-		elseif string.match(image.exif_datetime_taken, '[%d]') ~= nil then
+		elseif string.match(image.exif_datetime_taken, '[%d]') ~= nil then --make sure current image has a timestamp, if so check if it is within the user specified gap value and add to group
 			local curr_image = image
-			if GetTimeDiff(curr_image, prev_image) < GUI.gap.value then
+			if GetTimeDiff(curr_image, prev_image) <= GUI.gap.value then
 				images[i]:group_with(images[i-1])
 			end
 			prev_image = curr_image
