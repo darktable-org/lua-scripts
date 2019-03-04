@@ -58,7 +58,7 @@ dt.preferences.register("executable_paths", "HDRMerge",	-- name
 	"HDRMerge"	-- default
 )
 local temp
-local HDRM = {
+local HDRM = { --HDRMerge Program Table
 	name = 'HDRMerge',
 	bin = '',
 	first_run = true,
@@ -72,7 +72,7 @@ local HDRM = {
 		gap			={text = '-g ', style = 'integer'}
 	}
 }
-local GUI = {
+local GUI = { --GUI Elements Table
 	HDR = {
 		bps 		={},
 		size		={},
@@ -102,9 +102,8 @@ local function InRange(test, low, high) --tests if test value is within range of
 	end
 end
 
-local function GetFileName(full_path)
-	--[[Parses a full path (path/filename_identifier.extension) into individual parts
-	Input: Folder1/Folder2/Folder3/Img_0001.CR2
+local function GetFileName(full_path) --Parses a full path (path/filename_identifier.extension) into individual parts
+--[[Input: Folder1/Folder2/Folder3/Img_0001.CR2
 	
 	Returns:
 	path: Folder1/Folder2/Folder3/
@@ -122,24 +121,18 @@ local function GetFileName(full_path)
     return path, filename, identifier, extension
 end
 
-local function CleanSpaces(text) --removes spaces from the front and back of the passed in text string
-	front = string.match(text, '^%s')
-	back = string.match(text, '%s$')
-	if front then 
-		text = string.sub(text,2)
-	end
-	if back then
-		text = string.sub(text,1,-2)
-	end
+local function CleanSpaces(text) --removes spaces from the front and back of passed in text
+	text = string.gsub(text,'^%s*','')
+	text = string.gsub(text,'%s*$','')
 	return text
 end
 
-local function BuildExecuteCmd(prog_table)
-	local result = prog_table.bin..' '..prog_table.arg_string..' '..prog_table.images_string
+local function BuildExecuteCmd(prog_table) --creates a program command using elements of the passed in program table
+	local result = CleanSpaces(prog_table.bin)..' '..CleanSpaces(prog_table.arg_string)..' '..CleanSpaces(prog_table.images_string)
 	return result
 end
 
-local function PreCall(prog_tbl)
+local function PreCall(prog_tbl) --looks to see if this is the first call, if so checks to see if program is installed properly
 	for _,prog in pairs(prog_tbl) do
 		if prog.first_run then
 			prog.bin = df.check_if_bin_exists(prog.name)
@@ -153,30 +146,27 @@ local function PreCall(prog_tbl)
 	end
 end
 
-local function UpdateActivePreference()
+local function UpdateActivePreference() --sliders & entry boxes do not have a click/changed callback, so their values must be saved to the active preference
 	temp = GUI.HDR.gap.value
 	dt.preferences.write(mod, 'active_gap', 'integer', temp)
 	temp = GUI.Target.add_tags.text
 	dt.preferences.write(mod, 'active_add_tags', 'string', temp)
 end
 
-local function HDRMerge_main()
-	PreCall({HDRM})
+local function main()
+	PreCall({HDRM}) --check if furst run then check if install OK
 	if HDRM.install_error then
-		dt.print_error('HDRMerge install issue, please ensure the binary path is proper')
+		dt.print_error('HDRMerge install issue')
+		dt.print('HDRMerge install issue, please ensure the binary path is proper')
 		return
 	end
-	images = dt.gui.selection()
-	local count = 0
-	for _,image in pairs(images) do
-		count = count + 1
-	end
-	if count < 2 then
-		dt.print_error('not enough images selected, select at least 2 images to merge')
+	images = dt.gui.selection() --get selected images
+	if #images < 2 then --ensure enough images selected
+		dt.print('not enough images selected, select at least 2 images to merge')
 		return
 	end
 	
-	UpdateActivePreference()
+	UpdateActivePreference() --save current gui elements to active preference so those values will be pre-loaded at next startup
 	
 	--create image string and output path
 	HDRM.images_string = ''
@@ -185,7 +175,7 @@ local function HDRMerge_main()
 	local smallest_name = ''
 	local largest_id  = 0
 	local source_raw = {}
-	for _,image in pairs(images) do
+	for _,image in pairs(images) do --loop to concat the images string, also track the image indexes for use in creating the final image name (eg; IMG_1034-1037.dng)
 		local curr_image = image.path..os_path_seperator..image.filename
 		HDRM.images_string = HDRM.images_string..df.sanitize_filename(curr_image).." "
 		out_path = image.path
@@ -198,7 +188,6 @@ local function HDRMerge_main()
 		end
 		if source_id > largest_id then largest_id = source_id end
 	end
-	HDRM.images_string = CleanSpaces(HDRM.images_string)
 	out_path = out_path..os_path_seperator..smallest_name..'-'..largest_id..'.dng'
 	out_path = df.create_unique_filename(out_path)
 	
@@ -209,38 +198,40 @@ local function HDRMerge_main()
 	else
 		HDRM.arg_string = HDRM.arg_string..'-o '..df.sanitize_filename(out_path)
 	end
-	HDRM.arg_string = CleanSpaces(HDRM.arg_string)
 	
 	-- create run command and execute
 	local run_cmd = BuildExecuteCmd(HDRM)
 	resp = dsys.external_command(run_cmd)
 	
 	if resp == 0 and not GUI.HDR.batch.value then
-		local imported = dt.database.import(out_path)
-		if GUI.Target.style.selected > 1 then
+		local imported = dt.database.import(out_path) -- import the new file
+		if GUI.Target.style.selected > 1 then -- apply selected style
 			local set_style = styles[GUI.Target.style.selected - 1]
 			dt.styles.apply(set_style , imported)
 		end
-		if GUI.Target.copy_tags.value then
+		if GUI.Target.copy_tags.value then -- copy tags from the original file (ignore 'darktable' generated tags)
 			local all_tags = dt.tags.get_tags(source_raw) 
 			for _,tag in pairs(all_tags) do
 				if string.match(tag.name, 'darktable|') == nil then dt.tags.attach(tag, imported) end
 			end
 		end
 		local set_tag = GUI.Target.add_tags.text
-		if set_tag ~= nil then
+		if set_tag ~= nil then -- add additional user-specified tags
 			for tag in string.gmatch(set_tag, '[^,]+') do
 				tag = CleanSpaces(tag)
 				tag = dt.tags.create(tag)
 				dt.tags.attach(tag, imported) 
 			end
 		end
+		dt.print('HDRMerge completed successfully')
 	else
 		dt.print_error('HDRMerge failed')
+		dt.print('HDRMerge failed')
 	end
 
 end
 
+-- GUI Elements --
 local lbl_hdr = dt.new_widget('section_label'){
 	label = 'HDRMerge options'
 }
@@ -347,9 +338,9 @@ GUI.Target.add_tags = dt.new_widget("entry"){
 GUI.run = dt.new_widget("button"){
 	label = 'merge',
 	tooltip ='run HDRMerge with the above specified settings',
-	clicked_callback = function() HDRMerge_main() end
+	clicked_callback = function() main() end
 }
-dt.register_lib(
+dt.register_lib( -- register HDRMerge module
 	"HDRMerge_Lib",	-- Module name
 	"HDRMerge",	-- name
 	true,	-- expandable
@@ -369,4 +360,3 @@ dt.register_lib(
 		GUI.run
 		}
 )
-
