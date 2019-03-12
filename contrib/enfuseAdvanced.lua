@@ -65,24 +65,6 @@ local os_path_seperator = '/'
 if dt.configuration.running_os == 'windows' then os_path_seperator = '\\' end
 
 du.check_min_api_version("5.0.0", "enfuseAdvanced") 
-dt.preferences.register("executable_paths", "align_image_stack",    -- name
-    "file", -- type
-    'enfuseAdvanced: Align Image Stack Location',   -- label
-    'Install location of align_image_stack. Requires restart to take effect.',  -- tooltip
-    "align_image_stack" -- default
-)
-dt.preferences.register("executable_paths", "enfuse",   -- name
-    "file", -- type
-    'enfuseAdvanced: enfuse Location',  -- label
-    'Install location of enfuse. Requires restart to take effect.', -- tooltip
-    'enfuse'
-)
-dt.preferences.register("executable_paths", "exiftool", -- name
-    "file", -- type
-    'enfuseAdvanced: exiftool Location',    -- label
-    'Install location of exiftool. Requires restart to take effect.',   -- tooltip
-    "exiftool"  -- default
-)
 
 -- INITS --
 local AIS = {
@@ -172,6 +154,12 @@ local GUI = {
         save                ={};
         variants            ={};
         variants_type       ={}},
+    exes = {
+        align_image_stack = {},
+        enfuse = {},
+        exiftool = {},
+        update = {}
+    },
     align                   = {},
     options_contain         = {},
     show_options            = {}
@@ -228,11 +216,40 @@ local function PreCall(prog_tbls) --looks to see if this is the first call, if s
             prog.bin = df.check_if_bin_exists(prog.name)
             if not prog.bin then 
                 prog.install_error = true
+                dt.preferences.write(mod, 'bin_exists', 'bool', false)
             else
                 prog.bin = CleanSpaces(prog.bin)
             end
             prog.first_run = false
         end
+    end
+    if not dt.preferences.read(mod, 'bin_exists', 'bool') then
+        GUI.options_contain.active = 4
+        GUI.show_options.sensitive = false
+        dt.print('please update your binary locations')
+    end
+end
+
+local function ExeUpdate(prog_tbl) --updates executable paths and verifies them
+    dt.preferences.write(mod, 'bin_exists', 'bool', true)
+    for _,prog in pairs(prog_tbl) do
+        dt.preferences.write('executable_paths', prog.name, 'string', GUI.exes[prog.name].value)
+        prog.bin = df.check_if_bin_exists(prog.name)
+        if not prog.bin then 
+            prog.install_error = true
+            dt.preferences.write(mod, 'bin_exists', 'bool', false)
+            dt.print('issue with '..prog.name..' executable')
+        else
+            prog.bin = CleanSpaces(prog.bin)
+        end
+        prog.first_run = false
+    end
+    if dt.preferences.read(mod, 'bin_exists', 'bool') then
+        GUI.options_contain.active = 2
+        GUI.show_options.sensitive = true
+        dt.print('update successful')
+    else
+        dt.print('update unsuccessful, please try again')
     end
 end
 
@@ -958,6 +975,35 @@ GUI.Presets.variants_type = dt.new_widget('combobox'){
     end 
 }
 GUI.Presets.variants_type.sensitive = GUI.Presets.variants.value
+temp = df.get_executable_path_preference(AIS.name)
+GUI.exes.align_image_stack = dt.new_widget('file_chooser_button'){
+    title = 'AIS binary path',
+    value = temp,
+    tooltip = temp,
+    is_directory = false,
+    changed_callback = function(self) self.tooltip = self.value end
+}
+temp = df.get_executable_path_preference(ENF.name)
+GUI.exes.enfuse = dt.new_widget('file_chooser_button'){
+    title = 'enfuse binary path',
+    value = temp,
+    tooltip = temp,
+    is_directory = false,
+    changed_callback = function(self) self.tooltip = self.value end
+}
+temp = df.get_executable_path_preference(EXF.name)
+GUI.exes.exiftool = dt.new_widget('file_chooser_button'){
+    title = 'Exiftool binary path',
+    value = temp,
+    tooltip = temp,
+    is_directory = false,
+    changed_callback = function(self) self.tooltip = self.value end
+} 
+GUI.exes.update = dt.new_widget('button'){
+    label = 'update',
+    tooltip ='update the binary paths with current values',
+    clicked_callback = function() ExeUpdate({AIS,ENF,EXF}) end
+}
 temp = GUI.Target.format.value
 if temp == 'tif' then temp = 1
 elseif temp == 'jpg' then temp = 2
@@ -1020,16 +1066,23 @@ local box_Target = dt.new_widget('box'){
     GUI.Target.copy_tags,
     GUI.Target.add_tags
 }
+local box_exes = dt.new_widget('box'){
+    orientation = 'vertical',
+    GUI.exes.align_image_stack,
+    GUI.exes.enfuse,
+    GUI.exes.exiftool,
+    GUI.exes.update
+}
 GUI.options_contain = dt.new_widget('stack'){
-    active = 2,
     box_AIS,
     box_ENF,
-    box_Target
+    box_Target,
+    box_exes
 }
 GUI.show_options = dt.new_widget('combobox'){
     label = "show options",
     tooltip = "show options for specified aspect of output",
-    selected = 1,
+    selected = 2,
     'align image stack', 'enfuse/enblend', 'target file',
     changed_callback = function(self)
         GUI.options_contain.active = self.selected
@@ -1040,7 +1093,13 @@ GUI.show_options = dt.new_widget('combobox'){
         dt.preferences.write(mod, 'active_current_preset_ind', 'integer', self.selected)
     end 
 }
-
+if dt.preferences.read(mod, 'bin_exists', 'bool') then 
+    GUI.options_contain.active = 2
+    GUI.show_options.sensitive = true
+else
+    GUI.options_contain.active = 4
+    GUI.show_options.sensitive = false
+end
 local storage_widget = dt.new_widget("box") {
     orientation = "vertical",
     GUI.show_options,
