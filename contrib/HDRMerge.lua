@@ -144,7 +144,10 @@ local function PreCall(prog_tbl) --looks to see if this is the first call, if so
             prog.first_run = false
         end
     end
-    if not dt.preferences.read(mod, 'bin_exists', 'bool') then  GUI.stack.active = 2 end
+    if not dt.preferences.read(mod, 'bin_exists', 'bool') then
+        GUI.stack.active = 2
+        dt.print('please update you binary locatoin')
+    end
 end
 
 local function ExeUpdate(prog_tbl)
@@ -159,7 +162,12 @@ local function ExeUpdate(prog_tbl)
         end
         prog.first_run = false
     end
-    if dt.preferences.read(mod, 'bin_exists', 'bool') then  GUI.stack.active = 1 end
+    if dt.preferences.read(mod, 'bin_exists', 'bool') then
+		GUI.stack.active = 1
+		dt.print('update successful')
+	else
+		dt.print('update unsuccessful, please try again')
+	end
 end
 
 local function UpdateActivePreference() --sliders & entry boxes do not have a click/changed callback, so their values must be saved to the active preference
@@ -385,11 +393,12 @@ GUI.exes = dt.new_widget('box'){
     GUI.exe_update
 }
 GUI.stack = dt.new_widget('stack'){
-    active = 1,
     GUI.options,
     GUI.exes
 }
-if not dt.preferences.read(mod, 'bin_exists', 'bool') then
+if dt.preferences.read(mod, 'bin_exists', 'bool') then
+	GUI.stack.active = 1
+else
     GUI.stack.active = 2
 end
 
