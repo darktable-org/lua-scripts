@@ -153,8 +153,8 @@ end
 
 local function ExeUpdate(prog_tbl)
     dt.preferences.write(mod, 'bin_exists', 'bool', true)
-    dt.preferences.write('executable_paths', prog.name, 'string', GUI.exes[prog.name].value)
     for _,prog in pairs(prog_tbl) do
+        dt.preferences.write('executable_paths', prog.name, 'string', GUI.exes[prog.name].value)
         prog.bin = df.check_if_bin_exists(prog.name)
         if not prog.bin then 
             prog.install_error = true
