@@ -51,12 +51,6 @@ local mod = 'module_HDRMerge'
 local os_path_seperator = '/'
 if dt.configuration.running_os == 'windows' then os_path_seperator = '\\' end
 
-dt.preferences.register("executable_paths", "HDRMerge", -- name
-    "file", -- type
-    'HDRMerge: binary location',    -- label
-    'Install location of HDRMerge. Requires restart to take effect.',   -- tooltip
-    "HDRMerge"  -- default
-)
 local temp
 local HDRM = { --HDRMerge Program Table
     name = 'HDRMerge',
@@ -84,7 +78,12 @@ local GUI = { --GUI Elements Table
         copy_tags   ={},
         add_tags    ={}
     },
-    run = {}
+    run = {},
+    stack = {},
+    options = {},
+    exes = {},
+    exe_chooser = {},
+    exe_update = {},
 }
 
 --Detect User Styles--
@@ -138,12 +137,29 @@ local function PreCall(prog_tbl) --looks to see if this is the first call, if so
             prog.bin = df.check_if_bin_exists(prog.name)
             if not prog.bin then 
                 prog.install_error = true
+                dt.preferences.write(mod, 'bin_exists', 'bool', false)
             else
                 prog.bin = CleanSpaces(prog.bin)
             end
             prog.first_run = false
         end
     end
+    if not dt.preferences.read(mod, 'bin_exists', 'bool') then  GUI.stack.active = 2 end
+end
+
+local function ExeUpdate(prog_tbl)
+    dt.preferences.write(mod, 'bin_exists', 'bool', true)
+    for _,prog in pairs(prog_tbl) do
+        prog.bin = df.check_if_bin_exists(prog.name)
+        if not prog.bin then 
+            prog.install_error = true
+            dt.preferences.write(mod, 'bin_exists', 'bool', false)
+        else
+            prog.bin = CleanSpaces(prog.bin)
+        end
+        prog.first_run = false
+    end
+    if dt.preferences.read(mod, 'bin_exists', 'bool') then  GUI.stack.active = 1 end
 end
 
 local function UpdateActivePreference() --sliders & entry boxes do not have a click/changed callback, so their values must be saved to the active preference
@@ -340,6 +356,43 @@ GUI.run = dt.new_widget("button"){
     tooltip ='run HDRMerge with the above specified settings',
     clicked_callback = function() main() end
 }
+GUI.exe_chooser = dt.new_widget('file_chooser_button'){
+    title = "Select HDRmerge executable",
+    value = df.get_executable_path_preference(HDRM.name),
+    is_directory = false
+}
+GUI.exe_update = dt.new_widget('button'){
+    label = 'update',
+    tooltip ='update the binary path with current value',
+    clicked_callback = function() ExeUpdate({HDRM}) end
+}
+GUI.options = dt.new_widget('box'){
+    orientation = 'vertical',
+    lbl_hdr,
+    GUI.HDR.bps,
+    GUI.HDR.size,
+    GUI.HDR.batch,
+    GUI.HDR.gap,
+    lbl_import,
+    GUI.Target.style,
+    GUI.Target.copy_tags,
+    GUI.Target.add_tags,
+    GUI.run
+}
+GUI.exes = dt.new_widget('box'){
+    orientation = 'vertical',
+    GUI.exe_chooser,
+    GUI.exe_update
+}
+GUI.stack = dt.new_widget('stack'){
+    active = 1,
+    GUI.options,
+    GUI.exes
+}
+if not dt.preferences.read(mod, 'bin_exists', 'bool') then
+    GUI.stack.active = 2
+end
+
 dt.register_lib( -- register HDRMerge module
     "HDRMerge_Lib", -- Module name
     "HDRMerge", -- name
@@ -348,15 +401,6 @@ dt.register_lib( -- register HDRMerge module
     {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 99}},   -- containers
     dt.new_widget("box"){
         orientation = "vertical",
-        lbl_hdr,
-        GUI.HDR.bps,
-        GUI.HDR.size,
-        GUI.HDR.batch,
-        GUI.HDR.gap,
-        lbl_import,
-        GUI.Target.style,
-        GUI.Target.copy_tags,
-        GUI.Target.add_tags,
-        GUI.run
+        GUI.stack
         }
 )
