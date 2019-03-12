@@ -81,9 +81,10 @@ local GUI = { --GUI Elements Table
     run = {},
     stack = {},
     options = {},
-    exes = {},
-    exe_chooser = {},
-    exe_update = {},
+    exes = {
+        HDRMerge = {},
+        update = {},
+    }
 }
 
 --Detect User Styles--
@@ -152,6 +153,7 @@ end
 
 local function ExeUpdate(prog_tbl)
     dt.preferences.write(mod, 'bin_exists', 'bool', true)
+    dt.preferences.write('executable_paths', prog.name, 'string', GUI.exes[prog.name].value)
     for _,prog in pairs(prog_tbl) do
         prog.bin = df.check_if_bin_exists(prog.name)
         if not prog.bin then 
@@ -163,11 +165,11 @@ local function ExeUpdate(prog_tbl)
         prog.first_run = false
     end
     if dt.preferences.read(mod, 'bin_exists', 'bool') then
-		GUI.stack.active = 1
-		dt.print('update successful')
-	else
-		dt.print('update unsuccessful, please try again')
-	end
+        GUI.stack.active = 1
+        dt.print('update successful')
+    else
+        dt.print('update unsuccessful, please try again')
+    end
 end
 
 local function UpdateActivePreference() --sliders & entry boxes do not have a click/changed callback, so their values must be saved to the active preference
@@ -364,12 +366,12 @@ GUI.run = dt.new_widget("button"){
     tooltip ='run HDRMerge with the above specified settings',
     clicked_callback = function() main() end
 }
-GUI.exe_chooser = dt.new_widget('file_chooser_button'){
+GUI.exes.HDRMerge = dt.new_widget('file_chooser_button'){
     title = "Select HDRmerge executable",
     value = df.get_executable_path_preference(HDRM.name),
     is_directory = false
 }
-GUI.exe_update = dt.new_widget('button'){
+GUI.exes.update = dt.new_widget('button'){
     label = 'update',
     tooltip ='update the binary path with current value',
     clicked_callback = function() ExeUpdate({HDRM}) end
@@ -387,17 +389,17 @@ GUI.options = dt.new_widget('box'){
     GUI.Target.add_tags,
     GUI.run
 }
-GUI.exes = dt.new_widget('box'){
+local exes_box = dt.new_widget('box'){
     orientation = 'vertical',
-    GUI.exe_chooser,
-    GUI.exe_update
+    GUI.exes.HDRMerge,
+    GUI.exes.update
 }
 GUI.stack = dt.new_widget('stack'){
     GUI.options,
-    GUI.exes
+    exes_box
 }
 if dt.preferences.read(mod, 'bin_exists', 'bool') then
-	GUI.stack.active = 1
+   GUI.stack.active = 1
 else
     GUI.stack.active = 2
 end
