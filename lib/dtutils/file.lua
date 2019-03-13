@@ -45,9 +45,11 @@ dtutils_file.libdoc.functions["check_if_bin_exists"] = {
   Description = [[check_if_bin_exists checks to see if the specified binary exists.
     check_if_bin_exists first checks to see if a preference for the binary has been
     registered and uses that if found.  The presence of the file is verified, then 
-    quoted and returned.  If no preference is specified and the operating system is
-    linux then the which command is used to check for a binary in the path.  If found
-    that path is returned.  If no binary is found, false is returned.]],
+    quoted and returned.  If no preference is specified, if operating system is 
+    linux then the which command is used to check for a binary in the path, else if
+	operating system is windows the WHERE command is used to check if the binary is 
+	referenced in Path. If found that path is returned.  If no binary is found, 
+	false is returned.]],
   Return_Value = [[result - string - the path of the binary, false if not found]],
   Limitations = [[]],
   Example = [[]],
@@ -82,6 +84,13 @@ function dtutils_file.check_if_bin_exists(bin)
     if string.len(output) > 0 then
       result = output:sub(1,-2)
     end
+  elseif dt.configuration.running_os == "windows" then
+	local p = io.popen("WHERE " .. bin)
+    local output = p:read("*a")
+    p:close()
+	if string.match(output, "\\") then
+	  result = output
+	end
   end
   return result
 end
