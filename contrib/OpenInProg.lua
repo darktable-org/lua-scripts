@@ -31,7 +31,6 @@ Install: (see here for more detail: https://github.com/darktable-org/lua-scripts
  2) Require this file in your luarc file, as with any other dt plug-in: require "contrib/OpenInProg"
 On the initial startup go to darktable settings > lua options and set your executable paths and other preferences, then restart darktable
 
-----KNOWN ISSUES----
 ]]
 
 local dt = require "darktable"
@@ -47,10 +46,10 @@ local programs = {}
 local index = {}
 local GUI = {} -- only contains gui elements that are NOT tied to a specific program
 
-GUI.show_options = {}
+GUI.show_programs = {}
 
 local function NewProgram(index) -- creates a new program object and initializes it with values found in preferences for the program specified by index, generate all gui elements for that program as well
-	local this = {
+	local this = { --initialize all elements
 		name = '',
 		bin = '',
 		first_run = true,
@@ -75,16 +74,16 @@ local function NewProgram(index) -- creates a new program object and initializes
 		}
 	}
 	
-	function this:manage_sensitivity()
-		local sense
+	function this:manage_sensitivity() --to ensure all options are stored to the appropriate preference lock out all options until the name is saved. if the name is changed update all preferences with the new name, also update the stack list chooser
+		local sense = false
 		temp = self.GUI.name.text
 		temp = string.gsub(temp, ' ', '')
 		local name_is_valid = #temp >= 1
 		name_is_valid = name_is_valid and not string.match(temp,'^program')
-		if self.GUI.change_name.label == 'change name' then
+		if self.GUI.change_name.label == 'change name' then --user requested to change program name, lock all other controls
 			sense = false
 			self.GUI.change_name.label = 'save name'
-		elseif name_is_valid then
+		elseif name_is_valid then --user requested to save new name and the new name is valid, update name, save all settings to pref with new name, update the program chooser list, unlock all other controls
 			sense = true
 			self.GUI.change_name.label = 'change name'
 			self.name = self.GUI.name.text
@@ -96,8 +95,9 @@ local function NewProgram(index) -- creates a new program object and initializes
 			dt.preferences.write(mod, self.name..'enable', 'bool', self.GUI.enable.value)
 			dt.preferences.write(mod, self.name..'loc', 'string', self.GUI.temp_loc.value)
 			dt.preferences.write(mod, self.name..'source', 'bool', self.GUI.source_loc.value)
-			GUI.show_options[index] = self.name
-		else
+			GUI.show_programs[index] = self.name
+		else --user requested to save a new name which is not valid
+			sense = false
 			dt.print('new name is not valid')
 		end
 		self.GUI.name.editable = not sense
@@ -221,7 +221,7 @@ local function NewProgram(index) -- creates a new program object and initializes
 		reset_callback = function(self) self.value = false end
 	}
 	
-	if name_existed then this:manage_sensitivity() end
+	if name_existed then this:manage_sensitivity() end --if a valid program name was found at startup then unlock the controls
 	
 	return this
 end
@@ -232,7 +232,7 @@ GUI.s_label = dt.new_widget('section_label'){
 	label = 'program options'
 }
 
-GUI.show_options = dt.new_widget('combobox'){
+GUI.show_programs = dt.new_widget('combobox'){
     label = "show program",
     tooltip = "show options for specified program",
     changed_callback = function(self)
@@ -240,39 +240,39 @@ GUI.show_options = dt.new_widget('combobox'){
     end 
 }
 
-GUI.qty_prog_chooser = dt.new_widget('entry'){
+GUI.qty_prog_entry = dt.new_widget('entry'){
 	text = dt.preferences.read(mod, 'qty_programs', 'integer'),
 	placeholder = '',
 	editable = true
 }
 
-local function UpdateProgramList() -- updates the stack to show only the number of programs specified
+local function UpdateProgramList() -- updates the stack to contain only the number of programs specified, updates program chooser list as well
 	local temp = #programs
-	local qty_programs = tonumber(GUI.qty_prog_chooser.text)
+	local qty_programs = tonumber(GUI.qty_prog_entry.text)
 	dt.preferences.write(mod, 'qty_programs', 'integer', qty_programs)
 	if temp < qty_programs then --add programs
 		for j = (temp + 1), qty_programs, 1 do
 			table.insert(programs, NewProgram(j))
 			GUI.stack[j] = programs[j].GUI.box
-			GUI.show_options[j] = programs[j].name
+			GUI.show_programs[j] = programs[j].name
 		end
 	elseif temp > qty_programs then --remove programs
 		for j = temp, qty_programs+1, -1 do
 			table.remove(programs, j)
 			GUI.stack[j] = nil
-			GUI.show_options[j] = nil
+			GUI.show_programs[j] = nil
 		end
 	end
 	for ind, prog in pairs(programs) do
 		index[prog.name] = ind
-		GUI.show_options[ind] = programs[ind].name
+		GUI.show_programs[ind] = programs[ind].name
 	end
 end
 
-local function pre_call(prog)
+local function pre_call(prog) --checks if program exists (only on initial call), returns true if there is an install error
 	if prog.first_run then
 		prog.bin = df.check_if_bin_exists(prog.name)
-		if not prog.bin then --FIX ME
+		if not prog.bin then
 			dt.print_error(prog.name..' not found')
 			dt.print('ERROR - '..prog.name..' not found')
 			prog.install_error = true
@@ -282,7 +282,7 @@ local function pre_call(prog)
 	return prog.install_error
 end
 
-local function build_execute_command(prog)
+local function build_execute_command(prog) --builds an executeion command from the appropriate fields in the input program object
 	local result = false
 	result = prog.bin
 	if prog.arg_string ~= '' then
@@ -292,7 +292,7 @@ local function build_execute_command(prog)
 	return result
 end
 
-local function Func_OpenAll(ButtonText)
+local function Func_OpenAll(ButtonText) --parses button text to determine what program object to use while executing, attempts to open all images in a single call
 	local idx = index[string.sub(string.match(ButtonText, ': .*'), 3)]	--looks at button text to determine what button was pressed and it's associated program index
 	if pre_call(programs[idx]) then
 		dt.print('resolve install issue with '..programs[idx].name)
@@ -317,7 +317,7 @@ local function Func_OpenAll(ButtonText)
 	end
 end
 
-local function Func_OpenEach(ButtonText)
+local function Func_OpenEach(ButtonText) --parses button text to determine what program object to use while executing, attempts to open each image in a unique call
 	local idx = index[string.sub(string.match(ButtonText, ': .*'), 3)]
 	if pre_call(programs[idx]) then
 		dt.print('resolve install issue with '..programs[idx].name)
@@ -334,21 +334,21 @@ local function Func_OpenEach(ButtonText)
 		curr_image = df.sanitize_filename(curr_image)
 		programs[idx].images_string = curr_image
 		local run_cmd = build_execute_command(programs[idx])
-		local resp = dsys.external_command(run_cmd, true) --FIX ME: true designates a "no wait" command to external_command() which requires a change to dsys file
+		local resp = dsys.external_command(run_cmd, true)
 		if resp ~= 0 then
 			dt.print_error('an error occured while trying to open images in '..programs[idx].name)
 		end	
 	end
 end
 
-local function Func_Export(storage, image_table, extra_data)
+local function Func_Export(storage, image_table, extra_data) --uses storage name to determine what program object to use while executing, attempts to export all images, move them to designated folder, then open those all in a single call
 	local idx = index[storage.name]
 	if pre_call(programs[idx]) then
 		dt.print('resolve install issue with '..programs[idx].name)
 		return
 	end	
 
-	if (programs[idx].GUI.temp_loc.value == nil or programs[idx].GUI.temp_loc.value == '') and not programs[idx].GUI.source.value then   --Check that an output path is selected
+	if (programs[idx].GUI.temp_loc.value == nil or programs[idx].GUI.temp_loc.value == '') and not programs[idx].GUI.source_loc.value then   --Check that an output path is selected
 		dt.print('ERROR: no target directory selected')
 		return
 	end
@@ -357,7 +357,7 @@ local function Func_Export(storage, image_table, extra_data)
 	local images_to_open = ''
 	for source_image,temp_path in pairs(image_table) do
 		local new_path = programs[idx].GUI.temp_loc.value
-		if programs[idx].GUI.source.value then new_path = source_image.path end
+		if programs[idx].GUI.source_loc.value then new_path = source_image.path end
 		new_path = new_path..os_path_separator..df.get_filename(temp_path)
 		new_path = df.create_unique_filename(new_path)
 		result = df.file_move(temp_path, new_path)
@@ -368,11 +368,11 @@ local function Func_Export(storage, image_table, extra_data)
 	resp = dsys.external_command(run_cmd, true)
 end
 
-local function show_status(storage, image, format, filename, number, total, high_quality, extra_data)
+local function show_status(storage, image, format, filename, number, total, high_quality, extra_data) --shows how many images are being exported
 	dt.print('exporting '..tostring(number)..'/'..tostring(total))   
 end
 
-local function GenerateProgramControls()
+local function GenerateProgramControls() --generates user spcified controls for each program object that exists
 	for ind, prog in ipairs(programs) do
 		if prog.GUI.enable then
 			if prog.GUI.open_all.value and not prog.open_all_created then
@@ -434,9 +434,9 @@ dt.register_lib(
 	{[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_BOTTOM", 100}},
 	dt.new_widget('box'){
 		orientation = 'vertical',
-		GUI.qty_prog_chooser,
+		GUI.qty_prog_entry,
 		GUI.refresh,
-		GUI.show_options,
+		GUI.show_programs,
 		GUI.s_label,
 		GUI.stack,
 		GUI.generate
@@ -444,13 +444,3 @@ dt.register_lib(
 	nil,
 	nil
 )
-
-
-
---[[
-Add arguments entry box
-	if an argument entry box is added it will need to be read at time of execution (within the open_all, open_each, export_all functions)
-
-CANT DO:
-generate should update button text if applicable - API does not allow acces to the buttons or export module after creation
-]]
