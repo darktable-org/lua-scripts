@@ -87,7 +87,11 @@ function dtutils_system.windows_command(command)
   if file then
     dt.print_log("opened file")
     command = string.gsub(command, "%%", "%%%%") -- escape % from windows shell
-    file:write(command)
+    file:write('start "" /MIN ')
+    if not no_wait then
+        file:write('/WAIT ')
+    end
+    file:write(command, ' \n', 'exit')
     file:close()
 
     result = dt.control.execute(fname)
