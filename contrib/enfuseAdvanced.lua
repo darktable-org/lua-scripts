@@ -18,7 +18,7 @@
 ]]
 
 --[[About this plugin
-This plugin will add the new export module "fusion to DRI or DFF image".
+This plugin will add the new export module 'fusion to DRI or DFF image'.
    
 ----REQUIRED SOFTWARE----
 align_image_stack
@@ -27,12 +27,12 @@ exiftool
 
 ----USAGE----
 Install: (see here for more detail: https://github.com/darktable-org/lua-scripts )
- 1) Copy this file in to your "lua/contrib" folder where all other scripts reside. 
+ 1) Copy this file in to your 'lua/contrib' folder where all other scripts reside. 
  2) Require this file in your luarc file, as with any other dt plug-in
 On the initial startup go to darktable settings > lua options and set your executable paths and other preferences, then restart darktable
 
 DRI = Dynamic Range Increase (Blend multiple bracket images into a single LDR file)
-DFF = Depth From Focus ("Focus Stacking" - Blend multiple images with different focus into a single image)
+DFF = Depth From Focus ('Focus Stacking' - Blend multiple images with different focus into a single image)
 Select multiple images that are either bracketed, or focus-shifted, set your desired operating parameters, and press the export button. A new image will be created. The image will
 be auto imported into darktable if you have that option enabled. Additional tags or style can be applied on auto import as well, if you desire.
 
@@ -44,8 +44,8 @@ See enfuse documentation for further explanation of how it specifically works an
 If you have a specific set of parameters you frequently like to use, you can save them to a preset. There are 3 presets available for DRI, and 3 for DFF.
 
 target file:
-Select your file destination path, or check the "save to source image location" option.
-Unless "Create unique filename" is selected, it will overwrite existing files
+Select your file destination path, or check the 'save to source image location' option.
+Unless 'Create unique filename' is selected, it will overwrite existing files
 Set any tags or style you desire to be added to the new image (only available if the auto-import option is enabled). You can also change the defaults for this under settings > lua options
 
 format options:
@@ -56,15 +56,22 @@ Same as other export modules
 
 ]]
 
-local dt = require "darktable"
-local df = require "lib/dtutils.file"
-local dsys = require "lib/dtutils.system"
-local du = require "lib/dtutils"
+local dt = require 'darktable'
+local df = require 'lib/dtutils.file'
+local dsys = require 'lib/dtutils.system'
+local du = require 'lib/dtutils'
 local mod = 'module_enfuseAdvanced'
 local os_path_seperator = '/'
 if dt.configuration.running_os == 'windows' then os_path_seperator = '\\' end
 
-du.check_min_api_version("5.0.0", "enfuseAdvanced") 
+du.check_min_api_version('5.0.0', 'enfuseAdvanced')
+
+-- Tell gettext where to find the .mo file translating messages for a particular domain
+local gettext = dt.gettext
+gettext.bindtextdomain('enfuseAdvanced',dt.configuration.config_dir..'/lua/locale/')
+local function _(msgid)
+    return gettext.dgettext('enfuseAdvanced', msgid)
+end
 
 -- INITS --
 local AIS = {
@@ -166,9 +173,9 @@ local GUI = {
 }
 
 local styles = dt.styles
-local styles_count = 1 -- "none" = 1
+local styles_count = 1 -- 'none' = 1
 for _,i in pairs(dt.styles) do
-    if type(i) == "userdata" then styles_count = styles_count + 1 end
+    if type(i) == 'userdata' then styles_count = styles_count + 1 end
 end
 
 -- FUNCTION --
@@ -192,10 +199,10 @@ local function GetFileName(full_path) -- Parses a full path (path/filename_ident
     EX:
     path_1, file_1, id_1, ext_1 = GetFileName(full_path_1)
     ]]
-    local path = string.match(full_path, ".*[\\/]")
-    local filename = string.gsub(string.match(full_path, "[%w-_]*%.") , "%." , "" ) 
-    local identifier = string.match(filename, "%d*$")
-    local extension = string.match(full_path, "%.%w*")
+    local path = string.match(full_path, '.*[\\/]')
+    local filename = string.gsub(string.match(full_path, '[%w-_]*%.') , '%.' , '' ) 
+    local identifier = string.match(filename, '%d*$')
+    local extension = string.match(full_path, '%.%w*')
     return path, filename, identifier, extension
 end
 
@@ -226,7 +233,7 @@ local function PreCall(prog_tbls) --looks to see if this is the first call, if s
     if not dt.preferences.read(mod, 'bin_exists', 'bool') then
         GUI.options_contain.active = 4
         GUI.show_options.sensitive = false
-        dt.print('please update your binary locations')
+        dt.print(_('please update your binary locations'))
     end
 end
 
@@ -238,7 +245,7 @@ local function ExeUpdate(prog_tbl) --updates executable paths and verifies them
         if not prog.bin then 
             prog.install_error = true
             dt.preferences.write(mod, 'bin_exists', 'bool', false)
-            dt.print('issue with '..prog.name..' executable')
+            dt.print(_('issue with ')..prog.name.._(' executable'))
         else
             prog.bin = CleanSpaces(prog.bin)
         end
@@ -247,9 +254,9 @@ local function ExeUpdate(prog_tbl) --updates executable paths and verifies them
     if dt.preferences.read(mod, 'bin_exists', 'bool') then
         GUI.options_contain.active = 2
         GUI.show_options.sensitive = true
-        dt.print('update successful')
+        dt.print(_('update successful'))
     else
-        dt.print('update unsuccessful, please try again')
+        dt.print(_('update unsuccessful, please try again'))
     end
 end
 
@@ -315,8 +322,8 @@ local function UpdateENFargs(image_table, prefix) --updates the Enfuse arguments
         images_to_blend = images_to_blend..df.sanitize_filename(temp_image)..' '
     end
     ENF.arg_string = ENF.arg_string..' --depth='..GUI.Target.depth.value..' '
-    if GUI.Target.format.value == "tif" then ENF.arg_string = ENF.arg_string..'--compression='..GUI.Target.compression_level_tif.value..' '
-    elseif GUI.Target.format.value == "jpg" then ENF.arg_string = ENF.arg_string..'--compression='..GUI.Target.compression_level_jpg.value..' '
+    if GUI.Target.format.value == 'tif' then ENF.arg_string = ENF.arg_string..'--compression='..GUI.Target.compression_level_tif.value..' '
+    elseif GUI.Target.format.value == 'jpg' then ENF.arg_string = ENF.arg_string..'--compression='..GUI.Target.compression_level_jpg.value..' '
     end
     if not GUI.Target.source_location.value then out_path = GUI.Target.output_directory.value end
     out_name = smallest_name..'-'..largest_id
@@ -341,7 +348,7 @@ local function UpdateActivePreference() --sliders & entry boxes do not have a cl
     dt.preferences.write(mod, 'active_add_tags', 'string', temp)
 end
 
-local function SaveToPreference(preset) --save the present values of enfuse GUI elements to the specified "preset"
+local function SaveToPreference(preset) --save the present values of enfuse GUI elements to the specified 'preset'
     UpdateActivePreference()
     for argument, arg_data in pairs(ENF.args) do
         local temp
@@ -355,10 +362,10 @@ local function SaveToPreference(preset) --save the present values of enfuse GUI 
             dt.preferences.write(mod, preset..argument, arg_data.style, temp)
         end
     end
-    dt.print('saved to '..preset)
+    dt.print(_('saved to ')..preset)
 end
 
-local function LoadFromPreference(preset) --load values from the specified "preset" into the GUI elements
+local function LoadFromPreference(preset) --load values from the specified 'preset' into the GUI elements
     for argument, arg_data in pairs(ENF.args) do
     local temp
         if argument == 'contrast_window_size' or argument == 'contrast_edge_scale' or argument == 'contrast_min_curvature' then  --comboboxes must be handled specially via an index value
@@ -371,14 +378,14 @@ local function LoadFromPreference(preset) --load values from the specified "pres
             dt.preferences.write(mod, 'active_'..argument, arg_data.style, temp)
         end     
     end
-    dt.print('loaded from '..preset)
+    dt.print(_('loaded from ')..preset)
 end
 
 local function remove_temp_files(images_to_remove) --deletes all files specified by the input string
-    if dt.configuration.running_os == "windows" then
-        dt.control.execute("del "..images_to_remove)
+    if dt.configuration.running_os == 'windows' then
+        dt.control.execute('del '..images_to_remove)
     else
-        dt.control.execute("rm "..images_to_remove)
+        dt.control.execute('rm '..images_to_remove)
     end
 end
 
@@ -406,15 +413,15 @@ local function support_format(storage, format) --tells dt we only support TIFF e
 end
 
 local function show_status(storage, image, format, filename, number, total, high_quality, extra_data) --outputs message to user showing script export status
-    dt.print('export for image fusion '..tostring(math.floor(number)).." / "..tostring(math.floor(total)))
+    dt.print(_('export for image fusion ')..tostring(math.floor(number))..' / '..tostring(math.floor(total)))
 end
 
 local function main(storage, image_table, extra_data)
     if extra_data[1] == 1 then
-        dt.print('too few images selected, please select at least 2 images')
+        dt.print(_('too few images selected, please select at least 2 images'))
         return
     elseif extra_data[1] == 2 then
-        dt.print('installation error, please verify binary paths are proper')
+        dt.print(_('installation error, please verify binary paths are proper'))
         return
     end
     local images_to_remove = ''
@@ -431,8 +438,8 @@ local function main(storage, image_table, extra_data)
         job.valid = false
         if resp ~= 0 then
             remove_temp_files(images_to_remove)
-            dt.print_error(AIS.name..' failed')
-            dt.print(AIS.name..' failed')
+            dt.print_error(AIS.name.._(' failed'))
+            dt.print(AIS.name.._(' failed'))
             return
         end
     end
@@ -455,13 +462,13 @@ local function main(storage, image_table, extra_data)
         local resp = dsys.external_command(run_cmd)
         if resp ~= 0 then
             remove_temp_files(images_to_remove)
-            dt.print_error(ENF.name..' failed')
-            dt.print(ENF.name..' failed')
+            dt.print_error(ENF.name.._(' failed'))
+            dt.print(ENF.name.._(' failed'))
             return
         end
         
         --copy exif data from original file
-        run_cmd = EXF.bin.." -TagsFromFile "..df.sanitize_filename(source_raw.path..os_path_seperator..source_raw.filename).." -exif:all --subifd:all -overwrite_original "..df.sanitize_filename(final_image)
+        run_cmd = EXF.bin..' -TagsFromFile '..df.sanitize_filename(source_raw.path..os_path_seperator..source_raw.filename)..' -exif:all --subifd:all -overwrite_original '..df.sanitize_filename(final_image)
         resp = dsys.external_command(run_cmd)
         
         
@@ -495,12 +502,12 @@ end
 --GUI--
 stack_compression = dt.new_widget('stack'){}
 local label_AIS_options= dt.new_widget('section_label'){
-    label = 'image align options'
+    label = _('image align options')
 }
 GUI.align = dt.new_widget('check_button'){
-    label = 'align images',
+    label = _('align images'),
     value = dt.preferences.read(mod, 'active_align', 'bool'),
-    tooltip = 'automatically align images prior to enfuse',
+    tooltip = _('automatically align images prior to enfuse'),
     clicked_callback = function(self) 
         dt.preferences.write(mod, 'active_align', 'bool', self.value) 
         for _,widget in pairs(GUI.AIS) do
@@ -510,52 +517,52 @@ GUI.align = dt.new_widget('check_button'){
     reset_callback = function(self) self.value = true end
 }
 GUI.AIS.radial_distortion = dt.new_widget('check_button'){
-    label = 'optimize radial distortion',
+    label = _('optimize radial distortion'),
     value = dt.preferences.read(mod, 'active_radial_distortion', 'bool'),
-    tooltip = 'optimize radial distortion for all images, \nexcept for first',
+    tooltip = _('optimize radial distortion for all images, \nexcept for first'),
     clicked_callback = function(self) dt.preferences.write(mod, 'active_radial_distortion', 'bool', self.value) end,
     reset_callback = function(self) self.value = true end
 }
 GUI.AIS.optimize_field = dt.new_widget('check_button'){
-    label = 'optimize field of view', 
+    label = _('optimize field of view'), 
     value = dt.preferences.read(mod, 'active_optimize_field', 'bool'),
-    tooltip ='optimize field of view for all images, except for first. \nUseful for aligning focus stacks (DFF) with slightly \ndifferent magnification.',
+    tooltip = _('optimize field of view for all images, except for first. \nUseful for aligning focus stacks (DFF) with slightly \ndifferent magnification.'),
     clicked_callback = function(self) dt.preferences.write(mod, 'active_optimize_field', 'bool', self.value) end,
     reset_callback = function(self) self.value = true end
 }
 GUI.AIS.optimize_image_center = dt.new_widget('check_button'){
-    label = 'optimize image center shift', 
+    label = _('optimize image center shift'), 
     value = dt.preferences.read(mod, 'active_optimize_image_center', 'bool'),
-    tooltip ='optimize image center shift for all images, \nexcept for first.',
+    tooltip = _('optimize image center shift for all images, \nexcept for first.'),
     clicked_callback = function(self) dt.preferences.write(mod, 'active_optimize_image_center', 'bool', self.value) end,
     reset_callback = function(self) self.value = true end
 }
 GUI.AIS.auto_crop = dt.new_widget('check_button'){
-    label = 'auto crop', 
+    label = _('auto crop'), 
     value = dt.preferences.read(mod, 'active_auto_crop', 'bool'),
-    tooltip ='auto crop the image to the area covered by all images.',
+    tooltip = _('auto crop the image to the area covered by all images.'),
     clicked_callback = function(self) dt.preferences.write(mod, 'active_auto_crop', 'bool', self.value) end,
     reset_callback = function(self) self.value = true end
 }
 GUI.AIS.distortion = dt.new_widget('check_button'){
-    label = 'load distortion from lens database', 
+    label = _('load distortion from lens database'), 
     value = dt.preferences.read(mod, 'active_distortion', 'bool'),
-    tooltip ='try to load distortion information from lens database',
+    tooltip = _('try to load distortion information from lens database'),
     clicked_callback = function(self) dt.preferences.write(mod, 'active_distortion', 'bool', self.value) end,
     reset_callback = function(self) self.value = true end
 }
 GUI.AIS.gpu = dt.new_widget('check_button'){
-    label = 'use gpu', 
+    label = _('use gpu'), 
     value = dt.preferences.read(mod, 'active_gpu', 'bool'),
-    tooltip ='use gpu during alignment',
+    tooltip = _('use gpu during alignment'),
     clicked_callback = function(self) dt.preferences.write(mod, 'active_gpu', 'bool', self.value) end,
     reset_callback = function(self) self.value = true end
 }
 temp = dt.preferences.read(mod, 'active_grid_size_ind', 'integer')
 if not InRange(temp, 1, 9) then temp = 5 end 
 GUI.AIS.grid_size = dt.new_widget('combobox'){
-    label = 'image grid size', 
-    tooltip ='break image into a rectangular grid \nand attempt to find num control points in each section.\ndefault: (5x5)',
+    label = _('image grid size'), 
+    tooltip = _('break image into a rectangular grid \nand attempt to find num control points in each section.\ndefault: (5x5)'),
     selected = temp,
     '1','2','3','4','5','6','7','8','9',
     changed_callback = function(self)
@@ -571,8 +578,8 @@ GUI.AIS.grid_size = dt.new_widget('combobox'){
 temp = dt.preferences.read(mod, 'active_control_points_ind', 'integer')
 if not InRange(temp, 1, 9) then temp = 8 end 
 GUI.AIS.control_points = dt.new_widget('combobox'){
-    label = 'control points/grid', 
-    tooltip ='number of control points (per grid, see option -g) \nto create between adjacent images \ndefault: (8).',
+    label = _('control points/grid'), 
+    tooltip = _('number of control points (per grid, see option -g) \nto create between adjacent images \ndefault: (8).'),
     selected = temp,
     '1','2','3','4','5','6','7','8','9',             
     changed_callback = function(self)
@@ -588,8 +595,8 @@ GUI.AIS.control_points = dt.new_widget('combobox'){
 temp = dt.preferences.read(mod, 'active_control_points_remove_ind', 'integer')
 if not InRange(temp, 1, 9) then temp = 3 end 
 GUI.AIS.control_points_remove = dt.new_widget('combobox'){
-    label = 'remove control points with error', 
-    tooltip ='remove all control points with an error higher \nthan num pixels \ndefault: (3)',
+    label = _('remove control points with error'), 
+    tooltip = _('remove all control points with an error higher \nthan num pixels \ndefault: (3)'),
     selected = temp,
     '1','2','3','4','5','6','7','8','9',             
     changed_callback = function(self)
@@ -605,8 +612,8 @@ GUI.AIS.control_points_remove = dt.new_widget('combobox'){
 temp = dt.preferences.read(mod, 'active_correlation_ind', 'integer')
 if not InRange(temp, 1, 10) then temp = 9 end 
 GUI.AIS.correlation  = dt.new_widget('combobox'){
-    label = 'correlation threshold for control points', 
-    tooltip ='correlation threshold for identifying \ncontrol points \ndefault: (0.9).',
+    label = _('correlation threshold for control points'), 
+    tooltip = _('correlation threshold for identifying \ncontrol points \ndefault: (0.9).'),
     selected = temp,
     '0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0',     
     changed_callback = function(self)
@@ -620,13 +627,13 @@ GUI.AIS.correlation  = dt.new_widget('combobox'){
     end
 } 
 local label_ENF_options= dt.new_widget('section_label'){
-    label = 'image fusion options'
+    label = _('image fusion options')
 }
 temp = dt.preferences.read(mod, 'active_exposure_weight', 'float')
 if not InRange(temp, 0, 1) then temp = 1 end
 GUI.ENF.exposure_weight = dt.new_widget('slider'){
-    label = 'exposure weight',
-    tooltip = 'set the relative weight of the well-exposedness criterion \nas defined by the chosen exposure weight function. \nincreasing this weight relative to the others will\n make well-exposed pixels contribute more to\n the final output. \ndefault: (1.0)',
+    label = _('exposure weight'),
+    tooltip = _('set the relative weight of the well-exposedness criterion \nas defined by the chosen exposure weight function. \nincreasing this weight relative to the others will\n make well-exposed pixels contribute more to\n the final output. \ndefault: (1.0)'),
     hard_min = 0,
     hard_max = 1,
     value = temp,
@@ -637,8 +644,8 @@ GUI.ENF.exposure_weight = dt.new_widget('slider'){
 temp = dt.preferences.read(mod, 'active_saturation_weight', 'float')
 if not InRange(temp, 0, 1) then temp = .2 end
 GUI.ENF.saturation_weight = dt.new_widget('slider'){
-    label = 'saturation weight',
-    tooltip = 'set the relative weight of high-saturation pixels. \nincreasing this weight makes pixels with high \nsaturation contribute more to the final output. \ndefault: (0.2)',
+    label = _('saturation weight'),
+    tooltip = _('set the relative weight of high-saturation pixels. \nincreasing this weight makes pixels with high \nsaturation contribute more to the final output. \ndefault: (0.2)'),
     hard_min = 0,
     hard_max = 1,
     value = temp,
@@ -649,8 +656,8 @@ GUI.ENF.saturation_weight = dt.new_widget('slider'){
 temp = dt.preferences.read(mod, 'active_contrast_weight', 'float')
 if not InRange(temp, 0, 1) then temp = 0 end
 GUI.ENF.contrast_weight = dt.new_widget('slider'){
-    label = 'contrast weight',
-    tooltip = 'sets the relative weight of high local-contrast pixels. \ndefault: (0.0).',
+    label = _('contrast weight'),
+    tooltip = _('sets the relative weight of high local-contrast pixels. \ndefault: (0.0).'),
     hard_min = 0,
     hard_max = 1,
     value = temp,
@@ -661,8 +668,8 @@ GUI.ENF.contrast_weight = dt.new_widget('slider'){
 temp = dt.preferences.read(mod, 'active_exposure_optimum', 'float')
 if not InRange(temp, 0, 1) then temp = 0.5 end
 GUI.ENF.exposure_optimum = dt.new_widget('slider'){
-    label = 'exposure optimum',
-    tooltip = 'determine at what normalized exposure value\n the optimum exposure of the input images\n is. this is, set the position of the maximum\n of the exposure weight curve. use this \noption to fine-tune exposure weighting. \ndefault: (0.5)',
+    label = _('exposure optimum'),
+    tooltip = _('determine at what normalized exposure value\n the optimum exposure of the input images\n is. this is, set the position of the maximum\n of the exposure weight curve. use this \noption to fine-tune exposure weighting. \ndefault: (0.5)'),
     hard_min = 0,
     hard_max = 1,
     value = temp,
@@ -673,8 +680,8 @@ GUI.ENF.exposure_optimum = dt.new_widget('slider'){
 temp = dt.preferences.read(mod, 'active_exposure_width', 'float')
 if not InRange(temp, 0, 1) then temp = 0.2 end
 GUI.ENF.exposure_width = dt.new_widget('slider'){
-    label = 'exposure width',
-    tooltip = 'set the characteristic width (FWHM) of the exposure \nweight function. low numbers give less weight to \npixels that are far from the user-defined \noptimum and vice versa. use this option to \nfine-tune exposure weighting. \ndefault: (0.2)',
+    label = _('exposure width'),
+    tooltip = _('set the characteristic width (FWHM) of the exposure \nweight function. low numbers give less weight to \npixels that are far from the user-defined \noptimum and vice versa. use this option to \nfine-tune exposure weighting. \ndefault: (0.2)'),
     hard_min = 0,
     hard_max = 1,
     value = temp,
@@ -683,24 +690,24 @@ GUI.ENF.exposure_width = dt.new_widget('slider'){
     end
 }
 GUI.ENF.hard_masks = dt.new_widget('check_button'){
-    label = 'hard mask', 
+    label = _('hard mask'), 
     value = dt.preferences.read(mod, 'active_hard_masks', 'bool'),
-    tooltip ='force hard blend masks on the finest scale. this avoids \naveraging of fine details (only), at the expense \nof increasing the noise. this improves the \nsharpness of focus stacks considerably.\ndefault (soft mask)',   
+    tooltip = _('force hard blend masks on the finest scale. this avoids \naveraging of fine details (only), at the expense \nof increasing the noise. this improves the \nsharpness of focus stacks considerably.\ndefault (soft mask)'),   
     clicked_callback = function(self) dt.preferences.write(mod, 'active_hard_masks', 'bool', self.value) end,
     reset_callback = function(self) self.value = false end
 }
 GUI.ENF.save_masks = dt.new_widget('check_button'){
-    label = 'save masks', 
+    label = _('save masks'), 
     value = dt.preferences.read(mod, 'active_save_masks', 'bool'),
-    tooltip ='Save the generated weight masks to your home directory,\nenblend saves masks as 8 bit grayscale, \ni.e. single channel images. \nfor accuracy we recommend to choose a lossless format.',  
+    tooltip = _('Save the generated weight masks to your home directory,\nenblend saves masks as 8 bit grayscale, \ni.e. single channel images. \nfor accuracy we recommend to choose a lossless format.'),  
     clicked_callback = function(self) dt.preferences.write(mod, 'active_save_masks', 'bool', self.value) end,
     reset_callback = function(self) self.value = false end
 }
 temp = dt.preferences.read(mod, 'active_contrast_window_size_ind', 'integer')
 if not InRange(temp, 1, 8) then temp = 3 end 
 GUI.ENF.contrast_window_size = dt.new_widget('combobox'){
-    label = 'contrast window size', 
-    tooltip ='set the window size for local contrast analysis. \nthe window will be a square of size × size pixels. \nif given an even size, Enfuse will \nautomatically use the next odd number.\nfor contrast analysis size values larger \nthan 5 pixels might result in a \nblurry composite image. values of 3 and \n5 pixels have given good results on \nfocus stacks. \ndefault: (5) pixels',
+    label = _('contrast window size'), 
+    tooltip = _('set the window size for local contrast analysis. \nthe window will be a square of size × size pixels. \nif given an even size, Enfuse will \nautomatically use the next odd number.\nfor contrast analysis size values larger \nthan 5 pixels might result in a \nblurry composite image. values of 3 and \n5 pixels have given good results on \nfocus stacks. \ndefault: (5) pixels'),
     selected = temp,
     '3','4','5','6','7','8','9','10',
     changed_callback = function(self)
@@ -716,8 +723,8 @@ GUI.ENF.contrast_window_size = dt.new_widget('combobox'){
 temp = dt.preferences.read(mod, 'active_contrast_edge_scale_ind', 'integer')
 if not InRange(temp, 1, 6) then temp = 1 end 
 GUI.ENF.contrast_edge_scale = dt.new_widget('combobox'){
-    label = 'contrast edge scale', 
-    tooltip ='a non-zero value for EDGE-SCALE switches on the \nLaplacian-of-Gaussian (LoG) edge detection algorithm.\n edage-scale is the radius of the Gaussian used \nin the search for edges. a positive LCE-SCALE \nturns on local contrast enhancement (LCE) \nbefore the LoG edge detection. \nDefault: (0.0) pixels.',
+    label = _('contrast edge scale'), 
+    tooltip = _('a non-zero value for EDGE-SCALE switches on the \nLaplacian-of-Gaussian (LoG) edge detection algorithm.\n edage-scale is the radius of the Gaussian used \nin the search for edges. a positive LCE-SCALE \nturns on local contrast enhancement (LCE) \nbefore the LoG edge detection. \nDefault: (0.0) pixels.'),
     selected = temp,
     '0.0','0.1','0.2','0.3','0.4','0.5',
     changed_callback = function(self)
@@ -733,8 +740,8 @@ GUI.ENF.contrast_edge_scale = dt.new_widget('combobox'){
 temp = dt.preferences.read(mod, 'active_contrast_min_curvature_ind', 'integer')
 if not InRange(temp, 1, 11) then temp = 1 end 
 GUI.ENF.contrast_min_curvature = dt.new_widget('combobox'){
-    label = 'contrast min curvature [%]',
-    tooltip ='define the minimum curvature for the LoG edge detection. Append a ‘%’ to specify the minimum curvature relative to maximum pixel value in the source image. Default: (0.0%)',
+    label = _('contrast min curvature [%]'),
+    tooltip = _('define the minimum curvature for the LoG edge detection. Append a ‘%’ to specify the minimum curvature relative to maximum pixel value in the source image. Default: (0.0%)'),
     selected = temp, 
     '0.0%','0.1%','0.2%','0.3%','0.4%','0.5%','0.6%','0.7%','0.8%','0.9%','1.0%',
     changed_callback = function(self)
@@ -748,13 +755,13 @@ GUI.ENF.contrast_min_curvature = dt.new_widget('combobox'){
     end
 } 
 local label_target_options= dt.new_widget('section_label'){
-    label = 'target file'
+    label = _('target file')
 }
 temp = dt.preferences.read(mod, 'active_compression_level_tif_ind', 'integer')
 if not InRange(temp, 1, 4) then temp = 1 end 
 GUI.Target.compression_level_tif = dt.new_widget('combobox'){
-    label = 'tiff compression', 
-    tooltip = 'compression method for tiff files',
+    label = _('tiff compression'), 
+    tooltip = _('compression method for tiff files'),
     selected = temp,
     'none','deflate','lzw','packbits',
     changed_callback = function(self)
@@ -770,8 +777,8 @@ GUI.Target.compression_level_tif = dt.new_widget('combobox'){
 temp = dt.preferences.read(mod, 'active_compression_level_jpg', 'integer')
 if not InRange(temp, 0, 100) then temp = 0 end
 GUI.Target.compression_level_jpg = dt.new_widget('slider'){
-    label = 'jpeg compression',
-    tooltip = 'jpeg compression level',
+    label = _('jpeg compression'),
+    tooltip = _('jpeg compression level'),
     soft_min = 0,
     soft_max = 100,
     hard_min = 0,
@@ -793,8 +800,8 @@ stack_compression = dt.new_widget('stack'){
 temp = dt.preferences.read(mod, 'active_format_ind', 'integer')
 if not InRange(temp, 1, 6) then temp = 1 end 
 GUI.Target.format = dt.new_widget('combobox'){
-    label = 'file format', 
-    tooltip = 'file format of the enfused final image',
+    label = _('file format'), 
+    tooltip = _('file format of the enfused final image'),
     selected = temp,
     'tif','jpg','png','pnm','pbm','ppm',
     changed_callback = function(self)
@@ -814,8 +821,8 @@ GUI.Target.format = dt.new_widget('combobox'){
 temp = dt.preferences.read(mod, 'active_depth_ind', 'integer')
 if not InRange(temp, 1, 5) then temp = 3 end 
 GUI.Target.depth = dt.new_widget('combobox'){
-    label = 'bit depth', 
-    tooltip = 'bit depth of the enfused file',
+    label = _('bit depth'), 
+    tooltip = _('bit depth of the enfused file'),
     selected = temp,
     '8','16','32','r32','r64',
     changed_callback = function(self)
@@ -828,31 +835,31 @@ GUI.Target.depth = dt.new_widget('combobox'){
         dt.preferences.write(mod, 'active_depth_ind', 'integer', self.selected)
     end 
 }
-local label_directory = dt.new_widget("label"){
-    label = 'directory',
-    ellipsize = "start",
-    halign = "start"
+local label_directory = dt.new_widget('label'){
+    label = _('directory'),
+    ellipsize = 'start',
+    halign = 'start'
 }
 temp = dt.preferences.read(mod, 'active_output_directory', 'string')
 if temp == '' or temp == nil then temp = dt.collection[1].path end
-GUI.Target.output_directory = dt.new_widget("file_chooser_button"){
+GUI.Target.output_directory = dt.new_widget('file_chooser_button'){
     title = 'Select export path', 
     is_directory = true,
-    tooltip ='select the target directory for the fused image. \nthe filename is created automatically.',
+    tooltip = _('select the target directory for the fused image. \nthe filename is created automatically.'),
     value = temp,
     changed_callback = function(self) dt.preferences.write(mod, 'active_output_directory', 'string', self.value) end
 }
 GUI.Target.source_location = dt.new_widget('check_button'){
-    label = 'save to source image location', 
+    label = _('save to source image location'), 
     value = dt.preferences.read(mod, 'active_source_location', 'bool'),
-    tooltip ='If checked ignores the location above and saves output image(s) to the same location as the source images.',  
+    tooltip = _('If checked ignores the location above and saves output image(s) to the same location as the source images.'),  
     clicked_callback = function(self) dt.preferences.write(mod, 'active_source_location', 'bool', self.value) end,
     reset_callback = function(self) self.value = true end
 }
 temp = dt.preferences.read(mod, 'active_on_conflict_ind', 'integer')
 if not InRange(temp, 1, 2) then temp = 1 end 
 GUI.Target.on_conflict = dt.new_widget('combobox'){
-    label = 'on conflict', 
+    label = _('on conflict'), 
     selected = temp,  
     'create unique filename','overwrite',           
     changed_callback = function(self)
@@ -866,9 +873,9 @@ GUI.Target.on_conflict = dt.new_widget('combobox'){
     end 
 }  
 GUI.Target.auto_import = dt.new_widget('check_button'){
-    label = 'auto import', 
+    label = _('auto import'), 
     value = dt.preferences.read(mod, 'active_auto_import', 'bool'),
-    tooltip ='import the image into darktable database when enfuse completes',  
+    tooltip = _('import the image into darktable database when enfuse completes'),  
     clicked_callback = function(self)
         dt.preferences.write(mod, 'active_auto_import', 'bool', self.value)
         GUI.Target.apply_style.sensitive = self.value
@@ -879,10 +886,10 @@ GUI.Target.auto_import = dt.new_widget('check_button'){
 }
 temp = dt.preferences.read(mod, 'active_apply_style_ind', 'integer')
 GUI.Target.apply_style = dt.new_widget('combobox'){
-    label = "Apply Style on Import",
-    tooltip = "Apply selected style on auto-import to newly created blended image",
+    label = _('Apply Style on Import'),
+    tooltip = _('Apply selected style on auto-import to newly created blended image'),
     selected = 1,
-    "none",
+    'none',
     changed_callback = function(self)
         dt.preferences.write(mod, 'active_apply_style', 'string', self.value) 
         dt.preferences.write(mod, 'active_apply_style_ind', 'integer', self.selected)
@@ -899,25 +906,25 @@ end
 if not InRange(temp, 1, styles_count) then temp = 1 end
 GUI.Target.apply_style.selected = temp
 GUI.Target.copy_tags = dt.new_widget('check_button'){
-    label = 'copy tags', 
+    label = _('copy tags'), 
     value = dt.preferences.read(mod, 'active_copy_tags', 'bool'),
-    tooltip ='Copy tags from first image.', 
+    tooltip = _('Copy tags from first image.'), 
     clicked_callback = function(self) dt.preferences.write(mod, 'active_copy_tags', 'bool', self.value) end,
     reset_callback = function(self) self.value = true end
 }
 temp = dt.preferences.read(mod, 'active_add_tags', 'string')
 if temp == '' then temp = nil end 
-GUI.Target.add_tags = dt.new_widget("entry"){
-    tooltip = "Additional tags to be added on import. Seperate with commas, all spaces will be removed",
+GUI.Target.add_tags = dt.new_widget('entry'){
+    tooltip = _('Additional tags to be added on import. Seperate with commas, all spaces will be removed'),
     text = temp,
-    placeholder = "Enter tags, seperated by commas",
+    placeholder = 'Enter tags, seperated by commas',
     editable = true
 }
 temp = dt.preferences.read(mod, 'active_current_preset_ind', 'integer')
 if not InRange(temp, 1, 6) then temp = 1 end
 GUI.Presets.current_preset = dt.new_widget('combobox'){
-    label = "active preset",
-    tooltip = "preset to be loaded from or saved to",
+    label = _('active preset'),
+    tooltip = _('preset to be loaded from or saved to'),
     value = temp,
     'dri_1', 'dri_2', 'dri_3', 'dff_1', 'dff_2', 'dff_3',
     changed_callback = function(self)
@@ -930,20 +937,20 @@ GUI.Presets.current_preset = dt.new_widget('combobox'){
         dt.preferences.write(mod, 'active_current_preset_ind', 'integer', self.selected)
     end 
 }
-GUI.Presets.load = dt.new_widget("button"){
-    label = 'laod fusion preset',
-    tooltip ='load current fusion parameters from selected preset',
+GUI.Presets.load = dt.new_widget('button'){
+    label = _('laod fusion preset'),
+    tooltip = _('load current fusion parameters from selected preset'),
     clicked_callback = function() LoadFromPreference(GUI.Presets.current_preset.value) end
 }
-GUI.Presets.save = dt.new_widget("button"){
-    label = 'save to fusion preset',
-    tooltip ='save current fusion parameters to selected preset',
+GUI.Presets.save = dt.new_widget('button'){
+    label = _('save to fusion preset'),
+    tooltip = _('save current fusion parameters to selected preset'),
     clicked_callback = function() SaveToPreference(GUI.Presets.current_preset.value) end
 }
 GUI.Presets.variants = dt.new_widget('check_button'){
-    label = 'create image variants from presets', 
+    label = _('create image variants from presets'), 
     value = dt.preferences.read(mod, 'active_variants', 'bool'),
-    tooltip ='create multiple image variants based on the three different presets of the specified type',   
+    tooltip = _('create multiple image variants based on the three different presets of the specified type'),   
     clicked_callback = function(self) 
         dt.preferences.write(mod, 'active_variants', 'bool', self.value)
         if self.value then
@@ -960,8 +967,8 @@ GUI.Presets.variants = dt.new_widget('check_button'){
 temp = dt.preferences.read(mod, 'active_variants_type_ind', 'integer')
 if not InRange(temp, 1, 2) then temp = 1 end
 GUI.Presets.variants_type = dt.new_widget('combobox'){
-    label = "create variants type",
-    tooltip = "preset type to be used when creating image variants",
+    label = _('create variants type'),
+    tooltip = _('preset type to be used when creating image variants'),
     selected = temp,
     'dri', 'dff',
     changed_callback = function(self)
@@ -1000,8 +1007,8 @@ GUI.exes.exiftool = dt.new_widget('file_chooser_button'){
     changed_callback = function(self) self.tooltip = self.value end
 } 
 GUI.exes.update = dt.new_widget('button'){
-    label = 'update',
-    tooltip ='update the binary paths with current values',
+    label = _('update'),
+    tooltip = _('update the binary paths with current values'),
     clicked_callback = function() ExeUpdate({AIS,ENF,EXF}) end
 }
 temp = GUI.Target.format.value
@@ -1077,11 +1084,12 @@ GUI.options_contain = dt.new_widget('stack'){
     box_AIS,
     box_ENF,
     box_Target,
-    box_exes
+    box_exes,
+    active = 2
 }
 GUI.show_options = dt.new_widget('combobox'){
-    label = "show options",
-    tooltip = "show options for specified aspect of output",
+    label = _('show options'),
+    tooltip = _('show options for specified aspect of output'),
     selected = 2,
     'align image stack', 'enfuse/enblend', 'target file',
     changed_callback = function(self)
@@ -1093,6 +1101,23 @@ GUI.show_options = dt.new_widget('combobox'){
         dt.preferences.write(mod, 'active_current_preset_ind', 'integer', self.selected)
     end 
 }
+local storage_widget = dt.new_widget('box') {
+    orientation = 'vertical',
+    GUI.show_options,
+    GUI.options_contain
+} 
+
+-- Register new storage --
+dt.register_storage(
+    'module_enfuseAdvanced', --Module name
+    _('DRI or DFF image'), --Name
+    show_status, --store: called once per exported image
+    main, --finalize: called once when all images have finished exporting
+    support_format, --supported
+    initial, --initialize
+    storage_widget
+)
+
 if dt.preferences.read(mod, 'bin_exists', 'bool') then 
     GUI.options_contain.active = 2
     GUI.show_options.sensitive = true
@@ -1100,20 +1125,3 @@ else
     GUI.options_contain.active = 4
     GUI.show_options.sensitive = false
 end
-local storage_widget = dt.new_widget("box") {
-    orientation = "vertical",
-    GUI.show_options,
-    GUI.options_contain
-}
-    
-
--- Register new storage --
-dt.register_storage(
-    "module_enfuseAdvanced", --Module name
-    'DRI or DFF image', --Name
-    show_status, --store: called once per exported image
-    main, --finalize: called once when all images have finished exporting
-    support_format, --supported
-    initial, --initialize
-    storage_widget
-    )
