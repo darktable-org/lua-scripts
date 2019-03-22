@@ -17,14 +17,14 @@
 ]]
 
 --[[About this Plugin
-This plugin adds the module "HDRMerge" to darktable's lighttable view
+This plugin adds the module 'HDRMerge' to darktable's lighttable view
 
 ----REQUIRED SOFTWARE----
 HDRMerge ver. 4.5 or greater
 
 ----USAGE----
 Install: (see here for more detail: https://github.com/darktable-org/lua-scripts )
- 1) Copy this file in to your "lua/contrib" folder where all other scripts reside. 
+ 1) Copy this file in to your 'lua/contrib' folder where all other scripts reside. 
  2) Require this file in your luarc file, as with any other dt plug-in
 On the initial startup go to darktable settings > lua options and set your executable paths and other preferences, then restart darktable
 
@@ -44,12 +44,19 @@ Auto-import Options:
 Select a style, whether you want tags to be copied from the original, and any additional tags you desire added when the new image is auto-imported
 ]]
 
-local dt = require "darktable"
-local df = require "lib/dtutils.file"
-local dsys = require "lib/dtutils.system"
+local dt = require 'darktable'
+local df = require 'lib/dtutils.file'
+local dsys = require 'lib/dtutils.system'
 local mod = 'module_HDRMerge'
 local os_path_seperator = '/'
 if dt.configuration.running_os == 'windows' then os_path_seperator = '\\' end
+
+-- Tell gettext where to find the .mo file translating messages for a particular domain
+local gettext = dt.gettext
+gettext.bindtextdomain('HDRMerge',dt.configuration.config_dir..'/lua/locale/')
+local function _(msgid)
+    return gettext.dgettext('HDRMerge', msgid)
+end
 
 local temp
 local HDRM = { --HDRMerge Program Table
@@ -89,9 +96,9 @@ local GUI = { --GUI Elements Table
 
 --Detect User Styles--
 local styles = dt.styles
-local styles_count = 1 -- "none" = 1
+local styles_count = 1 -- 'none' = 1
 for _,i in pairs(dt.styles) do
-    if type(i) == "userdata" then styles_count = styles_count + 1 end
+    if type(i) == 'userdata' then styles_count = styles_count + 1 end
 end
 
 local function InRange(test, low, high) --tests if test value is within range of low and high (inclusive)
@@ -114,10 +121,10 @@ local function GetFileName(full_path) --Parses a full path (path/filename_identi
     EX:
     path_1, file_1, id_1, ext_1 = GetFileName(full_path_1)
     ]]
-    local path = string.match(full_path, ".*[\\/]")
-    local filename = string.gsub(string.match(full_path, "[%w-_]*%.") , "%." , "" ) 
-    local identifier = string.match(filename, "%d*$")
-    local extension = string.match(full_path, "%.%w*")
+    local path = string.match(full_path, '.*[\\/]')
+    local filename = string.gsub(string.match(full_path, '[%w-_]*%.') , '%.' , '' ) 
+    local identifier = string.match(filename, '%d*$')
+    local extension = string.match(full_path, '%.%w*')
     return path, filename, identifier, extension
 end
 
@@ -147,7 +154,7 @@ local function PreCall(prog_tbl) --looks to see if this is the first call, if so
     end
     if not dt.preferences.read(mod, 'bin_exists', 'bool') then
         GUI.stack.active = 2
-        dt.print('please update you binary locatoin')
+        dt.print(_('please update you binary locatoin'))
     end
 end
 
@@ -166,9 +173,9 @@ local function ExeUpdate(prog_tbl)
     end
     if dt.preferences.read(mod, 'bin_exists', 'bool') then
         GUI.stack.active = 1
-        dt.print('update successful')
+        dt.print(_('update successful'))
     else
-        dt.print('update unsuccessful, please try again')
+        dt.print(_('update unsuccessful, please try again'))
     end
 end
 
@@ -182,13 +189,13 @@ end
 local function main()
     PreCall({HDRM}) --check if furst run then check if install OK
     if HDRM.install_error then
-        dt.print_error('HDRMerge install issue')
-        dt.print('HDRMerge install issue, please ensure the binary path is proper')
+        dt.print_error(_('HDRMerge install issue'))
+        dt.print(_('HDRMerge install issue, please ensure the binary path is proper'))
         return
     end
     images = dt.gui.selection() --get selected images
     if #images < 2 then --ensure enough images selected
-        dt.print('not enough images selected, select at least 2 images to merge')
+        dt.print(_('not enough images selected, select at least 2 images to merge'))
         return
     end
     
@@ -203,7 +210,7 @@ local function main()
     local source_raw = {}
     for _,image in pairs(images) do --loop to concat the images string, also track the image indexes for use in creating the final image name (eg; IMG_1034-1037.dng)
         local curr_image = image.path..os_path_seperator..image.filename
-        HDRM.images_string = HDRM.images_string..df.sanitize_filename(curr_image).." "
+        HDRM.images_string = HDRM.images_string..df.sanitize_filename(curr_image)..' '
         out_path = image.path
         _, source_name, source_id = GetFileName(image.filename)
         source_id = tonumber(source_id)
@@ -249,23 +256,23 @@ local function main()
                 dt.tags.attach(tag, imported) 
             end
         end
-        dt.print('HDRMerge completed successfully')
+        dt.print(_('HDRMerge completed successfully'))
     else
-        dt.print_error('HDRMerge failed')
-        dt.print('HDRMerge failed')
+        dt.print_error(_('HDRMerge failed'))
+        dt.print(_('HDRMerge failed'))
     end
 
 end
 
 -- GUI Elements --
 local lbl_hdr = dt.new_widget('section_label'){
-    label = 'HDRMerge options'
+    label = _('HDRMerge options')
 }
 temp = dt.preferences.read(mod, 'active_bps_ind', 'integer')
 if not InRange(temp, 1, 3) then temp = 3 end 
 GUI.HDR.bps = dt.new_widget('combobox'){
-    label = 'bits per sample', 
-    tooltip ='number of bits per sample in the output image',
+    label = _('bits per sample'), 
+    tooltip =_('number of bits per sample in the output image'),
     selected = temp,
     '16','24','32',             
     changed_callback = function(self)
@@ -281,10 +288,10 @@ GUI.HDR.bps = dt.new_widget('combobox'){
 temp = dt.preferences.read(mod, 'active_size_ind', 'integer')
 if not InRange(temp, 1, 3) then temp = 2 end 
 GUI.HDR.size = dt.new_widget('combobox'){
-    label = 'embedded preview size', 
-    tooltip ='size of the embedded preview in output image',
+    label = _('embedded preview size'), 
+    tooltip =_('size of the embedded preview in output image'),
     selected = temp,
-    'none','half','full',             
+    _('none'),_('half'),_('full'),             
     changed_callback = function(self)
         dt.preferences.write(mod, 'active_size', 'string', self.value) 
         dt.preferences.write(mod, 'active_size_ind', 'integer', self.selected)
@@ -296,9 +303,9 @@ GUI.HDR.size = dt.new_widget('combobox'){
     end
 } 
 GUI.HDR.batch = dt.new_widget('check_button'){
-    label = 'batch mode',
+    label = _('batch mode'),
     value = dt.preferences.read(mod, 'active_batch', 'bool'),
-    tooltip = 'enable batch mode operation \nNOTE: resultant files will NOT be auto-imported',
+    tooltip = _('enable batch mode operation \nNOTE: resultant files will NOT be auto-imported'),
     clicked_callback = function(self)
         dt.preferences.write(mod, 'active_batch', 'bool', self.value)
         GUI.HDR.gap.sensitive = self.value
@@ -308,8 +315,8 @@ GUI.HDR.batch = dt.new_widget('check_button'){
 temp = dt.preferences.read(mod, 'active_gap', 'integer')
 if not InRange(temp, 1, 3600) then temp = 3 end
 GUI.HDR.gap = dt.new_widget('slider'){
-    label = 'batch gap [sec.]',
-    tooltip = 'gap, in seconds, between batch mode groups',
+    label = _('batch gap [sec.]'),
+    tooltip = _('gap, in seconds, between batch mode groups'),
     soft_min = 1,
     soft_max = 30,
     hard_min = 1,
@@ -323,13 +330,13 @@ GUI.HDR.gap = dt.new_widget('slider'){
     end
 }
 local lbl_import = dt.new_widget('section_label'){
-    label = 'import options'
+    label = _('import options')
 }
 GUI.Target.style = dt.new_widget('combobox'){
-    label = 'apply style on import',
-    tooltip = "Apply selected style on auto-import to newly created image",
+    label = _('apply style on import'),
+    tooltip = _('Apply selected style on auto-import to newly created image'),
     selected = 1,
-    "none",
+    _('none'),
     changed_callback = function(self)
         dt.preferences.write(mod, 'active_style', 'string', self.value) 
         dt.preferences.write(mod, 'active_style_ind', 'integer', self.selected)
@@ -347,33 +354,33 @@ temp = dt.preferences.read(mod, 'active_style_ind', 'integer')
 if not InRange(temp, 1, styles_count) then temp = 1 end
 GUI.Target.style.selected = temp
 GUI.Target.copy_tags = dt.new_widget('check_button'){
-    label = 'copy tags',
+    label = _('copy tags'),
     value = dt.preferences.read(mod, 'active_copy_tags', 'bool'),
-    tooltip = 'copy tags from first source image',
+    tooltip = _('copy tags from first source image'),
     clicked_callback = function(self) dt.preferences.write(mod, 'active_copy_tags', 'bool', self.value) end,
     reset_callback = function(self) self.value = true end
 }
 temp = dt.preferences.read(mod, 'active_add_tags', 'string')
 if temp == '' then temp = nil end 
-GUI.Target.add_tags = dt.new_widget("entry"){
-    tooltip = "Additional tags to be added on import. Seperate with commas, all spaces will be removed",
+GUI.Target.add_tags = dt.new_widget('entry'){
+    tooltip = _('Additional tags to be added on import. Seperate with commas, all spaces will be removed'),
     text = temp,
-    placeholder = "Enter tags, seperated by commas",
+    placeholder = _('Enter tags, seperated by commas'),
     editable = true
 }
-GUI.run = dt.new_widget("button"){
-    label = 'merge',
-    tooltip ='run HDRMerge with the above specified settings',
+GUI.run = dt.new_widget('button'){
+    label = _('merge'),
+    tooltip =_('run HDRMerge with the above specified settings'),
     clicked_callback = function() main() end
 }
 GUI.exes.HDRMerge = dt.new_widget('file_chooser_button'){
-    title = "Select HDRmerge executable",
+    title = _('Select HDRmerge executable'),
     value = df.get_executable_path_preference(HDRM.name),
     is_directory = false
 }
 GUI.exes.update = dt.new_widget('button'){
-    label = 'update',
-    tooltip ='update the binary path with current value',
+    label = _('update'),
+    tooltip =_('update the binary path with current value'),
     clicked_callback = function() ExeUpdate({HDRM}) end
 }
 GUI.options = dt.new_widget('box'){
@@ -399,19 +406,19 @@ GUI.stack = dt.new_widget('stack'){
     exes_box
 }
 if dt.preferences.read(mod, 'bin_exists', 'bool') then
-   GUI.stack.active = 1
+    GUI.stack.active = 1
 else
     GUI.stack.active = 2
 end
 
 dt.register_lib( -- register HDRMerge module
-    "HDRMerge_Lib", -- Module name
-    "HDRMerge", -- name
+    'HDRMerge_Lib', -- Module name
+    _('HDRMerge'), -- name
     true,   -- expandable
     true,   -- resetable
-    {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 99}},   -- containers
-    dt.new_widget("box"){
-        orientation = "vertical",
+    {[dt.gui.views.lighttable] = {'DT_UI_CONTAINER_PANEL_RIGHT_CENTER', 99}},   -- containers
+    dt.new_widget('box'){
+        orientation = 'vertical',
         GUI.stack
         }
 )
