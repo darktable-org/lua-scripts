@@ -112,7 +112,7 @@ local exec_table = {}
 
 for _,pref  in ipairs(matches) do
   local parts = du.split(pref, "=")
-  local tmp = du.split(parts[1], PS)
+  local tmp = du.split(parts[1], "/") -- preferences are stored with forward slashes
   table.insert(exec_table, tmp[#tmp])
 end
 
