@@ -72,7 +72,12 @@ end
 
 local function create_kml_file(storage, image_table, extra_data)
 
-  local magickPath = dt.preferences.read("kml_export","magickPath","string")
+  local magickPath 
+  if dt.configuration.running_os == "linux" then
+    magickPath = 'convert'
+  else
+    magickPath = dt.preferences.read("kml_export","magickPath","string")
+  end
   if not df.check_if_bin_exists(magickPath) then
     dt.print_error(_("magick not found"))
     return
@@ -116,10 +121,12 @@ local function create_kml_file(storage, image_table, extra_data)
       -- will be scaled so its largest dimension is 120 pixels. The '+profile "*"' removes any ICM, EXIF, IPTC, or other
       -- profiles that might be present in the input and aren't needed in the thumbnail.
 
-      local convertToThumbCommand = ds.sanitize(magickPath) .. " -size 96x96 "..exported_image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory..PS..imageFoldername.."thumb_"..filename..".jpg"
+      local convertToThumbCommand = ds.sanitize(magickPath) .. " -size 96x96 " .. exported_image .. " -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" " .. exportDirectory .. PS .. imageFoldername .. "thumb_" .. filename .. ".jpg"
 
-      df.file_copy(exported_image, exportDirectory..PS..imageFoldername..filename.."."..filetype)
-	  dsys.external_command(convertToThumbCommand)
+      if (exported_image ~= exportDirectory..PS..imageFoldername..filename.."."..filetype) then
+        df.file_copy(exported_image, exportDirectory..PS..imageFoldername..filename.."."..filetype)
+	    end
+      dsys.external_command(convertToThumbCommand)
     else
       -- Remove exported image if it has no GPS data
       os.remove(exported_image)
@@ -132,17 +139,17 @@ local function create_kml_file(storage, image_table, extra_data)
     -- https://github.com/darktable-org/lua-scripts/issues/54
     filmName = ds.strip_accents(filmName)
 
-	-- Remove chars we don't like to have in filenames
-	filmName = string.gsub(filmName, [[\]], "") 
-	filmName = string.gsub(filmName, [[/]], "")
-	filmName = string.gsub(filmName, [[:]], "") 
-	filmName = string.gsub(filmName, [["]], "")
-	filmName = string.gsub(filmName, "<", "") 
-	filmName = string.gsub(filmName, ">", "") 
-	filmName = string.gsub(filmName, "|", "")
-	filmName = string.gsub(filmName, "*", "")
-	filmName = string.gsub(filmName, "?", "")
-	filmName = string.gsub(filmName,'[.]', "") -- At least Windwows has problems with the "." and the start command
+    -- Remove chars we don't like to have in filenames
+    filmName = string.gsub(filmName, [[\]], "") 
+    filmName = string.gsub(filmName, [[/]], "")
+    filmName = string.gsub(filmName, [[:]], "") 
+    filmName = string.gsub(filmName, [["]], "")
+    filmName = string.gsub(filmName, "<", "") 
+    filmName = string.gsub(filmName, ">", "") 
+    filmName = string.gsub(filmName, "|", "")
+    filmName = string.gsub(filmName, "*", "")
+    filmName = string.gsub(filmName, "?", "")
+    filmName = string.gsub(filmName,'[.]', "") -- At least Windwows has problems with the "." and the start command
   end
 
   exportKMLFilename = filmName..".kml"
