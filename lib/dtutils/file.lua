@@ -291,9 +291,13 @@ dtutils_file.libdoc.functions["file_copy"] = {
 function dtutils_file.file_copy(fromFile, toFile)
   local result = nil
   -- if cp exists, use it
-  if dtutils_file.check_if_bin_exists("cp") then
+  if dt.configuration.running_os == "windows" then
+    os.execute('copy "' .. fromFile .. '" "' .. toFile .. '"')
+    result = true
+  elseif dtutils_file.check_if_bin_exists("cp") then
     result = os.execute("cp '" .. fromFile .. "' '" .. toFile .. "'")
   end
+
   -- if cp was not present, or if cp failed, then a pure lua solution
   if not result then
     local fileIn, err = io.open(fromFile, 'rb')
