@@ -81,7 +81,7 @@ local function open_in_nautilus() --Open in Nautilus
   elseif #images <= 15 then
     for _,image in pairs(images) do 
       curr_image = image.path..PS..image.filename
-      local run_cmd = "nautilus --select " .. df.sanitize_filename(curr_image)
+      local run_cmd = [[busctl --user call org.freedesktop.FileManager1 /org/freedesktop/FileManager1 org.freedesktop.FileManager1 ShowItems ass 1 ]] .. df.sanitize_filename("file://"..curr_image) .. [[ ""]]
       dt.print_log("OpenInExplorer run_cmd = "..run_cmd)
       resp = dsys.external_command(run_cmd)
     end
