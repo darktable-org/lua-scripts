@@ -122,7 +122,7 @@ dtutils_system.libdoc.functions["launch_default_app"] = {
 function dtutils_system.launch_default_app(path) 
   local open_cmd = "xdg-open "
   if (dt.configuration.running_os == "windows") then
-    open_cmd = "start "
+    open_cmd = "" -- On Windows we don't need any command. (start e.g. has problems with spaces in the filename, even if we put quoter around them.) https://stackoverflow.com/questions/13691827/opening-file-with-spaces-in-windows-via-command-prompt
   elseif  (dt.configuration.running_os == "macos") then
     open_cmd = "open "
   end   
