@@ -92,12 +92,10 @@ local function create_kml_file(storage, image_table, extra_data)
       dt.print_error(_("zip not found"))
       return
     end
-
     exportDirectory = dt.configuration.tmp_dir
     imageFoldername = ""
   else
     exportDirectory = dt.preferences.read("kml_export","ExportDirectory","string")
-
     -- Creates dir if not exsists
     imageFoldername = "files"..PS
     df.mkdir(df.sanitize_filename(exportDirectory..PS..imageFoldername))
@@ -119,6 +117,8 @@ local function create_kml_file(storage, image_table, extra_data)
       -- profiles that might be present in the input and aren't needed in the thumbnail.
 
       local convertToThumbCommand = ds.sanitize(magickPath) .. " -size 96x96 "..exported_image.." -resize 92x92 -mattecolor \"#FFFFFF\" -frame 2x2 +profile \"*\" "..exportDirectory..PS..imageFoldername.."thumb_"..filename..".jpg"
+
+      df.file_copy(exported_image, exportDirectory..PS..imageFoldername..filename.."."..filetype)
 	  dsys.external_command(convertToThumbCommand)
     else
       -- Remove exported image if it has no GPS data
@@ -142,6 +142,7 @@ local function create_kml_file(storage, image_table, extra_data)
 	filmName = string.gsub(filmName, "|", "")
 	filmName = string.gsub(filmName, "*", "")
 	filmName = string.gsub(filmName, "?", "")
+	filmName = string.gsub(filmName,'[.]', "") -- At least Windwows has problems with the "." and the start command
   end
 
   exportKMLFilename = filmName..".kml"
@@ -292,12 +293,21 @@ local function create_kml_file(storage, image_table, extra_data)
 end
 
 -- Preferences
-dt.preferences.register("kml_export",
-  "OpenKmlFile",
-  "bool",
-  _("KML export: Open KML/KMZ file after export"),
-  _("Opens the KML file after the export with the standard program for KML files"),
-  false )
+if dt.configuration.running_os == "windows" then
+  dt.preferences.register("kml_export",
+    "OpenKmlFile",
+    "bool",
+    _("KML export: Open KML file after export"),
+    _("Opens the KML file after the export with the standard program for KML files"),
+    false )
+else
+  dt.preferences.register("kml_export",
+    "OpenKmlFile",
+    "bool",
+    _("KML export: Open KML/KMZ file after export"),
+    _("Opens the KML file after the export with the standard program for KML files"),
+    false )
+end
 
 local defaultDir = ''
 if dt.configuration.running_os == "windows" then
@@ -344,7 +354,11 @@ if dt.configuration.running_os == "linux" then
 end
 
 -- Register
-dt.register_storage("kml_export", _("KML/KMZ Export"), nil, create_kml_file)
+if dt.configuration.running_os == "windows" then
+  dt.register_storage("kml_export", _("KML Export"), nil, create_kml_file)
+else
+  dt.register_storage("kml_export", _("KML/KMZ Export"), nil, create_kml_file)
+end
 
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
 -- kate: hl Lua;
