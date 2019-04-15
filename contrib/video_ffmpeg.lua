@@ -412,7 +412,7 @@ local function export(extra_data)
   local img_ext = extra_data["img_ext"]
   local output_file = extra_data["output_file"]
   
-  local dir_create_result = df.mkdir(df.get_path(output_file))
+  local dir_create_result = df.mkdir(df.sanitize_filename(df.get_path(output_file)))
   if dir_create_result ~= 0 then return dir_create_result end
 
   local cmd = ffmpeg_path.." -y -r "..fps.." -i "..dir..PS.."%d"..img_ext.." -s:v "..res.." -c:v "..codec.." -crf 18 -preset veryslow "..df.sanitize_filename(output_file)
@@ -424,7 +424,7 @@ local function finalize_export(storage, images_table, extra_data)
     
     dt.print(_("prepare merge process"))
     
-    local result = df.mkdir(tmp_dir)
+    local result = df.mkdir(df.sanitize_filename(tmp_dir))
     if result ~= 0 then dt.print(_("ERROR: cannot create temp directory")) end
     
     local images = extra_data["images"]
@@ -441,11 +441,11 @@ local function finalize_export(storage, images_table, extra_data)
     else
       dt.print(_("SUCCESS"))
       if extra_data["open_after_export"] then
-        dsys.launch_default_app(path)
+        dsys.launch_default_app(df.sanitize_filename(path))
       end
     end
 
-    df.rmdir(tmp_dir)
+    df.rmdir(df.sanitize_filename(tmp_dir))
 end
 
 dt.register_storage(

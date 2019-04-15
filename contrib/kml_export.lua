@@ -78,6 +78,7 @@ local function create_kml_file(storage, image_table, extra_data)
   else
     magickPath = dt.preferences.read("kml_export","magickPath","string")
   end
+
   if not df.check_if_bin_exists(magickPath) then
     dt.print_error(_("magick not found"))
     return
@@ -127,6 +128,7 @@ local function create_kml_file(storage, image_table, extra_data)
         df.file_copy(exported_image, exportDirectory..PS..imageFoldername..filename.."."..filetype)
 	    end
       dsys.external_command(convertToThumbCommand)
+
     else
       -- Remove exported image if it has no GPS data
       os.remove(exported_image)
