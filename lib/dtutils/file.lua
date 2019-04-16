@@ -292,8 +292,7 @@ function dtutils_file.file_copy(fromFile, toFile)
   local result = nil
   -- if cp exists, use it
   if dt.configuration.running_os == "windows" then
-    os.execute('copy "' .. fromFile .. '" "' .. toFile .. '"')
-    result = true
+    result = os.execute('copy "' .. fromFile .. '" "' .. toFile .. '"')
   elseif dtutils_file.check_if_bin_exists("cp") then
     result = os.execute("cp '" .. fromFile .. "' '" .. toFile .. "'")
   end
