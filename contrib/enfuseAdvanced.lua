@@ -45,7 +45,7 @@ If you have a specific set of parameters you frequently like to use, you can sav
 
 target file:
 Select your file destination path, or check the 'save to source image location' option.
-Unless 'Create unique filename' is selected, it will overwrite existing files
+'Create Unique Filename' is enabled by default at startup, the user can choose to overwrite existing
 Set any tags or style you desire to be added to the new image (only available if the auto-import option is enabled). You can also change the defaults for this under settings > lua options
 
 format options:
@@ -860,7 +860,7 @@ temp = dt.preferences.read(mod, 'active_on_conflict_ind', 'integer')
 if not InRange(temp, 1, 2) then temp = 1 end 
 GUI.Target.on_conflict = dt.new_widget('combobox'){
     label = _('on conflict'), 
-    selected = temp,  
+    selected = 1,  
     'create unique filename','overwrite',           
     changed_callback = function(self)
         dt.preferences.write(mod, 'active_on_conflict', 'string', self.value) 
