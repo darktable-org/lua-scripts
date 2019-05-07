@@ -18,7 +18,7 @@
 ]]
 
 --[[About this plugin
-This plugin will add the new export module "fusion to DRI or DFF image".
+This plugin will add the new export module 'fusion to DRI or DFF image'.
    
 ----REQUIRED SOFTWARE----
 align_image_stack
@@ -27,12 +27,12 @@ exiftool
 
 ----USAGE----
 Install: (see here for more detail: https://github.com/darktable-org/lua-scripts )
- 1) Copy this file in to your "lua/contrib" folder where all other scripts reside. 
+ 1) Copy this file in to your 'lua/contrib' folder where all other scripts reside. 
  2) Require this file in your luarc file, as with any other dt plug-in
 On the initial startup go to darktable settings > lua options and set your executable paths and other preferences, then restart darktable
 
 DRI = Dynamic Range Increase (Blend multiple bracket images into a single LDR file)
-DFF = Depth From Focus ("Focus Stacking" - Blend multiple images with different focus into a single image)
+DFF = Depth From Focus ('Focus Stacking' - Blend multiple images with different focus into a single image)
 Select multiple images that are either bracketed, or focus-shifted, set your desired operating parameters, and press the export button. A new image will be created. The image will
 be auto imported into darktable if you have that option enabled. Additional tags or style can be applied on auto import as well, if you desire.
 
@@ -44,8 +44,8 @@ See enfuse documentation for further explanation of how it specifically works an
 If you have a specific set of parameters you frequently like to use, you can save them to a preset. There are 3 presets available for DRI, and 3 for DFF.
 
 target file:
-Select your file destination path, or check the "save to source image location" option.
-Unless "Create unique filename" is check, it will overwrite existing files
+Select your file destination path, or check the 'save to source image location' option.
+'Create Unique Filename' is enabled by default at startup, the user can choose to overwrite existing
 Set any tags or style you desire to be added to the new image (only available if the auto-import option is enabled). You can also change the defaults for this under settings > lua options
 
 format options:
@@ -54,993 +54,1074 @@ Same as other export modules
 global options:
 Same as other export modules
 
-----KNOWN ISSUES----
-Cannot handle spaces in image paths on windows machienes
-Pops up multiple CMD windows on windows machienes
 ]]
 
-local dt = require "darktable"
-local du = require "lib/dtutils"
-local df = require "lib/dtutils.file"
-local dsys = require "lib/dtutils.system"
-local gettext = dt.gettext
-local preferences_version = 1 --When releasing an update increment this number by one if changes have been made to the preferences structure that would require a re-initialization
+local dt = require 'darktable'
+local df = require 'lib/dtutils.file'
+local dsys = require 'lib/dtutils.system'
+local du = require 'lib/dtutils'
+local mod = 'module_enfuseAdvanced'
+local os_path_seperator = '/'
+if dt.configuration.running_os == 'windows' then os_path_seperator = '\\' end
 
--- works with LUA API version 5.0.0
-du.check_min_api_version("5.0.0", "enfuseAdvanced") 
+du.check_min_api_version('5.0.0', 'enfuseAdvanced')
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("enfuseAdvanced",dt.configuration.config_dir.."/lua/")
-
+local gettext = dt.gettext
+gettext.bindtextdomain('enfuseAdvanced',dt.configuration.config_dir..'/lua/locale/')
 local function _(msgid)
-    return gettext.dgettext("enfuseAdvanced", msgid)
-end
-
---Detect User Styles--
-styles = dt.styles
-styles_count = 1 -- "none" = 1
-for _,i in pairs(dt.styles) do
-	if type(i) == "userdata" then styles_count = styles_count + 1 end
+    return gettext.dgettext('enfuseAdvanced', msgid)
 end
 
 -- INITS --
-pref_style = dt.preferences.read("module_enfuseAdvanced", "style", "string")
-pref_cpytags = dt.preferences.read("module_enfuseAdvanced", "copy_tags", "bool")
-pref_addtags = dt.preferences.read("module_enfuseAdvanced", "add_tags", "string")
-if dt.configuration.running_os == "windows" then
-	os_path_seperator = "\\"
-else
-	os_path_seperator = "/"
+local AIS = {
+    name = 'align_image_stack',
+    bin = '',
+    first_run = true,
+    install_error = false,
+    arg_string = '',
+    images_string = '',
+    args = {
+        radial_distortion       = {text = '-d',             style = 'bool'},
+        optimize_field          = {text = '-m',             style = 'bool'},
+        optimize_image_center   = {text = '-i',             style = 'bool'},
+        auto_crop               = {text = '-C',             style = 'bool'},
+        distortion              = {text = '--distortion',   style = 'bool'},
+        gpu                     = {text = '--gpu',          style = 'bool'},
+        grid_size               = {text = '-g ',            style = 'integer'},
+        control_points          = {text = '-c ',            style = 'integer'},
+        control_points_remove   = {text = '-t ',            style = 'integer'},
+        correlation             = {text = '--corr=',        style = 'float'}
+    }
+}
+local ENF = {
+    name = 'enfuse',
+    bin = '',
+    first_run = true,
+    install_error = false,
+    arg_string = '',
+    image_string = '',
+    args = {
+        exposure_weight         = {text = '--exposure-weight=',         style = 'float'},
+        saturation_weight       = {text = '--saturation-weight=',       style = 'float'},
+        contrast_weight         = {text = '--contrast-weight=',         style = 'float'},
+        exposure_optimum        = {text = '--exposure-optimum=',        style = 'float'},
+        exposure_width          = {text = '--exposure-width=',          style = 'float'},
+        hard_masks              = {text = '--hard-mask',                style = 'bool'},
+        save_masks              = {text = '--save-masks',               style = 'bool'},
+        contrast_window_size    = {text = '--contrast-window-size=',    style = 'integer'},
+        contrast_edge_scale     = {text = '--contrast-edge-scale=',     style = 'float'},
+        contrast_min_curvature  = {text = '--contrast-min-curvature=', style = 'string'}
+    }
+}
+local EXF = {
+    name = 'exiftool',
+    bin = '',
+    first_run = true,
+    install_error = false
+}
+local GUI = {
+    AIS = {
+        radial_distortion       = {},
+        optimize_field          = {},
+        optimize_image_center   = {},
+        auto_crop               = {},
+        distortion              = {},
+        grid_size               = {},
+        control_points          = {},
+        control_points_remove   = {},
+        correlation             = {}},
+    ENF = {
+        exposure_weight         = {},
+        saturation_weight       = {},
+        contrast_weight         = {},
+        exposure_optimum        = {},
+        exposure_width          = {},
+        hard_masks              = {},
+        save_masks              = {},
+        contrast_window_size    = {},
+        contrast_edge_scale     = {},
+        contrast_min_curvature  = {}},
+    Target = {
+        format                  = {},
+        depth                   = {},   
+        compression_level_tif   = {},
+        compression_level_jpg   = {},
+        output_compress         = {},
+        output_directory        = {},
+        source_location         = {},
+        on_conflict             = {},
+        auto_import             = {},
+        apply_style             = {},
+        copy_tags               = {},
+        add_tags                = {}},
+    Presets = {
+        current_preset      ={};
+        load                ={};
+        save                ={};
+        variants            ={};
+        variants_type       ={}},
+    exes = {
+        align_image_stack = {},
+        enfuse = {},
+        exiftool = {},
+        update = {}
+    },
+    align                   = {},
+    options_contain         = {},
+    show_options            = {}
+}
+
+local styles = dt.styles
+local styles_count = 1 -- 'none' = 1
+for _,i in pairs(dt.styles) do
+    if type(i) == 'userdata' then styles_count = styles_count + 1 end
 end
 
---Ensure Required Software is Installed--
-not_installed = 0
-dt.print_log("enfuseAdvanced - Executable Path Preference: "..df.get_executable_path_preference("align_image_stack"))
-local AIS_path = df.check_if_bin_exists("align_image_stack")
-if not AIS_path then
-	dt.print_error("align image stack not found")
-	dt.print("ERROR - align image stack not found")
-	not_installed = 1
+-- FUNCTION --
+local function InRange(test, low, high) -- tests if test value is within range of low and high (inclusive)
+    if test >= low and test <= high then
+        return true
+    else
+        return false
+    end
 end
 
-dt.print_log("enfuseAdvanced - Executable Path Preference: "..df.get_executable_path_preference("enfuse"))
-local enfuse_path = df.check_if_bin_exists("enfuse")
-if not enfuse_path then
-	dt.print_error("enfuse not found")
-	dt.print("ERROR - enfuse not found")
-	not_installed = 1
-end
-
-dt.print_log("enfuseAdvanced - Executable Path Preference: "..df.get_executable_path_preference("exiftool"))
-local exiftool_path = df.check_if_bin_exists("exiftool")
-if not exiftool_path then
-	dt.print_error("exiftool not found")
-	dt.print("ERROR - exiftool not found")
-	not_installed = 1
-end
- 
-	
---Ensure proper version of Enfuse installed--
---[[
-local enfuseVersionStartCommand = enfuse_path .. " --version | " .. grep .. " \"enfuse 4.2\""
-local enfuse_version = dsys.external_command(enfuseVersionStartCommand)
-if enfuse_version ~= 0 then
-  dt.print(_('ERROR: wrong enfuse version found. the plugin works only with enfuse 4.2! please install enfuse version 4.2'))
-  not_installed = 1
-end
-]]
-
-if dt.preferences.read("enfuseAdvanced",  "pref_version", "integer") ~= preferences_version then
-	dt.print_log("enfuseAdvanced - (Re)Initializing preferences due to script load/changes detected")
-	-- align defaults
-   dt.preferences.write("enfuseAdvanced", "selected_fusion", "integer", 1)
-   dt.preferences.write("align_image_stack", "def_radial_distortion", "bool", false)
-   dt.preferences.write("align_image_stack", "def_optimize_field", "bool", false)
-   dt.preferences.write("align_image_stack", "def_optimize_image_center", "bool", true) 
-   dt.preferences.write("align_image_stack", "def_auto_crop", "bool", true) 
-   dt.preferences.write("align_image_stack", "def_distortion", "bool", true) 
-   dt.preferences.write("align_image_stack", "def_grid_size", "integer", 5)
-   dt.preferences.write("align_image_stack", "def_control_points", "integer", 8)
-   dt.preferences.write("align_image_stack", "def_control_points_remove", "integer", 3)
-   dt.preferences.write("align_image_stack", "def_correlation", "integer", 9)
-   
-   -- enfuse defaults
-   dt.preferences.write("enfuseAdvanced", "def_fusion_type", "integer", 1)
-   dt.preferences.write("enfuseAdvanced", "def_image_variants", "bool", false)
-   dt.preferences.write("enfuseAdvanced", "def_hard_masks", "bool", false) 
-   dt.preferences.write("enfuseAdvanced", "def_save_masks", "bool", false) 
-   dt.preferences.write("enfuseAdvanced", "def_contrast_window_size", "integer", 3)
-   dt.preferences.write("enfuseAdvanced", "def_contrast_edge_scale", "integer", 1)
-   dt.preferences.write("enfuseAdvanced", "def_contrast_min_curvature", "integer", 1) 
-   dt.preferences.write("enfuseAdvanced", "def_exposure_weight", "float", 1.0)
-   dt.preferences.write("enfuseAdvanced", "def_saturation_weight", "float", 0.2)
-   dt.preferences.write("enfuseAdvanced", "def_contrast_weight", "float", 0.0)
-   dt.preferences.write("enfuseAdvanced", "def_exposure_optimum_weight", "float", 0.5)
-   dt.preferences.write("enfuseAdvanced", "def_exposure_width_weight", "float",0.2)
-   dt.preferences.write("enfuseAdvanced", "selected_overwrite", "integer",1)
-   dt.preferences.write("enfuseAdvanced", "sentitiv_overwrite", "bool",true)
-   
-   -- preset DRI 1
-	temp_text = {"dri1_","dri2_","dri3_"}
-	for i,preset in pairs(temp_text) do
-		dt.preferences.write("enfuseAdvanced", preset.."hard_masks", "bool", false) 
-		dt.preferences.write("enfuseAdvanced", preset.."save_masks", "bool", false) 
-		dt.preferences.write("enfuseAdvanced", preset.."contrast_window_size", "integer", 3)
-		dt.preferences.write("enfuseAdvanced", preset.."contrast_edge_scale", "integer", 1)
-		dt.preferences.write("enfuseAdvanced", preset.."contrast_min_curvature", "integer", 1) 
-		dt.preferences.write("enfuseAdvanced", preset.."exposure_weight", "float", 1.0)
-		dt.preferences.write("enfuseAdvanced", preset.."saturation_weight", "float", 0.2)
-		dt.preferences.write("enfuseAdvanced", preset.."contrast_weight", "float", 0.0)
-		dt.preferences.write("enfuseAdvanced", preset.."exposure_optimum_weight", "float", 0.5)
-		dt.preferences.write("enfuseAdvanced", preset.."exposure_width_weight", "float",0.2)
-	end
-   
-   -- preset DFF 1
-   	temp_text = {"dff1_","dff2_","dff3_"}
-	for i,preset in pairs(temp_text) do
-		dt.preferences.write("enfuseAdvanced", preset.."hard_masks", "bool", true) 
-		dt.preferences.write("enfuseAdvanced", preset.."save_masks", "bool", false) 
-		dt.preferences.write("enfuseAdvanced", preset.."contrast_window_size", "integer", 3)
-		dt.preferences.write("enfuseAdvanced", preset.."contrast_edge_scale", "integer", 1)
-		dt.preferences.write("enfuseAdvanced", preset.."contrast_min_curvature", "integer", 1)  
-		dt.preferences.write("enfuseAdvanced", preset.."exposure_weight", "float", 0.0)
-		dt.preferences.write("enfuseAdvanced", preset.."saturation_weight", "float", 0.0)
-		dt.preferences.write("enfuseAdvanced", preset.."contrast_weight", "float", 1.0)
-		dt.preferences.write("enfuseAdvanced", preset.."exposure_optimum_weight", "float", 0.5)
-		dt.preferences.write("enfuseAdvanced", preset.."exposure_width_weight", "float",0.2)
-	end
-   
-	-- preset FREE
-	dt.preferences.write("enfuseAdvanced", "free_hard_masks", "bool", false) 
-	dt.preferences.write("enfuseAdvanced", "free_save_masks", "bool", false) 
-	dt.preferences.write("enfuseAdvanced", "free_contrast_window_size", "integer", 3)
-	dt.preferences.write("enfuseAdvanced", "free_contrast_edge_scale", "integer", 1)
-	dt.preferences.write("enfuseAdvanced", "free_contrast_min_curvature", "integer", 1)  
-	dt.preferences.write("enfuseAdvanced", "free_exposure_weight", "float", 0.0)
-	dt.preferences.write("enfuseAdvanced", "free_saturation_weight", "float", 0.0)
-	dt.preferences.write("enfuseAdvanced", "free_contrast_weight", "float", 0.0)
-	dt.preferences.write("enfuseAdvanced", "free_exposure_optimum_weight", "float", 0.0)
-	dt.preferences.write("enfuseAdvanced", "free_exposure_width_weight", "float",0.0)
-   
-   -- output
-   dt.preferences.write("enfuseAdvanced", "selected_output_format", "integer", 1)
-   
-   --tracking
-   dt.preferences.write("enfuseAdvanced", "pref_version", "integer", preferences_version)
-end
-
---GUI
-j=0
-enf_separator1 = dt.new_widget("separator"){}
-enf_separator1b = dt.new_widget("separator"){}
-enf_separator2 = dt.new_widget("separator"){}
-enf_separator2b = dt.new_widget("separator"){}
-enf_label_align_options= dt.new_widget("section_label"){
-     label = _('image align options')
-}
-enf_label_enfuse_options= dt.new_widget("section_label"){
-     label = _('image fusion options')
-}
-enf_label_output_format= dt.new_widget("section_label"){
-     label = _('target file')
-}
-enf_label_path = dt.new_widget("label"){
-     label = _('directory'),
-     ellipsize = "start",
-     halign = "start"
-}
-enf_chkbtn_radial_distortion = dt.new_widget("check_button"){
-	label = _('optimize radial distortion for all images'),
-	value = dt.preferences.read("align_image_stack", "def_radial_distortion", "bool"),
-	tooltip = _('optimize radial distortion for all images, \nexcept for first'),
-}
-enf_chkbtn_optimize_field = dt.new_widget("check_button"){
-    label = _('optimize field of view for all images'), 
-    value = dt.preferences.read("align_image_stack", "def_optimize_field", "bool"),
-    tooltip =_('optimize field of view for all images, except for first. \nUseful for aligning focus stacks (DFF) with slightly \ndifferent magnification.'), 
-}
-enf_chkbtn_optimize_image_center = dt.new_widget("check_button"){
-    label = _('optimize image center shift for all images'), 
-    value = dt.preferences.read("align_image_stack", "def_optimize_image_center", "bool"),
-    tooltip =_('optimize image center shift for all images, \nexcept for first.'),   
-}
-enf_chkbtn_auto_crop = dt.new_widget("check_button"){
-    label = _('auto crop the image'), 
-    value = dt.preferences.read("align_image_stack", "def_auto_crop", "bool"),
-    tooltip =_('auto crop the image to the area covered by all images.'),   
-}
-enf_chkbtn_distortion = dt.new_widget("check_button"){
-    label = _('load distortion from lens database'), 
-    value = dt.preferences.read("align_image_stack", "def_distortion", "bool"),
-    tooltip =_('try to load distortion information from lens database'),   
-}
-enf_chkbtn_hard_masks = dt.new_widget("check_button"){
-    label = _('hard mask'), 
-    value = dt.preferences.read("enfuseAdvanced", "def_hard_masks", "bool"),
-    tooltip =_('force hard blend masks on the finest scale. this avoids \naveraging of fine details (only), at the expense \nof increasing the noise. this improves the \nsharpness of focus stacks considerably.\ndefault (soft mask)'),   
-    reset_callback = function(self) 
-       self.value = dt.preferences.read("enfuseAdvanced", "def_hard_masks", "bool")
-    end
-}
-enf_chkbtn_save_masks = dt.new_widget("check_button"){
-    label = _('save masks'), 
-    value = dt.preferences.read("enfuseAdvanced", "def_save_masks", "bool"),
-    tooltip =_('Save the generated weight masks to your home directory,\nenblend saves masks as 8 bit grayscale, \ni.e. single channel images. \nfor accuracy we recommend to choose a lossless format.'),  
-    reset_callback = function(self) 
-       self.value = dt.preferences.read("enfuseAdvanced", "def_save_masks", "bool")
-    end 
-}
-enf_chkbtn_cpytags = dt.new_widget("check_button"){
-    label = '  Copy Tags', 
-    value = pref_cpytags,
-    tooltip ='Copy tags from first image.',  
-}
-enf_sldr_exposure_weight = dt.new_widget("slider"){
-  label = _('exposure weight'),
-  tooltip = _('set the relative weight of the well-exposedness criterion \nas defined by the chosen exposure weight function. \nincreasing this weight relative to the others will\n make well-exposed pixels contribute more to\n the final output. \ndefault: (1.0)'),
-  hard_min = 0,
-  hard_max = 1,
-  value = dt.preferences.read("enfuseAdvanced", "def_exposure_weight", "float") --1 def
-}
-enf_sldr_saturation_weight = dt.new_widget("slider"){
-  label = _('saturation weight'),
-  tooltip = _('set the relative weight of high-saturation pixels. \nincreasing this weight makes pixels with high \nsaturation contribute more to the final output. \ndefault: (0.2)'),
-  hard_min = 0,
-  hard_max = 1,
-  value = dt.preferences.read("enfuseAdvanced", "def_saturation_weight", "float"), --0.5
-}
-enf_sldr_contrast_weight = dt.new_widget("slider"){
-  label = _('contrast weight'),
-  tooltip = _('sets the relative weight of high local-contrast pixels. \ndefault: (0.0).'),
-  hard_min = 0,
-  hard_max = 1,
-  value = dt.preferences.read("enfuseAdvanced", "def_contrast_weight", "float")--0 default
-}
-enf_sldr_exposure_optimum_weight = dt.new_widget("slider"){
-  label = _('exposure optimum'),
-  tooltip = _('determine at what normalized exposure value\n the optimum exposure of the input images\n is. this is, set the position of the maximum\n of the exposure weight curve. use this \noption to fine-tune exposure weighting. \ndefault: (0.5)'),
-  hard_min = 0,
-  hard_max = 1,
-  value = dt.preferences.read("enfuseAdvanced", "def_exposure_optimum_weight", "float")--0.5 default0
-}
-enf_sldr_exposure_width_weight = dt.new_widget("slider"){
-  label = _('exposure width'),
-  tooltip = _('set the characteristic width (FWHM) of the exposure \nweight function. low numbers give less weight to \npixels that are far from the user-defined \noptimum and vice versa. use this option to \nfine-tune exposure weighting. \ndefault: (0.2)'),
-  hard_min = 0,
-  hard_max = 1,
-  value = dt.preferences.read("enfuseAdvanced", "def_exposure_width_weight", "float") --0.2 default
-}
-enf_file_chooser_button_path = dt.new_widget("file_chooser_button"){
-    title = _('Select export path'),  -- The title of the window when choosing a file
-    is_directory = true,             -- True if the file chooser button only allows directories to be selecte
-    tooltip =_('select the target directory for the fused image. \nthe filename is created automatically.'),
-}
-enf_chkbtn_source_location = dt.new_widget("check_button"){
-    label = _('save to source image location'), 
-    value = true,
-    tooltip =_('If checked ignores the location below and saves output image(s) to the same location as the source images.'),  
-	reset_callback = function(self) 
-       self.value = true
-    end 
-}
-enf_cmbx_grid_size = dt.new_widget("combobox"){
-    label = _('image grid size'), 
-    tooltip =_('break image into a rectangular grid \nand attempt to find num control points in each section.\ndefault: (5x5)'),
-    value = dt.preferences.read("align_image_stack", "def_grid_size", "integer"), --5
-    "1", "2", "3","4","5","6","7","8","9",
-    reset_callback = function(self)
-       self.value = dt.preferences.read("align_image_stack", "def_grid_size", "integer")
-    end
-} 
-enf_cmbx_control_points = dt.new_widget("combobox"){
-    label = _('control points/grid'), 
-    tooltip =_('number of control points (per grid, see option -g) \nto create between adjacent images \ndefault: (8).'),
-    value = dt.preferences.read("align_image_stack", "def_control_points", "integer"),   --8, "1", "2", "3","4","5","6","7","8","9",
-    "1", "2", "3","4","5","6","7","8","9",             
-    reset_callback = function(self)
-       self.value = dt.preferences.read("align_image_stack", "def_control_points", "integer")
-    end
-} 
-enf_cmbx_control_points_remove = dt.new_widget("combobox"){
-    label = _('remove control points with error'), 
-    tooltip =_('remove all control points with an error higher \nthan num pixels \ndefault: (3)'),
-    value = dt.preferences.read("align_image_stack", "def_control_points_remove", "integer"), --3, "1", "2", "3","4","5","6","7","8","9",
-    "1", "2", "3","4","5","6","7","8","9",              
-    reset_callback = function(self)
-       self.value = dt.preferences.read("align_image_stack", "def_control_points_remove", "integer")
-    end
-} 
-enf_cmbx_correlation  = dt.new_widget("combobox"){
-    label = _('correlation threshold for control points'), 
-    tooltip =_('correlation threshold for identifying \ncontrol points \ndefault: (0.9).'),
-    value = dt.preferences.read("align_image_stack", "def_correlation", "integer"), --9, "0,1", "0,2", "0,3","0,4","0,5","0,6","0,7","0,8","0,9",
-    "0.1", "0.2", "0.3","0.4","0.5","0.6","0.7","0.8","0.9","1.0",     
-    reset_callback = function(self)
-       self.value = dt.preferences.read("align_image_stack", "def_correlation", "integer")
-    end
-} 
-enf_cmbx_contrast_window_size = dt.new_widget("combobox"){
-    label = _('contrast window size'), 
-    tooltip =_('set the window size for local contrast analysis. \nthe window will be a square of size × size pixels. \nif given an even size, Enfuse will \nautomatically use the next odd number.\nfor contrast analysis size values larger \nthan 5 pixels might result in a \nblurry composite image. values of 3 and \n5 pixels have given good results on \nfocus stacks. \ndefault: (5) pixels'),
-    value = dt.preferences.read("enfuseAdvanced", "def_contrast_window_size", "integer"), --3, "3","4","5","6","7","8","9","10",
-    "3", "4", "5","6","7","8","9","10",   
-} 
-enf_cmbx_contrast_edge_scale = dt.new_widget("combobox"){
-    label = _('contrast edge scale'), 
-    tooltip =_('a non-zero value for EDGE-SCALE switches on the \nLaplacian-of-Gaussian (LoG) edge detection algorithm.\n edage-scale is the radius of the Gaussian used \nin the search for edges. a positive LCE-SCALE \nturns on local contrast enhancement (LCE) \nbefore the LoG edge detection. \nDefault: (0.0) pixels.'),
-    value = dt.preferences.read("enfuseAdvanced", "def_contrast_edge_scale", "integer"), --1, "0:0:0",
-    "0.0","0.1","0.2","0.3","0.4","0.5",
-
-}  
-enf_cmbx_contrast_min_curvature = dt.new_widget("combobox"){
-    label = _('contrast min curvature'),
-    tooltip =_('define the minimum curvature for the LoG edge detection. Append a ‘%’ to specify the minimum curvature relative to maximum pixel value in the source image. Default: (0.0%)'),
-    value = dt.preferences.read("enfuseAdvanced", "def_contrast_min_curvature", "integer"), --1, "0.0%","0.1%", "0.2%", "0.3%","0.4%","0.5%","0.6%","0.7%","0.8%","0.9%","1.0%", 
-    "0.0%", "0.1%", "0.2%","0.3%","0.4%","0.5%","0.6%","0.7%","0.8%","0.9%","1.0%",   
-}  
-enf_cmbx_existing_file = dt.new_widget("combobox"){
-    label = _('on conflict'), 
-    value = dt.preferences.read("enfuseAdvanced", "selected_overwrite", "integer"), --1, 
-    sensitive= dt.preferences.read("enfuseAdvanced", "sentitiv_overwrite", "bool"), --1, 
-    _('create unique filename'),_('overwrite'),           
-    reset_callback = function(self)
-       self.value = dt.preferences.read("enfuseAdvanced", "selected_overwrite", "integer")
-    end
-}  
-enf_cmbx_style = dt.new_widget("combobox"){
-	label = "Apply Style on Import",
-	tooltip = "Apply selected style on auto-import to newly created blended image",
-	value = 1,
-	"none",
-	}
-pref_style_enum = 1
-for k=1, (styles_count-1) do
-	enf_cmbx_style[k+1] = styles[k].name
-	if styles[k].name == pref_style then pref_style_enum = k+1 end
-end
-enf_cmbx_style.value = pref_style_enum
-enf_chkbtn_image_variations = dt.new_widget("check_button"){
-    label = _('create image variants with saved presets'), 
-    value = dt.preferences.read("enfuseAdvanced", "def_image_variants", "bool"),
-    tooltip =_('creates image variants with the three \nsaved DRI or DFF presets'),   
-    sensitive=true,
-    clicked_callback = function(self) 
-		if (self.value) then
-			dt.preferences.write("enfuseAdvanced", "def_image_variants", "bool", true)
-			dt.preferences.write("enfuseAdvanced", "sentitiv_overwrite", "bool",false)
-			enf_cmbx_existing_file.value=1
-			enf_cmbx_existing_file.sensitive=false
-		else  
-		   dt.preferences.write("enfuseAdvanced", "def_image_variants", "bool", false)
-		   dt.preferences.write("enfuseAdvanced", "sentitiv_overwrite", "bool",true)
-		   enf_cmbx_existing_file.sensitive=true 
-		end    
-    end,
-    reset_callback = function(self) 
-       dt.preferences.write("enfuseAdvanced", "def_image_variants", "bool", false)
-       dt.preferences.write("enfuseAdvanced", "sentitiv_overwrite", "bool",true)
-       self.value = false
-       enf_cmbx_existing_file.sensitive=true
-    end
-
-}
-enf_button_save_preset = dt.new_widget("button"){
-	label = _('save fusion preset'),
-	tooltip =_('save the selected fusion preset'),
-	clicked_callback = function() 
-		pref_text = ""
-		if (enf_cmbx_fusion_type.value == "1 - DRI image") then
-			pref_text = "dri1_"
-		elseif (enf_cmbx_fusion_type.value == "2 - DRI image") then
-			pref_text = "dri2_"
-		elseif (enf_cmbx_fusion_type.value == "3 - DRI image") then
-			pref_text = "dri3_"
-		elseif (enf_cmbx_fusion_type.value == "1 - DFF image") then
-			pref_text = "dff1_"
-		elseif (enf_cmbx_fusion_type.value == "2 - DFF image") then
-			pref_text = "dff2_"
-		elseif (enf_cmbx_fusion_type.value == "3 - DFF image") then
-			pref_text = "dff3_"
-		elseif (enf_cmbx_fusion_type.value == "free preset") then
-			pref_text = "free_"
-		else
-			dt.print(_('unkown error'))
-		end
-		-- Write Preset
-		if pref_text ~= "" then
-			dt.preferences.write("enfuseAdvanced", pref_text.."hard_masks", "bool", enf_chkbtn_hard_masks.value) 
-			dt.preferences.write("enfuseAdvanced", pref_text.."save_masks", "bool", enf_chkbtn_save_masks.value) 
-			dt.preferences.write("enfuseAdvanced", pref_text.."contrast_window_size", "integer", enf_cmbx_contrast_window_size.selected)
-			dt.preferences.write("enfuseAdvanced", pref_text.."contrast_edge_scale", "integer", enf_cmbx_contrast_edge_scale.selected)
-			dt.preferences.write("enfuseAdvanced", pref_text.."contrast_min_curvature", "integer", enf_cmbx_contrast_min_curvature.selected) 
-			dt.preferences.write("enfuseAdvanced", pref_text.."exposure_weight", "float", enf_sldr_exposure_weight.value)
-			dt.preferences.write("enfuseAdvanced", pref_text.."saturation_weight", "float", enf_sldr_saturation_weight.value)
-			dt.preferences.write("enfuseAdvanced", pref_text.."contrast_weight", "float", enf_sldr_contrast_weight.value)
-			dt.preferences.write("enfuseAdvanced", pref_text.."exposure_optimum_weight", "float", enf_sldr_exposure_optimum_weight.value)
-			dt.preferences.write("enfuseAdvanced", pref_text.."exposure_width_weight", "float",enf_sldr_exposure_width_weight.value)
-			dt.print(_('preset '..pref_text..' saved')) 
-		end
-	end
-}
-enf_button_load_preset = dt.new_widget("button"){
-      label = _('load fusion defaults'),
-      tooltip =_('load the default fusion settings'),
-      clicked_callback = function() 
-        enf_chkbtn_hard_masks.value=dt.preferences.read("enfuseAdvanced", "def_hard_masks", "bool") 
-        enf_chkbtn_save_masks.value=dt.preferences.read("enfuseAdvanced", "def_save_masks", "bool") 
-        enf_cmbx_contrast_window_size.value=dt.preferences.read("enfuseAdvanced", "def_contrast_window_size", "integer")
-        enf_cmbx_contrast_edge_scale.value=dt.preferences.read("enfuseAdvanced", "def_contrast_edge_scale", "integer")
-        enf_cmbx_contrast_min_curvature.value=dt.preferences.read("enfuseAdvanced", "def_contrast_min_curvature", "integer")
-        enf_sldr_exposure_weight.value=dt.preferences.read("enfuseAdvanced", "def_exposure_weight", "float")
-        enf_sldr_saturation_weight.value=dt.preferences.read("enfuseAdvanced", "def_saturation_weight", "float")
-        enf_sldr_contrast_weight.value=dt.preferences.read("enfuseAdvanced", "def_contrast_weight", "float")
-        enf_sldr_exposure_optimum_weight.value=dt.preferences.read("enfuseAdvanced", "def_exposure_optimum_weight", "float")
-        enf_sldr_exposure_width_weight.value=dt.preferences.read("enfuseAdvanced", "def_exposure_width_weight", "float")
-     end
-      
-}
-enf_cmbx_output_format = dt.new_widget("combobox"){
-    label = _('file format'), 
-    value = dt.preferences.read("enfuseAdvanced", "selected_output_format", "integer"), --1, "TIFF", "JPEG", "PNG","PNM","PBM","PGM","PPM",
-    changed_callback = function(self) 
-      dt.preferences.write("enfuseAdvanced", "selected_output_format", "integer", self.selected)
-    end,
-    "TIFF", "JPEG", "PNG","PNM","PBM","PPM",            
-    reset_callback = function(self)
-       self.value = dt.preferences.read("enfuseAdvanced", "selected_output_format", "integer")
-    end
-}  
-enf_cmbx_fusion_type = dt.new_widget("combobox"){
-    label = _('fusion preset'), 
-    tooltip =_('select the preset and save the preset\n if you want to reuse it or create an image\n variant'),
-    value = 1, --dt.preferences.read("enfuseAdvanced", "def_fusion_type", "integer"), --1, "DRI image", "DFF image", "without preset",
-    changed_callback = function(self) 
-		dt.preferences.write("enfuseAdvanced", "def_fusion_type", "integer", self.selected)
-
-		if (self.value == "1 - DRI image") then
-			pref_text = "dri1_"
-		elseif (self.value == "2 - DRI image") then
-			pref_text = "dri2_"
-		elseif (self.value == "3 - DRI image") then
-			pref_text = "dri3_"
-		elseif (self.value == "1 - DFF image") then
-			pref_text = "dff1_"
-		elseif (self.value == "2 - DFF image") then
-			pref_text = "dff2_"
-		elseif (self.value == "3 - DFF image") then
-			pref_text = "dff3_"
-		elseif (self.value == "free preset") then
-			pref_text = "free_"
-		end
-		
-		if string.match(pref_text,"^dri")~=nil then
-			enf_chkbtn_hard_masks.sensitive=false
-			enf_chkbtn_hard_masks.value=false
-			enf_sldr_contrast_weight.sensitive=true
-		elseif string.match(pref_text,"^dff")~=nil then
-			enf_chkbtn_hard_masks.sensitive=false
-			enf_chkbtn_hard_masks.value=true
-			enf_sldr_contrast_weight.sensitive=false
-		else
-			enf_chkbtn_hard_masks.sensitive=true
-			enf_chkbtn_hard_masks.value=false
-			enf_sldr_contrast_weight.sensitive=true
-		end
-		
-        enf_chkbtn_hard_masks.value=dt.preferences.read("enfuseAdvanced", pref_text.."hard_masks", "bool") 
-        enf_chkbtn_save_masks.value=dt.preferences.read("enfuseAdvanced", pref_text.."save_masks", "bool") 
-        enf_cmbx_contrast_window_size.value=dt.preferences.read("enfuseAdvanced", pref_text.."contrast_window_size", "integer")
-        enf_cmbx_contrast_edge_scale.value=dt.preferences.read("enfuseAdvanced", pref_text.."contrast_edge_scale", "integer")
-        enf_cmbx_contrast_min_curvature.value=dt.preferences.read("enfuseAdvanced", pref_text.."contrast_min_curvature", "integer") 
-        enf_sldr_exposure_weight.value=dt.preferences.read("enfuseAdvanced", pref_text.."exposure_weight", "float")
-        enf_sldr_saturation_weight.value=dt.preferences.read("enfuseAdvanced", pref_text.."saturation_weight", "float")
-        enf_sldr_contrast_weight.value=dt.preferences.read("enfuseAdvanced", pref_text.."contrast_weight", "float")
-        enf_sldr_exposure_optimum_weight.value=dt.preferences.read("enfuseAdvanced", pref_text.."exposure_optimum_weight", "float")
-        enf_sldr_exposure_width_weight.value=dt.preferences.read("enfuseAdvanced", pref_text.."exposure_width_weight", "float")   
-	
-    end,
-    "1 - DRI image", "2 - DRI image","3 - DRI image","1 - DFF image", "2 - DFF image","3 - DFF image","free preset",  
+local function GetFileName(full_path) -- Parses a full path (path/filename_identifier.extension) into individual parts
+--[[Input: Folder1/Folder2/Folder3/Img_0001.CR2
     
-    reset_callback = function(self_type)
-       enf_cmbx_fusion_type.value = dt.preferences.read("enfuseAdvanced", "def_fusion_type", "integer")
-    end
-} 
-enf_entry_tag = dt.new_widget("entry"){
-	tooltip = "Additional tags to be added on import. Seperate with commas, all spaces will be removed",
-	text = pref_addtags,
-	placeholder = "Enter tags, seperated by commas",
-	editable = true
-}
-enf_widget = dt.new_widget("box") {
-    orientation = "vertical",
-    enf_label_align_options,
-    enf_chkbtn_radial_distortion,
-    enf_chkbtn_optimize_field,
-    enf_chkbtn_optimize_image_center,
-    enf_chkbtn_auto_crop,
-    enf_chkbtn_distortion,
-    enf_cmbx_grid_size,
-    enf_cmbx_control_points,
-    enf_cmbx_control_points_remove,
-    enf_cmbx_correlation,
-    enf_separator1,
-    enf_separator1b,
-    enf_label_enfuse_options,
-    enf_cmbx_fusion_type,
-    enf_chkbtn_image_variations,
-    enf_sldr_exposure_weight,
-    enf_sldr_saturation_weight,
-    enf_sldr_contrast_weight,
-    enf_sldr_exposure_optimum_weight,
-    enf_sldr_exposure_width_weight, 
-    enf_chkbtn_hard_masks,
-    enf_chkbtn_save_masks,
-    enf_cmbx_contrast_edge_scale,
-    enf_cmbx_contrast_min_curvature,
-    enf_cmbx_contrast_window_size,
-    enf_button_save_preset,
-    enf_button_load_preset,
-    enf_separator2,
-    enf_separator2b,
-    enf_label_output_format,
-    enf_cmbx_output_format,
-    enf_label_path,
-    enf_file_chooser_button_path,
-	enf_chkbtn_source_location,
-    enf_cmbx_existing_file,
-	enf_cmbx_style,
-	enf_chkbtn_cpytags,
-	enf_entry_tag,
-}
-
--- FUNCTION -- 
-local function GetFileName(full_path)
-	--[[Parses a full path (path/filename_identifier.extension) into individual parts
-	Input: Folder1/Folder2/Folder3/Img_0001.CR2
-	
-	Returns:
-	path: Folder1/Folder2/Folder3/
-	filename: Img_0001
-	identifier: 0001
-	extension: .CR2
-	
-	EX:
-	path_1, file_1, id_1, ext_1 = GetFileName(full_path_1)
-	]]
-	local path = string.match(full_path, ".*[\\/]")
-	local filename = string.gsub(string.match(full_path, "[%w-_]*%.") , "%." , "" ) 
-	local identifier = string.match(filename, "%d*$")
-	local extension = string.match(full_path, "%.%w*")
+    Returns:
+    path: Folder1/Folder2/Folder3/
+    filename: Img_0001
+    identifier: 0001
+    extension: .CR2
+    
+    EX:
+    path_1, file_1, id_1, ext_1 = GetFileName(full_path_1)
+    ]]
+    local path = string.match(full_path, '.*[\\/]')
+    local filename = string.gsub(string.match(full_path, '[%w-_]*%.') , '%.' , '' ) 
+    local identifier = string.match(filename, '%d*$')
+    local extension = string.match(full_path, '%.%w*')
     return path, filename, identifier, extension
 end
-local function truncate(x)
-      return x<0 and math.ceil(x) or math.floor(x)
-end 
-local function replace_comma_to_dot(s)
-	return string.gsub(s, "%,", ".")
+
+local function CleanSpaces(text) --removes spaces from the front and back of passed in text
+    text = string.gsub(text,'^%s*','')
+    text = string.gsub(text,'%s*$','')
+    return text
 end
-local function remove_temp_files()
-	if dt.configuration.running_os == "windows" then
-		dt.print_log("enfuseAdvanced - Deleting temp files...")
-		dt.control.execute("del "..images_to_align)
-		dt.control.execute("del "..images_to_blend)
-		dt.print_log("enfuseAdvanced - Done deleting")
-	else
-		dt.print_log("enfuseAdvanced - Deleting temp files...")
-		dt.control.execute("rm "..images_to_align)
-		dt.control.execute("rm "..images_to_blend)
-		dt.print_log("enfuseAdvanced - Done deleting")
-	end
+
+local function BuildExecuteCmd(prog_table) --creates a program command using elements of the passed in program table
+    local result = CleanSpaces(prog_table.bin)..' '..CleanSpaces(prog_table.arg_string)..' '..CleanSpaces(prog_table.images_string)
+    return result
 end
-local function build_execute_command(cmd, args, file_list)
-	local result = cmd.." "..args.." "..file_list
-	return result
+
+local function PreCall(prog_tbls) --looks to see if this is the first call, if so checks to see if program is installed properly
+    for _,prog in pairs(prog_tbls) do
+        if prog.first_run then
+            prog.bin = df.check_if_bin_exists(prog.name)
+            if not prog.bin then 
+                prog.install_error = true
+                dt.preferences.write(mod, 'bin_exists', 'bool', false)
+            else
+                prog.bin = CleanSpaces(prog.bin)
+            end
+            prog.first_run = false
+        end
+    end
+    if not dt.preferences.read(mod, 'bin_exists', 'bool') then
+        GUI.options_contain.active = 4
+        GUI.show_options.sensitive = false
+        dt.print(_('please update your binary locations'))
+    end
 end
-local function copy_exif(from_file, to_file)
-	exifStartCommand = exiftool_path.." -TagsFromFile "..df.sanitize_filename(from_file).." -exif:all --subifd:all -overwrite_original "..df.sanitize_filename(to_file)
-	dt.print_log("enfuseAdvanced - EXIFTool Start Command: "..exifStartCommand)
-	resultexif=dsys.external_command(exifStartCommand)
-	if (resultexif == 0) then
-		dt.print_log("enfuseAdvanced - EXIFTool copy successful")
-		dt.print("Copied EXIF data")
-	else
-		dt.print(_('ERROR: exiftool doesn\'t work. for more informations see terminal output'))
-		dt.print_error("exif copy failed")
-	end
+
+local function ExeUpdate(prog_tbl) --updates executable paths and verifies them
+    dt.preferences.write(mod, 'bin_exists', 'bool', true)
+    for _,prog in pairs(prog_tbl) do
+        dt.preferences.write('executable_paths', prog.name, 'string', GUI.exes[prog.name].value)
+        prog.bin = df.check_if_bin_exists(prog.name)
+        if not prog.bin then 
+            prog.install_error = true
+            dt.preferences.write(mod, 'bin_exists', 'bool', false)
+            dt.print(_('issue with ')..prog.name.._(' executable'))
+        else
+            prog.bin = CleanSpaces(prog.bin)
+        end
+        prog.first_run = false
+    end
+    if dt.preferences.read(mod, 'bin_exists', 'bool') then
+        GUI.options_contain.active = 2
+        GUI.show_options.sensitive = true
+        dt.print(_('update successful'))
+    else
+        dt.print(_('update unsuccessful, please try again'))
+    end
 end
-local function align_images()
-	dt.print(_('aligning images'))
-	
-	--Setup Align Image Stack Arguments--
-	align_args = ""
-	if (enf_chkbtn_radial_distortion.value) then align_args = align_args.." -d" end
-	if (enf_chkbtn_optimize_field.value) then align_args = align_args.." -m" end  
-	if (enf_chkbtn_optimize_image_center.value) then align_args = align_args.." -i" end
-	if (enf_chkbtn_auto_crop.value) then align_args = align_args.." -C" end     
-	if (enf_chkbtn_distortion.value) then align_args = align_args.." --distortion" end
-	align_args = align_args.." -g "..enf_cmbx_grid_size.value
-	align_args = align_args.." -c "..enf_cmbx_control_points.value          
-	align_args = align_args.." -t "..enf_cmbx_control_points_remove.value
-	align_args = align_args.." --corr="..enf_cmbx_correlation.value
-	if (dt.preferences.read("module_enfuseAdvanced", "align_use_gpu", "bool")) then align_args = align_args.." --gpu" end
-	align_args = align_args.." -a "..df.sanitize_filename(first_path.."aligned_")..' '
-	alignStartCommand = build_execute_command(AIS_path, align_args, images_to_align)
-	dt.print_log("enfuseAdvanced - Align Start Command: "..alignStartCommand)
-	resp = dsys.external_command(alignStartCommand)
-	dt.print_log("enfuseAdvanced - Completed Align")
-	return resp
+
+local function GetArgsFromPreference(prog_table, prefix) --for each arg in a program table reads in the associated value in the active preference (which is continually updated via clicked/changed callback in GUI elements
+    prog_table.arg_string = ''
+    for argument, arg_data in pairs(prog_table.args) do
+        local temp = dt.preferences.read(mod, prefix..argument, arg_data.style)
+        if arg_data.style == 'bool' and temp then
+            prog_table.arg_string = prog_table.arg_string..arg_data.text..' '
+        elseif arg_data.style == 'integer' or arg_data.style == 'string' then
+            prog_table.arg_string = prog_table.arg_string..arg_data.text..temp..' '
+        elseif arg_data.style == 'float' then
+            temp = string.sub(tostring(temp),1,3)
+            prog_table.arg_string = prog_table.arg_string..arg_data.text..temp..' '
+        end
+    end
+    prog_table.arg_string = CleanSpaces(prog_table.arg_string)
+    return prog_table.arg_string
 end
-local function blend_images()
-	blend_args = ""
-	if from_preset then --load args from preset preferences
-		blend_args=blend_args.." --exposure-weight="..(replace_comma_to_dot(dt.preferences.read("enfuseAdvanced", preset_text.."_exposure_weight", "float")))
-		blend_args=blend_args.." --saturation-weight="..(replace_comma_to_dot(dt.preferences.read("enfuseAdvanced", preset_text.."_saturation_weight", "float"))) 
-		blend_args=blend_args.." --contrast-weight="..(replace_comma_to_dot(dt.preferences.read("enfuseAdvanced", preset_text.."_contrast_weight", "float")))
-		blend_args=blend_args.." --exposure-optimum="..(replace_comma_to_dot(dt.preferences.read("enfuseAdvanced", preset_text.."_exposure_optimum_weight", "float")))
-		blend_args=blend_args.." --exposure-width="..(replace_comma_to_dot(dt.preferences.read("enfuseAdvanced", preset_text.."_exposure_width_weight", "float")))
-		if (enf_chkbtn_hard_masks.value) then blend_args=blend_args.."--hard-mask" end
-		if (enf_chkbtn_save_masks.value) then blend_args=blend_args.."--save-masks" end
-		blend_args=blend_args.." --contrast-window-size="..dt.preferences.read("enfuseAdvanced", preset_text.."_contrast_window_size", "integer")
-		blend_args=blend_args.." --contrast-edge-scale="..dt.preferences.read("enfuseAdvanced", preset_text.."_contrast_edge_scale", "integer")
-		blend_args=blend_args.." --contrast-min-curvature="..dt.preferences.read("enfuseAdvanced", preset_text.."_contrast_min_curvature", "integer")
-		blend_args=blend_args.." --depth="..dt.preferences.read("module_enfuseAdvanced", "image_color_depth", "enum")
-	else --load args from GUI values
-		blend_args = blend_args.." --exposure-weight="..(replace_comma_to_dot(enf_sldr_exposure_weight.value))
-		blend_args = blend_args.." --saturation-weight="..(replace_comma_to_dot(enf_sldr_saturation_weight.value))            
-		blend_args = blend_args.." --contrast-weight="..(replace_comma_to_dot(enf_sldr_contrast_weight.value))
-		blend_args = blend_args.." --exposure-optimum="..(replace_comma_to_dot(enf_sldr_exposure_optimum_weight.value))
-		blend_args = blend_args.." --exposure-width="..(replace_comma_to_dot(enf_sldr_exposure_width_weight.value))
-		if (enf_chkbtn_hard_masks.value) then blend_args = blend_args.." --hard-mask" end
-		if (enf_chkbtn_save_masks.value) then blend_args = blend_args.." --save-masks" end
-		blend_args = blend_args.." --contrast-window-size="..enf_cmbx_contrast_window_size.value
-		blend_args = blend_args.." --contrast-edge-scale="..enf_cmbx_contrast_edge_scale.value
-		blend_args = blend_args.." --contrast-min-curvature="..enf_cmbx_contrast_min_curvature.value
-		blend_args = blend_args.." --depth="..dt.preferences.read("module_enfuseAdvanced", "image_color_depth", "enum")
-	end
-	
-	--set output format per GUI selection
-	if (enf_cmbx_output_format.value == "TIFF") then
-		cmd_suffix_output_format="tif"
-		blend_args = blend_args.." --compression="..dt.preferences.read("module_enfuseAdvanced", "compression_tiff", "enum")
-	elseif (enf_cmbx_output_format.value == "JPEG") then
-		cmd_suffix_output_format="jpg"
-		blend_args = blend_args.." --compression="..truncate(dt.preferences.read("module_enfuseAdvanced", "compression_jpeg", "integer"))
-	elseif (enf_cmbx_output_format.value == "PNG") then
-		cmd_suffix_output_format="png"
-	elseif (enf_cmbx_output_format.value == "PNM") then
-		cmd_suffix_output_format="pnm"     
-	elseif (enf_cmbx_output_format.value == "PBM") then
-		cmd_suffix_output_format="pbm"   
-	elseif (enf_cmbx_output_format.value == "PPM") then
-		cmd_suffix_output_format="ppm"
-	end
 
-	--Set output path and add filename
-	if (enf_chkbtn_source_location.value) then
-		cmd_output_path = enf_source_path
-	else
-	cmd_output_path=enf_file_chooser_button_path.value 
-	end
-	path_with_filename = cmd_output_path..os_path_seperator..first_filename.."-"..last_id.."."..cmd_suffix_output_format
-	
-	--Create unique name with index if GUI selection create unique name (don't overwrite), also do this if user selected to make variants from presets
-	if (enf_cmbx_existing_file.selected == 1) or (from_preset) then
-		path_with_filename = df.create_unique_filename(path_with_filename)
-	end
-	
-	cmd_output_image = " --output="..df.sanitize_filename(path_with_filename)
-	blend_args = blend_args..cmd_output_image
-
-	images_to_blend = ""
-	for j=0, counted_images-1 do
-		if j < 10 then
-			id = "000"..tostring(j)
-		else
-			id = "00"..tostring(j)
-		end
-		--[[if dt.configuration.running_os == "windows" then
-			images_to_blend = images_to_blend..first_path.."aligned_"..id..".tif "
-		else
-			images_to_blend = images_to_blend..'"'..first_path.."aligned_"..id..".tif"..'" '
-		end]]
-		images_to_blend = images_to_blend..first_path.."aligned_"..id..".tif "
-	end
-	BlendStartCommand=build_execute_command(enfuse_path, blend_args, images_to_blend)
-	
-	dt.print_log("enfuseAdvanced - Blend Start Command: "..BlendStartCommand)
-	resultBlend=dsys.external_command(BlendStartCommand)
-	dt.print_log("enfuseAdvanced - Completed Blend")
-
-	return resultBlend, path_with_filename
+local function UpdateAISargs(image_table, images_to_remove) --updates the AIS arguments, builds the input image string, returns a modified image table which contains the aligned image names in place of the exported image names also updates the images to remove string with new aligned images and a string of the images to align
+    GetArgsFromPreference(AIS, 'active_')
+    local source_path = ''
+    local images_to_align = ''
+    local index = 0
+    for raw, temp_image in pairs(image_table) do
+        local index_str = ''
+        source_path = GetFileName(temp_image)
+        images_to_align = images_to_align..df.sanitize_filename(temp_image)..' '
+        if InRange(index,0,9) then index_str = '000'..tostring(index)
+        elseif InRange(index,10,99) then index_str = '00'..tostring(index)
+        end
+        image_table[raw] = source_path..'aligned_'..index_str..'.tif'
+        images_to_remove = images_to_remove..df.sanitize_filename(image_table[raw])..' '
+        index = index + 1
+    end
+    source_path = df.sanitize_filename(source_path..'aligned_')
+    AIS.arg_string = AIS.arg_string..' -a '..source_path
+    images_to_align = CleanSpaces(images_to_align)
+    
+    return image_table, images_to_remove, images_to_align
 end
-local function show_status(enf_storage, image, format, filename, --Store: Called on each exported image
-  number, total, high_quality, extra_data)
-     dt.print(_('export TIFF for image fusion ')..tostring(truncate(number)).." / "..tostring(truncate(total)))   
+
+local function UpdateENFargs(image_table, prefix) --updates the Enfuse arguments, builds the input image string, generates output filename, returns string of images to blend, the name of the outout image, and the first raw image object
+    GetArgsFromPreference(ENF, prefix)
+    local images_to_blend = ''
+    local out_path = ''
+    local out_name = ''
+    local smallest_name = ''
+    local smallest_id = math.huge
+    local largest_id = 0
+    local first_raw = {}
+    for raw, temp_image in pairs(image_table) do
+        _, source_name, source_id = GetFileName(raw.filename)
+        source_id = tonumber(source_id)
+        if source_id < smallest_id then 
+            smallest_id = source_id
+            smallest_name = source_name
+            first_raw = raw
+        end
+        if source_id > largest_id then largest_id = source_id end
+        out_path = raw.path
+        images_to_blend = images_to_blend..df.sanitize_filename(temp_image)..' '
+    end
+    ENF.arg_string = ENF.arg_string..' --depth='..GUI.Target.depth.value..' '
+    if GUI.Target.format.value == 'tif' then ENF.arg_string = ENF.arg_string..'--compression='..GUI.Target.compression_level_tif.value..' '
+    elseif GUI.Target.format.value == 'jpg' then ENF.arg_string = ENF.arg_string..'--compression='..GUI.Target.compression_level_jpg.value..' '
+    end
+    if not GUI.Target.source_location.value then out_path = GUI.Target.output_directory.value end
+    out_name = smallest_name..'-'..largest_id
+    out_path = out_path..os_path_seperator..out_name..'.'..GUI.Target.format.value
+    if GUI.Target.on_conflict.value == 'create unique filename' then out_path = df.create_unique_filename(out_path) end
+    ENF.arg_string = ENF.arg_string..'--output='..df.sanitize_filename(out_path)
+    images_to_blend = CleanSpaces(images_to_blend)
+    
+    return images_to_blend, out_path, first_raw
 end
-local function create_image_fusion(enf_storage, image_table, extra_data) --Finalize: Called once when all images are done exporting	
---Create Images String--
-	images_to_align = ""
-	images_to_blend = ""
-	counted_images=0
-	first_id = "999999999999999999999999"
-	last_id = "0"
-	for source_image,image_path in pairs(image_table) do
-		counted_images=counted_images+1
-		--[[if dt.configuration.running_os == "windows" then
-			images_to_align = images_to_align..image_path..' '
-		else
-			images_to_align = images_to_align..'"'..image_path..'" '
-		end]]
-		images_to_align = images_to_align..df.sanitize_filename(image_path)..' '
-		curr_path, curr_filename, curr_id, curr_ext = GetFileName(image_path)
-		if (curr_id < first_id) then 
-			first_path = curr_path
-			first_filename = curr_filename
-			first_id = curr_id
-			first_ext = curr_ext
-			dt_source_image = source_image
-		end 
-		if (curr_id > last_id) then 
-			last_path = curr_path
-			last_filename = curr_filename
-			last_id = curr_id
-			last_ext = curr_ext
-		end
-		enf_source_path = source_image.path
-		exif_source_file = source_image.path..os_path_seperator..source_image.filename
-	end
 
---Check if at least 2 images selected--
-	if (counted_images<=1) then
-		dt.print(_('ERROR: not enough pictures selected. please select two or more images\nfrom the same object, but with different camera settings.'))
-		dt.print_error("Not enough pictures selected")
-		remove_temp_files()
-		return
-	end
-
---Ensure Proper Software Installed--
-	if not_installed == 1 then
-		dt.print_log("enfuseAdvanced - Required software not found")
-		dt.print("Required software not found")
-		remove_temp_files()
-		return
-	end	
-
---Check that output path selected
-	cmd_output_path = enf_file_chooser_button_path.value
-	if (cmd_output_path == nil) and not(enf_chkbtn_source_location.value) then
-		dt.print(_('ERROR: no target directory selected'))
-		remove_temp_files()
-		return
-	end
-
-	dt.print_log("enfuseAdvanced - Starting Image Fusion")
-	job = dt.gui.create_job(_('Creating DRI/DFF image'), true, stop_selection)
-	
-	percent_step = .33
-	if (enf_chkbtn_image_variations.value) then percent_step = .2 end
-	job.percent = job.percent + percent_step
-	
---Align Images--
-	resultalign = align_images()
-	if (resultalign ~= 0) then --Aling Image Stack Failed-- 
-		dt.print(_('ERROR: align_image_stack doesn\'t work. For more information see terminal output'))
-		dt.print_error("Align Image Stack Failed")
-		remove_temp_files()
-		job.valid = false
-		return
-	end
-	dt.print(_('aligning complete'))
-	job.percent = job.percent + percent_step
-	
---Blend Images--
-	from_preset = false
-	iterations = 1
-	pref_text = ""
-	if (enf_chkbtn_image_variations.value) then
-		iterations = 3
-		from_preset = true
-		if string.match(enf_cmbx_fusion_type.value, "DRI") then 
-			pref_text = "dri"
-		elseif string.match(enf_cmbx_fusion_type.value, "DFF") then 
-			pref_text = "dff" 
-		else --if "variants" selected, but not using DRI or DFF preset then cannot create variants
-			dt.print("Error, must select a DRI or DFF preset when starting a fustion with variants")
-			dt.print_error("DRI or DFF preset not selected when variants option was checked")
-			remove_temp_files()
-			job.valid = false
-			return
-		end
-	end
-
-	for j = 1, iterations do
-		if (from_preset) then
-			preset_text=pref_text..j
-		else
-			preset_text=""
-		end
-		resultBlend, blended_image = blend_images() --Check here to ensure enfuse worked properly
-		if resultBlend ~= 0 then
-			dt.print(_('ERROR: enfuse didn\'t work. For more information see terminal output'))
-			dt.print_error("Enfuse failed")
-			remove_temp_files()
-			job.valid = false
-			return
-		end
-	--Copy EXIF Data (IF)--
-		if (dt.preferences.read("module_enfuseAdvanced", "exiftool_copy_tags", "bool")) then copy_exif(exif_source_file, path_with_filename) end
-	--Auto-Import--
-		if (dt.preferences.read("module_enfuseAdvanced", "add_image_to_db", "bool")) then 
-			local imported = dt.database.import(path_with_filename)
-		--Apply Selected Style (IF)--
-			if enf_cmbx_style.selected > 1 then
-				set_style = styles[enf_cmbx_style.selected - 1]
-				dt.styles.apply(set_style , imported)
-			end
-		--Copy Tags (IF)--
-			if (enf_chkbtn_cpytags.value) then
-				all_tags = dt.tags.get_tags(dt_source_image)
-				for _,tag in pairs(all_tags) do
-					if string.match(tag.name, 'darktable|') == nil then
-						dt.tags.attach(tag, imported)
-					end
-				end
-			end
-		--Apply Entered Tags (IF)--
-			set_tag = enf_entry_tag.text
-			if set_tag ~= nil then
-				for tag in string.gmatch(set_tag, '[^,]+') do
-					tag = string.gsub(tag, " ", "")
-					tag = dt.tags.create(tag)
-					dt.tags.attach(tag, imported) 
-				end
-			end
-		end
-		job.percent = job.percent + percent_step
-	end
-	
-	--Copy EXIF Data (IF)--
-	
-	remove_temp_files()
-	dt.print("Image fusion process complete")
-	dt.print_log("enfuseAdvanced - Image fusion process complete")
-	job.valid = false
+local function UpdateActivePreference() --sliders & entry boxes do not have a click/changed callback, so their values must be saved to the active preference 'manually'
+    local enf = {'exposure_weight','saturation_weight','contrast_weight','exposure_optimum','exposure_width'}
+    for _,descriptor in pairs(enf) do
+        temp = GUI.ENF[descriptor].value
+        dt.preferences.write(mod, 'active_'..descriptor, 'float', temp)
+    end
+    temp = GUI.Target.compression_level_jpg.value
+    temp = math.floor(temp)
+    dt.preferences.write(mod, 'active_compression_level_jpg', 'integer', temp)
+    temp = GUI.Target.add_tags.text
+    dt.preferences.write(mod, 'active_add_tags', 'string', temp)
 end
-local function support_format(enf_storage, format) --Supported: Check to make sure image type is supported by darktable
-  if string.match(string.lower(format.name),"tiff") == nil then
-    return false
-  else
-    return true
-  end   
-end  
 
--- REGISTER --
+local function SaveToPreference(preset) --save the present values of enfuse GUI elements to the specified 'preset'
+    UpdateActivePreference()
+    for argument, arg_data in pairs(ENF.args) do
+        local temp
+        if argument == 'contrast_window_size' or argument == 'contrast_edge_scale' or argument == 'contrast_min_curvature' then --comboboxes must be handled specially via an index value
+            temp = dt.preferences.read(mod, 'active_'..argument..'_ind', 'integer')
+            dt.preferences.write(mod, preset..argument..'_ind', 'integer', temp)
+            temp = dt.preferences.read(mod, 'active_'..argument, arg_data.style)
+            dt.preferences.write(mod, preset..argument, arg_data.style, temp)
+        else
+            temp = dt.preferences.read(mod, 'active_'..argument, arg_data.style)
+            dt.preferences.write(mod, preset..argument, arg_data.style, temp)
+        end
+    end
+    dt.print(_('saved to ')..preset)
+end
+
+local function LoadFromPreference(preset) --load values from the specified 'preset' into the GUI elements
+    for argument, arg_data in pairs(ENF.args) do
+    local temp
+        if argument == 'contrast_window_size' or argument == 'contrast_edge_scale' or argument == 'contrast_min_curvature' then  --comboboxes must be handled specially via an index value
+            temp = dt.preferences.read(mod, preset..argument..'_ind', 'integer')
+            GUI.ENF[argument].selected = temp
+            dt.preferences.write(mod, 'active_'..argument..'_ind', 'integer', temp)
+        else
+            temp = dt.preferences.read(mod, preset..argument, arg_data.style)
+            GUI.ENF[argument].value = temp
+            dt.preferences.write(mod, 'active_'..argument, arg_data.style, temp)
+        end     
+    end
+    dt.print(_('loaded from ')..preset)
+end
+
+local function remove_temp_files(images_to_remove) --deletes all files specified by the input string
+    if dt.configuration.running_os == 'windows' then
+        dt.control.execute('del '..images_to_remove)
+    else
+        dt.control.execute('rm '..images_to_remove)
+    end
+end
+
+local function initial(storage, format, images, high_quality, extra_data) --called before export happens, ensure enough images selected and all necesary programs installed correctly, if error then it sets a bit in extra_data for use by main and cancels export
+    if #images <2 then
+        table.insert(extra_data, 1, 1)
+        return {}
+    else
+        PreCall({ENF,AIS,EXF})
+        if AIS.install_error or ENF.install_error or EXF.install_error then
+            table.insert(extra_data, 1, 2)
+            return {}
+        else
+            table.insert(extra_data, 1, 0)
+            return images
+        end
+    end
+end
+
+local function support_format(storage, format) --tells dt we only support TIFF export type
+    local ret = false
+    local temp = string.find(format.name, 'TIFF')
+    if temp ~= nil then ret = true end
+    return ret
+end
+
+local function show_status(storage, image, format, filename, number, total, high_quality, extra_data) --outputs message to user showing script export status
+    dt.print(_('export for image fusion ')..tostring(math.floor(number))..' / '..tostring(math.floor(total)))
+end
+
+local function main(storage, image_table, extra_data)
+    if extra_data[1] == 1 then
+        dt.print(_('too few images selected, please select at least 2 images'))
+        return
+    elseif extra_data[1] == 2 then
+        dt.print(_('installation error, please verify binary paths are proper'))
+        return
+    end
+    local images_to_remove = ''
+    local final_image = nil
+    local source_raw = nil
+    for raw,exported in pairs(image_table) do --add the exported files to list of images to remove when complete\fail
+        images_to_remove = images_to_remove..df.sanitize_filename(exported)..' '
+    end
+    if GUI.align.value then --if user selected to align images then update AIS arguments and execute AIS command
+        local job = dt.gui.create_job('aligning images')
+        image_table, images_to_remove, AIS.images_string = UpdateAISargs(image_table, images_to_remove)
+        local run_cmd = BuildExecuteCmd(AIS)
+        local resp = dsys.external_command(run_cmd)
+        job.valid = false
+        if resp ~= 0 then
+            remove_temp_files(images_to_remove)
+            dt.print_error(AIS.name.._(' failed'))
+            dt.print(AIS.name.._(' failed'))
+            return
+        end
+    end
+    variants = {'active_'} --default to 'active' settings unless user selected to create multiple image variants from the specified preset types
+    if GUI.Presets.variants.value then
+        if GUI.Presets.variants_type.value == 'dri' then
+            variants = {'dri_1', 'dri_2', 'dri_3'}
+        else
+            variants = {'dff_2', 'dff_2', 'dff_3'}
+        end
+    end
+    local image_num = 0
+    local job = dt.gui.create_job('blending '..#variants..' image(s)', true) --create a GUI job bar to display enfuse progress
+    UpdateActivePreference() --load current GUI values into active preference (only applies to elements without a clicked/changed callback)
+    for _,prefix in pairs(variants) do --for each image to be created load in the preference values, build arguments string, output image, and run command then execute.
+        job.percent = image_num /(#variants)
+        image_num = image_num+1
+        ENF.images_string, final_image, source_raw = UpdateENFargs(image_table, prefix)
+        local run_cmd = BuildExecuteCmd(ENF)
+        local resp = dsys.external_command(run_cmd)
+        if resp ~= 0 then
+            remove_temp_files(images_to_remove)
+            dt.print_error(ENF.name.._(' failed'))
+            dt.print(ENF.name.._(' failed'))
+            return
+        end
+        
+        --copy exif data from original file
+        run_cmd = EXF.bin..' -TagsFromFile '..df.sanitize_filename(source_raw.path..os_path_seperator..source_raw.filename)..' -exif:all --subifd:all -overwrite_original '..df.sanitize_filename(final_image)
+        resp = dsys.external_command(run_cmd)
+        
+        
+        if GUI.Target.auto_import.value then --import image into dt if specified
+            local imported = dt.database.import(final_image)
+            if GUI.Target.apply_style.selected > 1 then --apply specified style to imported image
+                local set_style = styles[GUI.Target.apply_style.selected - 1]
+                dt.styles.apply(set_style , imported)
+            end
+            if GUI.Target.copy_tags.value then --copy tags from source image
+                local all_tags = dt.tags.get_tags(source_raw) 
+                for _,tag in pairs(all_tags) do
+                    if string.match(tag.name, 'darktable|') == nil then dt.tags.attach(tag, imported) end
+                end
+            end
+            local set_tag = GUI.Target.add_tags.text
+            if set_tag ~= nil then --add additional user-specified tags
+                for tag in string.gmatch(set_tag, '[^,]+') do
+                    tag = CleanSpaces(tag)
+                    tag = dt.tags.create(tag)
+                    dt.tags.attach(tag, imported) 
+                end
+            end
+        end
+    end
+    remove_temp_files(images_to_remove)
+    job.valid = false
+    dt.print('image fusion process complete')
+end
+
+--GUI--
+stack_compression = dt.new_widget('stack'){}
+local label_AIS_options= dt.new_widget('section_label'){
+    label = _('image align options')
+}
+GUI.align = dt.new_widget('check_button'){
+    label = _('align images'),
+    value = dt.preferences.read(mod, 'active_align', 'bool'),
+    tooltip = _('automatically align images prior to enfuse'),
+    clicked_callback = function(self) 
+        dt.preferences.write(mod, 'active_align', 'bool', self.value) 
+        for _,widget in pairs(GUI.AIS) do
+            widget.sensitive = self.value
+        end
+    end,
+    reset_callback = function(self) self.value = true end
+}
+GUI.AIS.radial_distortion = dt.new_widget('check_button'){
+    label = _('optimize radial distortion'),
+    value = dt.preferences.read(mod, 'active_radial_distortion', 'bool'),
+    tooltip = _('optimize radial distortion for all images, \nexcept for first'),
+    clicked_callback = function(self) dt.preferences.write(mod, 'active_radial_distortion', 'bool', self.value) end,
+    reset_callback = function(self) self.value = true end
+}
+GUI.AIS.optimize_field = dt.new_widget('check_button'){
+    label = _('optimize field of view'), 
+    value = dt.preferences.read(mod, 'active_optimize_field', 'bool'),
+    tooltip = _('optimize field of view for all images, except for first. \nUseful for aligning focus stacks (DFF) with slightly \ndifferent magnification.'),
+    clicked_callback = function(self) dt.preferences.write(mod, 'active_optimize_field', 'bool', self.value) end,
+    reset_callback = function(self) self.value = true end
+}
+GUI.AIS.optimize_image_center = dt.new_widget('check_button'){
+    label = _('optimize image center shift'), 
+    value = dt.preferences.read(mod, 'active_optimize_image_center', 'bool'),
+    tooltip = _('optimize image center shift for all images, \nexcept for first.'),
+    clicked_callback = function(self) dt.preferences.write(mod, 'active_optimize_image_center', 'bool', self.value) end,
+    reset_callback = function(self) self.value = true end
+}
+GUI.AIS.auto_crop = dt.new_widget('check_button'){
+    label = _('auto crop'), 
+    value = dt.preferences.read(mod, 'active_auto_crop', 'bool'),
+    tooltip = _('auto crop the image to the area covered by all images.'),
+    clicked_callback = function(self) dt.preferences.write(mod, 'active_auto_crop', 'bool', self.value) end,
+    reset_callback = function(self) self.value = true end
+}
+GUI.AIS.distortion = dt.new_widget('check_button'){
+    label = _('load distortion from lens database'), 
+    value = dt.preferences.read(mod, 'active_distortion', 'bool'),
+    tooltip = _('try to load distortion information from lens database'),
+    clicked_callback = function(self) dt.preferences.write(mod, 'active_distortion', 'bool', self.value) end,
+    reset_callback = function(self) self.value = true end
+}
+GUI.AIS.gpu = dt.new_widget('check_button'){
+    label = _('use gpu'), 
+    value = dt.preferences.read(mod, 'active_gpu', 'bool'),
+    tooltip = _('use gpu during alignment'),
+    clicked_callback = function(self) dt.preferences.write(mod, 'active_gpu', 'bool', self.value) end,
+    reset_callback = function(self) self.value = true end
+}
+temp = dt.preferences.read(mod, 'active_grid_size_ind', 'integer')
+if not InRange(temp, 1, 9) then temp = 5 end 
+GUI.AIS.grid_size = dt.new_widget('combobox'){
+    label = _('image grid size'), 
+    tooltip = _('break image into a rectangular grid \nand attempt to find num control points in each section.\ndefault: (5x5)'),
+    selected = temp,
+    '1','2','3','4','5','6','7','8','9',
+    changed_callback = function(self)
+        dt.preferences.write(mod, 'active_grid_size', 'integer', self.value) 
+        dt.preferences.write(mod, 'active_grid_size_ind', 'integer', self.selected)
+    end,
+    reset_callback = function(self) 
+        self.selected = 5
+        dt.preferences.write(mod, 'active_grid_size', 'integer', self.value) 
+        dt.preferences.write(mod, 'active_grid_size_ind', 'integer', self.selected)
+    end
+} 
+temp = dt.preferences.read(mod, 'active_control_points_ind', 'integer')
+if not InRange(temp, 1, 9) then temp = 8 end 
+GUI.AIS.control_points = dt.new_widget('combobox'){
+    label = _('control points/grid'), 
+    tooltip = _('number of control points (per grid, see option -g) \nto create between adjacent images \ndefault: (8).'),
+    selected = temp,
+    '1','2','3','4','5','6','7','8','9',             
+    changed_callback = function(self)
+        dt.preferences.write(mod, 'active_control_points', 'integer', self.value) 
+        dt.preferences.write(mod, 'active_control_points_ind', 'integer', self.selected)
+    end,
+    reset_callback = function(self) 
+        self.selected = 8
+        dt.preferences.write(mod, 'active_control_points', 'integer', self.value) 
+        dt.preferences.write(mod, 'active_control_points_ind', 'integer', self.selected)
+    end
+} 
+temp = dt.preferences.read(mod, 'active_control_points_remove_ind', 'integer')
+if not InRange(temp, 1, 9) then temp = 3 end 
+GUI.AIS.control_points_remove = dt.new_widget('combobox'){
+    label = _('remove control points with error'), 
+    tooltip = _('remove all control points with an error higher \nthan num pixels \ndefault: (3)'),
+    selected = temp,
+    '1','2','3','4','5','6','7','8','9',             
+    changed_callback = function(self)
+        dt.preferences.write(mod, 'active_control_points_remove', 'integer', self.value) 
+        dt.preferences.write(mod, 'active_control_points_remove_ind', 'integer', self.selected)
+    end,
+    reset_callback = function(self) 
+        self.selected = 3
+        dt.preferences.write(mod, 'active_control_points_remove', 'integer', self.value) 
+        dt.preferences.write(mod, 'active_control_points_remove_ind', 'integer', self.selected)
+    end
+}
+temp = dt.preferences.read(mod, 'active_correlation_ind', 'integer')
+if not InRange(temp, 1, 10) then temp = 9 end 
+GUI.AIS.correlation  = dt.new_widget('combobox'){
+    label = _('correlation threshold for control points'), 
+    tooltip = _('correlation threshold for identifying \ncontrol points \ndefault: (0.9).'),
+    selected = temp,
+    '0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0',     
+    changed_callback = function(self)
+        dt.preferences.write(mod, 'active_correlation', 'float', self.value) 
+        dt.preferences.write(mod, 'active_correlation_ind', 'integer', self.selected)
+    end,
+    reset_callback = function(self) 
+        self.selected = 9
+        dt.preferences.write(mod, 'active_correlation', 'float', self.value) 
+        dt.preferences.write(mod, 'active_correlation_ind', 'integer', self.selected)
+    end
+} 
+local label_ENF_options= dt.new_widget('section_label'){
+    label = _('image fusion options')
+}
+temp = dt.preferences.read(mod, 'active_exposure_weight', 'float')
+if not InRange(temp, 0, 1) then temp = 1 end
+GUI.ENF.exposure_weight = dt.new_widget('slider'){
+    label = _('exposure weight'),
+    tooltip = _('set the relative weight of the well-exposedness criterion \nas defined by the chosen exposure weight function. \nincreasing this weight relative to the others will\n make well-exposed pixels contribute more to\n the final output. \ndefault: (1.0)'),
+    hard_min = 0,
+    hard_max = 1,
+    value = temp,
+    reset_callback = function(self) 
+        self.value = 1
+    end
+}
+temp = dt.preferences.read(mod, 'active_saturation_weight', 'float')
+if not InRange(temp, 0, 1) then temp = .2 end
+GUI.ENF.saturation_weight = dt.new_widget('slider'){
+    label = _('saturation weight'),
+    tooltip = _('set the relative weight of high-saturation pixels. \nincreasing this weight makes pixels with high \nsaturation contribute more to the final output. \ndefault: (0.2)'),
+    hard_min = 0,
+    hard_max = 1,
+    value = temp,
+    reset_callback = function(self) 
+        self.value = 0.2
+    end
+}
+temp = dt.preferences.read(mod, 'active_contrast_weight', 'float')
+if not InRange(temp, 0, 1) then temp = 0 end
+GUI.ENF.contrast_weight = dt.new_widget('slider'){
+    label = _('contrast weight'),
+    tooltip = _('sets the relative weight of high local-contrast pixels. \ndefault: (0.0).'),
+    hard_min = 0,
+    hard_max = 1,
+    value = temp,
+    reset_callback = function(self) 
+        self.value = 0
+    end
+}
+temp = dt.preferences.read(mod, 'active_exposure_optimum', 'float')
+if not InRange(temp, 0, 1) then temp = 0.5 end
+GUI.ENF.exposure_optimum = dt.new_widget('slider'){
+    label = _('exposure optimum'),
+    tooltip = _('determine at what normalized exposure value\n the optimum exposure of the input images\n is. this is, set the position of the maximum\n of the exposure weight curve. use this \noption to fine-tune exposure weighting. \ndefault: (0.5)'),
+    hard_min = 0,
+    hard_max = 1,
+    value = temp,
+    reset_callback = function(self) 
+        self.value = 0.5
+    end
+}
+temp = dt.preferences.read(mod, 'active_exposure_width', 'float')
+if not InRange(temp, 0, 1) then temp = 0.2 end
+GUI.ENF.exposure_width = dt.new_widget('slider'){
+    label = _('exposure width'),
+    tooltip = _('set the characteristic width (FWHM) of the exposure \nweight function. low numbers give less weight to \npixels that are far from the user-defined \noptimum and vice versa. use this option to \nfine-tune exposure weighting. \ndefault: (0.2)'),
+    hard_min = 0,
+    hard_max = 1,
+    value = temp,
+    reset_callback = function(self) 
+        self.value = 0.2
+    end
+}
+GUI.ENF.hard_masks = dt.new_widget('check_button'){
+    label = _('hard mask'), 
+    value = dt.preferences.read(mod, 'active_hard_masks', 'bool'),
+    tooltip = _('force hard blend masks on the finest scale. this avoids \naveraging of fine details (only), at the expense \nof increasing the noise. this improves the \nsharpness of focus stacks considerably.\ndefault (soft mask)'),   
+    clicked_callback = function(self) dt.preferences.write(mod, 'active_hard_masks', 'bool', self.value) end,
+    reset_callback = function(self) self.value = false end
+}
+GUI.ENF.save_masks = dt.new_widget('check_button'){
+    label = _('save masks'), 
+    value = dt.preferences.read(mod, 'active_save_masks', 'bool'),
+    tooltip = _('Save the generated weight masks to your home directory,\nenblend saves masks as 8 bit grayscale, \ni.e. single channel images. \nfor accuracy we recommend to choose a lossless format.'),  
+    clicked_callback = function(self) dt.preferences.write(mod, 'active_save_masks', 'bool', self.value) end,
+    reset_callback = function(self) self.value = false end
+}
+temp = dt.preferences.read(mod, 'active_contrast_window_size_ind', 'integer')
+if not InRange(temp, 1, 8) then temp = 3 end 
+GUI.ENF.contrast_window_size = dt.new_widget('combobox'){
+    label = _('contrast window size'), 
+    tooltip = _('set the window size for local contrast analysis. \nthe window will be a square of size × size pixels. \nif given an even size, Enfuse will \nautomatically use the next odd number.\nfor contrast analysis size values larger \nthan 5 pixels might result in a \nblurry composite image. values of 3 and \n5 pixels have given good results on \nfocus stacks. \ndefault: (5) pixels'),
+    selected = temp,
+    '3','4','5','6','7','8','9','10',
+    changed_callback = function(self)
+        dt.preferences.write(mod, 'active_contrast_window_size', 'integer', self.value) 
+        dt.preferences.write(mod, 'active_contrast_window_size_ind', 'integer', self.selected)
+    end,
+    reset_callback = function(self) 
+        self.selected = 3
+        dt.preferences.write(mod, 'active_contrast_window_size', 'integer', self.value) 
+        dt.preferences.write(mod, 'active_contrast_window_size_ind', 'integer', self.selected)
+    end
+} 
+temp = dt.preferences.read(mod, 'active_contrast_edge_scale_ind', 'integer')
+if not InRange(temp, 1, 6) then temp = 1 end 
+GUI.ENF.contrast_edge_scale = dt.new_widget('combobox'){
+    label = _('contrast edge scale'), 
+    tooltip = _('a non-zero value for EDGE-SCALE switches on the \nLaplacian-of-Gaussian (LoG) edge detection algorithm.\n edage-scale is the radius of the Gaussian used \nin the search for edges. a positive LCE-SCALE \nturns on local contrast enhancement (LCE) \nbefore the LoG edge detection. \nDefault: (0.0) pixels.'),
+    selected = temp,
+    '0.0','0.1','0.2','0.3','0.4','0.5',
+    changed_callback = function(self)
+        dt.preferences.write(mod, 'active_contrast_edge_scale', 'float', self.value) 
+        dt.preferences.write(mod, 'active_contrast_edge_scale_ind', 'integer', self.selected)
+    end,
+    reset_callback = function(self) 
+        self.selected = 1
+        dt.preferences.write(mod, 'active_contrast_edge_scale', 'float', self.value) 
+        dt.preferences.write(mod, 'active_contrast_edge_scale_ind', 'integer', self.selected)
+    end
+}
+temp = dt.preferences.read(mod, 'active_contrast_min_curvature_ind', 'integer')
+if not InRange(temp, 1, 11) then temp = 1 end 
+GUI.ENF.contrast_min_curvature = dt.new_widget('combobox'){
+    label = _('contrast min curvature [%]'),
+    tooltip = _('define the minimum curvature for the LoG edge detection. Append a ‘%’ to specify the minimum curvature relative to maximum pixel value in the source image. Default: (0.0%)'),
+    selected = temp, 
+    '0.0%','0.1%','0.2%','0.3%','0.4%','0.5%','0.6%','0.7%','0.8%','0.9%','1.0%',
+    changed_callback = function(self)
+        dt.preferences.write(mod, 'active_contrast_min_curvature', 'string', self.value) 
+        dt.preferences.write(mod, 'active_contrast_min_curvature_ind', 'integer', self.selected)
+    end,
+    reset_callback = function(self) 
+        self.selected = 1
+        dt.preferences.write(mod, 'active_contrast_min_curvature', 'string', self.value) 
+        dt.preferences.write(mod, 'active_contrast_min_curvature_ind', 'integer', self.selected)
+    end
+} 
+local label_target_options= dt.new_widget('section_label'){
+    label = _('target file')
+}
+temp = dt.preferences.read(mod, 'active_compression_level_tif_ind', 'integer')
+if not InRange(temp, 1, 4) then temp = 1 end 
+GUI.Target.compression_level_tif = dt.new_widget('combobox'){
+    label = _('tiff compression'), 
+    tooltip = _('compression method for tiff files'),
+    selected = temp,
+    'none','deflate','lzw','packbits',
+    changed_callback = function(self)
+        dt.preferences.write(mod, 'active_compression_level_tif', 'string', self.value) 
+        dt.preferences.write(mod, 'active_compression_level_tif_ind', 'integer', self.selected)
+    end,
+    reset_callback = function(self) 
+        self.selected = 1
+        dt.preferences.write(mod, 'active_compression_level_tif', 'string', self.value) 
+        dt.preferences.write(mod, 'active_compression_level_tif_ind', 'integer', self.selected)
+    end 
+}
+temp = dt.preferences.read(mod, 'active_compression_level_jpg', 'integer')
+if not InRange(temp, 0, 100) then temp = 0 end
+GUI.Target.compression_level_jpg = dt.new_widget('slider'){
+    label = _('jpeg compression'),
+    tooltip = _('jpeg compression level'),
+    soft_min = 0,
+    soft_max = 100,
+    hard_min = 0,
+    hard_max = 100,
+    step = 5,
+    digits = 0,
+    value = temp,
+    reset_callback = function(self) 
+        self.value = 0
+    end
+}
+local blank = dt.new_widget('box'){}
+stack_compression = dt.new_widget('stack'){
+    GUI.Target.compression_level_tif,
+    GUI.Target.compression_level_jpg,
+    blank,
+    active = 1
+}
+temp = dt.preferences.read(mod, 'active_format_ind', 'integer')
+if not InRange(temp, 1, 6) then temp = 1 end 
+GUI.Target.format = dt.new_widget('combobox'){
+    label = _('file format'), 
+    tooltip = _('file format of the enfused final image'),
+    selected = temp,
+    'tif','jpg','png','pnm','pbm','ppm',
+    changed_callback = function(self)
+        dt.preferences.write(mod, 'active_format', 'string', self.value) 
+        dt.preferences.write(mod, 'active_format_ind', 'integer', self.selected)
+        if self.value == 'tif' then stack_compression.active = 1
+        elseif self.value == 'jpg' then stack_compression.active = 2
+        else stack_compression.active = 3
+        end
+    end,
+    reset_callback = function(self) 
+        self.selected = 1
+        dt.preferences.write(mod, 'active_format', 'string', self.value) 
+        dt.preferences.write(mod, 'active_format_ind', 'integer', self.selected)
+    end 
+}
+temp = dt.preferences.read(mod, 'active_depth_ind', 'integer')
+if not InRange(temp, 1, 5) then temp = 3 end 
+GUI.Target.depth = dt.new_widget('combobox'){
+    label = _('bit depth'), 
+    tooltip = _('bit depth of the enfused file'),
+    selected = temp,
+    '8','16','32','r32','r64',
+    changed_callback = function(self)
+        dt.preferences.write(mod, 'active_depth', 'string', self.value) 
+        dt.preferences.write(mod, 'active_depth_ind', 'integer', self.selected)
+    end,
+    reset_callback = function(self) 
+        self.selected = 2
+        dt.preferences.write(mod, 'active_depth', 'string', self.value) 
+        dt.preferences.write(mod, 'active_depth_ind', 'integer', self.selected)
+    end 
+}
+local label_directory = dt.new_widget('label'){
+    label = _('directory'),
+    ellipsize = 'start',
+    halign = 'start'
+}
+temp = dt.preferences.read(mod, 'active_output_directory', 'string')
+if temp == '' or temp == nil then temp = dt.collection[1].path end
+GUI.Target.output_directory = dt.new_widget('file_chooser_button'){
+    title = 'Select export path', 
+    is_directory = true,
+    tooltip = _('select the target directory for the fused image. \nthe filename is created automatically.'),
+    value = temp,
+    changed_callback = function(self) dt.preferences.write(mod, 'active_output_directory', 'string', self.value) end
+}
+GUI.Target.source_location = dt.new_widget('check_button'){
+    label = _('save to source image location'), 
+    value = dt.preferences.read(mod, 'active_source_location', 'bool'),
+    tooltip = _('If checked ignores the location above and saves output image(s) to the same location as the source images.'),  
+    clicked_callback = function(self) dt.preferences.write(mod, 'active_source_location', 'bool', self.value) end,
+    reset_callback = function(self) self.value = true end
+}
+temp = dt.preferences.read(mod, 'active_on_conflict_ind', 'integer')
+if not InRange(temp, 1, 2) then temp = 1 end 
+GUI.Target.on_conflict = dt.new_widget('combobox'){
+    label = _('on conflict'), 
+    selected = 1,  
+    'create unique filename','overwrite',           
+    changed_callback = function(self)
+        dt.preferences.write(mod, 'active_on_conflict', 'string', self.value) 
+        dt.preferences.write(mod, 'active_on_conflict_ind', 'integer', self.selected)
+    end,
+    reset_callback = function(self) 
+        self.selected = 1
+        dt.preferences.write(mod, 'active_on_conflict', 'string', self.value) 
+        dt.preferences.write(mod, 'active_on_conflict_ind', 'integer', self.selected)
+    end 
+}  
+GUI.Target.auto_import = dt.new_widget('check_button'){
+    label = _('auto import'), 
+    value = dt.preferences.read(mod, 'active_auto_import', 'bool'),
+    tooltip = _('import the image into darktable database when enfuse completes'),  
+    clicked_callback = function(self)
+        dt.preferences.write(mod, 'active_auto_import', 'bool', self.value)
+        GUI.Target.apply_style.sensitive = self.value
+        GUI.Target.copy_tags.sensitive = self.value
+        GUI.Target.add_tags.sensitive = self.value
+    end,
+    reset_callback = function(self) self.value = true end
+}
+temp = dt.preferences.read(mod, 'active_apply_style_ind', 'integer')
+GUI.Target.apply_style = dt.new_widget('combobox'){
+    label = _('Apply Style on Import'),
+    tooltip = _('Apply selected style on auto-import to newly created blended image'),
+    selected = 1,
+    'none',
+    changed_callback = function(self)
+        dt.preferences.write(mod, 'active_apply_style', 'string', self.value) 
+        dt.preferences.write(mod, 'active_apply_style_ind', 'integer', self.selected)
+    end,
+    reset_callback = function(self) 
+        self.selected = 1
+        dt.preferences.write(mod, 'active_apply_style', 'string', self.value) 
+        dt.preferences.write(mod, 'active_apply_style_ind', 'integer', self.selected)
+    end 
+}
+for k=1, (styles_count-1) do
+    GUI.Target.apply_style[k+1] = styles[k].name
+end
+if not InRange(temp, 1, styles_count) then temp = 1 end
+GUI.Target.apply_style.selected = temp
+GUI.Target.copy_tags = dt.new_widget('check_button'){
+    label = _('copy tags'), 
+    value = dt.preferences.read(mod, 'active_copy_tags', 'bool'),
+    tooltip = _('Copy tags from first image.'), 
+    clicked_callback = function(self) dt.preferences.write(mod, 'active_copy_tags', 'bool', self.value) end,
+    reset_callback = function(self) self.value = true end
+}
+temp = dt.preferences.read(mod, 'active_add_tags', 'string')
+if temp == '' then temp = nil end 
+GUI.Target.add_tags = dt.new_widget('entry'){
+    tooltip = _('Additional tags to be added on import. Seperate with commas, all spaces will be removed'),
+    text = temp,
+    placeholder = 'Enter tags, seperated by commas',
+    editable = true
+}
+temp = dt.preferences.read(mod, 'active_current_preset_ind', 'integer')
+if not InRange(temp, 1, 6) then temp = 1 end
+GUI.Presets.current_preset = dt.new_widget('combobox'){
+    label = _('active preset'),
+    tooltip = _('preset to be loaded from or saved to'),
+    value = temp,
+    'dri_1', 'dri_2', 'dri_3', 'dff_1', 'dff_2', 'dff_3',
+    changed_callback = function(self)
+        dt.preferences.write(mod, 'active_current_preset', 'string', self.value) 
+        dt.preferences.write(mod, 'active_current_preset_ind', 'integer', self.selected)
+    end,
+    reset_callback = function(self) 
+        self.selected = 1
+        dt.preferences.write(mod, 'active_current_preset', 'string', self.value) 
+        dt.preferences.write(mod, 'active_current_preset_ind', 'integer', self.selected)
+    end 
+}
+GUI.Presets.load = dt.new_widget('button'){
+    label = _('laod fusion preset'),
+    tooltip = _('load current fusion parameters from selected preset'),
+    clicked_callback = function() LoadFromPreference(GUI.Presets.current_preset.value) end
+}
+GUI.Presets.save = dt.new_widget('button'){
+    label = _('save to fusion preset'),
+    tooltip = _('save current fusion parameters to selected preset'),
+    clicked_callback = function() SaveToPreference(GUI.Presets.current_preset.value) end
+}
+GUI.Presets.variants = dt.new_widget('check_button'){
+    label = _('create image variants from presets'), 
+    value = dt.preferences.read(mod, 'active_variants', 'bool'),
+    tooltip = _('create multiple image variants based on the three different presets of the specified type'),   
+    clicked_callback = function(self) 
+        dt.preferences.write(mod, 'active_variants', 'bool', self.value)
+        if self.value then
+            GUI.Target.on_conflict.selected = 1
+            GUI.Target.on_conflict.sensitive = false
+            GUI.Presets.variants_type.sensitive = true
+        else
+            GUI.Target.on_conflict.sensitive = true
+            GUI.Presets.variants_type.sensitive = false
+        end
+    end,
+    reset_callback = function(self) self.value = false end
+}
+temp = dt.preferences.read(mod, 'active_variants_type_ind', 'integer')
+if not InRange(temp, 1, 2) then temp = 1 end
+GUI.Presets.variants_type = dt.new_widget('combobox'){
+    label = _('create variants type'),
+    tooltip = _('preset type to be used when creating image variants'),
+    selected = temp,
+    'dri', 'dff',
+    changed_callback = function(self)
+        dt.preferences.write(mod, 'active_variants_type', 'string', self.value) 
+        dt.preferences.write(mod, 'active_variants_type_ind', 'integer', self.selected)
+    end,
+    reset_callback = function(self) 
+        self.selected = 1
+        dt.preferences.write(mod, 'active_variants_type', 'string', self.value) 
+        dt.preferences.write(mod, 'active_variants_type_ind', 'integer', self.selected)
+    end 
+}
+GUI.Presets.variants_type.sensitive = GUI.Presets.variants.value
+temp = df.get_executable_path_preference(AIS.name)
+GUI.exes.align_image_stack = dt.new_widget('file_chooser_button'){
+    title = 'AIS binary path',
+    value = temp,
+    tooltip = temp,
+    is_directory = false,
+    changed_callback = function(self) self.tooltip = self.value end
+}
+temp = df.get_executable_path_preference(ENF.name)
+GUI.exes.enfuse = dt.new_widget('file_chooser_button'){
+    title = 'enfuse binary path',
+    value = temp,
+    tooltip = temp,
+    is_directory = false,
+    changed_callback = function(self) self.tooltip = self.value end
+}
+temp = df.get_executable_path_preference(EXF.name)
+GUI.exes.exiftool = dt.new_widget('file_chooser_button'){
+    title = 'Exiftool binary path',
+    value = temp,
+    tooltip = temp,
+    is_directory = false,
+    changed_callback = function(self) self.tooltip = self.value end
+} 
+GUI.exes.update = dt.new_widget('button'){
+    label = _('update'),
+    tooltip = _('update the binary paths with current values'),
+    clicked_callback = function() ExeUpdate({AIS,ENF,EXF}) end
+}
+temp = GUI.Target.format.value
+if temp == 'tif' then temp = 1
+elseif temp == 'jpg' then temp = 2
+else temp = 3
+end
+stack_compression.active = temp
+for _,widget in pairs(GUI.AIS) do
+    widget.sensitive = GUI.align.value
+end
+GUI.Target.apply_style.sensitive = GUI.Target.auto_import.value
+GUI.Target.copy_tags.sensitive = GUI.Target.auto_import.value
+GUI.Target.add_tags.sensitive = GUI.Target.auto_import.value
+
+local box_AIS = dt.new_widget('box'){
+    orientation = 'vertical',
+    label_AIS_options,
+    GUI.align,
+    GUI.AIS.radial_distortion,
+    GUI.AIS.optimize_field,
+    GUI.AIS.optimize_image_center,
+    GUI.AIS.auto_crop,
+    GUI.AIS.distortion,
+    GUI.AIS.gpu,
+    GUI.AIS.grid_size,
+    GUI.AIS.control_points,
+    GUI.AIS.control_points_remove,
+    GUI.AIS.correlation
+}
+local box_ENF = dt.new_widget('box'){
+    orientation = 'vertical',
+    label_ENF_options,
+    GUI.ENF.exposure_weight,
+    GUI.ENF.saturation_weight,
+    GUI.ENF.contrast_weight,
+    GUI.ENF.exposure_optimum,
+    GUI.ENF.exposure_width,
+    GUI.ENF.hard_masks,
+    GUI.ENF.save_masks,
+    GUI.ENF.contrast_window_size,
+    GUI.ENF.contrast_edge_scale,
+    GUI.ENF.contrast_min_curvature,
+    GUI.Presets.current_preset,
+    GUI.Presets.load,
+    GUI.Presets.save
+}
+local box_Target = dt.new_widget('box'){
+    orientation = 'vertical',
+    label_target_options,
+    GUI.Target.format,
+    GUI.Target.depth,
+    stack_compression,
+    label_directory,
+    GUI.Target.output_directory,
+    GUI.Target.source_location,
+    GUI.Target.on_conflict,
+    GUI.Presets.variants,
+    GUI.Presets.variants_type,
+    GUI.Target.auto_import,
+    GUI.Target.apply_style,
+    GUI.Target.copy_tags,
+    GUI.Target.add_tags
+}
+local box_exes = dt.new_widget('box'){
+    orientation = 'vertical',
+    GUI.exes.align_image_stack,
+    GUI.exes.enfuse,
+    GUI.exes.exiftool,
+    GUI.exes.update
+}
+GUI.options_contain = dt.new_widget('stack'){
+    box_AIS,
+    box_ENF,
+    box_Target,
+    box_exes,
+    active = 2
+}
+GUI.show_options = dt.new_widget('combobox'){
+    label = _('show options'),
+    tooltip = _('show options for specified aspect of output'),
+    selected = 2,
+    'align image stack', 'enfuse/enblend', 'target file',
+    changed_callback = function(self)
+        GUI.options_contain.active = self.selected
+    end,
+    reset_callback = function(self) 
+        self.selected = 1
+        dt.preferences.write(mod, 'active_current_preset', 'string', self.value) 
+        dt.preferences.write(mod, 'active_current_preset_ind', 'integer', self.selected)
+    end 
+}
+local storage_widget = dt.new_widget('box') {
+    orientation = 'vertical',
+    GUI.show_options,
+    GUI.options_contain
+} 
+
+-- Register new storage --
 dt.register_storage(
-	"module_enfuseAdvanced", --Module name
-	'DRI or DFF image', --Name
-	show_status, --store: called once per exported image
-	create_image_fusion, --finalize: called once when all images have finished exporting
-	support_format, --supported
-	nil, --initialize
-	enf_widget
-	)
-
--- PREFERENCES --                
-entry_widget_style = dt.new_widget("entry"){
-	tooltip = "Enter the style name exactly as it is",
-	text = nil,
-	placeholder = "Enter Style name",
-	editable = true
-}
-dt.preferences.register("module_enfuseAdvanced", "style",	-- name
-	"string",	-- type
-	'enfuseAdvanced: Defualt Style',	-- label
-	'Changes DEFAULT entry in the Style option. Requires restart to take effect.',	-- tooltip
-	"",	-- default
-	entry_widget_style
+    'module_enfuseAdvanced', --Module name
+    _('DRI or DFF image'), --Name
+    show_status, --store: called once per exported image
+    main, --finalize: called once when all images have finished exporting
+    support_format, --supported
+    initial, --initialize
+    storage_widget
 )
-entry_widget_tags = dt.new_widget("entry"){
-	tooltip = "Seperate with commas, all spaces will be removed",
-	text = nil,
-	placeholder = "Enter default tags",
-	editable = true
-}
-dt.preferences.register("module_enfuseAdvanced", "add_tags",	-- name
-	"string",	-- type
-	'enfuseAdvanced: Defualt additional tags',	-- label
-	'Changes DEFAULT entry in the additional tags option. Requires restart to take effect.',	-- tooltip
-	"",	-- default
-	entry_widget_tags
-) 
-dt.preferences.register("module_enfuseAdvanced", "copy_tags",	-- name
-	"bool",	-- type
-	'enfuseAdvanced: Copy tags from first image by default',	-- label
-	'Changes DEFAULT selection for Copy Tags, Requires restart to take effect.',	-- tooltip
-	true	-- default
-)
-dt.preferences.register("module_enfuseAdvanced", "exiftool_copy_tags",                -- name
-	"bool",                                                   -- type
-	_('enfuseAdvanced: copy exif data'),                             -- label
-	_('copy the exif tags from the first image to the target'),  -- tooltip
-	true)                                                     -- default                       
-dt.preferences.register("module_enfuseAdvanced", "add_image_to_db",                   -- name
-	"bool",                                                   -- type
-	_('enfuseAdvanced: add fused image to database'),                -- label
-	_('add the fused image to the darktable database'),          -- tooltip
-	false)                                                    -- default                              
-dt.preferences.register("module_enfuseAdvanced", "align_use_gpu",                     -- name
-	"bool",                                                   -- type
-	_('enfuseAdvanced: use GPU for remaping'),                       -- label
-	_('set the GPU remapping for image align'),                  -- tooltip
-	false) 
-dt.preferences.register("module_enfuseAdvanced", "compression_jpeg",   -- name
-	"integer",                                 -- type
-	_('enfuseAdvanced: JPEG compression'),            -- label
-	_('set the compression for JPEG files'),      -- tooltip
-	98,                                        -- default
-	50,                                        -- min
-	100)                                       -- max                     
-dt.preferences.register("module_enfuseAdvanced", "compression_tiff",   -- name
-	"enum",                                    -- type
-	_('enfuseAdvanced: TIFF compression'),            -- label
-	_('set the compression type for tiff files'), -- tooltip
-	"LZW",                                     -- default
-	"NONE", "DEFLATE","PACKBITS")        -- va                 
-dt.preferences.register("module_enfuseAdvanced", "image_color_depth",  -- name
-	"enum",                                    -- type
-	_('enfuseAdvanced: image color depth (bit)'),     -- label
-	_('set the output color depth'),              -- tooltip
-	"16",                                      -- default
-	"8","32","r32","r64")                -- values
 
---AIS bin location
-if not AIS_path then 
-	AIS_path = ""
+if dt.preferences.read(mod, 'bin_exists', 'bool') then 
+    GUI.options_contain.active = 2
+    GUI.show_options.sensitive = true
+else
+    GUI.options_contain.active = 4
+    GUI.show_options.sensitive = false
 end
-local AIS_path_widget = dt.new_widget("file_chooser_button"){
-	title = "Select align_image_stack[.exe] file",
-	value = AIS_path,
-	is_directory = false,
-}
-dt.preferences.register("executable_paths", "align_image_stack",	-- name
-	"file",	-- type
-	'enfuseAdvanced: Align Image Stack Location',	-- label
-	'Install location of align_image_stack. Requires restart to take effect.',	-- tooltip
-	"align_image_stack",	-- default
-	AIS_path_widget
-)
-
---enfuse bin location
-if not enfuse_path then 
-	enfuse_path = ""
-end
-local enfuse_path_widget = dt.new_widget("file_chooser_button"){
-	title = "Select enfuse[.exe] file",
-	value = enfuse_path,
-	is_directory = false,
-}
-dt.preferences.register("executable_paths", "enfuse",	-- name
-	"file",	-- type
-	'enfuseAdvanced: enfuse Location',	-- label
-	'Install location of enfuse. Requires restart to take effect.',	-- tooltip
-	"enfuse",	-- default
-	enfuse_path_widget
-)
-
---exiftool bin location
-if not exiftool_path then 
-	exiftool_path = ""
-end
-local exiftool_path_widget = dt.new_widget("file_chooser_button"){
-	title = "Select exiftool[.exe] file",
-	value = exiftool_path,
-	is_directory = false,
-}
-dt.preferences.register("executable_paths", "exiftool",	-- name
-	"file",	-- type
-	'enfuseAdvanced: exiftool Location',	-- label
-	'Install location of exiftool. Requires restart to take effect.',	-- tooltip
-	"exiftool",	-- default
-	exiftool_path_widget
-)
-                       
