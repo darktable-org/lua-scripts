@@ -27,8 +27,9 @@ all tags that are not used will be automatically deleted at every restart
 ]]
 
 local dt = require "darktable"
+local du = require "lib/dtutils"
 
-dt.configuration.check_version(...,{5,0,0})
+du.check_min_api_version("5.0.0", "delete_unused_tags") 
 
 -- deleting while iterating the tags list seems to break the iterator!
 local unused_tags = {}

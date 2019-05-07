@@ -27,7 +27,9 @@ USAGE
 
 ]]
 local dt = require "darktable"
-dt.configuration.check_version(...,{2,0,0},{3,0,0},{4,0,0},{5,0,0})
+local du = require "lib/dtutils"
+
+du.check_min_api_version("2.0.0", "hello_world") 
 
 dt.print("hello, world")
 

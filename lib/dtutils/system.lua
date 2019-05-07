@@ -101,4 +101,33 @@ function dtutils_system.windows_command(command)
   return result
 end
 
+
+dtutils_system.libdoc.functions["launch_default_app"] = {
+  Name = [[launch_default_app]],
+  Synopsis = [[open file in default application]],
+  Usage = [[local dsys = require "lib/dtutils.file"
+
+    result = dsys.launch_default_app(path)
+      path - string - a file path]],
+  Description = [[launch_default_app allows opening a file in the application that is assigned as default 
+    for that filetype in the users's system]],
+  Return_Value = [[result - the return value signalling success or failure.]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+function dtutils_system.launch_default_app(path) 
+  local open_cmd = "xdg-open "
+  if (dt.configuration.running_os == "windows") then
+    open_cmd = "" -- On Windows we don't need any command. (start e.g. has problems with spaces in the filename, even if we put quoter around them.) https://stackoverflow.com/questions/13691827/opening-file-with-spaces-in-windows-via-command-prompt
+  elseif  (dt.configuration.running_os == "macos") then
+    open_cmd = "open "
+  end   
+  return dtutils_system.external_command(open_cmd .. path)
+end
+
+
 return dtutils_system

@@ -26,8 +26,9 @@ USAGE
 ]]
 
 local dt = require "darktable"
+local du = require "lib/dtutils"
 
-dt.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
+du.check_min_api_version("3.0.0", "copy_paste_metadata")
 
 -- set this to "false" if you don't want to overwrite metadata fields
 -- (title, description, creator, publisher and rights) that are already set

@@ -28,10 +28,11 @@ USAGE
 ]]
 
 local dt = require "darktable"
+local du = require "lib/dtutils"
 local https = require "ssl.https"
 local cjson = require "cjson"
 
-dt.configuration.check_version(...,{2,0,0},{3,0,0},{4,0,0},{5,0,0})
+du.check_min_api_version("2.0.0", "check_for_updates") 
 
 -- compare two version strings of the form "major.minor.patch"
 -- returns -1, 0, 1 if the first version is smaller, equal, greater than the second version,

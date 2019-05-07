@@ -1,6 +1,8 @@
 local dtutils_file = {}
 local dt = require "darktable"
+local du = require "lib/dtutils"
 local ds = require "lib/dtutils.string"
+local dsys = require "lib/dtutils.system"
 
 local log = require "lib/dtutils.log"
 
@@ -24,7 +26,7 @@ dtutils_file.libdoc = {
 
 local gettext = dt.gettext
 
-dt.configuration.check_version(...,{5,0,0})
+du.check_min_api_version("5.0.0", "dtutils.file")
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("dtutils.file",dt.configuration.config_dir.."/lua/locale/")
@@ -289,9 +291,12 @@ dtutils_file.libdoc.functions["file_copy"] = {
 function dtutils_file.file_copy(fromFile, toFile)
   local result = nil
   -- if cp exists, use it
-  if dtutils_file.check_if_bin_exists("cp") then
+  if dt.configuration.running_os == "windows" then
+    result = os.execute('copy "' .. fromFile .. '" "' .. toFile .. '"')
+  elseif dtutils_file.check_if_bin_exists("cp") then
     result = os.execute("cp '" .. fromFile .. "' '" .. toFile .. "'")
   end
+
   -- if cp was not present, or if cp failed, then a pure lua solution
   if not result then
     local fileIn, err = io.open(fromFile, 'rb')
@@ -552,6 +557,56 @@ dtutils_file.libdoc.functions["sanitize_filename"] = {
 function dtutils_file.sanitize_filename(filename)
   return ds.sanitize(filename)
 end
+
+dtutils_file.libdoc.functions["mkdir"] = {
+  Name = [[mkdir]],
+  Synopsis = [[create the directory(ies) if they do not already exists]],
+  Usage = [[local df = require "lib/dtutils.file"
+
+     df.mkdir(path)
+      path - string - a directory path]],
+  Description = [[mkdir creates directories if not already exists. It 
+    create whole parents subtree if needed
+  ]],
+  Return_Value = [[path - string - a directory path]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+function dtutils_file.mkdir(path) 
+  if not dtutils_file.check_if_file_exists(path) then
+    local mkdir_cmd = dt.configuration.running_os == "windows" and "mkdir" or "mkdir -p"
+    return dsys.external_command(mkdir_cmd.." "..path)
+  else
+    return 0
+  end
+end
+
+dtutils_file.libdoc.functions["rmdir"] = {
+  Name = [[rmdir]],
+  Synopsis = [[recursively remove a directory]],
+  Usage = [[local df = require "lib/dtutils.file"
+
+     df.rmdir(path)
+      path - string - a directory path]],
+  Description = [[rm allow to recursively remove directories]],
+  Return_Value = [[path - string - a directory path]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_file.rmdir(path)
+  local rm_cmd = dt.configuration.running_os == "windows" and "rmdir /S /Q" or "rm -r"
+  return dsys.external_command(rm_cmd.." "..path)
+end
+
 
 return dtutils_file
 

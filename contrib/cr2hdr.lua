@@ -33,9 +33,10 @@ USAGE
 ]]
 
 local darktable = require "darktable"
+local du = require "lib/dtutils"
 
 -- Tested with darktable 2.0.1
-darktable.configuration.check_version(...,{2,0,0},{3,0,0},{4,0,0},{5,0,0})
+du.check_min_api_version("2.0.0", "cr2hdr")
 
 local queue = {}
 local processed_files = {}

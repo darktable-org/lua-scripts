@@ -31,11 +31,12 @@ USAGE
 ]]
 
 local dt = require "darktable"
+local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 require "official/yield"
 local gettext = dt.gettext
 
-dt.configuration.check_version(...,{2,0,1},{3,0,0},{4,0,0},{5,0,0})
+du.check_min_api_version("2.0.1", "video_mencoder") 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("video_mencoder",dt.configuration.config_dir.."/lua/locale/")
@@ -49,6 +50,10 @@ local function show_status(storage, image, format, filename, number, total, high
 end
 
 local function create_video_mencoder(storage, image_table, extra_data)
+    dt.print("video_mencoder is deprecated.  Please use video_ffmpeg instead.  Please see the log for more details.")
+    dt.print_log("The mencoder executable is no longer distributed as part of most distributions,")
+    dt.print_log("therefore video_mencoder is deprecated. video_ffmpeg should be used in it's place.  video_mencoder")
+    dt.print_log("will be removed when darktable 2.8 is released.")
     if not df.check_if_bin_exists("mencoder") then
         dt.print_error(_("mencoder not found"))
         return

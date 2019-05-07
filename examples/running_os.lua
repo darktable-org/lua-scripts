@@ -26,7 +26,9 @@ prints the operating system
 
 ]]
 local dt = require "darktable"
-dt.configuration.check_version(...,{5,0,0})
+local du = require "lib/dtutils"
+
+du.check_min_api_version("5.0.0", "running_os") 
 
 dt.print("You are running: "..dt.configuration.running_os)
 

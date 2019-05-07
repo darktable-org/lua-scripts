@@ -37,12 +37,13 @@
 ]]
 
 local dt = require "darktable"
+local du = require "lib/dtutils"
 local gettext = dt.gettext
 
 -- not a number
 local NaN = 0/0
 
-dt.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
+du.check_min_api_version("3.0.0", "clear_GPS") 
 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain

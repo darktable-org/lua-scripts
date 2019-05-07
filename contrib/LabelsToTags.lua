@@ -48,7 +48,9 @@
 ]]
 
 local darktable = require("darktable")
-darktable.configuration.check_version(...,{3,0,0},{4,0,0},{5,0,0})
+local du = require "lib/dtutils"
+
+du.check_min_api_version("3.0.0", "LabelsToTags") 
 
 -- Lua 5.3 no longer has "unpack" but "table.unpack"
 unpack = unpack or table.unpack

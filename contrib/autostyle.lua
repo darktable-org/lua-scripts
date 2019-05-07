@@ -37,13 +37,14 @@ GPLv2
 ]]
 
 local darktable = require "darktable"
+local du = require "lib/dtutils"
 local filelib = require "lib/dtutils.file"
 
 -- Forward declare the functions
 local autostyle_apply_one_image,autostyle_apply_one_image_event,autostyle_apply,exiftool_attribute,capture
 
 -- Tested it with darktable 1.6.1 and darktable git from 2014-01-25
-darktable.configuration.check_version(...,{2,0,2},{2,1,0},{3,0,0},{4,0,0},{5,0,0})
+du.check_min_api_version("2.0.2", "autostyle") 
 
 -- Receive the event triggered
 function autostyle_apply_one_image_event(event,image)
