@@ -1,1 +1,0 @@
-/home/bill/src/plugins/lua-scripts/tools/plugin_manager.lua
