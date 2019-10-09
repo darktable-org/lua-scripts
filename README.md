@@ -82,6 +82,21 @@ get_lib_manpages|No|LM|Retrieve the library documentation and output it in man p
 get_libdoc|No|LMW|Retrieve the library documentation and output it as text
 script_manager|No|LMW|Manage (install, update, enable, disable) the lua scripts
 
+### Related third-party projects
+
+The following third-party projects are listed for information only. Think of this collection as an `awesome-darktable-lua-scripts` list. Use at your own risk!
+
+* [trougnouf/dtMediaWiki](https://github.com/trougnouf/dtMediaWiki) – Wikimedia Commons export
+* [wpferguson/extra-dt-lua-scripts](https://github.com/wpferguson/extra-dt-lua-scripts)
+* [xxv/darktable-git-annex](https://github.com/xxv/darktable-git-annex) – git-annex integration
+* [theres/dt_backup](https://github.com/theres/dt_backup) – automatic backup on exit
+* [Sitwon/dt_fujifilm_ratings](https://github.com/Sitwon/dt_fujifilm_ratings) – Fujifilm Ratings import
+* [progo/leica-q-autocrop](https://github.com/progo/leica-q-autocrop) – crop in 35 mm or 50 mm equivalent
+* [BzKevin/OpenInPS-Darktable-PlugIn](https://github.com/BzKevin/OpenInPS-Darktable-PlugIn) – open in Adobe Photoshop
+* [johnnyrun/darktable_lua_gimp](https://github.com/johnnyrun/darktable_lua_gimp) – GIMP export
+* [arru/darktable-scripts](https://github.com/arru/darktable-scripts)
+* [nbremond77/darktable](https://github.com/nbremond77/darktable/tree/master/scripts)
+
 ## Download and Install
 
 The recommended method of installation is using git to clone the repository. This ensures that all dependencies on other scripts
