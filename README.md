@@ -131,6 +131,8 @@ Open a command prompt.
     cd %LOCALAPPDATA%\darktable
     git clone https://github.com/darktable-org/lua-scripts.git lua
 
+If you don't have %LOCALAPPDATA%\darktable you have to start dartable at least once, because the directory is created at the first start of darktable.
+
 ## Enabling
 
 When darktable starts it looks for a file name `~/.config/darktable/luarc` (`%LOCALAPPDATA%\darktable\luarc` for windows) and reads it to see which scripts to include. The file is a plain text file with entries of the form `require "<directory>/<name>"` where directory is the directory containing the scripts, from the above list, and name is the name from the above list. To include GIMP the line would be `require "contrib/gimp"`.
