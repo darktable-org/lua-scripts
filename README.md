@@ -144,8 +144,8 @@ or `echo 'require "contrib/hugin"' >> ~/.config/darktable/luarc` to add an entry
 
 On windows from a command prompt:
 
-`echo 'require "contrib/gimp"' > %LOCALAPPDATA%\darktable\luarc` to create the file with a gimp entry\
-or `echo 'require "contrib/hugin"' >> %LOCALAPPDATA%\darktable\luarc` to add an entry for hugin.
+`echo require "contrib/gimp" > %LOCALAPPDATA%\darktable\luarc` to create the file with a gimp entry\
+or `echo require "contrib/hugin" >> %LOCALAPPDATA%\darktable\luarc` to add an entry for hugin.
 
 ## Disabling
 
