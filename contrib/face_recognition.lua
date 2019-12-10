@@ -43,12 +43,14 @@ This plugin will add a new storage option and calls face_recognition after expor
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+local dtsys = require "lib/dtutils.system"
 local gettext = dt.gettext
 
 -- constants
 
 local MODULE = "face_recognition"
-local OUTPUT = dt.configuration.tmp_dir .. "/facerecognition.txt"
+local PS = dt.configuration.running_os == "windows" and '\\' or '/'
+local OUTPUT = dt.configuration.tmp_dir .. PS .. "facerecognition.txt"
 
 -- namespace
 
@@ -81,7 +83,7 @@ end
 local function build_image_table(images)
   local image_table = {}
   local file_extension = ""
-  local tmp_dir = dt.configuration.tmp_dir .. "/"
+  local tmp_dir = dt.configuration.tmp_dir .. PS
   local ff = fc.export_format.value
   local cnt = 0
 
@@ -134,13 +136,13 @@ local function do_export(img_tbl)
   exporter.max_width = width
 
   -- export the images
-  local job = dt.gui.create_job("export images", true, stop_job)
+  local job = dt.gui.create_job(_("export images"), true, stop_job)
   local exp_cnt = 0
   local percent_step = 1.0 / images
   job.percent = 0.0
   for img,export in pairs(img_tbl) do
     exp_cnt = exp_cnt + 1
-    dt.print(_("Exporting image") .. exp_cnt .. _(" of ") .. images)
+    dt.print(string.format(_("Exporting image %i of %i images"), exp_cnt, images))
     exporter:write_image(img, export, upsize)
     job.percent = job.percent + percent_step
   end
@@ -172,7 +174,7 @@ local function ignoreByTag (image, ignoreTags)
       if string.find (t.name, it, 1, true) then
         -- The image has ignored tag attached
         ignoreImage = true
-        dt.print_error ("Face recognition: Ignored tag: " .. it .. " found in " .. image.id .. ":" .. t.name)
+        dt.print_log ("Face recognition: Ignored tag: " .. it .. " found in " .. image.id .. ":" .. t.name)
       end
     end
   end
@@ -213,7 +215,7 @@ local function face_recognition ()
   ignoreTags = {}
   for tag in string.gmatch(ignoreTagString, '([^,]+)') do
     table.insert (ignoreTags, tag)
-    dt.print_error ("Face recognition: Ignore tag: " .. tag)
+    dt.print_log ("Face recognition: Ignore tag: " .. tag)
   end
   
   -- list of exported images
@@ -239,7 +241,7 @@ local function face_recognition ()
       dt.print_log("Face recognition: Running command: " .. command)
       dt.print(_("Starting face recognition..."))
 
-      dt.control.execute(command)
+      dtsys.external_command(command)
 
       -- Open output file
       local f = io.open(OUTPUT, "rb")
@@ -379,32 +381,40 @@ fc.execute = dt.new_widget("button"){
   end
 }
 
-fc.widget = dt.new_widget("box"){
-  orientation = vertical,
+local widgets = {
   dt.new_widget("label"){ label = _("unknown person tag")},
   fc.unknown_tag,
   dt.new_widget("label"){ label = _("togs of images to ignore")},
   fc.ignore_tags,
   dt.new_widget("label"){ label = _("face data directory")},
   fc.known_image_path,
-  dt.new_widget("section_label"){ label = _("processing options")},
-  fc.tolerance,
-  fc.num_cores,
-  fc.export_format,
-  dt.new_widget("box"){
-    orientation = "horizontal",
-    dt.new_widget("label"){ label = _("width")},
-    fc.width,
-  },
-  dt.new_widget("box"){
-    orientation = "horizontal",
-    dt.new_widget("label"){ label = _("height")},
-    fc.height,
-  },
-  fc.execute,
 }
 
-fc.tolerance.value = dt.preferences.read(MODULE, "tolerance", "float")
+if dt.configuration.running_os == "windows" or dt.configuration.running_os == "macos" then
+  table.insert(widgets, df.executable_path_widget({"face_recognition"}))
+end
+table.insert(widgets, dt.new_widget("section_label"){ label = _("processing options")})
+table.insert(widgets, fc.tolerance)
+table.insert(widgets, fc.num_cores)
+table.insert(widgets, fc.export_format)
+table.insert(widgets, dt.new_widget("box"){
+  orientation = "horizontal",
+  dt.new_widget("label"){ label = _("width  ")},
+  fc.width,
+})
+table.insert(widgets, dt.new_widget("box"){
+  orientation = "horizontal",
+  dt.new_widget("label"){ label = _("height ")},
+  fc.height,
+})
+table.insert(widgets, fc.execute)
+
+fc.widget = dt.new_widget("box"){
+  orientation = vertical,
+  table.unpack(widgets)
+}
+
+--fc.tolerance.value = dt.preferences.read(MODULE, "tolerance", "float")
 
 -- Register
 --dt.register_storage("module_face_recognition", _("Face recognition"), show_status, face_recognition)
@@ -419,6 +429,8 @@ dt.register_lib(
   nil,-- view_enter
   nil -- view_leave
 )
+
+fc.tolerance.value = dt.preferences.read(MODULE, "tolerance", "float")
 
 --
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
