@@ -36,7 +36,7 @@ AutoGrouper|Yes|LMW|Group images together by time
 autostyle|Yes|LMW|Automatically apply styles on import
 clear_GPS|Yes|LMW|Reset GPS information for selected images
 CollectHelper|Yes|LMW|Add buttons to selected images module to manipulate the collection
-copy_attach_detach_tags|Yes|LMW|Copy and paste tags from/to image
+copy_attach_detach_tags|Yes|LMW|Copy and paste tags from/to images
 cr2hdr|Yes|L|Process image created with Magic Lantern Dual ISO
 enfuseAdvanced|No|LMW|Merge multiple images into Dynamic Range Increase (DRI) or Depth From Focus (DFF) images
 face_recognition|No|LM|Identify and tag images using facial recognition
