@@ -32,20 +32,25 @@ These scripts are contributed by users. They are meant to have an "owner", i.e. 
 
 Name|Standalone|OS   |Purpose
 ----|:--------:|:---:|-------
+AutoGrouper|Yes|LMW|Group images together by time
 autostyle|Yes|LMW|Automatically apply styles on import
 clear_GPS|Yes|LMW|Reset GPS information for selected images
-copy_attach_detach_tags|Yes|LMW|Copy and paste tags from/to images
+CollectHelper|Yes|LMW|Add buttons to selected images module to manipulate the collection
+copy_attach_detach_tags|Yes|LMW|Copy and paste tags from/to image
 cr2hdr|Yes|L|Process image created with Magic Lantern Dual ISO
 enfuseAdvanced|No|LMW|Merge multiple images into Dynamic Range Increase (DRI) or Depth From Focus (DFF) images
+face_recognition|No|LM|Identify and tag images using facial recognition
 fujifilm_ratings|No|LM|Support importing Fujifilm ratings
 geoJSON_export|No|L|Create a geo JSON script with thumbnails for use in ...
 geoToolbox|No|LMW|A toolbox of geo functions
 gimp|No|LMW|Open an image in GIMP for editing and return the result
 gpx_export|No|LMW|Export a GPX track file from selected images GPS data
+HDRMerge|No|LMW|Combind the selected images into an HDR DNG and return the result
 hugin|No|LMW|Combine selected images into a panorama and return the result
 image_stack|No|LMW|Combine a stack of images to remove noise or transient objects
 kml_export|No|L|Export photos with a KML file for usage in Google Earth
 LabelsToTags|Yes|LMW|Apply tags based on color labels and ratings
+OpenInExplorer|No|LMW|Open the selected images in the system file manager
 passport_guide|Yes|LMW|Add passport cropping guide to darkroom crop tool
 pdf_slideshow|No|LM|Export images to a PDF slideshow
 quicktag|Yes|LMW|Create shortcuts for quickly applying tags
@@ -53,6 +58,7 @@ rate_group|Yes|LMW|Apply or remove a star rating from grouped images
 rename-tags|Yes|LMW|Change a tag name
 select_untagged|Yes|LMW|Enable selection of untagged images
 slideshowMusic|No|L|Play music during a slideshow
+video_ffmpeg|No|LMW|Export video from darktable
 video_mencoder|No|L|Export video from darktable
 
 ### Example Scripts
