@@ -54,11 +54,6 @@ Same as other export modules
 global options:
 Same as other export modules
 
-----TODO----
-don't write executale preferences on linux unless asked to
-add an initialization value to determine if the program has ever been run before
-add sane values so that an image is produced with no value adjustment by the user
-
 ]]
 
 local dt = require 'darktable'
@@ -78,64 +73,7 @@ local function _(msgid)
     return gettext.dgettext('enfuseAdvanced', msgid)
 end
 
-local initialized = dt.preferences.read(mod, "initialized", "bool")
-
 -- INITS --
-local GUI = {
-    AIS = {
-        radial_distortion       = nil,
-        optimize_field          = nil,
-        optimize_image_center   = nil,
-        auto_crop               = nil,
-        distortion              = nil,
-        grid_size               = nil,
-        control_points          = nil,
-        control_points_remove   = nil,
-        correlation             = nil
-    },
-    ENF = {
-        exposure_weight         = nil,
-        saturation_weight       = nil,
-        contrast_weight         = nil,
-        exposure_optimum        = nil,
-        exposure_width          = nil,
-        hard_masks              = nil,
-        save_masks              = nil,
-        contrast_window_size    = nil,
-        contrast_edge_scale     = nil,
-        contrast_min_curvature  = nil
-    },
-    Target = {
-        format                  = nil,
-        depth                   = nil,   
-        compression_level_tif   = nil,
-        compression_level_jpg   = nil,
-        output_directory        = nil,
-        source_location         = nil,
-        on_conflict             = nil,
-        auto_import             = nil,
-        apply_style             = nil,
-        copy_tags               = nil,
-        add_tags                = nil
-    },
-    Presets = {
-        current_preset          =nil,
-        load                    =nil,
-        save                    =nil,
-        variants                =nil,
-        variants_type           =nil
-    },
-    exes = {
-        align_image_stack       = nil,
-        enfuse                  = nil,
-        exiftool                = nil,
-        update                  = nil
-    },
-    align                       = nil,
-    options_contain             = nil,
-    show_options                = nil
-}
-
 local AIS = {
     name = 'align_image_stack',
     bin = '',
@@ -144,16 +82,16 @@ local AIS = {
     arg_string = '',
     images_string = '',
     args = {
-        radial_distortion       = {text = '-d',             style = 'bool',     default_value = false, widget_type = "check_button", widget = GUI.AIS.radial_distortion},
-        optimize_field          = {text = '-m',             style = 'bool',     default_value = false, widget_type = "check_button", widget = GUI.AIS.optimize_field},
-        optimize_image_center   = {text = '-i',             style = 'bool',     default_value = false, widget_type = "check_button", widget = GUI.AIS.optimize_image_center},
-        auto_crop               = {text = '-C',             style = 'bool',     default_value = true,  widget_type = "check_button", widget = GUI.AIS.auto_crop},
-        distortion              = {text = '--distortion',   style = 'bool',     default_value = false, widget_type = "check_button", widget = GUI.AIS.distortion},
-        gpu                     = {text = '--gpu',          style = 'bool',     default_value = false, widget_type = "check_button", widget = GUI.AIS.gpu},
-        grid_size               = {text = '-g ',            style = 'string',   default_value = '5',   widget_type = "combobox",     widget = GUI.AIS.grid_size},
-        control_points          = {text = '-c ',            style = 'string',   default_value = '8',   widget_type = "combobox",     widget = GUI.AIS.control_points},
-        control_points_remove   = {text = '-t ',            style = 'string',   default_value = '3',   widget_type = "combobox",     widget = GUI.AIS.control_points_remove},
-        correlation             = {text = '--corr=',        style = 'string',   default_value = '0.9', widget_type = "combobox",     widget = GUI.AIS.correlation}
+        radial_distortion       = {text = '-d',             style = 'bool'},
+        optimize_field          = {text = '-m',             style = 'bool'},
+        optimize_image_center   = {text = '-i',             style = 'bool'},
+        auto_crop               = {text = '-C',             style = 'bool'},
+        distortion              = {text = '--distortion',   style = 'bool'},
+        gpu                     = {text = '--gpu',          style = 'bool'},
+        grid_size               = {text = '-g ',            style = 'integer'},
+        control_points          = {text = '-c ',            style = 'integer'},
+        control_points_remove   = {text = '-t ',            style = 'integer'},
+        correlation             = {text = '--corr=',        style = 'float'}
     }
 }
 local ENF = {
@@ -164,16 +102,16 @@ local ENF = {
     arg_string = '',
     image_string = '',
     args = {
-        exposure_weight         = {text = '--exposure-weight=',         style = 'float',    default_value = 1.0,    widget_type = "slider",       widget = GUI.ENF.exposure_weight},
-        saturation_weight       = {text = '--saturation-weight=',       style = 'float',    default_value = 0.2,    widget_type = "slider",       widget = GUI.ENF.saturation_weight},
-        contrast_weight         = {text = '--contrast-weight=',         style = 'float',    default_value = 0.0,    widget_type = "slider",       widget = GUI.ENF.contrast_weight},
-        exposure_optimum        = {text = '--exposure-optimum=',        style = 'float',    default_value = 0.5,    widget_type = "slider",       widget = GUI.ENF.exposure_optimum},
-        exposure_width          = {text = '--exposure-width=',          style = 'float',    default_value = 0.2,    widget_type = "slider",       widget = GUI.ENF.exposure_width},
-        hard_masks              = {text = '--hard-mask',                style = 'bool',     default_value = false,  widget_type = "check_button", widget = GUI.ENF.hard_masks},
-        save_masks              = {text = '--save-masks',               style = 'bool',     default_value = false,  widget_type = "check_button", widget = GUI.ENF.save_masks},
-        contrast_window_size    = {text = '--contrast-window-size=',    style = 'string',   default_value = '5',    widget_type = "combobox",     widget = GUI.ENF.contrast_window_size},
-        contrast_edge_scale     = {text = '--contrast-edge-scale=',     style = 'string',   default_value = "0.0",  widget_type = "combobox",     widget = GUI.ENF.contrast_edge_scale},
-        contrast_min_curvature  = {text = '--contrast-min-curvature=',  style = 'string',   default_value = '0.0%', widget_type = "combobox",     widget = GUI.ENF.contrast_min_curvature}
+        exposure_weight         = {text = '--exposure-weight=',         style = 'float'},
+        saturation_weight       = {text = '--saturation-weight=',       style = 'float'},
+        contrast_weight         = {text = '--contrast-weight=',         style = 'float'},
+        exposure_optimum        = {text = '--exposure-optimum=',        style = 'float'},
+        exposure_width          = {text = '--exposure-width=',          style = 'float'},
+        hard_masks              = {text = '--hard-mask',                style = 'bool'},
+        save_masks              = {text = '--save-masks',               style = 'bool'},
+        contrast_window_size    = {text = '--contrast-window-size=',    style = 'integer'},
+        contrast_edge_scale     = {text = '--contrast-edge-scale=',     style = 'float'},
+        contrast_min_curvature  = {text = '--contrast-min-curvature=', style = 'string'}
     }
 }
 local EXF = {
@@ -182,42 +120,56 @@ local EXF = {
     first_run = true,
     install_error = false
 }
-local TARGET = {
-  format                  = {style = 'string',  default_value = 'tif',                    widget_type = "combobox",            widget = GUI.Target.format},
-  depth                   = {style = 'string',  default_value = '16',                     widget_type = "combobox",            widget = GUI.Target.depth},   
-  compression_level_tif   = {style = 'string',  default_value = 'lzw',                    widget_type = "combobox",            widget = GUI.Target.compression_level_tif},
-  compression_level_jpg   = {style = 'integer', default_value = 85,                       widget_type = "slider",              widget = GUI.Target.compression_level_jpg},
-  output_directory        = {style = 'string',  default_value = '',                       widget_type = "file_chooser_button", widget = GUI.Target.output_directory},
-  source_location         = {style = 'bool',    default_value = true,                     widget_type = "check_button",        widget = GUI.Target.source_location},
-  on_conflict             = {style = 'string',  default_value = 'create unique filename', widget_type = "combobox",            widget = GUI.Target.on_conflict},
-  auto_import             = {style = 'bool',    default_value = true,                     widget_type = "check_button",        widget = GUI.Target.auto_import},
-  apply_style             = {style = 'string',  default_value = "none",                   widget_type = "combobox",            widget = GUI.Target.apply_style},
-  copy_tags               = {style = 'bool',    default_value = false,                    widget_type = "check_button",        widget = GUI.Target.copy_tags},
-  add_tags                = {style = 'string',  default_value = '',                       widget_type = "entry",               widget = GUI.Target.add_tags}
-}
-
-local PRESETS = {
-  current_preset = {style = 'string', default_value = 'dri_1', widget_type = "combobox",     widget = GUI.Presets.current_preset},
-  load =           {style = nil,      default_value = nil,     widget_type = "button",       widget = GUI.Presets.load},
-  save =           {style = nil,      default_value = nil,     widget_type = "button",       widget = GUI.Presets.save},
-  variants =       {style = 'bool',   default_value = false,   widget_type = "check_button", widget = GUI.Presets.variants},
-  variants_type =  {style = 'string', default_value = 'dri',   widget_type = "combobox",     widget = GUI.Presets.variants_type},
-  values = {
-    dri_1 = "1.0;0.2;0.0;0.5;0.2;F;F;5;0.0;0.0%",
-    dri_2 = "1.0;0.2;0.0;0.3;0.2;F;F;5;0.0;0.0%",
-    dri_3 = "1.0;0.2;0.0;0.7;0.2;F;F;5;0.0;0.0%",
-    dff_1 = "0.0;0.0;1.0;0.5;0.2;T;F;7;0.3;0.5%",
-    dff_2 = "0.0;0.0;1.0;0.5;0.2;T;F;5;0.1;0.3%",
-    dff_3 = "0.0;0.0;1.0;0.5;0.2;T;F;9;0.5;0.8%"
-  },
-  key = {"exposure_weight", "saturation_weight", "contrast_weight", "exposure_optimum", "exposure_width", "hard_masks", "save_masks", "contrast_window_size", 
-         "contrast_edge_scale", "contrast_min_curvature"}
-}
-
-local MODULE = {
-  align =           {style = 'bool',    default_value = false,            widget_type = "check_button", widget = GUI.align},
-  options_contain = {style = 'integer', default_value = 2,                widget_type = "stack",        widget = GUI.options_contain},
-  show_options =    {style = 'string',  default_value = 'enfuse/enblend', widget_type = "combobox",     widget = GUI.show_options}
+local GUI = {
+    AIS = {
+        radial_distortion       = {},
+        optimize_field          = {},
+        optimize_image_center   = {},
+        auto_crop               = {},
+        distortion              = {},
+        grid_size               = {},
+        control_points          = {},
+        control_points_remove   = {},
+        correlation             = {}},
+    ENF = {
+        exposure_weight         = {},
+        saturation_weight       = {},
+        contrast_weight         = {},
+        exposure_optimum        = {},
+        exposure_width          = {},
+        hard_masks              = {},
+        save_masks              = {},
+        contrast_window_size    = {},
+        contrast_edge_scale     = {},
+        contrast_min_curvature  = {}},
+    Target = {
+        format                  = {},
+        depth                   = {},   
+        compression_level_tif   = {},
+        compression_level_jpg   = {},
+        output_compress         = {},
+        output_directory        = {},
+        source_location         = {},
+        on_conflict             = {},
+        auto_import             = {},
+        apply_style             = {},
+        copy_tags               = {},
+        add_tags                = {}},
+    Presets = {
+        current_preset      ={};
+        load                ={};
+        save                ={};
+        variants            ={};
+        variants_type       ={}},
+    exes = {
+        align_image_stack = {},
+        enfuse = {},
+        exiftool = {},
+        update = {}
+    },
+    align                   = {},
+    options_contain         = {},
+    show_options            = {}
 }
 
 local styles = dt.styles
@@ -227,20 +179,6 @@ for _,i in pairs(dt.styles) do
 end
 
 -- FUNCTION --
-local function update_combobox_selected(cmbx, value)
-  dt.print_log("passed in value is " .. value)
-  for i,val in ipairs(cmbx) do
-    if val == value then
-      dt.print_log("matched " .. val .. " setting selected to " .. i)
-      cmbx.selected = i
-      break
-    end
-    if i == #cmbx then
-      break
-    end
-  end
-end
-
 local function InRange(test, low, high) -- tests if test value is within range of low and high (inclusive)
     if test >= low and test <= high then
         return true
@@ -280,28 +218,29 @@ local function BuildExecuteCmd(prog_table) --creates a program command using ele
 end
 
 local function PreCall(prog_tbls) --looks to see if this is the first call, if so checks to see if program is installed properly
-  dt.print_log("In PreCall")
-  dt.preferences.write(mod, "bin_exists", "bool", true)
-  for _,prog in pairs(prog_tbls) do
-    prog.bin = df.check_if_bin_exists(prog.name)
-    if not prog.bin then
-      prog.install_error = true
-      dt.preferences.write(mod, "bin_exists", "bool", false)
-      dt.print_error("Could not find executable for " .. prog.name)
+    for _,prog in pairs(prog_tbls) do
+        if prog.first_run then
+            prog.bin = df.check_if_bin_exists(prog.name)
+            if not prog.bin then 
+                prog.install_error = true
+                dt.preferences.write(mod, 'bin_exists', 'bool', false)
+            else
+                prog.bin = CleanSpaces(prog.bin)
+            end
+            prog.first_run = false
+        end
     end
-  end
-  if not dt.preferences.read(mod, 'bin_exists', 'bool') then
-      GUI.options_contain.active = 4
-      GUI.show_options.sensitive = false
-      dt.print(_('please update your binary locations'))
-  end
+    if not dt.preferences.read(mod, 'bin_exists', 'bool') then
+        GUI.options_contain.active = 4
+        GUI.show_options.sensitive = false
+        dt.print(_('please update your binary locations'))
+    end
 end
 
 local function ExeUpdate(prog_tbl) --updates executable paths and verifies them
     dt.preferences.write(mod, 'bin_exists', 'bool', true)
     for _,prog in pairs(prog_tbl) do
-      prog.bin = dt.preferences.read('executable_paths', prog.name, 'string')
-        --[[dt.preferences.write('executable_paths', prog.name, 'string', GUI.exes[prog.name].value)
+        dt.preferences.write('executable_paths', prog.name, 'string', GUI.exes[prog.name].value)
         prog.bin = df.check_if_bin_exists(prog.name)
         if not prog.bin then 
             prog.install_error = true
@@ -309,7 +248,7 @@ local function ExeUpdate(prog_tbl) --updates executable paths and verifies them
             dt.print(_('issue with ')..prog.name.._(' executable'))
         else
             prog.bin = CleanSpaces(prog.bin)
-        end]]
+        end
         prog.first_run = false
     end
     if dt.preferences.read(mod, 'bin_exists', 'bool') then
@@ -383,10 +322,8 @@ local function UpdateENFargs(image_table, prefix) --updates the Enfuse arguments
         images_to_blend = images_to_blend..df.sanitize_filename(temp_image)..' '
     end
     ENF.arg_string = ENF.arg_string..' --depth='..GUI.Target.depth.value..' '
-    if GUI.Target.format.value == 'tif' then 
-      ENF.arg_string = ENF.arg_string..'--compression='..GUI.Target.compression_level_tif.value..' '
-    elseif 
-      GUI.Target.format.value == 'jpg' then ENF.arg_string = ENF.arg_string..'--compression='..GUI.Target.compression_level_jpg.value..' '
+    if GUI.Target.format.value == 'tif' then ENF.arg_string = ENF.arg_string..'--compression='..GUI.Target.compression_level_tif.value..' '
+    elseif GUI.Target.format.value == 'jpg' then ENF.arg_string = ENF.arg_string..'--compression='..GUI.Target.compression_level_jpg.value..' '
     end
     if not GUI.Target.source_location.value then out_path = GUI.Target.output_directory.value end
     out_name = smallest_name..'-'..largest_id
@@ -525,8 +462,8 @@ local function main(storage, image_table, extra_data)
         local resp = dsys.external_command(run_cmd)
         if resp ~= 0 then
             remove_temp_files(images_to_remove)
-            dt.print_error(ENF.name .. _(' failed'))
-            dt.print(ENF.name .. _(' failed'))
+            dt.print_error(ENF.name.._(' failed'))
+            dt.print(ENF.name.._(' failed'))
             return
         end
         
@@ -561,18 +498,6 @@ local function main(storage, image_table, extra_data)
     job.valid = false
     dt.print('image fusion process complete')
 end
-
-if not initialized then
-  for _,tbl in ipairs({AIS.args, ENF.args, TARGET, MODULE, PRESETS}) do
-    for k,v in pairs(tbl) do
-      if v.style then
-        dt.preferences.write(mod, "active_" .. k, v.style, v.default_value)
-      end
-    end
-  end
-  dt.preferences.write(mod, "active_align", "bool", false)
-end
-dt.print_log("past functions")
 
 --GUI--
 stack_compression = dt.new_widget('stack'){}
@@ -633,12 +558,12 @@ GUI.AIS.gpu = dt.new_widget('check_button'){
     clicked_callback = function(self) dt.preferences.write(mod, 'active_gpu', 'bool', self.value) end,
     reset_callback = function(self) self.value = true end
 }
---temp = dt.preferences.read(mod, 'active_grid_size_ind', 'integer')
---if not InRange(temp, 1, 9) then temp = 5 end 
+temp = dt.preferences.read(mod, 'active_grid_size_ind', 'integer')
+if not InRange(temp, 1, 9) then temp = 5 end 
 GUI.AIS.grid_size = dt.new_widget('combobox'){
     label = _('image grid size'), 
     tooltip = _('break image into a rectangular grid \nand attempt to find num control points in each section.\ndefault: (5x5)'),
-    selected = 1,
+    selected = temp,
     '1','2','3','4','5','6','7','8','9',
     changed_callback = function(self)
         dt.preferences.write(mod, 'active_grid_size', 'integer', self.value) 
@@ -650,13 +575,12 @@ GUI.AIS.grid_size = dt.new_widget('combobox'){
         dt.preferences.write(mod, 'active_grid_size_ind', 'integer', self.selected)
     end
 } 
-update_combobox_selected(GUI.AIS.grid_size, dt.preferences.read(mod, 'active_grid_size', 'string'))
---temp = dt.preferences.read(mod, 'active_control_points_ind', 'integer')
---if not InRange(temp, 1, 9) then temp = 8 end 
+temp = dt.preferences.read(mod, 'active_control_points_ind', 'integer')
+if not InRange(temp, 1, 9) then temp = 8 end 
 GUI.AIS.control_points = dt.new_widget('combobox'){
     label = _('control points/grid'), 
     tooltip = _('number of control points (per grid, see option -g) \nto create between adjacent images \ndefault: (8).'),
-    selected = 1,
+    selected = temp,
     '1','2','3','4','5','6','7','8','9',             
     changed_callback = function(self)
         dt.preferences.write(mod, 'active_control_points', 'integer', self.value) 
@@ -668,13 +592,12 @@ GUI.AIS.control_points = dt.new_widget('combobox'){
         dt.preferences.write(mod, 'active_control_points_ind', 'integer', self.selected)
     end
 } 
-update_combobox_selected(GUI.AIS.control_points, dt.preferences.read(mod, 'active_control_points', 'string'))
---temp = dt.preferences.read(mod, 'active_control_points_remove_ind', 'integer')
---if not InRange(temp, 1, 9) then temp = 3 end 
+temp = dt.preferences.read(mod, 'active_control_points_remove_ind', 'integer')
+if not InRange(temp, 1, 9) then temp = 3 end 
 GUI.AIS.control_points_remove = dt.new_widget('combobox'){
     label = _('remove control points with error'), 
     tooltip = _('remove all control points with an error higher \nthan num pixels \ndefault: (3)'),
-    selected = 1,
+    selected = temp,
     '1','2','3','4','5','6','7','8','9',             
     changed_callback = function(self)
         dt.preferences.write(mod, 'active_control_points_remove', 'integer', self.value) 
@@ -686,13 +609,12 @@ GUI.AIS.control_points_remove = dt.new_widget('combobox'){
         dt.preferences.write(mod, 'active_control_points_remove_ind', 'integer', self.selected)
     end
 }
-update_combobox_selected(GUI.AIS.control_points_remove, dt.preferences.read(mod, 'active_control_points_remove', 'string'))
---temp = dt.preferences.read(mod, 'active_correlation_ind', 'integer')
---if not InRange(temp, 1, 10) then temp = 9 end 
+temp = dt.preferences.read(mod, 'active_correlation_ind', 'integer')
+if not InRange(temp, 1, 10) then temp = 9 end 
 GUI.AIS.correlation  = dt.new_widget('combobox'){
     label = _('correlation threshold for control points'), 
     tooltip = _('correlation threshold for identifying \ncontrol points \ndefault: (0.9).'),
-    selected = 1,
+    selected = temp,
     '0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0',     
     changed_callback = function(self)
         dt.preferences.write(mod, 'active_correlation', 'float', self.value) 
@@ -704,67 +626,65 @@ GUI.AIS.correlation  = dt.new_widget('combobox'){
         dt.preferences.write(mod, 'active_correlation_ind', 'integer', self.selected)
     end
 } 
-update_combobox_selected(GUI.AIS.correlation, dt.preferences.read(mod, 'active_correlation', 'string'))
 local label_ENF_options= dt.new_widget('section_label'){
     label = _('image fusion options')
 }
-dt.print_log("past GUI.AIS")
---temp = dt.preferences.read(mod, 'active_exposure_weight', 'float')
---if not InRange(temp, 0, 1) then temp = 1 end
+temp = dt.preferences.read(mod, 'active_exposure_weight', 'float')
+if not InRange(temp, 0, 1) then temp = 1 end
 GUI.ENF.exposure_weight = dt.new_widget('slider'){
     label = _('exposure weight'),
     tooltip = _('set the relative weight of the well-exposedness criterion \nas defined by the chosen exposure weight function. \nincreasing this weight relative to the others will\n make well-exposed pixels contribute more to\n the final output. \ndefault: (1.0)'),
     hard_min = 0,
     hard_max = 1,
-    value = dt.preferences.read(mod, 'active_exposure_weight', 'float'),
+    value = temp,
     reset_callback = function(self) 
         self.value = 1
     end
 }
---temp = dt.preferences.read(mod, 'active_saturation_weight', 'float')
---if not InRange(temp, 0, 1) then temp = .2 end
+temp = dt.preferences.read(mod, 'active_saturation_weight', 'float')
+if not InRange(temp, 0, 1) then temp = .2 end
 GUI.ENF.saturation_weight = dt.new_widget('slider'){
     label = _('saturation weight'),
     tooltip = _('set the relative weight of high-saturation pixels. \nincreasing this weight makes pixels with high \nsaturation contribute more to the final output. \ndefault: (0.2)'),
     hard_min = 0,
     hard_max = 1,
-    value = dt.preferences.read(mod, 'active_saturation_weight', 'float'),
+    value = temp,
     reset_callback = function(self) 
         self.value = 0.2
     end
 }
---temp = dt.preferences.read(mod, 'active_contrast_weight', 'float')
---if not InRange(temp, 0, 1) then temp = 0 end
+temp = dt.preferences.read(mod, 'active_contrast_weight', 'float')
+if not InRange(temp, 0, 1) then temp = 0 end
 GUI.ENF.contrast_weight = dt.new_widget('slider'){
     label = _('contrast weight'),
     tooltip = _('sets the relative weight of high local-contrast pixels. \ndefault: (0.0).'),
     hard_min = 0,
     hard_max = 1,
-    value = dt.preferences.read(mod, 'active_contrast_weight', 'float'),
+    value = temp,
     reset_callback = function(self) 
         self.value = 0
     end
 }
---temp = dt.preferences.read(mod, 'active_exposure_optimum', 'float')
---if not InRange(temp, 0, 1) then temp = 0.5 end
+temp = dt.preferences.read(mod, 'active_exposure_optimum', 'float')
+if not InRange(temp, 0, 1) then temp = 0.5 end
 GUI.ENF.exposure_optimum = dt.new_widget('slider'){
     label = _('exposure optimum'),
     tooltip = _('determine at what normalized exposure value\n the optimum exposure of the input images\n is. this is, set the position of the maximum\n of the exposure weight curve. use this \noption to fine-tune exposure weighting. \ndefault: (0.5)'),
     hard_min = 0,
     hard_max = 1,
-    value = dt.preferences.read(mod, 'active_exposure_optimum', 'float'),
+    value = temp,
     reset_callback = function(self) 
         self.value = 0.5
     end
 }
---temp = dt.preferences.read(mod, 'active_exposure_width', 'float')
---if not InRange(temp, 0, 1) then temp = 0.2 end
+temp = dt.preferences.read(mod, 'active_exposure_width', 'float')
+if not InRange(temp, 0, 1) then temp = 0.2 end
 GUI.ENF.exposure_width = dt.new_widget('slider'){
     label = _('exposure width'),
     tooltip = _('set the characteristic width (FWHM) of the exposure \nweight function. low numbers give less weight to \npixels that are far from the user-defined \noptimum and vice versa. use this option to \nfine-tune exposure weighting. \ndefault: (0.2)'),
     hard_min = 0,
     hard_max = 1,
-    value = dt.preferences.read(mod, 'active_exposure_width', 'float'),
+    value = temp,
     reset_callback = function(self) 
         self.value = 0.2
     end
@@ -783,12 +703,12 @@ GUI.ENF.save_masks = dt.new_widget('check_button'){
     clicked_callback = function(self) dt.preferences.write(mod, 'active_save_masks', 'bool', self.value) end,
     reset_callback = function(self) self.value = false end
 }
---temp = dt.preferences.read(mod, 'active_contrast_window_size_ind', 'integer')
---if not InRange(temp, 1, 8) then temp = 3 end 
+temp = dt.preferences.read(mod, 'active_contrast_window_size_ind', 'integer')
+if not InRange(temp, 1, 8) then temp = 3 end 
 GUI.ENF.contrast_window_size = dt.new_widget('combobox'){
     label = _('contrast window size'), 
     tooltip = _('set the window size for local contrast analysis. \nthe window will be a square of size × size pixels. \nif given an even size, Enfuse will \nautomatically use the next odd number.\nfor contrast analysis size values larger \nthan 5 pixels might result in a \nblurry composite image. values of 3 and \n5 pixels have given good results on \nfocus stacks. \ndefault: (5) pixels'),
-    selected = 1,
+    selected = temp,
     '3','4','5','6','7','8','9','10',
     changed_callback = function(self)
         dt.preferences.write(mod, 'active_contrast_window_size', 'integer', self.value) 
@@ -800,13 +720,12 @@ GUI.ENF.contrast_window_size = dt.new_widget('combobox'){
         dt.preferences.write(mod, 'active_contrast_window_size_ind', 'integer', self.selected)
     end
 } 
-update_combobox_selected(GUI.ENF.contrast_window_size, dt.preferences.read(mod, 'active_contrast_window_size', 'string'))
---temp = dt.preferences.read(mod, 'active_contrast_edge_scale_ind', 'integer')
---if not InRange(temp, 1, 6) then temp = 1 end 
+temp = dt.preferences.read(mod, 'active_contrast_edge_scale_ind', 'integer')
+if not InRange(temp, 1, 6) then temp = 1 end 
 GUI.ENF.contrast_edge_scale = dt.new_widget('combobox'){
     label = _('contrast edge scale'), 
     tooltip = _('a non-zero value for EDGE-SCALE switches on the \nLaplacian-of-Gaussian (LoG) edge detection algorithm.\n edage-scale is the radius of the Gaussian used \nin the search for edges. a positive LCE-SCALE \nturns on local contrast enhancement (LCE) \nbefore the LoG edge detection. \nDefault: (0.0) pixels.'),
-    selected = 1,
+    selected = temp,
     '0.0','0.1','0.2','0.3','0.4','0.5',
     changed_callback = function(self)
         dt.preferences.write(mod, 'active_contrast_edge_scale', 'float', self.value) 
@@ -818,13 +737,12 @@ GUI.ENF.contrast_edge_scale = dt.new_widget('combobox'){
         dt.preferences.write(mod, 'active_contrast_edge_scale_ind', 'integer', self.selected)
     end
 }
-update_combobox_selected(GUI.ENF.contrast_edge_scale, dt.preferences.read(mod, 'active_contrast_edge_scale', 'string'))
---temp = dt.preferences.read(mod, 'active_contrast_min_curvature_ind', 'integer')
---if not InRange(temp, 1, 11) then temp = 1 end 
+temp = dt.preferences.read(mod, 'active_contrast_min_curvature_ind', 'integer')
+if not InRange(temp, 1, 11) then temp = 1 end 
 GUI.ENF.contrast_min_curvature = dt.new_widget('combobox'){
     label = _('contrast min curvature [%]'),
     tooltip = _('define the minimum curvature for the LoG edge detection. Append a ‘%’ to specify the minimum curvature relative to maximum pixel value in the source image. Default: (0.0%)'),
-    selected = 1, 
+    selected = temp, 
     '0.0%','0.1%','0.2%','0.3%','0.4%','0.5%','0.6%','0.7%','0.8%','0.9%','1.0%',
     changed_callback = function(self)
         dt.preferences.write(mod, 'active_contrast_min_curvature', 'string', self.value) 
@@ -836,17 +754,15 @@ GUI.ENF.contrast_min_curvature = dt.new_widget('combobox'){
         dt.preferences.write(mod, 'active_contrast_min_curvature_ind', 'integer', self.selected)
     end
 } 
-update_combobox_selected(GUI.ENF.contrast_min_curvature, dt.preferences.read(mod, 'active_contrast_min_curvature', 'string'))
 local label_target_options= dt.new_widget('section_label'){
     label = _('target file')
 }
-dt.print_log("past GUI.ENF")
---temp = dt.preferences.read(mod, 'active_compression_level_tif_ind', 'integer')
---if not InRange(temp, 1, 4) then temp = 1 end 
+temp = dt.preferences.read(mod, 'active_compression_level_tif_ind', 'integer')
+if not InRange(temp, 1, 4) then temp = 1 end 
 GUI.Target.compression_level_tif = dt.new_widget('combobox'){
     label = _('tiff compression'), 
     tooltip = _('compression method for tiff files'),
-    selected = 1,
+    selected = temp,
     'none','deflate','lzw','packbits',
     changed_callback = function(self)
         dt.preferences.write(mod, 'active_compression_level_tif', 'string', self.value) 
@@ -858,9 +774,8 @@ GUI.Target.compression_level_tif = dt.new_widget('combobox'){
         dt.preferences.write(mod, 'active_compression_level_tif_ind', 'integer', self.selected)
     end 
 }
-update_combobox_selected(GUI.Target.compression_level_tif, dt.preferences.read(mod, 'active_compression_level_tif', 'string'))
---temp = dt.preferences.read(mod, 'active_compression_level_jpg', 'integer')
---if not InRange(temp, 0, 100) then temp = 0 end
+temp = dt.preferences.read(mod, 'active_compression_level_jpg', 'integer')
+if not InRange(temp, 0, 100) then temp = 0 end
 GUI.Target.compression_level_jpg = dt.new_widget('slider'){
     label = _('jpeg compression'),
     tooltip = _('jpeg compression level'),
@@ -870,7 +785,7 @@ GUI.Target.compression_level_jpg = dt.new_widget('slider'){
     hard_max = 100,
     step = 5,
     digits = 0,
-    value = dt.preferences.read(mod, 'active_compression_level_jpg', 'integer'),
+    value = temp,
     reset_callback = function(self) 
         self.value = 0
     end
@@ -882,12 +797,12 @@ stack_compression = dt.new_widget('stack'){
     blank,
     active = 1
 }
---temp = dt.preferences.read(mod, 'active_format_ind', 'integer')
---if not InRange(temp, 1, 6) then temp = 1 end 
+temp = dt.preferences.read(mod, 'active_format_ind', 'integer')
+if not InRange(temp, 1, 6) then temp = 1 end 
 GUI.Target.format = dt.new_widget('combobox'){
     label = _('file format'), 
     tooltip = _('file format of the enfused final image'),
-    selected = 1,
+    selected = temp,
     'tif','jpg','png','pnm','pbm','ppm',
     changed_callback = function(self)
         dt.preferences.write(mod, 'active_format', 'string', self.value) 
@@ -903,13 +818,12 @@ GUI.Target.format = dt.new_widget('combobox'){
         dt.preferences.write(mod, 'active_format_ind', 'integer', self.selected)
     end 
 }
-update_combobox_selected(GUI.Target.format, dt.preferences.read(mod, 'active_format', 'string'))
---temp = dt.preferences.read(mod, 'active_depth_ind', 'integer')
---if not InRange(temp, 1, 5) then temp = 3 end 
+temp = dt.preferences.read(mod, 'active_depth_ind', 'integer')
+if not InRange(temp, 1, 5) then temp = 3 end 
 GUI.Target.depth = dt.new_widget('combobox'){
     label = _('bit depth'), 
     tooltip = _('bit depth of the enfused file'),
-    selected = 1,
+    selected = temp,
     '8','16','32','r32','r64',
     changed_callback = function(self)
         dt.preferences.write(mod, 'active_depth', 'string', self.value) 
@@ -921,13 +835,12 @@ GUI.Target.depth = dt.new_widget('combobox'){
         dt.preferences.write(mod, 'active_depth_ind', 'integer', self.selected)
     end 
 }
-update_combobox_selected(GUI.Target.depth, dt.preferences.read(mod, 'active_depth', 'string'))
 local label_directory = dt.new_widget('label'){
     label = _('directory'),
     ellipsize = 'start',
     halign = 'start'
 }
-local temp = dt.preferences.read(mod, 'active_output_directory', 'string')
+temp = dt.preferences.read(mod, 'active_output_directory', 'string')
 if temp == '' or temp == nil then temp = dt.collection[1].path end
 GUI.Target.output_directory = dt.new_widget('file_chooser_button'){
     title = 'Select export path', 
@@ -943,8 +856,8 @@ GUI.Target.source_location = dt.new_widget('check_button'){
     clicked_callback = function(self) dt.preferences.write(mod, 'active_source_location', 'bool', self.value) end,
     reset_callback = function(self) self.value = true end
 }
---temp = dt.preferences.read(mod, 'active_on_conflict_ind', 'integer')
---if not InRange(temp, 1, 2) then temp = 1 end 
+temp = dt.preferences.read(mod, 'active_on_conflict_ind', 'integer')
+if not InRange(temp, 1, 2) then temp = 1 end 
 GUI.Target.on_conflict = dt.new_widget('combobox'){
     label = _('on conflict'), 
     selected = 1,  
@@ -959,7 +872,6 @@ GUI.Target.on_conflict = dt.new_widget('combobox'){
         dt.preferences.write(mod, 'active_on_conflict_ind', 'integer', self.selected)
     end 
 }  
-update_combobox_selected(GUI.Target.on_conflict, dt.preferences.read(mod, 'active_on_conflict', 'string'))
 GUI.Target.auto_import = dt.new_widget('check_button'){
     label = _('auto import'), 
     value = dt.preferences.read(mod, 'active_auto_import', 'bool'),
@@ -972,7 +884,7 @@ GUI.Target.auto_import = dt.new_widget('check_button'){
     end,
     reset_callback = function(self) self.value = true end
 }
---temp = dt.preferences.read(mod, 'active_apply_style_ind', 'integer')
+temp = dt.preferences.read(mod, 'active_apply_style_ind', 'integer')
 GUI.Target.apply_style = dt.new_widget('combobox'){
     label = _('Apply Style on Import'),
     tooltip = _('Apply selected style on auto-import to newly created blended image'),
@@ -991,7 +903,8 @@ GUI.Target.apply_style = dt.new_widget('combobox'){
 for k=1, (styles_count-1) do
     GUI.Target.apply_style[k+1] = styles[k].name
 end
-update_combobox_selected(GUI.Target.apply_style, dt.preferences.read(mod, 'active_apply_style', 'string'))
+if not InRange(temp, 1, styles_count) then temp = 1 end
+GUI.Target.apply_style.selected = temp
 GUI.Target.copy_tags = dt.new_widget('check_button'){
     label = _('copy tags'), 
     value = dt.preferences.read(mod, 'active_copy_tags', 'bool'),
@@ -1007,9 +920,8 @@ GUI.Target.add_tags = dt.new_widget('entry'){
     placeholder = 'Enter tags, seperated by commas',
     editable = true
 }
-dt.print_log("past GUI.Target")
---temp = dt.preferences.read(mod, 'active_current_preset_ind', 'integer')
---if not InRange(temp, 1, 6) then temp = 1 end
+temp = dt.preferences.read(mod, 'active_current_preset_ind', 'integer')
+if not InRange(temp, 1, 6) then temp = 1 end
 GUI.Presets.current_preset = dt.new_widget('combobox'){
     label = _('active preset'),
     tooltip = _('preset to be loaded from or saved to'),
@@ -1025,7 +937,6 @@ GUI.Presets.current_preset = dt.new_widget('combobox'){
         dt.preferences.write(mod, 'active_current_preset_ind', 'integer', self.selected)
     end 
 }
-update_combobox_selected(GUI.Presets.current_preset, dt.preferences.read(mod, 'active_current_preset', 'string'))
 GUI.Presets.load = dt.new_widget('button'){
     label = _('laod fusion preset'),
     tooltip = _('load current fusion parameters from selected preset'),
@@ -1053,8 +964,8 @@ GUI.Presets.variants = dt.new_widget('check_button'){
     end,
     reset_callback = function(self) self.value = false end
 }
---temp = dt.preferences.read(mod, 'active_variants_type_ind', 'integer')
---if not InRange(temp, 1, 2) then temp = 1 end
+temp = dt.preferences.read(mod, 'active_variants_type_ind', 'integer')
+if not InRange(temp, 1, 2) then temp = 1 end
 GUI.Presets.variants_type = dt.new_widget('combobox'){
     label = _('create variants type'),
     tooltip = _('preset type to be used when creating image variants'),
@@ -1070,9 +981,8 @@ GUI.Presets.variants_type = dt.new_widget('combobox'){
         dt.preferences.write(mod, 'active_variants_type_ind', 'integer', self.selected)
     end 
 }
-update_combobox_selected(GUI.Presets.variants_type, dt.preferences.read(mod, 'active_variants_type', 'string'))
 GUI.Presets.variants_type.sensitive = GUI.Presets.variants.value
---[[temp = df.get_executable_path_preference(AIS.name)
+temp = df.get_executable_path_preference(AIS.name)
 GUI.exes.align_image_stack = dt.new_widget('file_chooser_button'){
     title = 'AIS binary path',
     value = temp,
@@ -1095,13 +1005,12 @@ GUI.exes.exiftool = dt.new_widget('file_chooser_button'){
     tooltip = temp,
     is_directory = false,
     changed_callback = function(self) self.tooltip = self.value end
-} ]]
+} 
 GUI.exes.update = dt.new_widget('button'){
     label = _('update'),
     tooltip = _('update the binary paths with current values'),
     clicked_callback = function() ExeUpdate({AIS,ENF,EXF}) end
 }
-dt.print_log("past GUI.Presets")
 temp = GUI.Target.format.value
 if temp == 'tif' then temp = 1
 elseif temp == 'jpg' then temp = 2
@@ -1166,10 +1075,9 @@ local box_Target = dt.new_widget('box'){
 }
 local box_exes = dt.new_widget('box'){
     orientation = 'vertical',
-    --[[GUI.exes.align_image_stack,
-            GUI.exes.enfuse,
-            GUI.exes.exiftool,]]
-    df.executable_path_widget({"align_image_stack","enfuse","exiftool"}),
+    GUI.exes.align_image_stack,
+    GUI.exes.enfuse,
+    GUI.exes.exiftool,
     GUI.exes.update
 }
 GUI.options_contain = dt.new_widget('stack'){
@@ -1217,5 +1125,3 @@ else
     GUI.options_contain.active = 4
     GUI.show_options.sensitive = false
 end
-
-dt.preferences.write(mod, "initialized", "bool", true)
