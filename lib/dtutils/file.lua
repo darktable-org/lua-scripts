@@ -48,7 +48,7 @@ dtutils_file.libdoc.functions["check_if_bin_exists"] = {
     quoted and returned.  If no preference is specified and the operating system is
     linux then the which command is used to check for a binary in the path.  If found
     that path is returned.  If no binary is found, false is returned.]],
-  Return_Value = [[result - string - the sanitized path of the binary, false if not found]],
+  Return_Value = [[result - string - the path of the binary, false if not found]],
   Limitations = [[]],
   Example = [[]],
   See_Also = [[]],
@@ -70,9 +70,9 @@ function dtutils_file.check_if_bin_exists(bin)
   if string.len(path) > 0 then
     if dtutils_file.check_if_file_exists(path) then
       if (string.match(path, ".exe$") or string.match(path, ".EXE$")) and dt.configuration.running_os ~= "windows" then
-       result = dtutils_file.sanitize_filename("wine " .. path)
+       result = "wine " .. "\"" .. path .. "\""      
       else
-        result = dtutils_file.sanitize_filename(path)
+        result = "\"" .. path .. "\""
       end
     end
   elseif dt.configuration.running_os == "linux" then
@@ -80,7 +80,7 @@ function dtutils_file.check_if_bin_exists(bin)
     local output = p:read("*a")
     p:close()
     if string.len(output) > 0 then
-      result = dtutils_file.sanitize_filename(output:sub(1,-2))
+      result = output:sub(1,-2)
     end
   end
   return result
@@ -107,14 +107,9 @@ dtutils_file.libdoc.functions["split_filepath"] = {
 function dtutils_file.split_filepath(str)
   -- strip out single quotes from quoted pathnames
   str = string.gsub(str, "'", "")
-  str = string.gsub(str, '"', '')
   local result = {}
   -- Thank you Tobias Jakobs for the awesome regular expression, which I tweaked a little
   result["path"], result["filename"], result["basename"], result["filetype"] = string.match(str, "(.-)(([^\\/]-)%.?([^%.\\/]*))$")
-  if result["basename"] == "" and result["filetype"]:len() > 1 then
-    result["basename"] = result["filetype"]
-    result["filetype"] = ""
-  end
   return result
 end
 
@@ -227,21 +222,15 @@ dtutils_file.libdoc.functions["check_if_file_exists"] = {
 }
 
 function dtutils_file.check_if_file_exists(filepath)
-  local result = false
+  local result
   if (dt.configuration.running_os == 'windows') then
     filepath = string.gsub(filepath, '[\\/]+', '\\')
-    local p = io.popen("if exist " .. filepath .. " (echo 'yes') else (echo 'no')")
-    local ans = p:read("*all")
-    p:close()
-    if string.match(ans, "yes") then 
-      result = true
+    result = os.execute('if exist "'..filepath..'" (cmd /c exit 0) else (cmd /c exit 1)')
+    if not result then
+      result = false
     end
---    result = os.execute('if exist "'..filepath..'" (cmd /c exit 0) else (cmd /c exit 1)')
---    if not result then
---     result = false
---    end
   elseif (dt.configuration.running_os == "linux") then
-    result = os.execute('test -e ' .. dtutils_file.sanitize_filename(filepath))
+    result = os.execute('test -e ' .. "\"" .. filepath .. "\"")
     if not result then
       result = false
     end
@@ -277,11 +266,7 @@ dtutils_file.libdoc.functions["chop_filetype"] = {
 
 function dtutils_file.chop_filetype(path)
   local length = dtutils_file.get_filetype(path):len() + 2
-  if length > 2 then
-    return string.sub(path, 1, -length)
-  else
-    return path
-  end
+  return string.sub(path, 1, -length)
 end
 
 dtutils_file.libdoc.functions["file_copy"] = {
@@ -388,7 +373,7 @@ dtutils_file.libdoc.functions["filename_increment"] = {
     "01" is added to the basename.  If the filename already has an increment, then
     1 is added to it and the filename returned.]],
   Return_Value = [[result - string - the incremented filename]],
-  Limitations = [[The filename will be incremented to 99]],
+  Limitations = [[]],
   Example = [[]],
   See_Also = [[]],
   Reference = [[]],
@@ -411,9 +396,6 @@ function dtutils_file.filename_increment(filepath)
     if string.len(increment) > 2 then
       -- we got the filename so set the increment to 01
       increment = "01"
-    elseif increment == "99" then
-      dt.print_error("not incrementing, filename has already been incremented 99 times.")
-      return filepath
     else
       increment = string.format("%02d", tonumber(increment) + 1)
       basename = string.gsub(basename, "_(%d-)$", "")
@@ -451,9 +433,8 @@ function dtutils_file.create_unique_filename(filepath)
   while dtutils_file.check_if_file_exists(filepath) do
     filepath = dtutils_file.filename_increment(filepath)
     -- limit to 99 more exports of the original export
-    local increment = string.match(dtutils_file.get_basename(filepath), "_(%d-)$")
-    if increment == "99" then
-      break
+    if string.match(dtutils_file.get_basename(filepath), "_(d-)$") == "99" then
+      break 
     end
   end
   return filepath
@@ -595,7 +576,6 @@ dtutils_file.libdoc.functions["mkdir"] = {
   License = [[]],
   Copyright = [[]],
 }
-
 function dtutils_file.mkdir(path) 
   if not dtutils_file.check_if_file_exists(path) then
     local mkdir_cmd = dt.configuration.running_os == "windows" and "mkdir" or "mkdir -p"
