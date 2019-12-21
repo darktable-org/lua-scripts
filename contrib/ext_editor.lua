@@ -30,19 +30,282 @@
 
     CAVEATS
     * currently developed and tested only for Windows
+	* button are not equal in size and centered
 
     BUGS, COMMENTS, SUGGESTIONS
     * send to Marco Carrarini, marco.carrarini@gmail.com
 
     CHANGES
-    * 20191220 - initial version
+    * 20191220 - initial version, PR done
+	* 20191221 - reworked, cleaned, added "copy and edit"
 	
 ]]
+
 
 local dt = require "darktable"
 local df = require "lib/dtutils.file"
 local dtsys = require "lib/dtutils.system"
 
+
+-- executables of the external editors
+local program_paths = {
+	[1] = dt.preferences.read("ext_editor","program_path_1", "string"),
+	[2] = dt.preferences.read("ext_editor","program_path_2", "string"),
+	[3] = dt.preferences.read("ext_editor","program_path_3", "string"),
+	[4] = dt.preferences.read("ext_editor","program_path_4", "string"),
+	[5] = dt.preferences.read("ext_editor","program_path_5", "string"),
+	[6] = dt.preferences.read("ext_editor","program_path_6", "string"),
+	[7] = dt.preferences.read("ext_editor","program_path_7", "string"),
+	[8] = dt.preferences.read("ext_editor","program_path_8", "string"),
+	[9] = dt.preferences.read("ext_editor","program_path_9", "string")
+	}
+
+
+-- friendly name of the external editors
+local program_names = {
+	[1] = dt.preferences.read("ext_editor","program_name_1", "string"),
+	[2] = dt.preferences.read("ext_editor","program_name_2", "string"),
+	[3] = dt.preferences.read("ext_editor","program_name_3", "string"),
+	[4] = dt.preferences.read("ext_editor","program_name_4", "string"),
+	[5] = dt.preferences.read("ext_editor","program_name_5", "string"),
+	[6] = dt.preferences.read("ext_editor","program_name_6", "string"),
+	[7] = dt.preferences.read("ext_editor","program_name_7", "string"),
+	[8] = dt.preferences.read("ext_editor","program_name_8", "string"),
+	[9] = dt.preferences.read("ext_editor","program_name_9", "string")
+	}
+
+
+-- last used editor
+if not (dt.preferences.read("ext_editor","initialized", "bool")) then
+	dt.preferences.write("ext_editor","lastchoice", "integer", 1)
+	dt.preferences.write("ext_editor","initialized", "bool", true)
+	end
+local lastchoice = dt.preferences.read("ext_editor","lastchoice", "integer")
+
+
+-- combobox
+local combobox = dt.new_widget("combobox")
+	{
+	label = "choose program", 
+	tooltip = "select the external editor from the list",
+	value = lastchoice, -- remember status,
+	program_names[1],
+	program_names[2],
+	program_names[3],
+	program_names[4],
+	program_names[5],
+	program_names[6],
+	program_names[7],
+	program_names[8],
+	program_names[9]
+	}
+
+
+-- group image with leader image
+local function group_if_not_member(img, new_img)
+	local image_table = img:get_group_members()
+	local is_member = false
+	for _,image in ipairs(image_table) do
+		if image.filename == new_img.filename then
+			is_member = true
+			end
+		end
+	if not is_member then
+		new_img:group_with(img.group_leader)
+		end
+	end
+
+
+-- shows export progress
+local function show_status(storage, image, format, filename,
+	number, total, high_quality, extra_data)
+    dt.print(string.format(_("Export Image %i/%i"), number, total))
+	end
+
+
+-- callback for button "edit"
+local function OpenWith(choice)
+	
+	local images = dt.gui.selection()
+	
+	if #images == 1 then
+		for _, image in pairs(images) do 
+			
+			-- image to be edited
+			name = image.path.."\\"..image.filename 					
+			
+			-- launch the external editor
+			local run_cmd = '"'..program_paths[choice]..'" "'..name..'"' 
+			dt.print("Launching "..program_names[choice].."...")	
+			dtsys.external_command(run_cmd)
+			
+			-- refresh image cache
+			image:drop_cache()  
+			
+			-- remember the last editor used
+			dt.preferences.write("ext_editor","lastchoice", "integer", choice)
+			end
+	else
+		dt.print('please select one image')
+		end
+		
+	end
+
+
+-- callback for button "copy and edit"
+local function CopyAndOpenWith(choice)
+	
+	local images = dt.gui.selection()
+	
+	if #images == 1 then
+		for _,image in pairs(images) do 
+			
+			-- image to be copied and edited
+			local name = image.path.."\\"..image.filename
+			local new_name = name
+			
+			-- create unique filename
+			while df.check_if_file_exists(new_name) do
+				new_name = df.filename_increment(new_name)
+				end
+			
+			-- limit to 99 more exports of the original export
+			if string.match(df.get_basename(new_name), "_(d-)$") == "99" then
+					break
+				end
+				
+			-- physical copy
+			local result = df.file_copy(name, new_name)
+			
+			if result then
+				-- launch the external editor
+				local run_cmd = '"'..program_paths[choice]..'" "'..new_name..'"'  	
+				dt.print("Launching "..program_names[choice].."...")	
+				dtsys.external_command(run_cmd)
+				
+				-- import in database and group
+				local new_image = dt.database.import(new_name)
+				group_if_not_member(image, new_image)
+				
+				-- copy image tags
+				for _,tag in pairs(dt.tags.get_tags(image)) do
+					if not (string.sub(tag.name,1,9) == "darktable") then
+						dt.tags.attach(tag, new_image)
+						end
+					end
+				
+				-- remember the last editor used
+				dt.preferences.write("ext_editor","lastchoice", "integer", choice)
+				end	
+			end
+	else
+		dt.print('please select one image')
+		end
+		
+		
+	end
+
+
+-- button edit
+local button1 = dt.new_widget("button")
+	{
+	label = "edit",
+	tooltip = "open the selected image in external editor",
+	dt_lua_align_t = center,
+	clicked_callback = function (_)
+		local choice = combobox.selected
+		OpenWith(choice)
+		end
+	}
+
+
+-- button copy and edit
+local button2 = dt.new_widget("button")
+	{
+	label = "edit a copy",
+	tooltip = "create a copy of the selected image and open it in external editor",
+	clicked_callback = function (_)
+		local choice = combobox.selected
+		CopyAndOpenWith(choice)
+		end
+	}
+
+
+-- box for the two buttons
+local box1 = dt.new_widget ("box") {
+    orientation = "horizontal",
+	button1,
+	button2
+}
+
+
+-- export images and reimport in collection
+local function export2collection(storage, image_table, extra_data) 
+
+	for image, temp_name in pairs(image_table) do
+
+		-- images are first exported in temp folder
+		-- create unique filename
+		local new_name = image.path .."\\"..df.get_filename(temp_name)
+		while df.check_if_file_exists(new_name) do
+			new_name = df.filename_increment(new_name)
+			
+			-- limit to 99 more exports of the original export
+			if string.match(df.get_basename(new_name), "_(d-)$") == "99" then
+					break
+				end
+			end
+
+		-- image moved to collection folder
+		local result = df.file_move(temp_name, new_name)
+
+		if result then
+		
+			-- import in database and group
+			local new_image = dt.database.import(new_name)
+			group_if_not_member(image, new_image)
+
+			-- copy image tags
+			for _,tag in pairs(dt.tags.get_tags(image)) do
+				if not (string.sub(tag.name,1,9) == "darktable") then
+					dt.tags.attach(tag, new_image)
+					end
+				end
+			end
+		end
+	end
+
+
+-- callback function for shortcuts
+local function program_shortcut(event, shortcut)
+	local choice = tonumber(string.sub(shortcut, -1))
+	OpenWith(choice)
+end
+
+
+-- register new storage
+dt.register_storage("exp2coll", "collection", show_status, export2collection)
+
+
+-- register new lighttable module
+dt.register_lib(
+	"ext_editor",        -- module name
+	"external editors",  -- name
+	true,                -- expandable
+	false,               -- resetable
+	{[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},  
+	dt.new_widget("box") -- widget
+	{
+    orientation = "vertical",
+    combobox,
+	box1
+	},
+	nil,-- view_enter
+	nil -- view_leave
+	)
+
+
+-- register new preferences
 dt.preferences.register("ext_editor","program_path_9", "string","path to external editor 9", "path to external editor","")
 dt.preferences.register("ext_editor","program_name_9", "string","name of external editor 9", "name of external editor","")
 
@@ -70,177 +333,8 @@ dt.preferences.register("ext_editor","program_name_2", "string","name of externa
 dt.preferences.register("ext_editor","program_path_1", "string","path to external editor 1", "path to external editor","")
 dt.preferences.register("ext_editor","program_name_1", "string","name of external editor 1", "name of external editor","")
 
-local programs = {
-	[1] = dt.preferences.read("ext_editor","program_path_1", "string"),
-	[2] = dt.preferences.read("ext_editor","program_path_2", "string"),
-	[3] = dt.preferences.read("ext_editor","program_path_3", "string"),
-	[4] = dt.preferences.read("ext_editor","program_path_4", "string"),
-	[5] = dt.preferences.read("ext_editor","program_path_5", "string"),
-	[6] = dt.preferences.read("ext_editor","program_path_6", "string"),
-	[7] = dt.preferences.read("ext_editor","program_path_7", "string"),
-	[8] = dt.preferences.read("ext_editor","program_path_8", "string"),
-	[9] = dt.preferences.read("ext_editor","program_path_9", "string")
-	}
 
-local names = {
-	[1] = dt.preferences.read("ext_editor","program_name_1", "string"),
-	[2] = dt.preferences.read("ext_editor","program_name_2", "string"),
-	[3] = dt.preferences.read("ext_editor","program_name_3", "string"),
-	[4] = dt.preferences.read("ext_editor","program_name_4", "string"),
-	[5] = dt.preferences.read("ext_editor","program_name_5", "string"),
-	[6] = dt.preferences.read("ext_editor","program_name_6", "string"),
-	[7] = dt.preferences.read("ext_editor","program_name_7", "string"),
-	[8] = dt.preferences.read("ext_editor","program_name_8", "string"),
-	[9] = dt.preferences.read("ext_editor","program_name_9", "string")
-	}
-
-if not (dt.preferences.read("ext_editor","initialized", "bool")) then
-	dt.preferences.write("ext_editor","lastchoice", "integer", 1)
-	dt.preferences.write("ext_editor","initialized", "bool", true)
-	end
-
-local lastchoice = dt.preferences.read("ext_editor","lastchoice", "integer")
-
-local combobox = dt.new_widget("combobox")
-	{
-	label = "choose program", 
-	value = lastchoice, -- remember status,
-	names[1],
-	names[2],
-	names[3],
-	names[4],
-	names[5],
-	names[6],
-	names[7],
-	names[8],
-	names[9]
-	}
-
-
-local function OpenWith(choice)
-	
-	local images = dt.gui.selection()
-	local curr_image = ""
-	
-	if #images == 1 then
-		for _,image in pairs(images) do 
-			curr_image = image.path.."\\"..image.filename 					
-			local run_cmd = '"'..programs[choice]..'" "'..curr_image..'"'  	--additional quotes for spaces in filename
-			dt.print("Launching "..names[choice].."...")	
-			dtsys.external_command(run_cmd)
-			--image:drop_cache()  *** it doesn't work! why ? Delete and Import instead ***
-			image:delete()
-			local myimage = dt.database.import(curr_image)
-			dt.preferences.write("ext_editor","lastchoice", "integer", choice)
-			end
-	else
-		dt.print('please select one image')
-		end
-		
-	end
-
-local button1 = dt.new_widget("button")
-	{
-	label = "edit with external program",
-	clicked_callback = function (_)
-		local choice = combobox.selected
-		OpenWith(choice)
-		end
-	}
-
-
-local function group_if_not_member(img, new_img)
-	local image_table = img:get_group_members()
-	local is_member = false
-	for _,image in ipairs(image_table) do
-		if image.filename == new_img.filename then
-			is_member = true
-			end
-		end
-	if not is_member then
-		new_img:group_with(img.group_leader)
-		end
-	end
-
-
-local function show_status(storage, image, format, filename,
-	number, total, high_quality, extra_data)
-    dt.print(string.format(_("Export Image %i/%i"), number, total))
-	end
-
-
-local function export2collection(storage, image_table, extra_data) 
-
-	--	list of exported images
-	local img_list
-
-	--	reset and create image list
-	img_list = ""
-
-	for _,exp_img in pairs(image_table) do
-		exp_img = df.sanitize_filename(exp_img)
-		img_list = img_list ..exp_img.. " "
-		end
-		
---[[
-	for each of the image, exported image pairs
-	move the exported image into the directory with the original
-	then import the image into the database which will group it with the original
-	and then copy over any tags other than darktable tags
-]]
-	for image,exported_image in pairs(image_table) do
-
-		local myimage_name = image.path .. "/" .. df.get_filename(exported_image)
-
-		while df.check_if_file_exists(myimage_name) do
-			myimage_name = df.filename_increment(myimage_name)
-			-- limit to 99 more exports of the original export
-			if string.match(df.get_basename(myimage_name), "_(d-)$") == "99" then
-				break
-				end
-			end
-
-		local result = df.file_move(exported_image, myimage_name)
-
-		if result then
-			local myimage = dt.database.import(myimage_name)
-
-			group_if_not_member(image, myimage)
-
-			for _,tag in pairs(dt.tags.get_tags(image)) do
-				if not (string.sub(tag.name,1,9) == "darktable") then
-					dt.tags.attach(tag,myimage)
-					end
-				end
-			end
-		end
-	end
-
-
-local function program_shortcut(event, shortcut)
-	local choice = tonumber(string.sub(shortcut, -1))
-	OpenWith(choice)
-end
-
-
-dt.register_storage("exp2coll", "collection", show_status, export2collection)
-
-dt.register_lib(
-	"ext_editor",        -- module name
-	"external editors",  -- name
-	true,                -- expandable
-	false,               -- resetable
-	{[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},   -- containers
-	dt.new_widget("box") -- widget
-	{
-    orientation = "vertical",
-    combobox,
-	button1
-	},
-	nil,-- view_enter
-	nil -- view_leave
-	)
-	
+-- register new shortcuts	
 dt.register_event("shortcut", program_shortcut, "edit with program 1") 
 dt.register_event("shortcut", program_shortcut, "edit with program 2") 
 dt.register_event("shortcut", program_shortcut, "edit with program 3") 
