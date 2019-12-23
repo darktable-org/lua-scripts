@@ -1,7 +1,7 @@
 --[[
 
 	DESCRIPTION
-    ext_editor.lua - edit images with external editors - for Windows only at the moment
+    ext_editor.lua - edit images with external editors
 
     This script provides helpers to edit image files with programs external to darktable.
 	It adds:
@@ -15,7 +15,7 @@
 	USAGE
     * require this script from main lua file
 	
-	* in "preferences / lua options" configure name and path of external programs
+	* in "preferences / lua options" configure name and command/path of external programs
 	* in "preferences / shortcuts / lua" configure shortcuts for external programs (optional)
 		
     * in the export dialog choose "collection" and select the format and bit depth for the
@@ -43,12 +43,11 @@
 	* this is the default DT behavior, not a bug of this script
 
     CAVEATS
-    * currently developed and tested only for Windows
+    * tested with DT 3.0 in Windows and Ubuntu
+	* MAC compatibility not tested
 	
 	TODO
 	* localization
-	* check min API version
-	* support other OS
 	* buttons are not equal in size and centered
 	
     BUGS, COMMENTS, SUGGESTIONS
@@ -58,13 +57,23 @@
     * 20191220 - initial version, PR done
 	* 20191221 - reworked, cleaned, added "copy and edit"
 	* 20191222 - added darkroom mode
+	* 20191223 - check API version, OS compatibility
 	
 ]]
 
 
 local dt = require "darktable"
+local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 local dtsys = require "lib/dtutils.system"
+
+
+-- check API version
+du.check_min_api_version("5.0.2", "ext_editor")  -- darktable 3.0
+
+
+-- OS compatibility
+local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 
 
 -- executables of the external editors
@@ -103,21 +112,6 @@ if not (dt.preferences.read("ext_editor","initialized", "bool")) then
 local lastchoice = dt.preferences.read("ext_editor","lastchoice", "integer")
 
 
--- group image with leader image
-local function group_if_not_member(img, new_img)
-	local image_table = img:get_group_members()
-	local is_member = false
-	for _,image in ipairs(image_table) do
-		if image.filename == new_img.filename then
-			is_member = true
-			end
-		end
-	if not is_member then
-		new_img:group_with(img.group_leader)
-		end
-	end
-
-
 -- shows export progress
 local function show_status(storage, image, format, filename,
 	number, total, high_quality, extra_data)
@@ -132,7 +126,7 @@ local function OpenWith(images, choice)
 		for _, image in pairs(images) do 
 			
 			-- image to be edited
-			name = image.path.."\\"..image.filename 					
+			name = image.path..PS..image.filename 					
 			
 			-- launch the external editor
 			local run_cmd = '"'..program_paths[choice]..'" "'..name..'"' 
@@ -177,7 +171,7 @@ local function CopyAndOpenWith(images, choice)
 		for _,image in pairs(images) do 
 			
 			-- image to be copied and edited
-			local name = image.path.."\\"..image.filename
+			local name = image.path..PS..image.filename
 			local new_name = name
 			
 			-- create unique filename
@@ -201,7 +195,7 @@ local function CopyAndOpenWith(images, choice)
 				
 				-- import in database and group
 				local new_image = dt.database.import(new_name)
-				group_if_not_member(image, new_image)
+				new_image:group_with(image.group_leader)
 				
 				-- copy image tags
 				for _,tag in pairs(dt.tags.get_tags(image)) do
@@ -236,7 +230,7 @@ local function export2collection(storage, image_table, extra_data)
 
 		-- images are first exported in temp folder
 		-- create unique filename
-		local new_name = image.path .."\\"..df.get_filename(temp_name)
+		local new_name = image.path ..PS..df.get_filename(temp_name)
 		while df.check_if_file_exists(new_name) do
 			new_name = df.filename_increment(new_name)
 			
@@ -252,7 +246,7 @@ local function export2collection(storage, image_table, extra_data)
 		if result then
 			-- import in database and group
 			local new_image = dt.database.import(new_name)
-			group_if_not_member(image, new_image)
+			new_image:group_with(image.group_leader)
 			end
 		end
 	end
