@@ -59,7 +59,6 @@ rename-tags|Yes|LMW|Change a tag name
 select_untagged|Yes|LMW|Enable selection of untagged images
 slideshowMusic|No|L|Play music during a slideshow
 video_ffmpeg|No|LMW|Export video from darktable
-video_mencoder|No|L|Export video from darktable
 
 ### Example Scripts
 
@@ -68,10 +67,13 @@ These scripts provide examples of how to use specific portions of the API. They 
 Name|Standalone|OS   |Purpose
 ----|:--------:|:---:|-------
 api_version|Yes|LMW|Print the current API version
+darkroom_demo|Yes|LMW|Demonstrate changing images in darkoom 
 gettextExample|Yes|LM|How to use translation
 hello_world|Yes|LMW|Prints hello world when darktable starts
+lighttable_demo|Yes|LMW|Demonstrate controlling lighttable mode, zoom, sorting and filtering
 moduleExample|Yes|LMW|How to create a lighttable module
 multi_os|No|LMW|How to create a cross platform script that calls an external executable
+panels_demo|Yes|LMW|Demonstrate hiding and showing darktable panels
 preferenceExamples|Yes|LMW|How to use preferences in a script
 printExamples|Yes|LMW|How to use various print functions from a script
 running_os|Yes|LMW|Print out the running operating system
