@@ -39,6 +39,7 @@ CollectHelper|Yes|LMW|Add buttons to selected images module to manipulate the co
 copy_attach_detach_tags|Yes|LMW|Copy and paste tags from/to images
 cr2hdr|Yes|L|Process image created with Magic Lantern Dual ISO
 enfuseAdvanced|No|LMW|Merge multiple images into Dynamic Range Increase (DRI) or Depth From Focus (DFF) images
+ext_editor|No|LW|Export pictures to collection and edit them with up to nine user-defined external editors
 face_recognition|No|LM|Identify and tag images using facial recognition
 fujifilm_ratings|No|LM|Support importing Fujifilm ratings
 geoJSON_export|No|L|Create a geo JSON script with thumbnails for use in ...
