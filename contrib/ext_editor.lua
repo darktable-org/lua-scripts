@@ -83,26 +83,29 @@ local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 -- translation
 local gettext = dt.gettext
 gettext.bindtextdomain(MODULE_NAME, dt.configuration.config_dir..PS.."lua"..PS.."locale"..PS)
-
 local function _(msgid)
   return gettext.dgettext(MODULE_NAME, msgid)
 end
 
 
 -- number of valid entries in the list of external programs
-local n_entries = 0
+local n_entries
+
+
+-- allowed file extensions, to exclude RAW, which cannot be edited externally
+local allowed_file_types = {"JPG", "jpg", "JPEG", "jpeg", "TIF", "tif", "TIFF", "tiff", "EXR", "exr"}
 
 
 -- last used editor initialization
 if not dt.preferences.read(MODULE_NAME,"initialized", "bool") then
-	dt.preferences.write(MODULE_NAME,"lastchoice", "integer", 1)
+	dt.preferences.write(MODULE_NAME,"lastchoice", "integer", 0)
 	dt.preferences.write(MODULE_NAME,"initialized", "bool", true)
 	end 
-local lastchoice = 1
+local lastchoice = 0
 
 
 -- update lists of program names and paths, as well as combobox ---------------
-local function UpdateProgramList(combobox, button_pressed) 
+local function UpdateProgramList(combobox, button1, button2, update_button_pressed) 
 
 	-- initialize lists
 	program_names = {}
@@ -111,6 +114,7 @@ local function UpdateProgramList(combobox, button_pressed)
 	-- build lists from preferences
 	local name
 	local last = false
+	n_entries = 0
 	for i = 1, 9 do
 		name = dt.preferences.read(MODULE_NAME,"program_name_"..i, "string")
 		if (name == "" or name == nil) then last = true end
@@ -123,13 +127,20 @@ local function UpdateProgramList(combobox, button_pressed)
 			n_entries = i
 			end
 		end 
+
 		lastchoice = dt.preferences.read(MODULE_NAME, "lastchoice", "integer")
-		if lastchoice > n_entries then 
-			lastchoice = 1 
-			dt.preferences.write(MODULE_NAME, "lastchoice", "integer", lastchoice)
-			end
-		combobox.value = lastchoice
-		if button_pressed then dt.print(_("list updated")) end
+		if lastchoice == 0 and n_entries > 0 then lastchoice = 1 end
+		if lastchoice > n_entries then lastchoice = n_entries end
+		dt.preferences.write(MODULE_NAME, "lastchoice", "integer", lastchoice)
+
+		-- widgets enabled if there is at least one program configured
+		combobox.selected = lastchoice 
+		local active = n_entries > 0
+        combobox.sensitive = active
+        button1.sensitive = active
+        button2.sensitive = active
+
+		if update_button_pressed then dt.print(n_entries.._(" editors configured")) end
 	end
 
 
@@ -169,9 +180,19 @@ local function OpenWith(images, choice, copy)
 	i, image = next(images)
 	local name = image.path..PS..image.filename
 
-	-- check if image is raw, return if is
-	if image.is_raw then
-		dt.print(_("RAW not allowed"))
+	-- check if image is raw, return if it is
+	-- please note that the image property image.is_raw fails when filepath contains spaces
+	-- so as a workaround we allow only TIF, JPG and EXR
+	local file_ext = df.get_filetype (image.filename)
+	local allowed = false
+	for i,v in pairs(allowed_file_types) do
+		if v == file_ext then
+			allowed = true
+			break
+			end
+		end	
+	if not allowed then
+		dt.print(_("file type not allowed"))
 		return
 		end
 
@@ -283,8 +304,6 @@ local function OpenWith(images, choice, copy)
 	table.insert(selection, new_image)
 	dt.gui.selection (selection)
 
-	-- remember the last editor used
-	dt.preferences.write(MODULE_NAME, "lastchoice", "integer", choice)
 	end
 
 
@@ -340,16 +359,18 @@ dt.register_storage("exp2coll", _("collection"), show_status, export2collection)
 local combobox = dt.new_widget("combobox") {
 	label = _("choose program"), 
 	tooltip = _("select the external editor from the list"),
-	value = 1,
+	changed_callback = function(self)
+		dt.preferences.write(MODULE_NAME, "lastchoice", "integer", self.selected)
+		end,
 	""
 	}
-UpdateProgramList(combobox, false) -- initialize list of programs and combobox
 
 
 -- button edit ----------------------------------------------------------------
 local button1 = dt.new_widget("button") {
 	label = _("edit"),
 	tooltip = _("open the selected image in external editor"),
+	--sensitive = false,
 	clicked_callback = function()
 		OpenWith(dt.gui.action_images, combobox.selected, false)
 		end
@@ -371,7 +392,7 @@ local button3 = dt.new_widget("button") {
 	label = _("update list"),
 	tooltip = _("update list of programs if lua preferences are changed"),
 	clicked_callback = function()
-		UpdateProgramList(combobox, true)
+		UpdateProgramList(combobox, button1, button2, true)
 		end
 	}
 
@@ -403,10 +424,18 @@ dt.register_lib(
 	)
 
 
+-- initialize list of programs and widgets ------------------------------------ 
+UpdateProgramList(combobox, button1, button2, false) 
+
+
 -- register the new preferences -----------------------------------------------
 for i = 9, 1, -1 do
-	dt.preferences.register(MODULE_NAME, "program_path_"..i, "string", _("command for external editor ")..i, _("command for external editor, including full path if needed"), "")
-	dt.preferences.register(MODULE_NAME, "program_name_"..i, "string", _("name of external editor ")..i, _("friendly name of external editor"), "")
+	dt.preferences.register(MODULE_NAME, "program_path_"..i, "file", 
+	_("executable for external editor ")..i, 
+	_("select executable for external editor")	, _("(None)"))
+	dt.preferences.register(MODULE_NAME, "program_name_"..i, "string", 
+	_("name of external editor ")..i, 
+	_("friendly name of external editor"), "")
 	end
 
 
