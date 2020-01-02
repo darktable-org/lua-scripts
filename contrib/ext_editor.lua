@@ -105,7 +105,7 @@ local lastchoice = 0
 
 
 -- update lists of program names and paths, as well as combobox ---------------
-local function UpdateProgramList(combobox, button1, button2, update_button_pressed) 
+local function UpdateProgramList(combobox, button_edit, button_edit_copy, update_button_pressed) 
 
 	-- initialize lists
 	program_names = {}
@@ -137,8 +137,8 @@ local function UpdateProgramList(combobox, button1, button2, update_button_press
 		combobox.selected = lastchoice 
 		local active = n_entries > 0
         combobox.sensitive = active
-        button1.sensitive = active
-        button2.sensitive = active
+        button_edit.sensitive = active
+        button_edit_copy.sensitive = active
 
 		if update_button_pressed then dt.print(n_entries.._(" editors configured")) end
 	end
@@ -367,7 +367,7 @@ local combobox = dt.new_widget("combobox") {
 
 
 -- button edit ----------------------------------------------------------------
-local button1 = dt.new_widget("button") {
+local button_edit = dt.new_widget("button") {
 	label = _("edit"),
 	tooltip = _("open the selected image in external editor"),
 	--sensitive = false,
@@ -378,7 +378,7 @@ local button1 = dt.new_widget("button") {
 
 
 -- button edit a copy ---------------------------------------------------------
-local button2 = dt.new_widget("button") {
+local button_edit_copy = dt.new_widget("button") {
 	label = _("edit a copy"),
 	tooltip = _("create a copy of the selected image and open it in external editor"),
 	clicked_callback = function()
@@ -388,11 +388,11 @@ local button2 = dt.new_widget("button") {
 
 
 -- button update list ---------------------------------------------------------
-local button3 = dt.new_widget("button") {
+local button_update_list = dt.new_widget("button") {
 	label = _("update list"),
 	tooltip = _("update list of programs if lua preferences are changed"),
 	clicked_callback = function()
-		UpdateProgramList(combobox, button1, button2, true)
+		UpdateProgramList(combobox, button_edit, button_edit_copy, true)
 		end
 	}
 
@@ -401,9 +401,9 @@ local button3 = dt.new_widget("button") {
 -- it doesn't seem there is a way to make the buttons equal in size
 local box1 = dt.new_widget("box") {
     orientation = "horizontal",
-	button1,
-	button2,
-	button3
+	button_edit,
+	button_edit_copy,
+	button_update_list
 	}
 
 
@@ -425,7 +425,7 @@ dt.register_lib(
 
 
 -- initialize list of programs and widgets ------------------------------------ 
-UpdateProgramList(combobox, button1, button2, false) 
+UpdateProgramList(combobox, button_edit, button_edit_copy, false) 
 
 
 -- register the new preferences -----------------------------------------------
