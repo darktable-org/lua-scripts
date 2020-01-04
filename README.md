@@ -39,6 +39,7 @@ CollectHelper|Yes|LMW|Add buttons to selected images module to manipulate the co
 copy_attach_detach_tags|Yes|LMW|Copy and paste tags from/to images
 cr2hdr|Yes|L|Process image created with Magic Lantern Dual ISO
 enfuseAdvanced|No|LMW|Merge multiple images into Dynamic Range Increase (DRI) or Depth From Focus (DFF) images
+ext_editor|No|LW|Export pictures to collection and edit them with up to nine user-defined external editors
 face_recognition|No|LM|Identify and tag images using facial recognition
 fujifilm_ratings|No|LM|Support importing Fujifilm ratings
 geoJSON_export|No|L|Create a geo JSON script with thumbnails for use in ...
@@ -59,7 +60,6 @@ rename-tags|Yes|LMW|Change a tag name
 select_untagged|Yes|LMW|Enable selection of untagged images
 slideshowMusic|No|L|Play music during a slideshow
 video_ffmpeg|No|LMW|Export video from darktable
-video_mencoder|No|L|Export video from darktable
 
 ### Example Scripts
 
@@ -68,10 +68,13 @@ These scripts provide examples of how to use specific portions of the API. They 
 Name|Standalone|OS   |Purpose
 ----|:--------:|:---:|-------
 api_version|Yes|LMW|Print the current API version
+darkroom_demo|Yes|LMW|Demonstrate changing images in darkoom 
 gettextExample|Yes|LM|How to use translation
 hello_world|Yes|LMW|Prints hello world when darktable starts
+lighttable_demo|Yes|LMW|Demonstrate controlling lighttable mode, zoom, sorting and filtering
 moduleExample|Yes|LMW|How to create a lighttable module
 multi_os|No|LMW|How to create a cross platform script that calls an external executable
+panels_demo|Yes|LMW|Demonstrate hiding and showing darktable panels
 preferenceExamples|Yes|LMW|How to use preferences in a script
 printExamples|Yes|LMW|How to use various print functions from a script
 running_os|Yes|LMW|Print out the running operating system
