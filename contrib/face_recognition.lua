@@ -235,9 +235,11 @@ local function face_recognition ()
       -- Get path of exported images
       local path = df.get_path (img_list[1])
       dt.print_log ("Face recognition: Path to unknown images: " .. path)
-
+      os.setlocale("C")
       local tolerance = dt.preferences.read(MODULE, "tolerance", "float")
+      
       local command = bin_path ..  " --cpus " .. nrCores .. " --tolerance " .. tolerance .. " " .. knownPath .. " " .. path .. " > " .. OUTPUT
+      os.setlocale()
       dt.print_log("Face recognition: Running command: " .. command)
       dt.print(_("Starting face recognition..."))
 
