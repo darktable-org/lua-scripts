@@ -193,11 +193,29 @@ dtutils_string.libdoc.functions["sanitize"] = {
 }
 
 function dtutils_string.sanitize(str)
-  local result = ""
+  local result = str
   local os_quote = dt.configuration.running_os == "windows" and '"' or "'"
+  local escaped_os_quote = "\\" .. os_quote
 
-  if dtutils_string.is_not_sanitized(str) then
-    result = os_quote .. str .. os_quote
+  if dtutils_string.is_not_sanitized(result) then
+    local pos = string.find(result, os_quote)
+    if not pos or pos > 1 then
+      result = os_quote .. result
+    end
+    pos = string.find(result, os_quote, string.len(result))
+    if not pos then
+      result = result .. os_quote
+    end
+    
+    if dtutils_string.is_not_sanitized(result) then --check for embedded os_quotes
+      pos = string.find(result, os_quote, 2)
+      while pos < string.len(result) do
+        if not string.find(result, escaped_os_quote, pos - 1) then
+          result = string.format("%s\\%s", string.sub(result, 1, pos -1), string.sub(result, pos))
+        end
+        pos = string.find(result, os_quote, pos+2)
+      end
+    end
   end
   
   return result
@@ -222,12 +240,29 @@ dtutils_string.libdoc.functions["is_not_sanitized"] = {
 
 function dtutils_string.is_not_sanitized(str)
   local os_quote = dt.configuration.running_os == "windows" and '"' or "'"
+  local escaped_os_quote = "\\" .. os_quote
+  local length = string.len(str)
+  local not_sanitized = false
 
-  if string.match(str, os_quote .. ".*" .. os_quote) then
-    return false
+  local pos = string.find(str, os_quote)
+  if pos == 1 then
+    if string.find(str, os_quote, length) then
+      pos = string.find(str, os_quote, 2)
+      while pos ~= length  do
+        if not  string.find(str, escaped_os_quote, pos - 1) then
+          not_sanitized = true
+        end
+        pos = string.find(str, os_quote, pos + 1)
+      end
+    else
+      not_sanitized = true
+    end
   else
-    return true
+    not_sanitized = true
   end
+
+return not_sanitized
+
 end
 
 
