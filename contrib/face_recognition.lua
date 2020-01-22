@@ -259,13 +259,15 @@ local function face_recognition ()
       dt.print(_("processing results..."))
       local result = {}
       for line in io.lines(OUTPUT) do 
-        local file, tag = string.match (line, "(.*),(.*)$")
-        tag = string.gsub (tag, "%d*$", "")
-        dt.print_log ("File:"..file .." Tag:".. tag)
-        if result[file] ~= nil then
-          table.insert (result[file], tag)
-        else
-          result[file] = {tag}
+        if not string.match(line, "^WARNING:") then
+          local file, tag = string.match (line, "(.*),(.*)$")
+          tag = string.gsub (tag, "%d*$", "")
+          dt.print_log ("File:"..file .." Tag:".. tag)
+          if result[file] ~= nil then
+            table.insert (result[file], tag)
+          else
+            result[file] = {tag}
+          end
         end
       end
       
