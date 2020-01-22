@@ -174,48 +174,6 @@ function dtutils_string.urlencode(str)
 end
 
 
-dtutils_string.libdoc.functions["sanitize"] = {
-  Name = [[sanitize]],
-  Synopsis = [[surround a string in quotes making it safe to pass as an argument]],
-  Usage = [[local ds = require "lib/dtutils.string"
-
-    local result = ds.sanitize(str)
-      str - string - the string that needs to be made safe]],
-  Description = [[sanitize converts a string into a version suitable for
-    use passing as an argument in a system command.]],
-  Return_Value = [[result - string - a websafe string]],
-  Limitations = [[]],
-  Example = [[]],
-  See_Also = [[]],
-  Reference = [[]],
-  License = [[]],
-  Copyright = [[]],
-}
-
-function dtutils_string.sanitize_posix(str)
-  if dtutils_string.is_not_sanitized(str) then
-      return "'" .. string.gsub(str, "'", "'\\''") .. "'"
-  else
-       return str
-  end
-end
-
-function dtutils_string.sanitize_windows(str)
-  if dtutils_string.is_not_sanitized(str) then
-      return "\"" .. string.gsub(str, "\"", "\"^\"\"") .. "\""
-  else
-      return str
-  end
-end
-
-function dtutils_string.sanitize(str)
-  if dt.configuration.running_os == "windows" then
-      return dtutils_string.sanitize_windows(str)
-  else
-      return dtutils_string.sanitize_posix(str)
-  end
-end
-
 dtutils_string.libdoc.functions["is_not_sanitized"] = {
   Name = [[is_not_sanitized]],
   Synopsis = [[Check if a string has been sanitized]],
@@ -233,7 +191,7 @@ dtutils_string.libdoc.functions["is_not_sanitized"] = {
   Copyright = [[]],
 }
 
-function dtutils_string.is_not_sanitized_posix(str)
+local function _is_not_sanitized_posix(str)
    -- A sanitized string must be quoted.
    if not string.match(str, "^'.*'$") then
        return true
@@ -253,7 +211,7 @@ function dtutils_string.is_not_sanitized_posix(str)
    end
 end
 
-function dtutils_string.is_not_sanitized_windows(str)
+local function _is_not_sanitized_windows(str)
    if not string.match(str, "^\".*\"$") then
       return true
    else
@@ -263,9 +221,51 @@ end
 
 function dtutils_string.is_not_sanitized(str)
   if dt.configuration.running_os == "windows" then
-      return dtutils_string.is_not_sanitized_windows(str)
+      return _is_not_sanitized_windows(str)
   else
-      return dtutils_string.is_not_sanitized_posix(str)
+      return _is_not_sanitized_posix(str)
+  end
+end
+
+dtutils_string.libdoc.functions["sanitize"] = {
+  Name = [[sanitize]],
+  Synopsis = [[surround a string in quotes making it safe to pass as an argument]],
+  Usage = [[local ds = require "lib/dtutils.string"
+
+    local result = ds.sanitize(str)
+      str - string - the string that needs to be made safe]],
+  Description = [[sanitize converts a string into a version suitable for
+    use passing as an argument in a system command.]],
+  Return_Value = [[result - string - a websafe string]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+local function _sanitize_posix(str)
+  if _is_not_sanitized_posix(str) then
+      return "'" .. string.gsub(str, "'", "'\\''") .. "'"
+  else
+       return str
+  end
+end
+
+local function _sanitize_windows(str)
+  if _is_not_sanitized_windows(str) then
+      return "\"" .. string.gsub(str, "\"", "\"^\"\"") .. "\""
+  else
+      return str
+  end
+end
+
+function dtutils_string.sanitize(str)
+  if dt.configuration.running_os == "windows" then
+      return _sanitize_windows(str)
+  else
+      return _sanitize_posix(str)
   end
 end
 
