@@ -78,6 +78,7 @@ if not dt.preferences.read(MODULE, "initialized", "bool") then
   dt.preferences.write(MODULE, "max_width", "integer", 1000)
   dt.preferences.write(MODULE, "max_height", "integer", 1000)
   dt.preferences.write(MODULE, "initialized", "bool", true)
+  dt.preferences.write(MODULE, "no_persons_found_tag", "string", "no_persons_found")
 end
 
 local function build_image_table(images)
@@ -158,6 +159,7 @@ local function save_preferences()
   dt.preferences.write(MODULE, "max_width", "integer", tonumber(fc.width.text))
   dt.preferences.write(MODULE, "max_height", "integer", tonumber(fc.height.text))
   dt.preferences.write(MODULE, "num_cores", "integer", fc.num_cores.value)
+  dt.preferences.write(MODULE, "no_persons_found_tag", "string", fc.no_persons_found_tag.text)
   local val = fc.tolerance.value
   val = string.gsub(tostring(val), ",", ".")
   dt.preferences.write(MODULE, "tolerance", "float", tonumber(val))
@@ -205,6 +207,7 @@ local function face_recognition ()
   local nrCores = dt.preferences.read(MODULE, "num_cores", "integer")
   local ignoreTagString = dt.preferences.read(MODULE, "ignore_tags", "string")
   local unknownTag = dt.preferences.read(MODULE, "unknown_tag", "string")
+  local nonpersonsfoundTag = dt.preferences.read(MODULE, "no_persons_found_tag", "string")
 
   -- face_recognition uses -1 for all cores, we use 0 in preferences
   if nrCores < 1 then
@@ -285,10 +288,16 @@ local function face_recognition ()
                 if t == "unknown_person" then
                   t = unknownTag
                 end
-                dt.print_log ("ImgId:" .. img.id .. " Tag:".. t)
-                -- Create tag if it does not exists
-                local tag = dt.tags.create (t)
-                img:attach_tag (tag)
+                -- Check of unrecognized no_persons_found
+                if t == "no_persons_found" then
+                  t = nonpersonsfoundTag
+                end
+                if t ~= "" and t ~= nil then
+                  dt.print_log ("ImgId:" .. img.id .. " Tag:".. t)
+                  -- Create tag if it does not exists
+                  local tag = dt.tags.create (t)
+                  img:attach_tag (tag)
+                end
               end
             end
           end
@@ -313,6 +322,12 @@ end
 fc.unknown_tag = dt.new_widget("entry"){
   text = dt.preferences.read(MODULE, "unknown_tag", "string"),
   tooltip = _("tag to be used for unknown person"),
+  editable = true,
+}
+
+fc.no_persons_found_tag = dt.new_widget("entry"){
+  text = dt.preferences.read(MODULE, "no_persons_found_tag", "string"),
+  tooltip = _("tag to be used when no persons are found"),
   editable = true,
 }
 
@@ -388,7 +403,9 @@ fc.execute = dt.new_widget("button"){
 local widgets = {
   dt.new_widget("label"){ label = _("unknown person tag")},
   fc.unknown_tag,
-  dt.new_widget("label"){ label = _("togs of images to ignore")},
+  dt.new_widget("label"){ label = _("no persons found tag")},
+  fc.no_persons_found_tag,
+  dt.new_widget("label"){ label = _("tags of images to ignore")},
   fc.ignore_tags,
   dt.new_widget("label"){ label = _("face data directory")},
   fc.known_image_path,
