@@ -69,14 +69,8 @@ end
 -- preferences
 
 if not dt.preferences.read(MODULE, "initialized", "bool") then
-  dt.preferences.write(MODULE, "unknown_tag", "string", "unknown_person")
-  dt.preferences.write(MODULE, "ignore_tags", "string", "")
-  dt.preferences.write(MODULE, "tolerance", "float", 0.6)
-  dt.preferences.write(MODULE, "num_cores", "integer", 0)
-  dt.preferences.write(MODULE, "known_image_path", "directory", dt.configuration.config_dir .. "/face_recognition")
-  dt.preferences.write(MODULE, "export_format", "integer", 1)
-  dt.preferences.write(MODULE, "max_width", "integer", 1000)
-  dt.preferences.write(MODULE, "max_height", "integer", 1000)
+  reset_preferences()
+  save_preferences()
   dt.preferences.write(MODULE, "initialized", "bool", true)
 end
 
@@ -154,13 +148,29 @@ end
 
 local function save_preferences()
   dt.preferences.write(MODULE, "unknown_tag", "string", fc.unknown_tag.text)
+  dt.preferences.write(MODULE, "no_persons_found_tag", "string", fc.no_persons_found_tag.text)
   dt.preferences.write(MODULE, "ignore_tags", "string", fc.ignore_tags.text)
-  dt.preferences.write(MODULE, "max_width", "integer", tonumber(fc.width.text))
-  dt.preferences.write(MODULE, "max_height", "integer", tonumber(fc.height.text))
-  dt.preferences.write(MODULE, "num_cores", "integer", fc.num_cores.value)
+  dt.preferences.write(MODULE, "known_image_path", "directory", fc.known_image_path.value)
   local val = fc.tolerance.value
   val = string.gsub(tostring(val), ",", ".")
   dt.preferences.write(MODULE, "tolerance", "float", tonumber(val))
+  dt.preferences.write(MODULE, "num_cores", "integer", fc.num_cores.value)
+  dt.preferences.write(MODULE, "export_format", "integer", fc.export_format.selected)
+  dt.preferences.write(MODULE, "max_width", "integer", tonumber(fc.width.text))
+  dt.preferences.write(MODULE, "max_height", "integer", tonumber(fc.height.text))
+end
+
+local function reset_preferences()
+  fc.unknown_tag.text = "unknown_person"
+  fc.no_persons_found_tag.text = "no_persons_found"
+  fc.ignore_tags.text = ""
+  fc.known_image_path.value = dt.configuration.config_dir .. "/face_recognition"
+  fc.tolerance.value = 0.6
+  fc.num_cores.value = -1
+  fc.export_format.selected = 1
+  fc.width.text = 1000
+  fc.height.text = 1000
+  save_preferences()
 end
 
 -- Check if image has ignored tag attached
@@ -205,6 +215,7 @@ local function face_recognition ()
   local nrCores = dt.preferences.read(MODULE, "num_cores", "integer")
   local ignoreTagString = dt.preferences.read(MODULE, "ignore_tags", "string")
   local unknownTag = dt.preferences.read(MODULE, "unknown_tag", "string")
+  local nonpersonsfoundTag = dt.preferences.read(MODULE, "no_persons_found_tag", "string")
 
   -- face_recognition uses -1 for all cores, we use 0 in preferences
   if nrCores < 1 then
@@ -285,10 +296,16 @@ local function face_recognition ()
                 if t == "unknown_person" then
                   t = unknownTag
                 end
-                dt.print_log ("ImgId:" .. img.id .. " Tag:".. t)
-                -- Create tag if it does not exists
-                local tag = dt.tags.create (t)
-                img:attach_tag (tag)
+                -- Check of unrecognized no_persons_found
+                if t == "no_persons_found" then
+                  t = nonpersonsfoundTag
+                end
+                if t ~= "" and t ~= nil then
+                  dt.print_log ("ImgId:" .. img.id .. " Tag:".. t)
+                  -- Create tag if it does not exists
+                  local tag = dt.tags.create (t)
+                  img:attach_tag (tag)
+                end
               end
             end
           end
@@ -313,6 +330,12 @@ end
 fc.unknown_tag = dt.new_widget("entry"){
   text = dt.preferences.read(MODULE, "unknown_tag", "string"),
   tooltip = _("tag to be used for unknown person"),
+  editable = true,
+}
+
+fc.no_persons_found_tag = dt.new_widget("entry"){
+  text = dt.preferences.read(MODULE, "no_persons_found_tag", "string"),
+  tooltip = _("tag to be used when no persons are found"),
   editable = true,
 }
 
@@ -388,7 +411,9 @@ fc.execute = dt.new_widget("button"){
 local widgets = {
   dt.new_widget("label"){ label = _("unknown person tag")},
   fc.unknown_tag,
-  dt.new_widget("label"){ label = _("togs of images to ignore")},
+  dt.new_widget("label"){ label = _("no persons found tag")},
+  fc.no_persons_found_tag,
+  dt.new_widget("label"){ label = _("tags of images to ignore")},
   fc.ignore_tags,
   dt.new_widget("label"){ label = _("face data directory")},
   fc.known_image_path,
@@ -415,7 +440,10 @@ table.insert(widgets, fc.execute)
 
 fc.widget = dt.new_widget("box"){
   orientation = vertical,
-  table.unpack(widgets)
+  reset_callback = function(this)
+    reset_preferences()
+  end,
+  table.unpack(widgets),
 }
 
 --fc.tolerance.value = dt.preferences.read(MODULE, "tolerance", "float")
@@ -427,7 +455,7 @@ dt.register_lib(
   "face_recognition",     -- Module name
   _("face recognition"),     -- Visible name
   true,                -- expandable
-  false,               -- resetable
+  true,               -- resetable
   {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 300}},   -- containers
   fc.widget,
   nil,-- view_enter
