@@ -105,6 +105,7 @@ The following third-party projects are listed for information only. Think of thi
 * [johnnyrun/darktable_lua_gimp](https://github.com/johnnyrun/darktable_lua_gimp) – GIMP export
 * [arru/darktable-scripts](https://github.com/arru/darktable-scripts)
 * [nbremond77/darktable](https://github.com/nbremond77/darktable/tree/master/scripts)
+* [s5k6/dtscripts](https://github.com/s5k6/dtscripts)
 
 ## Download and Install
 
