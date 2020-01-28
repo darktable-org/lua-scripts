@@ -46,8 +46,8 @@ dtutils_file.libdoc.functions["check_if_bin_exists"] = {
     check_if_bin_exists first checks to see if a preference for the binary has been
     registered and uses that if found.  The presence of the file is verified, then 
     quoted and returned.  If no preference is specified and the operating system is
-    linux then the which command is used to check for a binary in the path.  If found
-    that path is returned.  If no binary is found, false is returned.]],
+    linux or macos then the which command is used to check for a binary in the path.
+    If found that path is returned.  If no binary is found, false is returned.]],
   Return_Value = [[result - string - the sanitized path of the binary, false if not found]],
   Limitations = [[]],
   Example = [[]],
@@ -75,7 +75,7 @@ function dtutils_file.check_if_bin_exists(bin)
         result = dtutils_file.sanitize_filename(path)
       end
     end
-  elseif dt.configuration.running_os == "linux" then
+  elseif dt.configuration.running_os == "linux" or dt.configuration.running_os == "macos"  then
     local p = io.popen("which " .. bin)
     local output = p:read("*a")
     p:close()
@@ -240,7 +240,7 @@ function dtutils_file.check_if_file_exists(filepath)
 --    if not result then
 --     result = false
 --    end
-  elseif (dt.configuration.running_os == "linux") then
+  elseif (dt.configuration.running_os == "linux" or dt.configuration.running_os == "macos") then
     result = os.execute('test -e ' .. dtutils_file.sanitize_filename(filepath))
     if not result then
       result = false
