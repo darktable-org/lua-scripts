@@ -88,7 +88,7 @@ local function _(msgid)
   end
 
 -- maximum number of external programs, can be increased to necessity
-local MAX_EDITORS = 10
+local MAX_EDITORS = 9
 
 -- number of valid entries in the list of external programs
 local n_entries
@@ -98,7 +98,6 @@ local n_entries
 local allowed_file_types = {"JPG", "jpg", "JPEG", "jpeg", "TIF", "tif", "TIFF", "tiff", "EXR", "exr", "PNG", "png"}
 
 
--- last used editor initialization
 if not dt.preferences.read(MODULE_NAME, "initialized", "bool") then
   dt.preferences.write(MODULE_NAME, "lastchoice", "integer", 0)
   dt.preferences.write(MODULE_NAME, "initialized", "bool", true)
