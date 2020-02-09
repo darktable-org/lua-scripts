@@ -85,23 +85,22 @@ local gettext = dt.gettext
 gettext.bindtextdomain(MODULE_NAME, dt.configuration.config_dir..PS.."lua"..PS.."locale"..PS)
 local function _(msgid)
   return gettext.dgettext(MODULE_NAME, msgid)
-end
+  end
 
--- maximum number of external programs
+-- maximum number of external programs, can be increased to necessity
 local MAX_EDITORS = 9
 
 -- number of valid entries in the list of external programs
 local n_entries
 
 
--- allowed file extensions, to exclude RAW, which cannot be edited externally
+-- allowed file extensions for external editors
 local allowed_file_types = {"JPG", "jpg", "JPEG", "jpeg", "TIF", "tif", "TIFF", "tiff", "EXR", "exr", "PNG", "png"}
 
 
--- last used editor initialization
-if not dt.preferences.read(MODULE_NAME,"initialized", "bool") then
-  dt.preferences.write(MODULE_NAME,"lastchoice", "integer", 0)
-  dt.preferences.write(MODULE_NAME,"initialized", "bool", true)
+if not dt.preferences.read(MODULE_NAME, "initialized", "bool") then
+  dt.preferences.write(MODULE_NAME, "lastchoice", "integer", 0)
+  dt.preferences.write(MODULE_NAME, "initialized", "bool", true)
   end 
 local lastchoice = 0
 
@@ -118,7 +117,7 @@ local function UpdateProgramList(combobox, button_edit, button_edit_copy, update
   local last = false
   n_entries = 0
   for i = 1, MAX_EDITORS do
-    name = dt.preferences.read(MODULE_NAME,"program_name_"..i, "string")
+    name = dt.preferences.read(MODULE_NAME, "program_name_"..i, "string")
     if (name == "" or name == nil) then last = true end
     if last then 
       if combobox[n_entries + 1] then combobox[n_entries + 1] = nil end -- remove extra combobox entries
@@ -175,9 +174,7 @@ local function OpenWith(images, choice, copy)
   i, image = next(images)
   local name = image.path..PS..image.filename
 
-  -- check if image is raw, return if it is
-  -- please note that the image property image.is_raw fails when filepath contains spaces
-  -- so as a workaround we allow only TIF, JPG and EXR
+  -- check if image format is allowed
   local file_ext = df.get_filetype (image.filename)
   local allowed = false
   for i,v in pairs(allowed_file_types) do
@@ -203,31 +200,26 @@ local function OpenWith(images, choice, copy)
   local yellow = image.yellow
   local purple = image.purple
 
-    -- new image
-    local new_name = name
+  -- new image
+  local new_name = name
   local new_image = image
     
-    if copy then
+  if copy then
 
     -- create unique filename
-    while true do -- dirty solution to workaround issue in lib function check_if_file_exists()
-      if dt.configuration.running_os == "windows" then 
-        if not df.check_if_file_exists(df.sanitize_filename(new_name)) then break end
-      else  
-        if not df.check_if_file_exists(new_name) then break end
-        end
+    while df.check_if_file_exists(df.sanitize_filename(new_name)) do 
       new_name = df.filename_increment(new_name)
       -- limit to 50 more exports of the original export
       if string.match(df.get_basename(new_name), "_%d%d$") == "_50" then break end
       end
         
-      -- physical copy, check result, return if error
-      local copy_success = df.file_copy(name, new_name)
-      if not copy_success then
-        dt.print(_("error copying file ")..name)
-        return
-        end    
-        end
+    -- physical copy, check result, return if error
+    local copy_success = df.file_copy(name, new_name)
+    if not copy_success then
+      dt.print(_("error copying file ")..name)
+      return
+      end    
+    end
 
   -- launch the external editor, check result, return if error
   local run_cmd = bin.." "..df.sanitize_filename(new_name) 
@@ -238,55 +230,55 @@ local function OpenWith(images, choice, copy)
     return
     end
 
-    if copy then
-      -- import in database and group
-      new_image = dt.database.import(new_name)
-      new_image:group_with(image)
-    else 
-        -- refresh the image view
-      -- note that only image:drop_cache() is not enough to refresh view in darkroom mode
-      -- therefore image must be deleted and reimported to force refresh
+  if copy then
+    -- import in database and group
+    new_image = dt.database.import(new_name)
+    new_image:group_with(image)
+  else 
+    -- refresh the image view
+    -- note that only image:drop_cache() is not enough to refresh view in darkroom mode
+    -- therefore image must be deleted and reimported to force refresh
 
-        -- find the grouping status
-      local image_leader = image.group_leader
-      local group_members = image:get_group_members()
-      local new_leader
-      local index = nil
-      local found = false
-      
-      -- membership status, three different cases
-      if image_leader == image then
-        if  #group_members > 1 then
-          -- case 1: image is leader in a group with more members
+    -- find the grouping status
+    local image_leader = image.group_leader
+    local group_members = image:get_group_members()
+    local new_leader
+    local index = nil
+    local found = false
+    
+    -- membership status, three different cases
+    if image_leader == image then
+      if  #group_members > 1 then
+        -- case 1: image is leader in a group with more members
         while not found do
           index, new_leader = next(group_members, index)
           if new_leader ~= image_leader then found = true end
           end
-          new_leader:make_group_leader()
-        image:delete()
-          if image.local_copy then image:drop_cache() end -- to fix fail to allocate cache error
-          new_image = dt.database.import(name)
-          new_image:group_with(new_leader)
-          new_image:make_group_leader()
-        else 
-          -- case 2: image is the only member in group
-          image:delete()
-          if image.local_copy then image:drop_cache() end -- to fix fail to allocate cache error
-          new_image = dt.database.import(name)
-          new_image:group_with()
-          end
-      else 
-        -- case 3: image is in a group but is not leader
+        new_leader:make_group_leader()
         image:delete()
         if image.local_copy then image:drop_cache() end -- to fix fail to allocate cache error
         new_image = dt.database.import(name)
-        new_image:group_with(image_leader)
+        new_image:group_with(new_leader)
+        new_image:make_group_leader()
+      else 
+        -- case 2: image is the only member in group
+        image:delete()
+        if image.local_copy then image:drop_cache() end -- to fix fail to allocate cache error
+        new_image = dt.database.import(name)
+        new_image:group_with()
         end
-      -- refresh darkroom view
-      if dt.gui.current_view() == dt.gui.views.darkroom then
-        dt.gui.views.darkroom.display_image(new_image)
-        end
-        end   
+    else 
+      -- case 3: image is in a group but is not leader
+      image:delete()
+      if image.local_copy then image:drop_cache() end -- to fix fail to allocate cache error
+      new_image = dt.database.import(name)
+      new_image:group_with(image_leader)
+      end
+    -- refresh darkroom view
+    if dt.gui.current_view() == dt.gui.views.darkroom then
+      dt.gui.views.darkroom.display_image(new_image)
+      end
+    end   
 
   -- restore image tags, rating and color, must be put after refresh darkroom view
   for i, tag in ipairs(tags) do dt.tags.attach(tag, new_image) end
@@ -307,7 +299,7 @@ local function OpenWith(images, choice, copy)
 
 -- callback function for shortcuts --------------------------------------------
 local function program_shortcut(event, shortcut)
-  OpenWith(dt.gui.action_images, tonumber(string.sub(shortcut, -1)), false)
+  OpenWith(dt.gui.action_images, tonumber(string.sub(shortcut, -2)), false)
   end
 
 
@@ -322,12 +314,7 @@ local function export2collection(storage, image_table, extra_data)
 
     -- create unique filename
     new_name = image.path..PS..df.get_filename(temp_name)
-    while true do -- dirty solution to workaround issue in lib function check_if_file_exists()
-      if dt.configuration.running_os == "windows" then 
-        if not df.check_if_file_exists(df.sanitize_filename(new_name)) then break end
-      else  
-        if not df.check_if_file_exists(new_name) then break end
-        end
+    while df.check_if_file_exists(df.sanitize_filename(new_name)) do
       new_name = df.filename_increment(new_name)
       -- limit to 50 more exports of the original export
       if string.match(df.get_basename(new_name), "_%d%d$") == "_50" then break end
@@ -441,7 +428,7 @@ for i = MAX_EDITORS, 1, -1 do
 
 -- register the new shortcuts -------------------------------------------------
 for i = 1, MAX_EDITORS do
-  dt.register_event("shortcut", program_shortcut, _("edit with program ")..i) 
+  dt.register_event("shortcut", program_shortcut, _("edit with program ")..string.format("%02d", i)) 
   end
 
 
