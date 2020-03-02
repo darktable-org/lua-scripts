@@ -114,6 +114,14 @@ if enfuse_installed then
     "8", "16", "32"
   }
 
+  local blend_colorspace = dt.new_widget("combobox")
+  {
+    label = "blend colorspace",
+    tooltip = "Force blending in selected colorspace",
+    changed_callback = function(w) dt.preferences.write("enfuse", "blend_colorspace", "string", w.selected) end,
+    "", "identity", "ciecam"
+  }
+
   local enfuse_button = dt.new_widget("button")
   {
     label = enfuse_installed and "run enfuse" or "enfuse not installed",
@@ -186,13 +194,18 @@ if enfuse_installed then
       -- call enfuse on the response file
       -- TODO: find something nicer
       local ugly_decimal_point_hack = string.gsub(string.format("%.04f", mu), ",", ".")
-      -- TODO: make filename unique
-      local output_image = target_dir.. PS .. "enfuse.tif"
+      local output_image_date = os.date("%Y%m%d%H%M%S")
+      local output_image = target_dir.. PS .. "enfuse-"..output_image_date..".tif"
       local exposure_option = " --exposure-optimum "
+      local blend_colorspace_option = ""
+      if #blend_colorspace.value > 1 then
+        blend_colorspace_option = " --blend-colorspace="..blend_colorspace.value
+      end
       if version < "4.2" then
         exposure_option = " --exposure-mu "
       end
       local command = enfuse_installed.." --depth "..depth.value..exposure_option..ugly_decimal_point_hack
+                      ..blend_colorspace_option
                       .." -o \""..output_image.."\" \"@"..response_file.."\""
       if dtsys.external_command( command) > 0 then
         dt.print(_("Enfuse failed, see terminal output for details"))
@@ -220,6 +233,7 @@ if enfuse_installed then
   end
   table.insert(lib_widgets, exposure_mu)
   table.insert(lib_widgets, depth)
+  table.insert(lib_widgets, blend_colorspace)
   table.insert(lib_widgets, enfuse_button)
 
    
