@@ -230,7 +230,7 @@ function dtutils_file.check_if_file_exists(filepath)
   local result = false
   if (dt.configuration.running_os == 'windows') then
     filepath = string.gsub(filepath, '[\\/]+', '\\')
-    local p = io.popen("if exist " .. filepath .. " (echo 'yes') else (echo 'no')")
+    local p = io.popen("if exist " .. dtutils_file.sanitize_filename(filepath) .. " (echo 'yes') else (echo 'no')")
     local ans = p:read("*all")
     p:close()
     if string.match(ans, "yes") then 
