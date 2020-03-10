@@ -42,7 +42,7 @@ local dtsys = require "lib/dtutils.system"
 local MODULE_NAME = "RL_out_sharp"
 
 -- check API version
-du.check_min_api_version("5.0.2", MODULE_NAME)  -- darktable 3.x
+du.check_min_api_version("5.0.0", MODULE_NAME)  -- darktable 3.x
 
 -- OS compatibility
 local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
