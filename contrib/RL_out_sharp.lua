@@ -42,7 +42,7 @@ local dtsys = require "lib/dtutils.system"
 local MODULE_NAME = "RL_out_sharp"
 
 -- check API version
-du.check_min_api_version("5.0.0", MODULE_NAME)  -- darktable 3.x
+du.check_min_api_version("5.0.0", MODULE_NAME) 
 
 -- OS compatibility
 local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
@@ -85,7 +85,12 @@ local function export2RL(storage, image_table, extra_data)
   local input_file, output_file, options
 
   -- read parameters
-  local gmic = df.sanitize_filename(dt.preferences.read(MODULE_NAME, "gmic_exe", "string"))
+  local gmic = dt.preferences.read(MODULE_NAME, "gmic_exe", "string")
+  if gmic == "" then
+    dt.print (_("GMic executable not configured"))
+    return
+    end
+  gmic = df.sanitize_filename(gmic)
   local output_folder = output_folder_selector.value
   local sigma_str = string.gsub(string.format("%.2f", sigma_slider.value), ",", ".")
   local iterations_str = string.format("%.0f", iterations_slider.value)
@@ -195,7 +200,7 @@ dt.register_storage("exp2RL", _("RL output sharpen"), nil, export2RL, supported,
 -- register the new preferences -----------------------------------------------
 dt.preferences.register(MODULE_NAME, "gmic_exe", "file", 
 _("executable for GMic CLI"), 
-_("select executable for GMic command line version")  , _("(None)"))
+_("select executable for GMic command line version")  , "")
 
 -- set sliders to the last used value -----------------------------------------
 sigma_slider.value = dt.preferences.read(MODULE_NAME, "sigma", "float")
