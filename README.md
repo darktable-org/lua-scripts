@@ -57,6 +57,7 @@ pdf_slideshow|No|LM|Export images to a PDF slideshow
 quicktag|Yes|LMW|Create shortcuts for quickly applying tags
 rate_group|Yes|LMW|Apply or remove a star rating from grouped images
 rename-tags|Yes|LMW|Change a tag name
+RL_out_sharp|No|LW|Output sharpening using GMic (Richardson-Lucy algorithm)
 select_untagged|Yes|LMW|Enable selection of untagged images
 slideshowMusic|No|L|Play music during a slideshow
 video_ffmpeg|No|LMW|Export video from darktable
