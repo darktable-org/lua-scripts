@@ -24,6 +24,9 @@
 
   CAVEATS
     MAC compatibility not tested
+    Although Darktable can handle file names containing spaces, GMic cli cannot, 
+      so if you want to use this script please make sure that your images do not
+      have spaces in the file name and path
   
   BUGS, COMMENTS, SUGGESTIONS
     send to Marco Carrarini, marco.carrarini@gmail.com
@@ -87,7 +90,7 @@ local function export2RL(storage, image_table, extra_data)
   -- read parameters
   local gmic = dt.preferences.read(MODULE_NAME, "gmic_exe", "string")
   if gmic == "" then
-    dt.print (_("GMic executable not configured"))
+    dt.print(_("GMic executable not configured"))
     return
     end
   gmic = df.sanitize_filename(gmic)
@@ -110,11 +113,7 @@ local function export2RL(storage, image_table, extra_data)
     dt.print(_("sharpening image ")..i.." ...")
     -- create unique filename
     new_name = output_folder..PS..df.get_basename(temp_name)..".jpg"
-    while df.check_if_file_exists(new_name) do
-      new_name = df.filename_increment(new_name)
-      -- limit to 50 more exports of the original export
-      if string.match(df.get_basename(new_name), "_%d%d$") == "_50" then break end
-      end
+    new_name = df.create_unique_filename(new_name)
 
     -- build the GMic command string
     input_file = df.sanitize_filename(temp_name)
@@ -152,7 +151,7 @@ output_folder_selector = dt.new_widget("file_chooser_button"){
 
 sigma_slider = dt.new_widget("slider"){
   label = _("sigma"),
-  tooltip = _("sigma parameter in RL algorithm"),
+  tooltip = _("controls the width of the blur that's applied"),
   soft_min = 0.3,
   soft_max = 1.0,
   hard_min = 0.0,
@@ -202,7 +201,7 @@ dt.preferences.register(MODULE_NAME, "gmic_exe", "file",
 _("executable for GMic CLI"), 
 _("select executable for GMic command line version")  , "")
 
--- set sliders to the last used value -----------------------------------------
+-- set sliders to the last used value at startup ------------------------------
 sigma_slider.value = dt.preferences.read(MODULE_NAME, "sigma", "float")
 iterations_slider.value = dt.preferences.read(MODULE_NAME, "iterations", "float")
 jpg_quality_slider.value = dt.preferences.read(MODULE_NAME, "jpg_quality", "float")
