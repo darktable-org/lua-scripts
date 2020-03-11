@@ -451,8 +451,8 @@ function dtutils_file.create_unique_filename(filepath)
   while dtutils_file.check_if_file_exists(filepath) do
     filepath = dtutils_file.filename_increment(filepath)
     -- limit to 99 more exports of the original export
-    local increment = string.match(dtutils_file.get_basename(filepath), "_(%d-)$")
-    if increment == "99" then
+    local increment = string.match(dtutils_file.get_basename(filepath), "_%d%d$")
+    if increment == "_99" then
       break
     end
   end
