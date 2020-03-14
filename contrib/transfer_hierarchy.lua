@@ -219,7 +219,7 @@ local function doCalculate()
 end
 
 local function stopTransfer(transferJob)
-   job.valid = false
+   transferJob.valid = false
 end
 
 local function doTransfer(transferFunc)
