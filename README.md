@@ -59,6 +59,7 @@ rate_group|Yes|LMW|Apply or remove a star rating from grouped images
 rename-tags|Yes|LMW|Change a tag name
 select_untagged|Yes|LMW|Enable selection of untagged images
 slideshowMusic|No|L|Play music during a slideshow
+transfer_hierarchy|Yes|LMW|Image move/copy preserving directory hierarchy
 video_ffmpeg|No|LMW|Export video from darktable
 
 ### Example Scripts
