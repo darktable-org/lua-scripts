@@ -87,6 +87,12 @@ local PATH_SEGMENT_REGEX = "(" .. PATH_SEPARATOR .. "?)([^" .. PATH_SEPARATOR ..
 unpack = unpack or table.unpack
 gmatch = string.gfind or string.gmatch
 
+darktable.gettext.bindtextdomain(LIB_ID, darktable.configuration.config_dir .. PATH_SEPARATOR .. "lua" .. PATH_SEPARATOR .. "locale" .. PATH_SEPARATOR)
+
+local function _(msgid)
+    return darktable.gettext.dgettext(LIB_ID, msgid)
+end
+
 -- Header material: END
 
 
@@ -122,7 +128,7 @@ end
 -- Widgets and business logic: BEGIN
 
 local sourceTextBox = darktable.new_widget("entry") {
-   tooltip = "Lowest directory containing all selected images",
+   tooltip = _("Lowest directory containing all selected images"),
    editable = false
 						    }
 sourceTextBox.reset_callback = function() sourceTextBox.text = "" end
@@ -225,11 +231,11 @@ end
 local function doTransfer(transferFunc)
     rootPath, films = calculateRoot()
     if rootPath ~= sourceTextBox.text then
-       darktable.print("transfer hierarchy: ERROR: existing root is out of sync -- click 'calculate' to update")
+       darktable.print(_("transfer hierarchy: ERROR: existing root is out of sync -- click 'calculate' to update"))
        return
     end
     if destinationTextBox.text == "" then
-       darktable.print("transfer hierarchy: ERROR: destination not specified")
+       darktable.print(_("transfer hierarchy: ERROR: destination not specified"))
        return
     end
     local sourceBase = sourceTextBox.text
@@ -239,25 +245,30 @@ local function doTransfer(transferFunc)
        films[film] = destBase .. string.sub(film.path, #sourceBase+1)
        if not pathExists(films[film]) then
            if createDirectory(films[film]) == nil then
-	       darktable.print("transfer hierarchy: ERROR: could not create directory: " .. films[film])
+	       darktable.print(_("transfer hierarchy: ERROR: could not create directory: " .. films[film]))
 	       return
 	   end
        end
        if not pathIsDirectory(films[film]) then
-           darktable.print("transfer hierarchy: ERROR: not a directory: " .. films[film])
+           darktable.print(_("transfer hierarchy: ERROR: not a directory: " .. films[film]))
 	   return
        end
        destFilms[film] = darktable.films.new(films[film])
        if destFilms[film] == nil then
-           darktable.print("transfer hierarchy: ERROR: could not create film: " .. film.path)
+           darktable.print(_("transfer hierarchy: ERROR: could not create film: " .. film.path))
        end
     end
 
-    local job = darktable.gui.create_job(string.format("transfer hierarchy (%d image" .. (#(darktable.gui.action_images) == 1 and "" or "s") .. ")", #(darktable.gui.action_images)), true, stopTransfer)
+    local srcFilms = {}
+    for _,img in ipairs(darktable.gui.action_images) do
+       srcFilms[img] = img.film
+    end
+
+    local job = darktable.gui.create_job(string.format(_("transfer hierarchy") .. " (%d image" .. (#(darktable.gui.action_images) == 1 and "" or "s") .. ")", #(darktable.gui.action_images)), true, stopTransfer)
     job.percent = 0.0
     local pctIncrement = 1.0 / #(darktable.gui.action_images)
     for _,img in ipairs(darktable.gui.action_images) do
-       if job.valid then
+       if job.valid and img.film == srcFilms[img] then
     	  destFilm = destFilms[img.film]
 	  transferFunc(img, destFilm)
 	  job.percent = job.percent + pctIncrement
@@ -284,27 +295,27 @@ end
 local transfer_widget = darktable.new_widget("box") {
    orientation = "vertical",
    darktable.new_widget("button") {
-     label = "calculate",
+     label = _("calculate"),
      clicked_callback = doCalculate
    },
    darktable.new_widget("label") {
-      label = "existing root",
+      label = _("existing root"),
       halign = "start"
    },
    sourceTextBox,
    darktable.new_widget("label") {
-     label = "root of destination",
+     label = _("root of destination"),
      halign = "start"
    },
    destinationTextBox,
    darktable.new_widget("button") {
-     label = "move",
+     label = _("move"),
      tooltip = "Move all selected images",
      clicked_callback = doMove
    },
    darktable.new_widget("button") {
-     label = "copy",
-     tooltip = "Copy all selected images",
+     label = _("copy"),
+     tooltip = _("Copy all selected images"),
      clicked_callback = doCopy
    }
 }
@@ -343,5 +354,5 @@ darktable.preferences.register(
 
 darktable.register_lib(LIB_ID,
 		       "transfer hierarchy", true, true, {
-			  [darktable.gui.views.lighttable] = { "DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 1000 }
+			  [darktable.gui.views.lighttable] = { "DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 700 }
 		       }, transfer_widget, nil, nil)
