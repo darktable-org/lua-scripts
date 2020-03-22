@@ -20,7 +20,7 @@
 
   EXAMPLE
     set sigma = 0.7, iterations = 10, jpeg output quality = 95,
-    that will be sufficient for most uses
+    to correct blur due to image resize for web usage
 
   CAVEATS
     MAC compatibility not tested
@@ -153,12 +153,12 @@ sigma_slider = dt.new_widget("slider"){
   label = _("sigma"),
   tooltip = _("controls the width of the blur that's applied"),
   soft_min = 0.3,
-  soft_max = 1.0,
+  soft_max = 2.0,
   hard_min = 0.0,
   hard_max = 3.0,
-  step = 0.05,
+  step = 0.1,
   digits = 2,
-  value = 0.7
+  value = 1.0
   }
 
 iterations_slider = dt.new_widget("slider"){
