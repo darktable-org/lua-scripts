@@ -42,21 +42,32 @@ local dsys = require "lib/dtutils.system"
 --Check API version
 du.check_min_api_version("5.0.0", "OpenInExplorer") 
 
-local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
+local act_os = dt.configuration.running_os
 
---Detect OS and modify accordingly--	
+--local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
+local PS = act_os == "windows" and  "\\"  or  "/"
+
+--[[Detect OS and modify accordingly--	
 local proper_install = false
 if dt.configuration.running_os ~= "macos" then
   proper_install = true
 else
   dt.print_error('OpenInExplorer plug-in only supports Windows and Linux at this time')
   return
+end]]
+
+--Detect OS and abort if not Linux, macOS or Windows	
+local proper_install = true
+if act_os ~= "macos" and act_os ~= "windows" and act_os ~= "linux" then
+  proper_install = false
+  dt.print_error('OpenInExplorer plug-in only supports Linux, macOS or Windows at this time')
+  return
 end
 
 
 -- FUNCTIONS --
 
-local function open_in_explorer() --Open in Explorer
+--[[local function open_in_explorer() --Open in Explorer
   local images = dt.gui.selection()
   local curr_image = ""
   if #images == 0 then
@@ -71,9 +82,9 @@ local function open_in_explorer() --Open in Explorer
   else
     dt.print('please select fewer images (max 15)')
   end
-end
+end]]
 
-local function open_in_nautilus() --Open in Nautilus
+--[[local function open_in_nautilus() --Open in Nautilus
   local images = dt.gui.selection()
   local curr_image = ""
   if #images == 0 then
@@ -81,16 +92,16 @@ local function open_in_nautilus() --Open in Nautilus
   elseif #images <= 15 then
     for _,image in pairs(images) do 
       curr_image = image.path..PS..image.filename
-      local run_cmd = [[busctl --user call org.freedesktop.FileManager1 /org/freedesktop/FileManager1 org.freedesktop.FileManager1 ShowItems ass 1 ]] .. df.sanitize_filename("file://"..curr_image) .. [[ ""]]
+      local run_cmd = [=[busctl --user call org.freedesktop.FileManager1 /org/freedesktop/FileManager1 org.freedesktop.FileManager1 ShowItems ass 1 ]=] .. df.sanitize_filename("file://"..curr_image) .. [=[ ""]=]
       dt.print_log("OpenInExplorer run_cmd = "..run_cmd)
       resp = dsys.external_command(run_cmd)
     end
   else
     dt.print('please select fewer images (max 15)')
   end
-end
+end]]
 
-local function open_in_filemanager() --Open
+--[[local function open_in_filemanager() --Open
   --Inits--
   if not proper_install then
     return
@@ -101,13 +112,49 @@ local function open_in_filemanager() --Open
   elseif (dt.configuration.running_os == "linux") then
     open_in_nautilus()
   end  
+end]]
+
+--This adds the command to open Finder, the file manager in Apple's macOS.
+--Instead of three separate functions the code needs only one function.
+
+local fmng_cmd = {}
+fmng_cmd.linux = [[busctl --user call org.freedesktop.FileManager1 /org/freedesktop/FileManager1 org.freedesktop.FileManager1 ShowItems ass 1 ]]
+fmng_cmd.macos = 'open -R '
+fmng_cmd.windows = 'OpenInExplorer run_cmd = '
+
+local function open_in_fmanager(os, fmcmd)  --Open in file manager
+  local images = dt.gui.selection()
+  local curr_image = ""
+  if #images == 0 then
+    dt.print('please select an image')
+  elseif #images <= 15 then
+    for _,image in pairs(images) do 
+      curr_image = df.sanitize_filename(image.path..PS..image.filename)
+      local run_cmd = fmcmd..curr_image
+      if os == 'linux' then run_cmd = run_cmd .. [[ ""]] end
+      dt.print_log("OpenInExplorer run_cmd = "..run_cmd)
+      resp = dsys.external_command(run_cmd)
+    end
+  else
+    dt.print('please select fewer images (max 15)')
+  end
 end
 
 -- GUI --
-if proper_install then
+--[[if proper_install then
   dt.gui.libs.image.register_action(
     "show in file explorer",
     function() open_in_filemanager() end,
     "Opens File Explorer at the selected image's location"
   )
+end]]
+
+-- GUI --
+if proper_install then
+  dt.gui.libs.image.register_action(
+    "show in file explorer",
+    function() open_in_fmanager(act_os, fmng_cmd[act_os]) end,
+    "Opens File Explorer at the selected image's location"
+  )
 end
+
