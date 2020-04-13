@@ -120,7 +120,7 @@ end]]
 local fmng_cmd = {}
 fmng_cmd.linux = [[busctl --user call org.freedesktop.FileManager1 /org/freedesktop/FileManager1 org.freedesktop.FileManager1 ShowItems ass 1 ]]
 fmng_cmd.macos = 'open -R '
-fmng_cmd.windows = 'OpenInExplorer run_cmd = '
+fmng_cmd.windows = 'explorer.exe /select, '
 
 local function open_in_fmanager(os, fmcmd)  --Open in file manager
   local images = dt.gui.selection()
