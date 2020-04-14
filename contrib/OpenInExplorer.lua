@@ -32,6 +32,7 @@ Select the photo(s) you wish to find in explorer and press "Go to Folder".
 A file explorer window will be opened for each selected file at the file's location; the file will be highlighted.
 
 ----KNOWN ISSUES----
+Under macOS the file manager Finder opens only once and selects the file name of the last selected image.
 ]]
 
 local dt = require "darktable"
@@ -43,18 +44,7 @@ local dsys = require "lib/dtutils.system"
 du.check_min_api_version("5.0.0", "OpenInExplorer") 
 
 local act_os = dt.configuration.running_os
-
---local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 local PS = act_os == "windows" and  "\\"  or  "/"
-
---[[Detect OS and modify accordingly--	
-local proper_install = false
-if dt.configuration.running_os ~= "macos" then
-  proper_install = true
-else
-  dt.print_error('OpenInExplorer plug-in only supports Windows and Linux at this time')
-  return
-end]]
 
 --Detect OS and abort if not Linux, macOS or Windows	
 local proper_install = true
@@ -64,65 +54,14 @@ if act_os ~= "macos" and act_os ~= "windows" and act_os ~= "linux" then
   return
 end
 
-
--- FUNCTIONS --
-
---[[local function open_in_explorer() --Open in Explorer
-  local images = dt.gui.selection()
-  local curr_image = ""
-  if #images == 0 then
-    dt.print('please select an image')
-  elseif #images <= 15 then
-    for _,image in pairs(images) do 
-      curr_image = image.path..PS..image.filename
-      local run_cmd = "explorer.exe /select, "..curr_image
-      dt.print_log("OpenInExplorer run_cmd = "..run_cmd)
-      resp = dsys.external_command(run_cmd)
-    end
-  else
-    dt.print('please select fewer images (max 15)')
-  end
-end]]
-
---[[local function open_in_nautilus() --Open in Nautilus
-  local images = dt.gui.selection()
-  local curr_image = ""
-  if #images == 0 then
-    dt.print('please select an image')
-  elseif #images <= 15 then
-    for _,image in pairs(images) do 
-      curr_image = image.path..PS..image.filename
-      local run_cmd = [=[busctl --user call org.freedesktop.FileManager1 /org/freedesktop/FileManager1 org.freedesktop.FileManager1 ShowItems ass 1 ]=] .. df.sanitize_filename("file://"..curr_image) .. [=[ ""]=]
-      dt.print_log("OpenInExplorer run_cmd = "..run_cmd)
-      resp = dsys.external_command(run_cmd)
-    end
-  else
-    dt.print('please select fewer images (max 15)')
-  end
-end]]
-
---[[local function open_in_filemanager() --Open
-  --Inits--
-  if not proper_install then
-    return
-  end
-
-  if (dt.configuration.running_os == "windows") then
-    open_in_explorer()
-  elseif (dt.configuration.running_os == "linux") then
-    open_in_nautilus()
-  end  
-end]]
-
---This adds the command to open Finder, the file manager in Apple's macOS.
---Instead of three separate functions the code needs only one function.
-
+--The commands to open the supported OSes' file manager
 local fmng_cmd = {}
 fmng_cmd.linux = [[busctl --user call org.freedesktop.FileManager1 /org/freedesktop/FileManager1 org.freedesktop.FileManager1 ShowItems ass 1 ]]
 fmng_cmd.macos = 'open -R '
 fmng_cmd.windows = 'explorer.exe /select, '
 
-local function open_in_fmanager(os, fmcmd)  --Open in file manager
+--The function to open the file manager from within DT
+local function open_in_fmanager(os, fmcmd)
   local images = dt.gui.selection()
   local curr_image = ""
   if #images == 0 then
@@ -139,15 +78,6 @@ local function open_in_fmanager(os, fmcmd)  --Open in file manager
     dt.print('please select fewer images (max 15)')
   end
 end
-
--- GUI --
---[[if proper_install then
-  dt.gui.libs.image.register_action(
-    "show in file explorer",
-    function() open_in_filemanager() end,
-    "Opens File Explorer at the selected image's location"
-  )
-end]]
 
 -- GUI --
 if proper_install then
