@@ -65,7 +65,7 @@ end
 --The commands to open the OSes' file managers
 local fmng_cmd = {}
 fmng_cmd.linux = [[busctl --user call org.freedesktop.FileManager1 /org/freedesktop/FileManager1 org.freedesktop.FileManager1 ShowItems ass 1 ]]
-fmng_cmd.macos = 'open -R -n '
+fmng_cmd.macos = 'open -R '
 fmng_cmd.windows = 'explorer.exe /select, '
 
 --The working function that opens the file manager with the image file name selected.
