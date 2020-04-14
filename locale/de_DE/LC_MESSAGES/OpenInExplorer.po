@@ -1,0 +1,38 @@
+# OpenInExplorer Darktable Plug-In.
+# Copyright (C) 2020 Volker Lenhardt
+# This file is distributed under the same license as the PACKAGE package.
+# Volker Lenhardt <volker.lenhardt@unitybox.de>, 2020.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenInExplorer\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-04-14 14:35+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Volker Lenhardt <volker.lenhardt@unitybox.de>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: de_DE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: OpenInExplorer.lua:59
+msgid "OpenInExplorer plug-in only supports Windows and Linux at this time"
+msgstr "OpenInExplorer-Plug-in kann nur unter macOS, Linux oder Windows laufen"
+
+#: OpenInExplorer.lua:75
+msgid "Please select an image"
+msgstr "Bitte mindestens 1 Bild auswählen"
+
+#: OpenInExplorer.lua:85
+msgid "Please select fewer images (max 15)"
+msgstr "Bitte nicht mehr als 15 Bilder auswählen"
+
+#: OpenInExplorer.lua:93
+msgid "Show in file explorer"
+msgstr "Im Dateimanager anzeigen"
+
+#: OpenInExplorer.lua:95
+msgid "Opens File Explorer at the selected image's location"
+msgstr "Öffnet den Dateimanager mit dem ausgewählten Dateinamen"
