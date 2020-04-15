@@ -26,10 +26,11 @@ enfuse ver. 4.2 or greater
 exiftool
 
 ----USAGE----
-Install: (see here for more detail: https://github.com/darktable-org/lua-scripts )
- 1) Copy this file in to your 'lua/contrib' folder where all other scripts reside. 
- 2) Require this file in your luarc file, as with any other dt plug-in
-On the initial startup go to darktable settings > lua options and set your executable paths and other preferences, then restart darktable
+Install:
+ 1) Get the Lua scripts: https://github.com/darktable-org/lua-scripts#download-and-install
+ 2) Require this file in your luarc file, as with any other dt plug-in: require "contrib/enfuseAdvanced"
+ 3) Then select "DRI or DFF image" as storage option
+ 4) On the initial startup set your executable paths 
 
 DRI = Dynamic Range Increase (Blend multiple bracket images into a single LDR file)
 DFF = Depth From Focus ('Focus Stacking' - Blend multiple images with different focus into a single image)
