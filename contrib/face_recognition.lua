@@ -63,7 +63,7 @@ du.check_min_api_version("5.0.0", "face_recognition")
 gettext.bindtextdomain("face_recognition", dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("face_recognition", msgid)
+  return gettext.dgettext("face_recognition", msgid)
 end
 
 -- preferences
@@ -92,8 +92,10 @@ local function build_image_table(images)
   end
 
   for _,img in ipairs(images) do
-    image_table[img] = tmp_dir .. df.get_basename(img.filename) .. file_extension
-    cnt = cnt + 1
+    if img ~= nil then
+      image_table[tmp_dir .. df.get_basename(img.filename) .. file_extension] = img
+      cnt = cnt + 1
+    end
   end
 
   return image_table, cnt
@@ -103,17 +105,12 @@ local function stop_job(job)
   job.valid = false
 end
 
-local function do_export(img_tbl)
+local function do_export(img_tbl, images)
   local exporter = nil
   local upsize = false
-  local upscale = false
   local ff = fc.export_format.value
   local height = dt.preferences.read(MODULE, "max_height", "integer")
   local width = dt.preferences.read(MODULE, "max_width", "integer")
-  local images = 0
-  for k,v in pairs(img_tbl) do
-    images = images + 1
-  end
 
   -- get the export format parameters
   if string.match(ff, "JPEG") then
@@ -134,7 +131,7 @@ local function do_export(img_tbl)
   local exp_cnt = 0
   local percent_step = 1.0 / images
   job.percent = 0.0
-  for img,export in pairs(img_tbl) do
+  for export,img in pairs(img_tbl) do
     exp_cnt = exp_cnt + 1
     dt.print(string.format(_("Exporting image %i of %i images"), exp_cnt, images))
     exporter:write_image(img, export, upsize)
@@ -188,7 +185,7 @@ local function ignoreByTag (image, ignoreTags)
       end
     end
   end
-  
+
   return ignoreImage
 end
 
@@ -221,25 +218,25 @@ local function face_recognition ()
   if nrCores < 1 then
     nrCores = -1
   end
-  
+
   -- Split ignore tags (if any)
   ignoreTags = {}
   for tag in string.gmatch(ignoreTagString, '([^,]+)') do
     table.insert (ignoreTags, tag)
     dt.print_log ("Face recognition: Ignore tag: " .. tag)
   end
-  
+
   -- list of exported images
 
   local image_table, cnt = build_image_table(dt.gui.action_images)
 
   if cnt > 0 then
-    local success = do_export(image_table)
+    local success = do_export(image_table, cnt)
     if success then
       -- do the face recognition
       local img_list = {}
 
-      for img,v in pairs(image_table) do
+      for v,_ in pairs(image_table) do
         table.insert (img_list, v)
       end
 
@@ -248,7 +245,7 @@ local function face_recognition ()
       dt.print_log ("Face recognition: Path to unknown images: " .. path)
       os.setlocale("C")
       local tolerance = dt.preferences.read(MODULE, "tolerance", "float")
-      
+
       local command = bin_path ..  " --cpus " .. nrCores .. " --tolerance " .. tolerance .. " " .. knownPath .. " " .. path .. " > " .. OUTPUT
       os.setlocale()
       dt.print_log("Face recognition: Running command: " .. command)
@@ -258,61 +255,77 @@ local function face_recognition ()
 
       -- Open output file
       local f = io.open(OUTPUT, "rb")
-      
+
       if not f then
         dt.print(_("Face recognition failed"))
       else
         dt.print(_("Face recognition finished"))
         f:close ()
       end
-      
+
       -- Read output
       dt.print(_("processing results..."))
       local result = {}
-      for line in io.lines(OUTPUT) do 
-        if not string.match(line, "^WARNING:") then
+      local tags_list = {}
+      local tag_object = {}
+      for line in io.lines(OUTPUT) do
+        if not string.match(line, "^WARNING:") and line ~= "" and line ~= nil then
           local file, tag = string.match (line, "(.*),(.*)$")
           tag = string.gsub (tag, "%d*$", "")
           dt.print_log ("File:"..file .." Tag:".. tag)
-          if result[file] ~= nil then
-            table.insert (result[file], tag)
+          tag_object = {}
+          if result[file] == nil then
+            tag_object[tag] = true
+            result[file] = tag_object
           else
-            result[file] = {tag}
+            tag_object = result[file]
+            tag_object[tag] = true
+            result[file] = tag_object
           end
         end
       end
-      
+
       -- Attach tags
+      local result_index = 0
       for file,tags in pairs(result) do
+        result_index = result_index +1
         -- Find image in table
-        for img,file2 in pairs(image_table) do
-          if file == file2 then
-            for _,t in ipairs (tags) do
-              -- Check if image is ignored
-              if ignoreByTag (img, ignoreTags) then
-                dt.print_log("Face recognition: Ignoring image with ID " .. img.id)
-              else
-                -- Check of unrecognized unknown_person
-                if t == "unknown_person" then
-                  t = unknownTag
+        img = image_table[file]
+        if img == nil then
+          dt.print_log("Face recognition: Ignoring face recognition entry: " .. file)
+        else
+          for t,_ in pairs (tags) do
+            -- Check if image is ignored
+            if ignoreByTag (img, ignoreTags) then
+              dt.print_log("Face recognition: Ignoring image with ID " .. img.id)
+            else
+              -- Check of unrecognized unknown_person
+              if t == "unknown_person" then
+                t = unknownTag
+              end
+              -- Check of unrecognized no_persons_found
+              if t == "no_persons_found" then
+                t = nonpersonsfoundTag
+              end
+              if t ~= "" and t ~= nil then
+                dt.print_log ("ImgId:" .. img.id .. " Tag:".. t)
+                -- Create tag if it does not exist
+                if tags_list[t] == nil then
+                  tag = dt.tags.create (t)
+                  tags_list[t] = tag
+                else
+                  tag = tags_list[t]
                 end
-                -- Check of unrecognized no_persons_found
-                if t == "no_persons_found" then
-                  t = nonpersonsfoundTag
-                end
-                if t ~= "" and t ~= nil then
-                  dt.print_log ("ImgId:" .. img.id .. " Tag:".. t)
-                  -- Create tag if it does not exists
-                  local tag = dt.tags.create (t)
-                  img:attach_tag (tag)
-                end
+                img:attach_tag (tag)
               end
             end
           end
         end
       end
-      dt.print(_("face recognition complete"))
       cleanup(img_list)
+      dt.print_log("img_list cleaned-up")
+      dt.print_log("face recognition complete")
+      dt.print(_("face recognition complete"))
     else
       dt.print(_("image export failed"))
       return
@@ -321,8 +334,6 @@ local function face_recognition ()
     dt.print(_("no images selected"))
     return
   end
-
-
 end
 
 -- build the interface
@@ -376,7 +387,7 @@ fc.known_image_path = dt.new_widget("file_chooser_button"){
   is_directory = true,
   changed_callback = function(this)
     dt.preferences.write(MODULE, "known_image_path", "directory", this.value)
-  end
+end
 }
 
 fc.export_format = dt.new_widget("combobox"){
@@ -403,9 +414,9 @@ fc.height = dt.new_widget("entry"){
 
 fc.execute = dt.new_widget("button"){
   label = "detect faces",
-  clicked_callback = function(this) 
+  clicked_callback = function(this)
     face_recognition()
-  end
+end
 }
 
 local widgets = {
@@ -422,14 +433,14 @@ local widgets = {
 if dt.configuration.running_os == "windows" or dt.configuration.running_os == "macos" then
   table.insert(widgets, df.executable_path_widget({"face_recognition"}))
 end
-table.insert(widgets, dt.new_widget("section_label"){ label = _("processing options")})
-table.insert(widgets, fc.tolerance)
-table.insert(widgets, fc.num_cores)
-table.insert(widgets, fc.export_format)
-table.insert(widgets, dt.new_widget("box"){
-  orientation = "horizontal",
-  dt.new_widget("label"){ label = _("width  ")},
-  fc.width,
+  table.insert(widgets, dt.new_widget("section_label"){ label = _("processing options")})
+  table.insert(widgets, fc.tolerance)
+  table.insert(widgets, fc.num_cores)
+  table.insert(widgets, fc.export_format)
+  table.insert(widgets, dt.new_widget("box"){
+    orientation = "horizontal",
+    dt.new_widget("label"){ label = _("width  ")},
+    fc.width,
 })
 table.insert(widgets, dt.new_widget("box"){
   orientation = "horizontal",
@@ -439,17 +450,12 @@ table.insert(widgets, dt.new_widget("box"){
 table.insert(widgets, fc.execute)
 
 fc.widget = dt.new_widget("box"){
-  orientation = vertical,
-  reset_callback = function(this)
+	orientation = vertical,
+	reset_callback = function(this)
     reset_preferences()
-  end,
-  table.unpack(widgets),
+	end,
+	table.unpack(widgets),
 }
-
---fc.tolerance.value = dt.preferences.read(MODULE, "tolerance", "float")
-
--- Register
---dt.register_storage("module_face_recognition", _("Face recognition"), show_status, face_recognition)
 
 dt.register_lib(
   "face_recognition",     -- Module name
