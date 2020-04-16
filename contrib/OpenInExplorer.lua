@@ -54,11 +54,11 @@ end
 local act_os = dt.configuration.running_os
 local PS = act_os == "windows" and  "\\"  or  "/"
 
---Detect OS and modify accordingly--	
+--Detect OS and quit if not one of macOS, Windows or Linux--	
 local proper_install = true
 if act_os ~= "macos" and act_os ~= "windows" and act_os ~= "linux" then
   proper_install = false
-  dt.print_error(_('OpenInExplorer plug-in only supports Windows and Linux at this time'))
+  dt.print_error(_('OpenInExplorer plug-in only supports macOS, Windows and Linux at this time'))
   return
 end
 
@@ -72,13 +72,17 @@ fmng_cmd.windows = 'explorer.exe /select, '
 local function open_in_fmanager(os, fmcmd)
   local images = dt.gui.selection()
   local curr_image = ""
+  local run_cmd = ""
   if #images == 0 then
     dt.print(_('Please select an image'))
   elseif #images <= 15 then
-    for _,image in pairs(images) do 
-      curr_image = df.sanitize_filename(image.path..PS..image.filename)
-      local run_cmd = fmcmd..curr_image
-      if os == 'linux' then run_cmd = run_cmd .. [[ ""]] end
+    for _,image in pairs(images) do
+      curr_image = image.path..PS..image.filename
+      if os == 'linux' then
+        run_cmd = fmcmd .. df.sanitize_filename("file://"..curr_image) .. [[ ""]]
+      else
+        run_cmd = fmcmd .. df.sanitize_filename(curr_image)
+      end
       dt.print_log("OpenInExplorer run_cmd = "..run_cmd)
       resp = dsys.external_command(run_cmd)
     end
@@ -91,7 +95,7 @@ end
 -- GUI --
 if proper_install then
   dt.gui.libs.image.register_action(
-    _("Show in file explorer"),
+    _("show in file explorer"),
     function() open_in_fmanager(act_os, fmng_cmd[act_os]) end,
     _("Opens File Explorer at the selected image's location")
   )
