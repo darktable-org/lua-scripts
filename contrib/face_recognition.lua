@@ -387,7 +387,7 @@ fc.known_image_path = dt.new_widget("file_chooser_button"){
   is_directory = true,
   changed_callback = function(this)
     dt.preferences.write(MODULE, "known_image_path", "directory", this.value)
-end
+  end
 }
 
 fc.export_format = dt.new_widget("combobox"){
@@ -414,9 +414,9 @@ fc.height = dt.new_widget("entry"){
 
 fc.execute = dt.new_widget("button"){
   label = "detect faces",
-  clicked_callback = function(this)
+  clicked_callback = function(this) 
     face_recognition()
-end
+  end
 }
 
 local widgets = {
@@ -433,14 +433,14 @@ local widgets = {
 if dt.configuration.running_os == "windows" or dt.configuration.running_os == "macos" then
   table.insert(widgets, df.executable_path_widget({"face_recognition"}))
 end
-  table.insert(widgets, dt.new_widget("section_label"){ label = _("processing options")})
-  table.insert(widgets, fc.tolerance)
-  table.insert(widgets, fc.num_cores)
-  table.insert(widgets, fc.export_format)
-  table.insert(widgets, dt.new_widget("box"){
-    orientation = "horizontal",
-    dt.new_widget("label"){ label = _("width  ")},
-    fc.width,
+table.insert(widgets, dt.new_widget("section_label"){ label = _("processing options")})
+table.insert(widgets, fc.tolerance)
+table.insert(widgets, fc.num_cores)
+table.insert(widgets, fc.export_format)
+table.insert(widgets, dt.new_widget("box"){
+  orientation = "horizontal",
+  dt.new_widget("label"){ label = _("width  ")},
+  fc.width,
 })
 table.insert(widgets, dt.new_widget("box"){
   orientation = "horizontal",
@@ -450,11 +450,11 @@ table.insert(widgets, dt.new_widget("box"){
 table.insert(widgets, fc.execute)
 
 fc.widget = dt.new_widget("box"){
-	orientation = vertical,
-	reset_callback = function(this)
+  orientation = vertical,
+  reset_callback = function(this)
     reset_preferences()
-	end,
-	table.unpack(widgets),
+  end,
+  table.unpack(widgets),
 }
 
 dt.register_lib(
