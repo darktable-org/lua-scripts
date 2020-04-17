@@ -33,7 +33,7 @@ https://www.darktable.org/lua-api/index.html.php#darktable_new_widget
 local dt = require "darktable"
 local du = require "lib/dtutils"
 
-du.check_min_api_version("3.0.0", "moduleExample") 
+du.check_min_api_version("3.0.0", "exportLUT") 
 
 -- add a new lib
 
@@ -63,7 +63,27 @@ local output_label = dt.new_widget("label"){
   label = "choose the output location"
 }
 
-local separator = dt.new_widget("separator"){}
+local separator = dt.new_widget("separator"){
+  
+}
+
+local function create_lut(style, haldclut)
+  haldclut.reset
+  dt.styles.apply(style, haldclut)
+end
+
+local function export_lut(haldclut)
+  
+end
+
+local function export_luts()
+  identity = dt.database.import(file_chooser_button)
+  for style_num, style in ipairs(dt.styles) do
+    identity = create_lut(style, identity)
+    export_lut(identity)
+    dt.print(style.name)
+  end
+end
 
 if (dt.configuration.api_version_major >= 6) then
   local section_label = dt.new_widget("section_label")
@@ -117,9 +137,7 @@ else
       dt.new_widget("button")
       {
         label = "export",
-        clicked_callback = function (_)
-          dt.print("Button clicked")
-        end
+        clicked_callback = export_luts
       }
     },
     nil,-- view_enter
