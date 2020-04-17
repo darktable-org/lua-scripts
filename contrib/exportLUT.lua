@@ -35,11 +35,11 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("3.0.0", "exportLUT") 
 
--- add a new lib
+-- Thanks Kevin Ertel for this trick
+local os_path_seperator = '/'
+if dt.configuration.running_os == 'windows' then os_path_seperator = '\\' end
 
 local combobox = dt.new_widget("combobox"){label = "on conflict", value = 1, "skip", "overwrite"}
-
---https://www.darktable.org/lua-api/ar01s02s54.html.php
 
 local file_chooser_button = dt.new_widget("file_chooser_button")
 {
@@ -64,24 +64,20 @@ local output_label = dt.new_widget("label"){
 }
 
 local separator = dt.new_widget("separator"){
-  
 }
 
-local function create_lut(style, haldclut)
-  haldclut.reset
-  dt.styles.apply(style, haldclut)
-end
-
-local function export_lut(haldclut)
-  
-end
-
 local function export_luts()
-  identity = dt.database.import(file_chooser_button)
+  identity = dt.database.import(file_chooser_button.value)
   for style_num, style in ipairs(dt.styles) do
-    identity = create_lut(style, identity)
-    export_lut(identity)
-    dt.print(style.name)
+    
+    identity:reset()
+    dt.styles.apply(style, identity)
+    
+    io_lut = dt.new_format("png")
+    dt.print(export_chooser_button.value .. os_path_seperator .. style.name)
+    io_lut:write_image(identity, export_chooser_button.value .. os_path_seperator .. style.name)
+    
+    dt.print(export_chooser_button.value .. os_path_seperator .. style.name)
   end
 end
 
