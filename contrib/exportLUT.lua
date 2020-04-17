@@ -1,6 +1,6 @@
 --[[
     This file is part of darktable,
-    copyright (c) 2016 Tobias Jakobs
+    copyright (c) 2020 Noah Clarke
 
     darktable is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,18 +16,14 @@
     along with darktable.  If not, see <http://www.gnu.org/licenses/>.
 ]]
 --[[
+Add the following line to .config/darktable/luarc to enable this lightable module: 
+  require "exportLut"
 
-USAGE
-* require this script from your main lua file
-  To do this add this line to the file .config/darktable/luarc: 
-require "moduleExample"
+Given a haldCLUT identity file this script generates haldCLUTS from all the user's
+styles and exports them to a location of their choosing.
 
-* it creates a new example lighttable module
-
-More informations about building user interface elements:
-https://www.darktable.org/usermanual/ch09.html.php#lua_gui_example
-And about new_widget here:
-https://www.darktable.org/lua-api/index.html.php#darktable_new_widget
+Warning: during export if a naming collision occurs the older file is automatically
+overwritten silently.
 ]]
 
 local dt = require "darktable"
@@ -35,24 +31,20 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("3.0.0", "exportLUT") 
 
--- Thanks Kevin Ertel for this trick
+-- Thanks Kevin Ertel for this bit
 local os_path_seperator = '/'
 if dt.configuration.running_os == 'windows' then os_path_seperator = '\\' end
 
-local combobox = dt.new_widget("combobox"){label = "on conflict", value = 1, "skip", "overwrite"}
-
-local file_chooser_button = dt.new_widget("file_chooser_button")
-{
-    title = "Identity_file_chooser",  -- The title of the window when choosing a file
-    value = "",                       -- The currently selected file
-    is_directory = false              -- True if the file chooser button only allows directories to be selecte
+local file_chooser_button = dt.new_widget("file_chooser_button"){
+    title = "Identity_file_chooser",
+    value = "",
+    is_directory = false
 }
 
-local export_chooser_button = dt.new_widget("file_chooser_button")
-{
-    title = "Export_location_chooser",  -- The title of the window when choosing a file
-    value = "",                       -- The currently selected file
-    is_directory = true              -- True if the file chooser button only allows directories to be selecte
+local export_chooser_button = dt.new_widget("file_chooser_button"){
+    title = "Export_location_chooser",
+    value = "",
+    is_directory = true
 }
 
 local identity_label = dt.new_widget("label"){
@@ -63,7 +55,9 @@ local output_label = dt.new_widget("label"){
   label = "choose the output location"
 }
 
-local separator = dt.new_widget("separator"){
+local export_button = dt.new_widget("button"){
+  label = "export",
+  clicked_callback = export_luts
 }
 
 local function export_luts()
@@ -74,72 +68,49 @@ local function export_luts()
     dt.styles.apply(style, identity)
     
     io_lut = dt.new_format("png")
-    dt.print(export_chooser_button.value .. os_path_seperator .. style.name)
-    io_lut:write_image(identity, export_chooser_button.value .. os_path_seperator .. style.name)
-    
-    dt.print(export_chooser_button.value .. os_path_seperator .. style.name)
+    dt.print("Exporting: " .. export_chooser_button.value .. os_path_seperator .. style.name .. ".png")
+    io_lut:write_image(identity, export_chooser_button.value .. os_path_seperator .. style.name .. ".png")
   end
+  identity:reset()
 end
 
 if (dt.configuration.api_version_major >= 6) then
-  local section_label = dt.new_widget("section_label")
-  {
-    label = "MySectionLabel"
-  }
 
   dt.register_lib(
-    "export haldclut",     -- Module name
-    "export haldclut",     -- name
-    true,                -- expandable
-    false,               -- resetable
-    {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},   -- containers
+    "export haldclut",
+    "export haldclut",
+    true,
+    false,
+    {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},
     identity_label,
     file_chooser_button,
     output_label,
     export_chooser_button,
-    combobox,
-    separator,
-    dt.new_widget("box") -- widget
+    dt.new_widget("box")
     {
       orientation = "vertical",
-      dt.new_widget("button")
-      {
-        label = "export",
-        clicked_callback = function (_)
-          dt.print("Button clicked")
-        end
-      },
-	  section_label
+      export_button
     },
-    nil,-- view_enter
-    nil -- view_leave
+    nil,
+    nil
   )
 else
   dt.register_lib(
-    "export haldclut",     -- Module name
-    "export haldclut",     -- name
-    true,                -- expandable
-    false,               -- resetable
-    {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},   -- containers
-    dt.new_widget("box") -- widget
+    "export haldclut",
+    "export haldclut",
+    true,
+    false,
+    {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},
+    dt.new_widget("box")
     {
       orientation = "vertical",
       identity_label,
       file_chooser_button,
       output_label,
       export_chooser_button,
-      combobox,
-      separator,
-      dt.new_widget("button")
-      {
-        label = "export",
-        clicked_callback = export_luts
-      }
+      export_button
     },
-    nil,-- view_enter
-    nil -- view_leave
+    nil,
+    nil
   )
 end
-
--- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
--- kate: hl Lua;
