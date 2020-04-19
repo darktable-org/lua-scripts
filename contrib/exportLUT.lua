@@ -55,24 +55,32 @@ local output_label = dt.new_widget("label"){
   label = "choose the output location"
 }
 
-local export_button = dt.new_widget("button"){
-  label = "export",
-  clicked_callback = export_luts
+local warning_label = dt.new_widget("label"){
+  label = "WARNING: files may be silently overwritten"
 }
 
 local function export_luts()
   identity = dt.database.import(file_chooser_button.value)
-  for style_num, style in ipairs(dt.styles) do
-    
+  if(type(identity) ~= "userdata") then
+    dt.print("Invalid identity lut file")
+  else
+    for style_num, style in ipairs(dt.styles) do
+      
+      identity:reset()
+      dt.styles.apply(style, identity)
+      
+      io_lut = dt.new_format("png")
+      dt.print("Exporting: " .. export_chooser_button.value .. os_path_seperator .. style.name .. ".png")
+      io_lut:write_image(identity, export_chooser_button.value .. os_path_seperator .. style.name .. ".png")
+    end
     identity:reset()
-    dt.styles.apply(style, identity)
-    
-    io_lut = dt.new_format("png")
-    dt.print("Exporting: " .. export_chooser_button.value .. os_path_seperator .. style.name .. ".png")
-    io_lut:write_image(identity, export_chooser_button.value .. os_path_seperator .. style.name .. ".png")
   end
-  identity:reset()
 end
+
+local export_button = dt.new_widget("button"){
+  label = "export",
+  clicked_callback = export_luts
+}
 
 if (dt.configuration.api_version_major >= 6) then
 
@@ -86,6 +94,7 @@ if (dt.configuration.api_version_major >= 6) then
     file_chooser_button,
     output_label,
     export_chooser_button,
+    warning_label,
     dt.new_widget("box")
     {
       orientation = "vertical",
@@ -108,6 +117,7 @@ else
       file_chooser_button,
       output_label,
       export_chooser_button,
+      warning_label,
       export_button
     },
     nil,
