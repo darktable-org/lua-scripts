@@ -66,14 +66,6 @@ local function _(msgid)
   return gettext.dgettext("face_recognition", msgid)
 end
 
--- preferences
-
-if not dt.preferences.read(MODULE, "initialized", "bool") then
-  reset_preferences()
-  save_preferences()
-  dt.preferences.write(MODULE, "initialized", "bool", true)
-end
-
 local function build_image_table(images)
   local image_table = {}
   local file_extension = ""
@@ -242,7 +234,10 @@ local function face_recognition ()
 
       -- Get path of exported images
       local path = df.get_path (img_list[1])
+      dt.print_log ("Face recognition: Path to known faces: " .. knownPath)
       dt.print_log ("Face recognition: Path to unknown images: " .. path)
+      dt.print_log ("Face recognition: Tag used for unknown faces: " .. unknownTag)
+      dt.print_log ("Face recognition: Tag used if non person is found: " .. nonpersonsfoundTag)
       os.setlocale("C")
       local tolerance = dt.preferences.read(MODULE, "tolerance", "float")
 
@@ -469,6 +464,14 @@ dt.register_lib(
 )
 
 fc.tolerance.value = dt.preferences.read(MODULE, "tolerance", "float")
+
+-- preferences
+
+if not dt.preferences.read(MODULE, "initialized", "bool") then
+  reset_preferences()
+  save_preferences()
+  dt.preferences.write(MODULE, "initialized", "bool", true)
+end
 
 --
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
