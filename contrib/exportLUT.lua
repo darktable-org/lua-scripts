@@ -83,45 +83,22 @@ local export_button = dt.new_widget("button"){
   clicked_callback = export_luts
 }
 
-if (dt.configuration.api_version_major >= 6) then
-
-  dt.register_lib(
-    "export haldclut",
-    "export haldclut",
-    true,
-    false,
-    {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},
+dt.register_lib(
+  "export haldclut",
+  "export haldclut",
+  true,
+  false,
+  {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},
+  dt.new_widget("box")
+  {
+    orientation = "vertical",
     identity_label,
     file_chooser_button,
     output_label,
     export_chooser_button,
     warning_label,
-    dt.new_widget("box")
-    {
-      orientation = "vertical",
-      export_button
-    },
-    nil,
-    nil
-  )
-else
-  dt.register_lib(
-    "export haldclut",
-    "export haldclut",
-    true,
-    false,
-    {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},
-    dt.new_widget("box")
-    {
-      orientation = "vertical",
-      identity_label,
-      file_chooser_button,
-      output_label,
-      export_chooser_button,
-      warning_label,
-      export_button
-    },
-    nil,
-    nil
-  )
-end
+    export_button
+  },
+  nil,
+  nil
+)
