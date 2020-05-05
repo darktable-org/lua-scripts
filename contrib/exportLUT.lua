@@ -29,7 +29,7 @@ overwritten silently.
 local dt = require "darktable"
 local du = require "lib/dtutils"
 
-du.check_min_api_version("3.0.0", "exportLUT") 
+du.check_min_api_version("5.0.0", "exportLUT") 
 
 -- Thanks Kevin Ertel for this bit
 local os_path_seperator = '/'
@@ -70,8 +70,9 @@ local function export_luts()
       dt.styles.apply(style, identity)
       
       io_lut = dt.new_format("png")
-      dt.print("Exporting: " .. export_chooser_button.value .. os_path_seperator .. style.name .. ".png")
+      io_lut.bpp = 16
       io_lut:write_image(identity, export_chooser_button.value .. os_path_seperator .. style.name .. ".png")
+      dt.print("Exported: " .. export_chooser_button.value .. os_path_seperator .. style.name .. ".png")
     end
     identity:reset()
   end
