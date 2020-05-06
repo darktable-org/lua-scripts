@@ -83,7 +83,7 @@ local function export_luts()
       dt.styles.apply(style, identity)
       
       local io_lut = dt.new_format("png")
-      io_lut.bpp = 16
+      io_lut.bpp = 8
       io_lut:write_image(identity, export_chooser_button.value .. os_path_seperator .. style.name .. ".png")
       count = count + 1
       job.percent = count / size
