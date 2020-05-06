@@ -59,21 +59,38 @@ local warning_label = dt.new_widget("label"){
   label = "WARNING: files may be silently overwritten"
 }
 
+local function end_job(job)
+  job.valid = false
+end
+
 local function export_luts()
-  identity = dt.database.import(file_chooser_button.value)
+  local identity = dt.database.import(file_chooser_button.value)
   if(type(identity) ~= "userdata") then
     dt.print("Invalid identity lut file")
   else
+    local job = dt.gui.create_job('Exporting styles as haldCLUTs', true, end_job)
+    
+    local size = 1
+
+    for style_num, style in ipairs(dt.styles) do
+      size = size + 1
+    end
+
+    local count = 0
     for style_num, style in ipairs(dt.styles) do
       
       identity:reset()
       dt.styles.apply(style, identity)
       
-      io_lut = dt.new_format("png")
+      local io_lut = dt.new_format("png")
       io_lut.bpp = 16
       io_lut:write_image(identity, export_chooser_button.value .. os_path_seperator .. style.name .. ".png")
+      count = count + 1
+      job.percent = count / size
       dt.print("Exported: " .. export_chooser_button.value .. os_path_seperator .. style.name .. ".png")
     end
+    dt.print("Done exporting haldCLUTs")
+    job.valid = false
     identity:reset()
   end
 end
