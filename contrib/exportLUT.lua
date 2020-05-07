@@ -17,7 +17,7 @@
 ]]
 --[[
 Add the following line to .config/darktable/luarc to enable this lightable module: 
-  require "exportLut"
+  require "contrib/exportLut"
 
 Given a haldCLUT identity file this script generates haldCLUTS from all the user's
 styles and exports them to a location of their choosing.
