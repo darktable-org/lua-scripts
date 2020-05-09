@@ -154,7 +154,7 @@ local function reset_preferences()
   fc.unknown_tag.text = "unknown_person"
   fc.no_persons_found_tag.text = "no_persons_found"
   fc.ignore_tags.text = ""
-  fc.category_tags.text = "People"
+  fc.category_tags.text = ""
   fc.known_image_path.value = dt.configuration.config_dir .. "/face_recognition"
   fc.tolerance.value = 0.6
   fc.num_cores.value = -1
@@ -306,7 +306,7 @@ local function face_recognition ()
                 t = nonpersonsfoundTag
               end
               if t ~= "" and t ~= nil then
-                if categoryTagString ~= "" then
+                if categoryTagString ~= "" and t ~= nonpersonsfoundTag then
                   t = categoryTagString .. "|" .. t
                 end                  
                 dt.print_log ("ImgId:" .. img.id .. " Tag:".. t)
