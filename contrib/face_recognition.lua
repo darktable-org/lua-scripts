@@ -139,6 +139,7 @@ local function save_preferences()
   dt.preferences.write(MODULE, "unknown_tag", "string", fc.unknown_tag.text)
   dt.preferences.write(MODULE, "no_persons_found_tag", "string", fc.no_persons_found_tag.text)
   dt.preferences.write(MODULE, "ignore_tags", "string", fc.ignore_tags.text)
+  dt.preferences.write(MODULE, "category_tags", "string", fc.category_tags.text)
   dt.preferences.write(MODULE, "known_image_path", "directory", fc.known_image_path.value)
   local val = fc.tolerance.value
   val = string.gsub(tostring(val), ",", ".")
@@ -153,6 +154,7 @@ local function reset_preferences()
   fc.unknown_tag.text = "unknown_person"
   fc.no_persons_found_tag.text = "no_persons_found"
   fc.ignore_tags.text = ""
+  fc.category_tags.text = ""
   fc.known_image_path.value = dt.configuration.config_dir .. "/face_recognition"
   fc.tolerance.value = 0.6
   fc.num_cores.value = -1
@@ -203,6 +205,7 @@ local function face_recognition ()
   local knownPath = dt.preferences.read(MODULE, "known_image_path", "directory")
   local nrCores = dt.preferences.read(MODULE, "num_cores", "integer")
   local ignoreTagString = dt.preferences.read(MODULE, "ignore_tags", "string")
+  local categoryTagString = dt.preferences.read(MODULE, "category_tags", "string")
   local unknownTag = dt.preferences.read(MODULE, "unknown_tag", "string")
   local nonpersonsfoundTag = dt.preferences.read(MODULE, "no_persons_found_tag", "string")
 
@@ -303,6 +306,9 @@ local function face_recognition ()
                 t = nonpersonsfoundTag
               end
               if t ~= "" and t ~= nil then
+                if categoryTagString ~= "" and t ~= nonpersonsfoundTag then
+                  t = categoryTagString .. "|" .. t
+                end                  
                 dt.print_log ("ImgId:" .. img.id .. " Tag:".. t)
                 -- Create tag if it does not exist
                 if tags_list[t] == nil then
@@ -348,6 +354,12 @@ fc.no_persons_found_tag = dt.new_widget("entry"){
 fc.ignore_tags = dt.new_widget("entry"){
   text = dt.preferences.read(MODULE, "ignore_tags", "string"),
   tooltip = _("tags of images to ignore"),
+  editable = true,
+}
+
+fc.category_tags = dt.new_widget("entry"){
+  text = dt.preferences.read(MODULE, "category_tags", "string"),
+  tooltip = _("tag category"),
   editable = true,
 }
 
@@ -421,6 +433,8 @@ local widgets = {
   fc.no_persons_found_tag,
   dt.new_widget("label"){ label = _("tags of images to ignore")},
   fc.ignore_tags,
+  dt.new_widget("label"){ label = _("tag category")},
+  fc.category_tags,
   dt.new_widget("label"){ label = _("face data directory")},
   fc.known_image_path,
 }
