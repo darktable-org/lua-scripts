@@ -747,7 +747,7 @@ dt.register_lib(
   "script manager",     -- Visible name
   true,                -- expandable
   false,               -- resetable
-  {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_BOTTOM", 100}},   -- containers
+  {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_CENTER", 0}},   -- containers
   dt.new_widget("box") -- widget
   {
     orientation = "vertical",
