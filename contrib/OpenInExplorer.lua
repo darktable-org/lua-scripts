@@ -73,8 +73,11 @@ if act_os ~= "macos" and act_os ~= "windows" and act_os ~= "linux" then
   return
 end
 
-local use_links = dt.preferences.read("OpenInExplorer", "use_links", "bool")
-local links_dir = dt.preferences.read("OpenInExplorer", "linked_image_files_dir", "string")
+local use_links, links_dir = false, ""
+if act_os ~= "windows" then
+  use_links = dt.preferences.read("OpenInExplorer", "use_links", "bool")
+  links_dir = dt.preferences.read("OpenInExplorer", "linked_image_files_dir", "string")
+end
 
 --Check if the directory exists that was chosen for the file links. Return boolean.
 local function check_if_links_dir_exists()
