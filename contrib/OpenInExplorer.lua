@@ -183,22 +183,22 @@ dt.gui.libs.image.register_action(
   function() open_in_fmanager() end,
   _("Open the file manager at the selected image's location")
 )
-dt.preferences.register("OpenInExplorer", "linked_image_files_dir",  -- name
-  "directory", -- type
-  _("OpenInExplorer: linked files directory"), -- label
-  _("Directory to store the links to the file names. Requires restart to take effect"),  -- tooltip
-  "Links to image files",  -- default
-  dt.new_widget("file_chooser_button"){
-    title = _("Select directory"),
-    is_directory = true,
-  }
-)
 if act_os ~= "windows" then
-  dt.preferences.register("OpenInExplorer", "use_links",  -- name
-    "bool", -- type
-    _("OpenInExplorer: use links"), -- label
-    _("Use links instead of multiple windows. Requires restart to take effect"),  -- tooltip
-    false,  -- default
-    ""
+  dt.preferences.register("OpenInExplorer", "linked_image_files_dir",  -- name
+    "directory", -- type
+    _("OpenInExplorer: linked files directory"), -- label
+    _("Directory to store the links to the file names. Requires restart to take effect"),  -- tooltip
+    "Links to image files",  -- default
+    dt.new_widget("file_chooser_button"){
+      title = _("Select directory"),
+      is_directory = true,
+    }
   )
+    dt.preferences.register("OpenInExplorer", "use_links",  -- name
+      "bool", -- type
+      _("OpenInExplorer: use links"), -- label
+      _("Use links instead of multiple windows. Requires restart to take effect"),  -- tooltip
+      false,  -- default
+      ""
+    )
 end
