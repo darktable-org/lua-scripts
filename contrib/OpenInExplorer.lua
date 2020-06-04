@@ -38,11 +38,11 @@ Select the photo(s) you wish to find in your operating system's file manager and
 
 - Dolphin (Linux) will open one window with tabs for the different directories. All the selected images' file names are highlighted in their respective directories.
 
-As an alternative option you can choose to show the image file names as symbolic links in an arbitrary directory. Go to preferences|Lua options.
+As an alternative option you can choose to show the image file names as symbolic links in an arbitrary directory. Go to preferences|Lua options. This option is not available for Windows users as on Windows solely admins are allowed to create links.
 
 - Pros: You do not clutter up your display with multiple windows. So there is no need to limit the number of selections.
 
-- Cons: If you want to work with the files you are one step behind the original data. For Windows users there is unfortunately still the drawback that linking from the command line is allowed solely to admins.
+- Cons: If you want to work with the files you are one step behind the original data.
 
 ----KNOWN ISSUES----
 ]]
@@ -134,11 +134,12 @@ local function set_links(selected_images)
   for k, image in pairs(selected_images) do
     current_image = image.path..PS..image.filename
     link_target = df.create_unique_filename(links_dir .. PS .. image.filename)
+    run_cmd = string.format("ln -s %s %s", df.sanitize_filename(current_image), df.sanitize_filename(link_target))
+    --[[In case Windows allows normal users to create soft links
     if act_os == "windows" then
       run_cmd = string.format("mklink %s %s", df.sanitize_filename(link_target), df.sanitize_filename(current_image))
-    else
-      run_cmd = string.format("ln -s %s %s", df.sanitize_filename(current_image), df.sanitize_filename(link_target))
     end
+    ]]
     if dsys.external_command(run_cmd) ~= 0 then
       dt.print(_("Failed to create links. Missing rights?"))
       dt.print_error("OpenInExplorer: Failed to create links")
@@ -192,10 +193,12 @@ dt.preferences.register("OpenInExplorer", "linked_image_files_dir",  -- name
     is_directory = true,
   }
 )
-dt.preferences.register("OpenInExplorer", "use_links",  -- name
-  "bool", -- type
-  _("OpenInExplorer: use links"), -- label
-  _("Use links instead of multiple windows. Requires restart to take effect"),  -- tooltip
-  false,  -- default
-  ""
-)
+if act_os ~= "windows" then
+  dt.preferences.register("OpenInExplorer", "use_links",  -- name
+    "bool", -- type
+    _("OpenInExplorer: use links"), -- label
+    _("Use links instead of multiple windows. Requires restart to take effect"),  -- tooltip
+    false,  -- default
+    ""
+  )
+end
