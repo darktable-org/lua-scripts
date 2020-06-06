@@ -1,0 +1,83 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Lua photils\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-05-12 13:12+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../../contrib/photils.lua:97
+msgid "Get Tags"
+msgstr "Hole Stichwörter"
+
+#: ../../../contrib/photils.lua:128
+msgid "requires a restart to be applied"
+msgstr "erfordert die Neustart um angewendet zu werden"
+
+#: ../../../contrib/photils.lua:155
+msgid ""
+"The suggested tags were not generated\n"
+" for the currently selected image!"
+msgstr ""
+"Die vorgeschlagenen Stichwörter wurden für das\n"
+"aktuell ausgewählte Bild nicht generiert!"
+
+#: ../../../contrib/photils.lua:161
+#, lua-format
+msgid "  Page %s of %s  "
+msgstr "  Seite %s von %s  "
+
+#: ../../../contrib/photils.lua:204
+msgid "Tags successfully attached to image"
+msgstr "Stichwörter erfolgreich an Bild angefügt"
+
+#: ../../../contrib/photils.lua:215
+#, lua-format
+msgid "Error writing to `%s`"
+msgstr "Fehler beim Schreiben in `%s`"
+
+#: ../../../contrib/photils.lua:229
+#, lua-format
+msgid "%s failed, see terminal output for details"
+msgstr "%s fehlgeschlagen, siehe Terminal-Ausgabe für Details"
+
+#: ../../../contrib/photils.lua:243
+#, lua-format
+msgid "%s found %d tags for your image"
+msgstr "%s gefunden %d-Stichwörter für Ihr Bild"
+
+#: ../../../contrib/photils.lua:257
+msgid "No image selected."
+msgstr "Kein Bild ausgewählt."
+
+#: ../../../contrib/photils.lua:262
+msgid "This plugin can only handle a single image."
+msgstr "Dieses Plugin kann nur ein einziges Bild verarbeiten."
+
+#: ../../../contrib/photils.lua:293
+#, lua-format
+msgid "Attach %d Tags"
+msgstr "%d-Stichwörter anhängen"
+
+#: ../../../contrib/photils.lua:326 ../../../contrib/photils.lua:327
+msgid "photils-cli not found"
+msgstr "photils-cli nicht gefunden"
+
+#: ../../../contrib/photils.lua:329
+msgid ""
+"Select an image, click \"Get Tags\" and get \n"
+"suggestions for tags."
+msgstr ""
+"Wählen Sie ein Bild aus, drücken Sie \"Hole Stichwörter\"\n"
+" und erhalten Sie Vorschläge für Stichwörter."

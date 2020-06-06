@@ -54,6 +54,7 @@ LabelsToTags|Yes|LMW|Apply tags based on color labels and ratings
 OpenInExplorer|No|LMW|Open the selected images in the system file manager
 passport_guide|Yes|LMW|Add passport cropping guide to darkroom crop tool
 pdf_slideshow|No|LM|Export images to a PDF slideshow
+[photils](https://github.com/scheckmedia/photils-dt)|No|LM|Automatic tag suggestions for your images
 quicktag|Yes|LMW|Create shortcuts for quickly applying tags
 rate_group|Yes|LMW|Apply or remove a star rating from grouped images
 rename-tags|Yes|LMW|Change a tag name
