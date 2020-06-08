@@ -57,33 +57,76 @@ dtutils_file.libdoc.functions["check_if_bin_exists"] = {
   Copyright = [[]],
 }
 
-function dtutils_file.check_if_bin_exists(bin)
+local function _check_if_bin_exists_windows(bin)
   local result = false
   local path = nil
 
-  if string.match(bin, "/") or string.match(bin, "\\") then 
+  if string.match(bin, "\\") then 
     path = bin
   else
     path = dtutils_file.get_executable_path_preference(bin)
   end
 
-  if string.len(path) > 0 then
+  if (string.match(path, ".exe$") or string.match(path, ".EXE$")) or
+     (string.match(path, ".com$") or string.match(path, ".COM$")) or
+     (string.match(path, ".bat$") or string.match(path, ".BAT$")) or
+     (string.match(path, ".cmd$") or string.match(path, ".CMD$")) then
     if dtutils_file.check_if_file_exists(path) then
-      if (string.match(path, ".exe$") or string.match(path, ".EXE$")) and dt.configuration.running_os ~= "windows" then
-       result = dtutils_file.sanitize_filename("wine " .. path)
-      else
+      result = dtutils_file.sanitize_filename(path)
+    end
+  end
+  return result
+end
+
+-- check_if_bin_exists for unix like systems (linux, macos)
+local function _check_if_bin_exists_nix(bin)
+  local result = false
+  local path = nil
+
+  if string.match(bin, "/") then
+    path = bin
+  else
+    path = dtutils_file.get_executable_path_preference(bin)
+  end
+
+  if path then dt.print_log("path is " .. path) end
+
+  if string.len(path) > 0 then
+    -- check for windows executable to run under wine
+    if string.match(path, ".exe$") or string.match(path, ".EXE$") then
+      if dtutils_file.check_if_file_exists(path) then
         result = dtutils_file.sanitize_filename(path)
       end
+    else
+      if dtutils_file.check_if_file_exists(path) then
+        local spath = dtutils_file.sanitize_filename(path)
+        -- check that it's an executable file
+        if os.execute("test -f " .. spath .. " && test -x " .. spath) then
+          result = spath
+        end
+      end
     end
-  elseif dt.configuration.running_os == "linux" then
+  end
+  if not result then
     local p = io.popen("which " .. bin)
     local output = p:read("*a")
     p:close()
     if string.len(output) > 0 then
-      result = dtutils_file.sanitize_filename(output:sub(1,-2))
+      local spath = dtutils_file.sanitize_filename(output:sub(1,-2))
+      if os.execute("test -f " .. spath .. " && test -x " .. spath) then
+        result = spath 
+      end
     end
   end
   return result
+end
+
+function dtutils_file.check_if_bin_exists(bin)
+  if dt.configuration.running_os == "windows" then
+    return _check_if_bin_exists_windows(bin)
+  else
+    return _check_if_bin_exists_nix(bin)
+  end
 end
 
 dtutils_file.libdoc.functions["split_filepath"] = {
@@ -542,7 +585,7 @@ function dtutils_file.executable_path_widget(executables)
       is_directory = false,
       changed_callback = function(self)
         if dtutils_file.check_if_bin_exists(self.value) then
-          dtutils_file.set_executable_path_preference(executable, self.value)
+          dtutils_file.set_executable_path_preference(executable, dtutils_file.check_if_bin_exists(self.value))
         end
       end}
     )
