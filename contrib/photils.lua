@@ -16,13 +16,11 @@
 --]]
 
 --[[
-    A darktable plugin which tries to predict keywords based on the selected image.
-    This plugin uses photils-cli to handle this task. Photils-cli is an application
-    which passes the image through a neural network and generates a feature vector.
-    This feature vector will be used to find similar images in a self-hosted online
-    database and the corresponding tags. The usage of the feature vector has this advantage
-    that at no time your selected image will leave the PC. Rather a representation
-    of the image is sent.
+   A darktable plugin that tries to predict keywords based on the selected image.
+   This plugin uses photils-cli to handle this task. Photils-cli is an application
+   that passes the image through a neural network, classifies it, and extracts the
+   suggested tags. Everything happens offline without the need that your data are
+   sent over the internet.
 
     ADDITIONAL SOFTWARE NEEDED FOR THIS SCRIPT
     * photils-cli - https://github.com/scheckmedia/photils-cli
