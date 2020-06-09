@@ -63,15 +63,7 @@ du.check_min_api_version("5.0.0", "face_recognition")
 gettext.bindtextdomain("face_recognition", dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("face_recognition", msgid)
-end
-
--- preferences
-
-if not dt.preferences.read(MODULE, "initialized", "bool") then
-  reset_preferences()
-  save_preferences()
-  dt.preferences.write(MODULE, "initialized", "bool", true)
+  return gettext.dgettext("face_recognition", msgid)
 end
 
 local function build_image_table(images)
@@ -92,8 +84,10 @@ local function build_image_table(images)
   end
 
   for _,img in ipairs(images) do
-    image_table[img] = tmp_dir .. df.get_basename(img.filename) .. file_extension
-    cnt = cnt + 1
+    if img ~= nil then
+      image_table[tmp_dir .. df.get_basename(img.filename) .. file_extension] = img
+      cnt = cnt + 1
+    end
   end
 
   return image_table, cnt
@@ -103,17 +97,12 @@ local function stop_job(job)
   job.valid = false
 end
 
-local function do_export(img_tbl)
+local function do_export(img_tbl, images)
   local exporter = nil
   local upsize = false
-  local upscale = false
   local ff = fc.export_format.value
   local height = dt.preferences.read(MODULE, "max_height", "integer")
   local width = dt.preferences.read(MODULE, "max_width", "integer")
-  local images = 0
-  for k,v in pairs(img_tbl) do
-    images = images + 1
-  end
 
   -- get the export format parameters
   if string.match(ff, "JPEG") then
@@ -134,7 +123,7 @@ local function do_export(img_tbl)
   local exp_cnt = 0
   local percent_step = 1.0 / images
   job.percent = 0.0
-  for img,export in pairs(img_tbl) do
+  for export,img in pairs(img_tbl) do
     exp_cnt = exp_cnt + 1
     dt.print(string.format(_("Exporting image %i of %i images"), exp_cnt, images))
     exporter:write_image(img, export, upsize)
@@ -150,6 +139,7 @@ local function save_preferences()
   dt.preferences.write(MODULE, "unknown_tag", "string", fc.unknown_tag.text)
   dt.preferences.write(MODULE, "no_persons_found_tag", "string", fc.no_persons_found_tag.text)
   dt.preferences.write(MODULE, "ignore_tags", "string", fc.ignore_tags.text)
+  dt.preferences.write(MODULE, "category_tags", "string", fc.category_tags.text)
   dt.preferences.write(MODULE, "known_image_path", "directory", fc.known_image_path.value)
   local val = fc.tolerance.value
   val = string.gsub(tostring(val), ",", ".")
@@ -164,6 +154,7 @@ local function reset_preferences()
   fc.unknown_tag.text = "unknown_person"
   fc.no_persons_found_tag.text = "no_persons_found"
   fc.ignore_tags.text = ""
+  fc.category_tags.text = ""
   fc.known_image_path.value = dt.configuration.config_dir .. "/face_recognition"
   fc.tolerance.value = 0.6
   fc.num_cores.value = -1
@@ -188,7 +179,7 @@ local function ignoreByTag (image, ignoreTags)
       end
     end
   end
-  
+
   return ignoreImage
 end
 
@@ -214,6 +205,7 @@ local function face_recognition ()
   local knownPath = dt.preferences.read(MODULE, "known_image_path", "directory")
   local nrCores = dt.preferences.read(MODULE, "num_cores", "integer")
   local ignoreTagString = dt.preferences.read(MODULE, "ignore_tags", "string")
+  local categoryTagString = dt.preferences.read(MODULE, "category_tags", "string")
   local unknownTag = dt.preferences.read(MODULE, "unknown_tag", "string")
   local nonpersonsfoundTag = dt.preferences.read(MODULE, "no_persons_found_tag", "string")
 
@@ -221,34 +213,37 @@ local function face_recognition ()
   if nrCores < 1 then
     nrCores = -1
   end
-  
+
   -- Split ignore tags (if any)
   ignoreTags = {}
   for tag in string.gmatch(ignoreTagString, '([^,]+)') do
     table.insert (ignoreTags, tag)
     dt.print_log ("Face recognition: Ignore tag: " .. tag)
   end
-  
+
   -- list of exported images
 
   local image_table, cnt = build_image_table(dt.gui.action_images)
 
   if cnt > 0 then
-    local success = do_export(image_table)
+    local success = do_export(image_table, cnt)
     if success then
       -- do the face recognition
       local img_list = {}
 
-      for img,v in pairs(image_table) do
+      for v,_ in pairs(image_table) do
         table.insert (img_list, v)
       end
 
       -- Get path of exported images
       local path = df.get_path (img_list[1])
+      dt.print_log ("Face recognition: Path to known faces: " .. knownPath)
       dt.print_log ("Face recognition: Path to unknown images: " .. path)
+      dt.print_log ("Face recognition: Tag used for unknown faces: " .. unknownTag)
+      dt.print_log ("Face recognition: Tag used if non person is found: " .. nonpersonsfoundTag)
       os.setlocale("C")
       local tolerance = dt.preferences.read(MODULE, "tolerance", "float")
-      
+
       local command = bin_path ..  " --cpus " .. nrCores .. " --tolerance " .. tolerance .. " " .. knownPath .. " " .. path .. " > " .. OUTPUT
       os.setlocale()
       dt.print_log("Face recognition: Running command: " .. command)
@@ -258,61 +253,80 @@ local function face_recognition ()
 
       -- Open output file
       local f = io.open(OUTPUT, "rb")
-      
+
       if not f then
         dt.print(_("Face recognition failed"))
       else
         dt.print(_("Face recognition finished"))
         f:close ()
       end
-      
+
       -- Read output
       dt.print(_("processing results..."))
       local result = {}
-      for line in io.lines(OUTPUT) do 
-        if not string.match(line, "^WARNING:") then
+      local tags_list = {}
+      local tag_object = {}
+      for line in io.lines(OUTPUT) do
+        if not string.match(line, "^WARNING:") and line ~= "" and line ~= nil then
           local file, tag = string.match (line, "(.*),(.*)$")
           tag = string.gsub (tag, "%d*$", "")
           dt.print_log ("File:"..file .." Tag:".. tag)
-          if result[file] ~= nil then
-            table.insert (result[file], tag)
+          tag_object = {}
+          if result[file] == nil then
+            tag_object[tag] = true
+            result[file] = tag_object
           else
-            result[file] = {tag}
+            tag_object = result[file]
+            tag_object[tag] = true
+            result[file] = tag_object
           end
         end
       end
-      
+
       -- Attach tags
+      local result_index = 0
       for file,tags in pairs(result) do
+        result_index = result_index +1
         -- Find image in table
-        for img,file2 in pairs(image_table) do
-          if file == file2 then
-            for _,t in ipairs (tags) do
-              -- Check if image is ignored
-              if ignoreByTag (img, ignoreTags) then
-                dt.print_log("Face recognition: Ignoring image with ID " .. img.id)
-              else
-                -- Check of unrecognized unknown_person
-                if t == "unknown_person" then
-                  t = unknownTag
+        img = image_table[file]
+        if img == nil then
+          dt.print_log("Face recognition: Ignoring face recognition entry: " .. file)
+        else
+          for t,_ in pairs (tags) do
+            -- Check if image is ignored
+            if ignoreByTag (img, ignoreTags) then
+              dt.print_log("Face recognition: Ignoring image with ID " .. img.id)
+            else
+              -- Check of unrecognized unknown_person
+              if t == "unknown_person" then
+                t = unknownTag
+              end
+              -- Check of unrecognized no_persons_found
+              if t == "no_persons_found" then
+                t = nonpersonsfoundTag
+              end
+              if t ~= "" and t ~= nil then
+                if categoryTagString ~= "" and t ~= nonpersonsfoundTag then
+                  t = categoryTagString .. "|" .. t
+                end                  
+                dt.print_log ("ImgId:" .. img.id .. " Tag:".. t)
+                -- Create tag if it does not exist
+                if tags_list[t] == nil then
+                  tag = dt.tags.create (t)
+                  tags_list[t] = tag
+                else
+                  tag = tags_list[t]
                 end
-                -- Check of unrecognized no_persons_found
-                if t == "no_persons_found" then
-                  t = nonpersonsfoundTag
-                end
-                if t ~= "" and t ~= nil then
-                  dt.print_log ("ImgId:" .. img.id .. " Tag:".. t)
-                  -- Create tag if it does not exists
-                  local tag = dt.tags.create (t)
-                  img:attach_tag (tag)
-                end
+                img:attach_tag (tag)
               end
             end
           end
         end
       end
-      dt.print(_("face recognition complete"))
       cleanup(img_list)
+      dt.print_log("img_list cleaned-up")
+      dt.print_log("face recognition complete")
+      dt.print(_("face recognition complete"))
     else
       dt.print(_("image export failed"))
       return
@@ -321,8 +335,6 @@ local function face_recognition ()
     dt.print(_("no images selected"))
     return
   end
-
-
 end
 
 -- build the interface
@@ -342,6 +354,12 @@ fc.no_persons_found_tag = dt.new_widget("entry"){
 fc.ignore_tags = dt.new_widget("entry"){
   text = dt.preferences.read(MODULE, "ignore_tags", "string"),
   tooltip = _("tags of images to ignore"),
+  editable = true,
+}
+
+fc.category_tags = dt.new_widget("entry"){
+  text = dt.preferences.read(MODULE, "category_tags", "string"),
+  tooltip = _("tag category"),
   editable = true,
 }
 
@@ -415,6 +433,8 @@ local widgets = {
   fc.no_persons_found_tag,
   dt.new_widget("label"){ label = _("tags of images to ignore")},
   fc.ignore_tags,
+  dt.new_widget("label"){ label = _("tag category")},
+  fc.category_tags,
   dt.new_widget("label"){ label = _("face data directory")},
   fc.known_image_path,
 }
@@ -446,11 +466,6 @@ fc.widget = dt.new_widget("box"){
   table.unpack(widgets),
 }
 
---fc.tolerance.value = dt.preferences.read(MODULE, "tolerance", "float")
-
--- Register
---dt.register_storage("module_face_recognition", _("Face recognition"), show_status, face_recognition)
-
 dt.register_lib(
   "face_recognition",     -- Module name
   _("face recognition"),     -- Visible name
@@ -463,6 +478,14 @@ dt.register_lib(
 )
 
 fc.tolerance.value = dt.preferences.read(MODULE, "tolerance", "float")
+
+-- preferences
+
+if not dt.preferences.read(MODULE, "initialized", "bool") then
+  reset_preferences()
+  save_preferences()
+  dt.preferences.write(MODULE, "initialized", "bool", true)
+end
 
 --
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua

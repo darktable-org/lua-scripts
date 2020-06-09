@@ -116,7 +116,7 @@ are met as well as providing an easy update path. Single scripts listed as stand
 
 ### snap packages
 
-The snap version of darktable comes with lua included starting with version 2.4.3snap2. It is currently in the edge channel, but should reach the stable channel soon.
+The snap version of darktable comes with lua included starting with version 2.4.3snap2.
 
 Ensure git is installed on your system. If it isn't, use the package manager to install it. Then open a terminal and:
 
@@ -138,8 +138,6 @@ Ensure git is installed on your system. If it isn't, use the package manager to 
 
 Ensure git is installed on your system. Git can be obtained from https://gitforwindows.org/, as well as other places. If you use the gitforwindows.org distribution, install the Git Bash Shell also as it will aid in debugging the scripts if necessary. Then open a command prompt and run:
 
-Open a command prompt.
-
     cd %LOCALAPPDATA%\darktable
     git clone https://github.com/darktable-org/lua-scripts.git lua
 
@@ -154,10 +152,18 @@ You can also create or add lines to the luarc file from the command line:
 `echo 'require "contrib/gimp"' > ~/.config/darktable/luarc` to create the file with a gimp entry\
 or `echo 'require "contrib/hugin"' >> ~/.config/darktable/luarc` to add an entry for hugin.
 
+Alteratively you can use script_manager.lua as your luarc file.  script_manager.lua provides a point and click interface for managing the lua scripts.  To use it:
+
+	ln -s $HOME/.config/darktable/lua/tools/script_manager.lua $HOME/.config/darktable/luarc
+
 On windows from a command prompt:
 
 `echo require "contrib/gimp" > %LOCALAPPDATA%\darktable\luarc` to create the file with a gimp entry\
 or `echo require "contrib/hugin" >> %LOCALAPPDATA%\darktable\luarc` to add an entry for hugin.
+
+Alteratively you can use script_manager.lua as your luarc file.  script_manager.lua provides a point and click interface for managing the lua scripts.  To use it:
+
+        copy %LOCALAPPDATA%\darktable\lua\tools\script_manager.lua %LOCALAPPDATA%\darktable\luarc
 
 ## Disabling
 
