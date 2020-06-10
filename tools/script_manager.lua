@@ -39,6 +39,7 @@
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+local ds = require "lib/dtutils.string"
 local dtsys = require "lib/dtutils.system"
 
 local gettext = dt.gettext
@@ -215,7 +216,7 @@ local function scan_scripts()
   -- scan the scripts
   local output = io.popen(find_cmd)
   for line in output:lines() do
-    local l = string.gsub(line, LUA_DIR .. PS, "") -- strip the lua dir off
+    local l = string.gsub(line, ds.sanitize_lua(LUA_DIR) .. PS, "") -- strip the lua dir off
     local script_file = l:sub(1,-5)
     if not string.match(script_file, "script_manager") then  -- let's not include ourself
       if not string.match(script_file, "plugins") then         -- skip plugins
