@@ -269,5 +269,31 @@ function dtutils_string.sanitize(str)
   end
 end
 
+dtutils_string.libdoc.functions["sanitize_lua"] = {
+  Name = [[sanitize_lua]],
+  Synopsis = [[escape lua 'magic' characters from a pattern string]],
+  Usage = [[local ds = require "lib/dtutils.string"
+
+    local result = ds.sanitize_lua(str)
+      str - string - the string that needs to be made safe]],
+  Description = [[sanitize_lua escapes lua 'magic' characters so that
+    a string may  be used in lua string/patten matching.]],
+  Return_Value = [[result - string - a lua pattern safe string]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_string.sanitize_lua(str)
+  str = string.gsub(str, "%-", "%%-")
+  str = string.gsub(str, "%(", "%%(")
+  str = string.gsub(str, "%)", "%%)")
+  return str
+end
+
+
 
 return dtutils_string
