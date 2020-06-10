@@ -23,7 +23,7 @@ msgstr "Hole Stichwörter"
 
 #: ../../../contrib/photils.lua:128
 msgid "requires a restart to be applied"
-msgstr "erfordert die Neustart um angewendet zu werden"
+msgstr "erfordert einen Neustart um angewendet zu werden"
 
 #: ../../../contrib/photils.lua:155
 msgid ""
