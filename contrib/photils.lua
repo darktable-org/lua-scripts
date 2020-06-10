@@ -160,8 +160,7 @@ function PHOTILS.image_changed()
 end
 
 function PHOTILS.tagged_image_has_changed()
-    GUI.warning.label = _(
-                            "The suggested tags were not generated\n for the currently selected image!")
+    GUI.warning.label = _("The suggested tags were not generated\n for the currently selected image!")
 end
 
 function PHOTILS.paginate()
@@ -184,6 +183,13 @@ function PHOTILS.paginate()
         GUI.next_button.sensitive = true
     end
 
+    --[[
+        calculates the start positon in the tag array based on the current page
+        and takes N tags from that array to show these in darktable
+        e.g. page 1 goes from 1 to 10, page 2 from 11 to 20 a.s.o.
+        the paginaton approach is related to a problem with the dynamic addition
+        of mutliple widgets https://github.com/darktable-org/darktable/issues/4934#event-3318100463
+    ]]--
     local offset = ((PHOTILS.page - 1) * PHOTILS.per_page) + 1
     local tag_index = 1
     for i = offset, offset + PHOTILS.per_page - 1, 1 do
