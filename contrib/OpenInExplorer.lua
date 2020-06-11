@@ -104,8 +104,13 @@ end
 -- GUI --
 if proper_install then
   dt.gui.libs.image.register_action(
-    _("show in file explorer"),
+    _("Show in file explorer"),
     function() open_in_fmanager(act_os, fmng_cmd[act_os]) end,
     _("Opens the file manager at the selected image's location")
+  )
+  dt.register_event(
+      "shortcut",
+      function(event, shortcut) open_in_fmanager(act_os, fmng_cmd[act_os]) end,
+      "OpenInExplorer"
   )
 end
