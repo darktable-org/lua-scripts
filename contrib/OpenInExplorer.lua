@@ -108,4 +108,9 @@ if proper_install then
     function() open_in_fmanager(act_os, fmng_cmd[act_os]) end,
     _("Opens the file manager at the selected image's location")
   )
+  dt.register_event(
+      "shortcut",
+      function(event, shortcut) open_in_fmanager(act_os, fmng_cmd[act_os]) end,
+      "OpenInExplorer"
+  )  
 end
