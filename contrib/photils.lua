@@ -30,7 +30,7 @@
     To do this add this line to the file .config/darktable/luarc:
     require "contrib/photils"
     * Select an image
-    * Press "Get Tags"
+    * Press "get tags"
     * Select the tags you want from a list of suggestions
     * Press "Attach .. Tags" to add the selected tags to your image
 --]]
@@ -97,7 +97,7 @@ local GUI = {
         orientation = "vertical",
         sensitive = true,
         dt.new_widget("button") {
-            label = _("Get Tags"),
+            label = _("get tags"),
             sensitive = photils_installed,
             clicked_callback = function() PHOTILS.on_tags_clicked() end
         },
@@ -143,7 +143,7 @@ local GUI = {
         hard_min = 0,
         soft_max = 100,
         soft_min = 0,
-        label = _("Min Confidence Value")
+        label = _("min confidence value")
     },
     warning = dt.new_widget("label")
 }
@@ -166,7 +166,7 @@ end
 function PHOTILS.paginate()
     PHOTILS.in_pagination = true
     local num_pages = math.ceil(#PHOTILS.tags / PHOTILS.per_page)
-    GUI.page_label.label = string.format(_("  Page %s of %s  "), PHOTILS.page,
+    GUI.page_label.label = string.format(_("  page %s of %s  "), PHOTILS.page,
                                          num_pages)
 
     if PHOTILS.page <= 1 then
@@ -312,7 +312,7 @@ function PHOTILS.on_tags_clicked()
         end
 
         if #PHOTILS.tags == 0 then
-            local msg = string.format(_("No tags where found"), MODULE_NAME)
+            local msg = string.format(_("no tags where found"), MODULE_NAME)
             GUI.warning_label.label = msg
             GUI.stack.active = GUI.error_view
             return
@@ -337,7 +337,7 @@ function PHOTILS.tag_selected(tag_button)
         GUI.attach_button.label = ""
         GUI.attach_button.sensitive = false
     else
-        GUI.attach_button.label = string.format(_("Attach %d Tags"),
+        GUI.attach_button.label = string.format(_("attach %d tags"),
                                                 num_selected)
         GUI.attach_button.sensitive = true
     end
@@ -373,7 +373,7 @@ if not photils_installed then
     GUI.warning_label.label = _("photils-cli not found")
     dt.print_log(_("photils-cli not found"))
 else
-    GUI.warning_label.label = _("Select an image, click \"Get Tags\" and get \nsuggestions for tags.")
+    GUI.warning_label.label = _("Select an image, click \"get tags\" and get \nsuggestions for tags.")
 end
 
 GUI.pagination = dt.new_widget("box") {
