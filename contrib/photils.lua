@@ -23,12 +23,13 @@
    sent over the internet.
 
     ADDITIONAL SOFTWARE NEEDED FOR THIS SCRIPT
-    * photils-cli - https://github.com/scheckmedia/photils-cli
+    * photils-cli - https://github.com/scheckmedia/photils-cli at the moment only
+      available for Linux and MacOS
 
     USAGE
     * require this script from your main lua file
-    To do this add this line to the file .config/darktable/luarc:
-    require "contrib/photils"
+      To do this add this line to the file .config/darktable/luarc:
+      require "contrib/photils"
     * Select an image
     * Press "get tags"
     * Select the tags you want from a list of suggestions
@@ -85,6 +86,7 @@ local photils_installed = df.check_if_bin_exists("photils-cli")
 ]]
 local PHOTILS = {
     tags = {},
+    confidences = {},
     page = 1,
     per_page = 10,
     selected_tags = {},
@@ -194,9 +196,15 @@ function PHOTILS.paginate()
     local tag_index = 1
     for i = offset, offset + PHOTILS.per_page - 1, 1 do
         local tag = PHOTILS.tags[i]
+        local conf = PHOTILS.confidences[i]
+
         GUI.tag_box[tag_index].value = has_key(PHOTILS.selected_tags, tag)
 
         if tag then
+            if dt.preferences.read(MODULE_NAME, "show_confidence", "bool") then
+                tag = tag .. string.format(" (%.3f)", conf)
+            end
+
             GUI.tag_box[tag_index].label = tag
             GUI.tag_box[tag_index].sensitive = true
         else
@@ -269,12 +277,14 @@ function PHOTILS.get_tags(image, with_export)
 
     for i = #PHOTILS.tags, 1, -1 do
         PHOTILS.tags[i] = nil
+        PHOTILS.confidences[i] = nil
     end
 
     for tag in io.lines(tmp_file) do
         local splitted = du.split(tag, ":")
         if 100 * tonumber(splitted[2]) >= GUI.confidence_slider.value then
             PHOTILS.tags[#PHOTILS.tags + 1] = splitted[1]
+            PHOTILS.confidences[#PHOTILS.confidences+1] = splitted[2]
         end
     end
 
@@ -327,7 +337,13 @@ function PHOTILS.tag_selected(tag_button)
     if PHOTILS.in_pagination then return end
 
     if tag_button.value then
-        PHOTILS.selected_tags[tag_button.label] = tag_button.label
+        local tag = tag_button.label
+        if dt.preferences.read(MODULE_NAME, "show_confidence", "bool") then
+            local idx = string.find(tag, "%(") - 2
+            tag = string.sub(tag, 0, idx)
+        end
+
+        PHOTILS.selected_tags[tag] = tag
     else
         PHOTILS.selected_tags[tag_button.label] = nil
     end
@@ -407,7 +423,15 @@ local plugin_display_views = {
     [dt.gui.views.darkroom] = {"DT_UI_CONTAINER_PANEL_LEFT_CENTER", 100}
 }
 
--- dt.control.dispatch(PHOTILS.image_changed)
+
+-- uses photils: prefix because script settings are all together and not seperated by script
+dt.preferences.register(MODULE_NAME,
+                        "show_confidence",
+                        "bool",
+                        _("photils: show confidence value"),
+                        _("if enabled, the confidence value for each tag is displayed"),
+                        true)
+
 dt.register_event("mouse-over-image-changed",PHOTILS.image_changed)
 dt.register_lib(MODULE_NAME,
     "photils autotagger",
