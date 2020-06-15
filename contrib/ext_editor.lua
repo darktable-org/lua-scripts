@@ -3,61 +3,60 @@
   DESCRIPTION
     ext_editor.lua - edit images with external editors
 
-    This script provides helpers to edit image files with programs external to darktable.
-  It adds:
-    - a new target storage "collection". Image exported will be reimported to collection for
-      further edit with external programs
-    - a new lighttable module "external editors", to select a program from a list of up to
-    - 9 external editors and run it on a selected image (adjust this limit by changing MAX_EDITORS)
-    - a set of lua preferences in order to configure name and path of up to 9 external editors
-    - a set of lua shortcuts in order to quick launch the external editors
+    This script provides helpers to edit image files with programs external to darktable. It adds:
+      - a new target storage "collection". Image exported will be reimported to collection for
+        further edit with external programs
+      - a new lighttable module "external editors", to select a program from a list of up to
+      - 9 external editors and run it on a selected image (adjust this limit by changing MAX_EDITORS)
+      - a set of lua preferences in order to configure name and path of up to 9 external editors
+      - a set of lua shortcuts in order to quick launch the external editors
     
   USAGE
     * require this script from main lua file
   
-  -- setup --
-  * in "preferences/lua options" configure name and path/command of external programs
-  * note that if a program name is left empty, that and all following entries will be ignored
-  * in "preferences/shortcuts/lua" configure shortcuts for external programs (optional)
-  * whenever programs preferences are changed, in lighttable/external editors, press "update list"
+    -- setup --
+      * in "preferences/lua options" configure name and path/command of external programs
+      * note that if a program name is left empty, that and all following entries will be ignored
+      * in "preferences/shortcuts/lua" configure shortcuts for external programs (optional)
+      * whenever programs preferences are changed, in lighttable/external editors, press "update list"
 
-  -- use --
-    * in the export dialog choose "collection" and select the format and bit depth for the
-      exported image
-    * press "export"
-  * the exported image will be imported into collection and grouped with the original image
+    -- use --
+      * in the export dialog choose "collection" and select the format and bit depth for the
+        exported image
+      * press "export"
+      * the exported image will be imported into collection and grouped with the original image
+      
+      * select an image for editing with en external program, and:
+      * in lighttable/external editors, select program and press "edit"
+      * edit the image with the external editor, overwite the file, quit the external program
+      * the selected image will be updated
+      or
+      * in lighttable/external editors, select program and press "edit a copy"
+      * edit the image with the external editor, overwite the file, quit the external program
+      * a copy of the selected image will be created and updated
+      or
+      * in lighttable select target storage "collection"
+      * enter in darkroom
+      * to create an export or a copy press CRTL+E
+      * use the shortcut to edit the current image with the corresponding external editor
+      * overwite the file, quit the external program
+      * the darkroom view will be updated
     
-  * select an image for editing with en external program, and:
-    * in lighttable/external editors, select program and press "edit"
-    * edit the image with the external editor, overwite the file, quit the external program
-    * the selected image will be updated
-    or
-    * in lighttable/external editors, select program and press "edit a copy"
-    * edit the image with the external editor, overwite the file, quit the external program
-    * a copy of the selected image will be created and updated
-    or
-    * in lighttable select target storage "collection"
-    * enter in darkroom
-    * to create an export or a copy press CRTL+E
-    * use the shortcut to edit the current image with the corresponding external editor
-    * overwite the file, quit the external program
-    * the darkroom view will be updated
-  
-  * warning: mouseover on lighttable/filmstrip will prevail on current image
-  * this is the default DT behavior, not a bug of this script
+    * warning: mouseover on lighttable/filmstrip will prevail on current image
+    * this is the default DT behavior, not a bug of this script
 
-    CAVEATS
-  * MAC compatibility not tested
+  CAVEATS
+    * MAC compatibility not tested
   
   TODO
-  * send multiple images to the same program, maybe
+    * send multiple images to the same program, maybe
   
-    BUGS, COMMENTS, SUGGESTIONS
+  BUGS, COMMENTS, SUGGESTIONS
     * send to Marco Carrarini, marco.carrarini@gmail.com
 
-    CHANGES
+  CHANGES
     * 20191224 - initial version
-  * 20191227 - added button "update list", better error handling, fixed bug with groups/tags in "edit"
+    * 20191227 - added button "update list", better error handling, fixed bug with groups/tags in "edit"
   
 ]]
 
@@ -73,7 +72,7 @@ local MODULE_NAME = "ext_editor"
 
 
 -- check API version
-du.check_min_api_version("5.0.2", MODULE_NAME)  -- darktable 3.0
+du.check_min_api_version("5.0.2", MODULE_NAME)  -- darktable 3.x
 
 
 -- OS compatibility
@@ -98,6 +97,7 @@ local n_entries
 local allowed_file_types = {"JPG", "jpg", "JPEG", "jpeg", "TIF", "tif", "TIFF", "tiff", "EXR", "exr", "PNG", "png"}
 
 
+-- last used editor initialization
 if not dt.preferences.read(MODULE_NAME, "initialized", "bool") then
   dt.preferences.write(MODULE_NAME, "lastchoice", "integer", 0)
   dt.preferences.write(MODULE_NAME, "initialized", "bool", true)
@@ -163,11 +163,7 @@ local function OpenWith(images, choice, copy)
   local bin = program_paths[choice]
   local friendly_name = program_names[choice]
 
-  -- check if external program executable exists, return if not
-  if not df.check_if_bin_exists(bin) then
-    dt.print(friendly_name.._(" not found"))
-    return
-    end
+  if dt.configuration.running_os == "macos" then bin = "open -W -a "..bin end
 
   -- image to be edited
   local image
@@ -175,7 +171,7 @@ local function OpenWith(images, choice, copy)
   local name = image.path..PS..image.filename
 
   -- check if image format is allowed
-  local file_ext = df.get_filetype (image.filename)
+  local file_ext = df.get_filetype(image.filename)
   local allowed = false
   for i,v in pairs(allowed_file_types) do
     if v == file_ext then
@@ -207,11 +203,7 @@ local function OpenWith(images, choice, copy)
   if copy then
 
     -- create unique filename
-    while df.check_if_file_exists(df.sanitize_filename(new_name)) do 
-      new_name = df.filename_increment(new_name)
-      -- limit to 50 more exports of the original export
-      if string.match(df.get_basename(new_name), "_%d%d$") == "_50" then break end
-      end
+    new_name = df.create_unique_filename(new_name)
         
     -- physical copy, check result, return if error
     local copy_success = df.file_copy(name, new_name)
@@ -306,7 +298,7 @@ local function program_shortcut(event, shortcut)
 -- export images and reimport in collection -----------------------------------
 local function export2collection(storage, image_table, extra_data) 
 
-  local new_name, new_image, result
+  local temp_name, new_name, new_image, move_success
 
   for image, temp_name in pairs(image_table) do
 
@@ -314,11 +306,7 @@ local function export2collection(storage, image_table, extra_data)
 
     -- create unique filename
     new_name = image.path..PS..df.get_filename(temp_name)
-    while df.check_if_file_exists(df.sanitize_filename(new_name)) do
-      new_name = df.filename_increment(new_name)
-      -- limit to 50 more exports of the original export
-      if string.match(df.get_basename(new_name), "_%d%d$") == "_50" then break end
-      end
+    new_name = df.create_unique_filename(new_name)
 
     -- move image to collection folder, check result, return if error
     move_success = df.file_move(temp_name, new_name)
@@ -334,12 +322,6 @@ local function export2collection(storage, image_table, extra_data)
   
   dt.print (_("finished exporting"))
   end
-
-
--- register new storage -------------------------------------------------------
--- note that placing this declaration later makes the export selected module
--- not to remember the choice "collection" when restarting DT, don't know why
-dt.register_storage("exp2coll", _("collection"), null, export2collection)
 
 
 -- combobox, with variable number of entries ----------------------------------
@@ -415,11 +397,16 @@ dt.register_lib(
 UpdateProgramList(combobox, button_edit, button_edit_copy, false) 
 
 
+-- register new storage -------------------------------------------------------
+dt.register_storage("exp2coll", _("collection"), nil, export2collection)
+
+
 -- register the new preferences -----------------------------------------------
 for i = MAX_EDITORS, 1, -1 do
   dt.preferences.register(MODULE_NAME, "program_path_"..i, "file", 
   _("executable for external editor ")..i, 
   _("select executable for external editor")  , _("(None)"))
+  
   dt.preferences.register(MODULE_NAME, "program_name_"..i, "string", 
   _("name of external editor ")..i, 
   _("friendly name of external editor"), "")
