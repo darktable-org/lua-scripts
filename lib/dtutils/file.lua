@@ -44,7 +44,7 @@ dtutils_file.libdoc.functions["check_if_bin_exists"] = {
       bin - string - the binary to check for]],
   Description = [[check_if_bin_exists checks to see if the specified binary exists.
     check_if_bin_exists first checks to see if a preference for the binary has been
-    registered and uses that if found.  The presence of the file is verified, then 
+    registered and uses that if found.  The presence of the file is verified, then
     quoted and returned.  If no preference is specified and the operating system is
     linux then the which command is used to check for a binary in the path.  If found
     that path is returned.  If no binary is found, false is returned.]],
@@ -61,7 +61,7 @@ function dtutils_file.check_if_bin_exists(bin)
   local result = false
   local path = nil
 
-  if string.match(bin, "/") or string.match(bin, "\\") then 
+  if string.match(bin, "/") or string.match(bin, "\\") then
     path = bin
   else
     path = dtutils_file.get_executable_path_preference(bin)
@@ -233,7 +233,7 @@ function dtutils_file.check_if_file_exists(filepath)
     local p = io.popen("if exist " .. dtutils_file.sanitize_filename(filepath) .. " (echo 'yes') else (echo 'no')")
     local ans = p:read("*all")
     p:close()
-    if string.match(ans, "yes") then 
+    if string.match(ans, "yes") then
       result = true
     end
 --    result = os.execute('if exist "'..filepath..'" (cmd /c exit 0) else (cmd /c exit 1)')
@@ -383,8 +383,8 @@ dtutils_file.libdoc.functions["filename_increment"] = {
 
     local result = df.filename_increment(filepath)
       filepath - string - filename to increment]],
-  Description = [[filename_increment solves the problem of filename confllict by adding an 
-    increment to the filename.  If the supplied filename has no increment then 
+  Description = [[filename_increment solves the problem of filename confllict by adding an
+    increment to the filename.  If the supplied filename has no increment then
     "01" is added to the basename.  If the filename already has an increment, then
     1 is added to it and the filename returned.]],
   Return_Value = [[result - string - the incremented filename]],
@@ -436,7 +436,7 @@ dtutils_file.libdoc.functions["create_unique_filename"] = {
       filepath - string - the path and filename requested]],
   Description = [[create_unique_filename takes a requested filepath and checks to see if
   it exists.  If if doesn't then it's returned intact.  If it already exists, then a two
-  digit increment is added to the filename and it is tested again.  The increment keeps 
+  digit increment is added to the filename and it is tested again.  The increment keeps
   increasing until either a unique filename is found or there have been 100 attempts.]],
   Return_Value = [[result - string - the incremented filename]],
   Limitations = [[create_unique_filename will only attempt 100 increments.]],
@@ -515,7 +515,7 @@ dtutils_file.libdoc.functions["executable_path_widget"] = {
     local widget = df.executable_path_widget(executables)
       executables - table - a table of strings that are executable names]],
   Description = [[executable_path_widget takes a table of executable names
-    and builds a set of file selector widgets to get the path to the executable. 
+    and builds a set of file selector widgets to get the path to the executable.
     The resulting widgets are wrapped in a box widget and returned.]],
   Return_Value = [[widget - widget - a widget containing a file selector widget for
     each executable.]],
@@ -530,10 +530,10 @@ dtutils_file.libdoc.functions["executable_path_widget"] = {
 function dtutils_file.executable_path_widget(executables)
   local box_widgets = {}
   table.insert(box_widgets, dt.new_widget("section_label"){label = "select executable(s)"})
-  for _, executable in pairs(executables) do 
+  for _, executable in pairs(executables) do
     table.insert(box_widgets, dt.new_widget("label"){label = "select " .. executable .. " executable"})
     local path = dtutils_file.get_executable_path_preference(executable)
-    if not path then 
+    if not path then
       path = ""
     end
     table.insert(box_widgets, dt.new_widget("file_chooser_button"){
@@ -562,7 +562,7 @@ dtutils_file.libdoc.functions["sanitize_filename"] = {
     local sanitized_filename = df.sanitize_filename(filename)
       filename - string - a filepath and filename]],
   Description = [[sanitize_file places quotes around the filename in an
-    operating system specific manner.  The result is safe to pass as 
+    operating system specific manner.  The result is safe to pass as
     an argument to the operating system.]],
   Return_Value = [[sanitized_filename - string - quoted filename]],
   Limitations = [[]],
@@ -584,7 +584,7 @@ dtutils_file.libdoc.functions["mkdir"] = {
 
      df.mkdir(path)
       path - string - a directory path]],
-  Description = [[mkdir creates directories if not already exists. It 
+  Description = [[mkdir creates directories if not already exists. It
     create whole parents subtree if needed
   ]],
   Return_Value = [[path - string - a directory path]],
@@ -596,7 +596,7 @@ dtutils_file.libdoc.functions["mkdir"] = {
   Copyright = [[]],
 }
 
-function dtutils_file.mkdir(path) 
+function dtutils_file.mkdir(path)
   if not dtutils_file.check_if_file_exists(path) then
     local mkdir_cmd = dt.configuration.running_os == "windows" and "mkdir" or "mkdir -p"
     return dsys.external_command(mkdir_cmd.." "..path)
@@ -627,6 +627,37 @@ function dtutils_file.rmdir(path)
   return dsys.external_command(rm_cmd.." "..path)
 end
 
+dtutils_file.libdoc.functions["create_tmp_file"] = {
+  Name = [[create_tmp_file]],
+  Synopsis = [[creates a temporary file]],
+  Usage = [[local df = require "lib/dtutils.file
+
+    local result = df.create_tmp_file()]],
+  Description = [[create_tmp_file can be used to create temporary files]],
+  Return_Value = [[result - string - path to the created temporary file.]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_file.create_tmp_file()
+  local tmp_file = os.tmpname()
+  if dt.configuration.running_os == "windows" then
+      tmp_file = dt.configuration.tmp_dir .. tmp_file -- windows os.tmpname() defaults to root directory
+  end
+
+  local f = io.open(tmp_file, "w")
+  if not f then
+      log.msg(log.error, string.format("Error writing to `%s`", tmp_file))
+      os.remove(tmp_file)
+      return nil
+  end
+
+  return tmp_file
+end
 
 return dtutils_file
 
