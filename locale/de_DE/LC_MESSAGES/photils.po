@@ -1,0 +1,73 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Lua photils\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-05-12 13:12+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "get tags"
+msgstr "hole stichwörter"
+
+msgid "requires a restart to be applied"
+msgstr "erfordert einen Neustart um angewendet zu werden"
+
+msgid "min confidence value"
+msgstr "min vertrauenswert"
+
+msgid ""
+"The suggested tags were not generated\n"
+" for the currently selected image!"
+msgstr ""
+"Die vorgeschlagenen Stichwörter wurden für das\n"
+"aktuell ausgewählte Bild nicht generiert!"
+
+#, lua-format
+msgid "  page %s of %s  "
+msgstr "  seite %s von %s  "
+
+msgid "Tags successfully attached to image"
+msgstr "Stichwörter erfolgreich an Bild angefügt"
+
+#, lua-format
+msgid "Error writing to `%s`"
+msgstr "Fehler beim Schreiben in `%s`"
+
+#, lua-format
+msgid "%s failed, see terminal output for details"
+msgstr "%s fehlgeschlagen, siehe Terminal-Ausgabe für Details"
+
+#, lua-format
+msgid "%s found %d tags for your image"
+msgstr "%s gefunden %d-Stichwörter für Ihr Bild"
+
+msgid "No image selected."
+msgstr "Kein Bild ausgewählt."
+
+msgid "This plugin can only handle a single image."
+msgstr "Dieses Plugin kann nur ein einziges Bild verarbeiten."
+
+#, lua-format
+msgid "attach %d tags"
+msgstr "%d stichwörter anhängen"
+
+msgid "photils-cli not found"
+msgstr "photils-cli nicht gefunden"
+
+msgid ""
+"Select an image, click \"Get Tags\" and get \n"
+"suggestions for tags."
+msgstr ""
+"Wählen Sie ein Bild aus, drücken Sie \"Hole Stichwörter\"\n"
+" und erhalten Sie Vorschläge für Stichwörter."
