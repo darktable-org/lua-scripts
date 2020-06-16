@@ -28,12 +28,16 @@ overwritten silently.
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
+local df = require("lib/dtutils.file")
+local ds = require("lib/dtutils.system")
 
 du.check_min_api_version("5.0.0", "exportLUT") 
 
 -- Thanks Kevin Ertel for this bit
 local os_path_seperator = '/'
 if dt.configuration.running_os == 'windows' then os_path_seperator = '\\' end
+local mkdir_command = 'mkdir -p '
+if dt.configuration.running_os == 'windows' then mkdir_command = 'mkdir ' end
 
 local file_chooser_button = dt.new_widget("file_chooser_button"){
     title = "Identity_file_chooser",
@@ -63,6 +67,18 @@ local function end_job(job)
   job.valid = false
 end
 
+local function output_path(style_name, job)
+  local output_location = export_chooser_button.value .. os_path_seperator .. style_name .. ".png"
+  output_location = string.gsub(output_location, "|", os_path_seperator)
+  local output_dir = string.reverse(output_location)
+  output_dir = string.gsub(output_dir, ".-" .. os_path_seperator, os_path_seperator, 1)
+  output_dir = string.reverse(output_dir)
+  if(output_dir ~= "") then
+    df.mkdir(df.sanitize_filename(output_dir))
+  end
+  return output_location
+end
+
 local function export_luts()
   local identity = dt.database.import(file_chooser_button.value)
   if(type(identity) ~= "userdata") then
@@ -81,13 +97,13 @@ local function export_luts()
       
       identity:reset()
       dt.styles.apply(style, identity)
-      
       local io_lut = dt.new_format("png")
       io_lut.bpp = 8
-      io_lut:write_image(identity, export_chooser_button.value .. os_path_seperator .. style.name .. ".png")
+
+      io_lut:write_image(identity, output_path(style.name, job))
       count = count + 1
       job.percent = count / size
-      dt.print("Exported: " .. export_chooser_button.value .. os_path_seperator .. style.name .. ".png")
+      dt.print("Exported: " .. output_path(style.name, job))
     end
     dt.print("Done exporting haldCLUTs")
     job.valid = false
