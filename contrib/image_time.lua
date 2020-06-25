@@ -109,7 +109,7 @@ local df = require "lib/dtutils.file"
 local ds = require "lib/dtutils.string"
 local gettext = dt.gettext
 
-local adj_time = {}
+local img_time = {}
 
 du.check_min_api_version("3.0.0", "image_time") 
 
@@ -161,8 +161,8 @@ end
 
 local function calculate_difference(images)
   if #images == 2 then
-    adj_time.diff_entry.text = calc_time_difference(images[1], images[2])
-    adj_time.btn.sensitive = true
+    img_time.diff_entry.text = calc_time_difference(images[1], images[2])
+    img_time.btn.sensitive = true
   else
     dt.print(_("Error: 2 images must be selected"))
   end
@@ -176,14 +176,14 @@ end
 
 local function synchronize_time(images)
   local sign = 1
-  if adj_time.sdir.value == "subtract" then
+  if img_time.sdir.value == "subtract" then
     sign = -1
   end
-  synchronize_times(images, tonumber(adj_time.diff_entry.text) * sign)
+  synchronize_times(images, tonumber(img_time.diff_entry.text) * sign)
 end
 
 local function add_time(images)
-  synchronize_times(images, tonumber(adj_time.diff_entry.text))
+  synchronize_times(images, tonumber(img_time.diff_entry.text))
 end
 
 local function year_month2months(year, month)
@@ -321,20 +321,20 @@ local function adjust_time(images)
     return
   end
 
-  if adj_time.adir.value == _("subtract") then
+  if img_time.adir.value == _("subtract") then
     sign = -1
   end
 
   for _, image in ipairs(images) do
     local y, mo, d, h, m, s = exiftime2vars(image.exif_datetime_taken)
     local image_months = year_month2months(y, mo)
-    local months_diff = year_month2months(adj_time.ayr.value, adj_time.amo.value)
+    local months_diff = year_month2months(img_time.ayr.value, img_time.amo.value)
     y, mo = months2year_month(image_months + (months_diff * sign))
     local exif_new = vars2exiftime(y, mo, d, h, m, s)
-    offset = adj_time.ady.value * SEC_DY 
-    offset = offset + adj_time.ahr.value * SEC_HR 
-    offset = offset + adj_time.amn.value * SEC_MIN 
-    offset = offset + adj_time.asc.value 
+    offset = img_time.ady.value * SEC_DY 
+    offset = offset + img_time.ahr.value * SEC_HR 
+    offset = offset + img_time.amn.value * SEC_MIN 
+    offset = offset + img_time.asc.value 
     offset = offset * sign
     image.exif_datetime_taken = systime2exiftime(exiftime2systime(exif_new) + offset)
   end
@@ -346,12 +346,12 @@ local function set_time(images)
     return
   end
 
-  local y = adj_time.syr.value
-  local mo = adj_time.smo.value
-  local d = adj_time.sdy.value
-  local h = adj_time.shr.value
-  local m = adj_time.smn.value
-  local s = adj_time.ssc.value
+  local y = img_time.syr.value
+  local mo = img_time.smo.value
+  local d = img_time.sdy.value
+  local h = img_time.shr.value
+  local m = img_time.smn.value
+  local s = img_time.ssc.value
 
   for _, image in ipairs(images) do
     image.exif_datetime_taken = vars2exiftime(y, mo, d, h, m, s)
@@ -371,9 +371,28 @@ local function seq(first, last)
   return table.unpack(result)
 end
 
+local function reset_widgets()
+  dt.print_log("took the reset function")
+  img_time.ayr.selected = 1
+  img_time.amo.selected = 1
+  img_time.ady.selected = 1
+  img_time.ahr.selected = 1
+  img_time.ayr.selected = 1
+  img_time.amn.selected = 1
+  img_time.asc.selected = 1
+  img_time.adir.selected = 1
+  img_time.syr.selected = #img_time.syr
+  img_time.smo.selected = 1
+  img_time.sdy.selected = 1
+  img_time.shr.selected = 1
+  img_time.smn.selected = 1
+  img_time.ssc.selected = 1
+  img_time.adir.selected = 1
+end
+
 -- widgets
 
-adj_time.widgets  = {
+img_time.widgets  = {
   -- name, type, tooltip, placeholder,
   {"ayr", "combobox", _("years"), _("years to adjust by, 0 - ?"), {seq(0,20)}, 1},
   {"amo", "combobox", _("months"), ("months to adjust by, 0-12"), {seq(0,12)}, 1},
@@ -382,7 +401,7 @@ adj_time.widgets  = {
   {"amn", "combobox", _("minutes"), _("minutes to adjust by, 0-59"), {seq(0,59)}, 1},
   {"asc", "combobox", _("seconds"), _("seconds to adjust by, 0-59"), {seq(0,59)}, 1},
   {"adir", "combobox", _("add/subtract"), _("add or subtract time"), {_("add"), _("subtract")}, 1},
-  {"syr", "combobox", _("year"), _("year to set,  1900 - now"), {"  ", seq(1900,os.date("*t", os.time()).year)}, 122},
+  {"syr", "combobox", _("year"), _("year to set,  1900 - now"), {"  ", seq(1900,os.date("*t", os.time()).year)}, 1},
   {"smo", "combobox", _("month"), _("month to set, 1-12"), {"  ", seq(1,12)}, 1},
   {"sdy", "combobox", _("day"), _("day to set, 1-31"), {"  ", seq(1,31)}, 1},
   {"shr", "combobox", _("hour"), _("hour to set, 0-23"), {"  ", seq(0,23)}, 1},
@@ -391,8 +410,8 @@ adj_time.widgets  = {
   {"sdir", "combobox", _("add/subtract"), _("add or subtract time"), {_("add"), _("subtract")}, 1},
 }
 
-for _, widget in ipairs(adj_time.widgets) do
-  adj_time[widget[1]] = dt.new_widget(widget[2]){
+for _, widget in ipairs(img_time.widgets) do
+  img_time[widget[1]] = dt.new_widget(widget[2]){
     label = widget[3],
     tooltip = widget[4],
     selected = widget[6],
@@ -400,13 +419,15 @@ for _, widget in ipairs(adj_time.widgets) do
   }
 end
 
-adj_time.diff_entry = dt.new_widget("entry"){
+img_time.syr.selected = #img_time.syr
+
+img_time.diff_entry = dt.new_widget("entry"){
   tooltip = _("Time difference between images in seconds"),
   placeholder = _("Select 2 images and use the calculate button"),
   text = "",
 }
 
-adj_time.calc_btn = dt.new_widget("button"){
+img_time.calc_btn = dt.new_widget("button"){
   label = _("Calculate"),
   tooltip = _("calculate time difference between 2 images"),
   clicked_callback = function()
@@ -414,7 +435,7 @@ adj_time.calc_btn = dt.new_widget("button"){
   end
 }
 
-adj_time.btn = dt.new_widget("button"){
+img_time.btn = dt.new_widget("button"){
   label = _("synchronize image times"),
   tooltip = _("apply the time difference from selected images"),
   sensitive = false,
@@ -423,20 +444,20 @@ adj_time.btn = dt.new_widget("button"){
   end
 }
 
-adj_time.stack = dt.new_widget("stack"){
+img_time.stack = dt.new_widget("stack"){
   dt.new_widget("box"){
     orientation = "vertical",
     dt.new_widget("label"){label = _("adjust time")},
     dt.new_widget("section_label"){label = _("days, months, years")},
-    adj_time.ady,
-    adj_time.amo,
-    adj_time.ayr,
+    img_time.ady,
+    img_time.amo,
+    img_time.ayr,
     dt.new_widget("section_label"){label = _("hours, minutes, seconds")},
-    adj_time.ahr,
-    adj_time.amn,
-    adj_time.asc,
+    img_time.ahr,
+    img_time.amn,
+    img_time.asc,
     dt.new_widget("section_label"){label = _("adjustment direction")},
-    adj_time.adir,
+    img_time.adir,
     dt.new_widget("button"){
       label = _("adjust"),
       clicked_callback = function()
@@ -448,13 +469,13 @@ adj_time.stack = dt.new_widget("stack"){
     orientation = "vertical",
     dt.new_widget("label"){label = _("set time")},
     dt.new_widget("section_label"){label = _("date: ")},
-    adj_time.sdy,
-    adj_time.smo,
-    adj_time.syr,
+    img_time.sdy,
+    img_time.smo,
+    img_time.syr,
     dt.new_widget("section_label"){label = _("time:")},
-    adj_time.shr,
-    adj_time.smn,
-    adj_time.ssc,
+    img_time.shr,
+    img_time.smn,
+    img_time.ssc,
     dt.new_widget("button"){
       label = _("set"),
       clicked_callback = function()
@@ -466,11 +487,11 @@ adj_time.stack = dt.new_widget("stack"){
     orientation = "vertical",
     dt.new_widget("label"){label = _("synchronize image time")},
     dt.new_widget("section_label"){label = _("calculate difference between images")},
-    adj_time.diff_entry,
-    adj_time.calc_btn,
+    img_time.diff_entry,
+    img_time.calc_btn,
     dt.new_widget("section_label"){label = _("apply difference")},
-    adj_time.sdir,
-    adj_time.btn,
+    img_time.sdir,
+    img_time.btn,
   },
   dt.new_widget("box"){
     orientation = "vertical",
@@ -485,12 +506,12 @@ adj_time.stack = dt.new_widget("stack"){
   },
 }
 
-adj_time.mode = dt.new_widget("combobox"){
+img_time.mode = dt.new_widget("combobox"){
   label = _("mode"),
   tooltip = _("select mode"),
   selected = 1,
   changed_callback = function(this)
-    adj_time.stack.active = this.selected
+    img_time.stack.active = this.selected
   end,
   _("adjust time"),
   _("set time"),
@@ -498,19 +519,22 @@ adj_time.mode = dt.new_widget("combobox"){
   _("reset time")
 }
 
-adj_time.widget = dt.new_widget("box"){
+img_time.widget = dt.new_widget("box"){
   orientation = "vertical",
-  adj_time.mode,
-  adj_time.stack,
+  reset_callback = function(this)
+    reset_widgets()
+  end,
+  img_time.mode,
+  img_time.stack,
 }
 
 dt.register_lib(
   "image_time",     -- Module name
   _("image time"),     -- Visible name
   true,                -- expandable
-  false,               -- resetable
+  true,               -- resetable
   {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},   -- containers
-  adj_time.widget,
+  img_time.widget,
   nil,-- view_enter
   nil -- view_leave
 )
