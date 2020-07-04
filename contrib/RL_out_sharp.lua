@@ -1,10 +1,29 @@
 --[[
+  Richardson-Lucy output sharpening for darktable using GMic
 
+  darktable is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  darktable is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with darktable.  If not, see <http://www.gnu.org/licenses/>.
+]]
+
+--[[
   DESCRIPTION
     RL_out_sharp.lua - Richardson-Lucy output sharpening using GMic
 
     This script provides a new target storage "RL output sharpen". 
     Images exported will be sharpened using GMic (RL deblur algorithm)
+
+  REQUIRED SOFTWARE
+  GMic command line interface (CLI) https://gmic.eu/download.shtml
     
   USAGE
     * require this script from main lua file
@@ -33,7 +52,6 @@
 
   CHANGES
     * 20200308 - initial version
-  
 ]]
 
 local dt = require "darktable"
@@ -156,7 +174,7 @@ sigma_slider = dt.new_widget("slider"){
   soft_max = 2.0,
   hard_min = 0.0,
   hard_max = 3.0,
-  step = 0.1,
+  step = 0.05,
   digits = 2,
   value = 1.0
   }
