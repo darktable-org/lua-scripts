@@ -33,6 +33,12 @@ local ds = require("lib/dtutils.system")
 
 local gettext = dt.gettext
 
+gettext.bindtextdomain("exportLUT",dt.configuration.config_dir.."/lua/locale/")
+
+local function _(msgid)
+    return gettext.dgettext("exportLUT", msgid)
+end
+
 du.check_min_api_version("5.0.0", "exportLUT") 
 
 -- Thanks Kevin Ertel for this bit
@@ -42,27 +48,27 @@ local mkdir_command = 'mkdir -p '
 if dt.configuration.running_os == 'windows' then mkdir_command = 'mkdir ' end
 
 local file_chooser_button = dt.new_widget("file_chooser_button"){
-    title = gettext.gettext("Identity_file_chooser"),
+    title = _("Identity_file_chooser"),
     value = "",
     is_directory = false
 }
 
 local export_chooser_button = dt.new_widget("file_chooser_button"){
-    title = gettext.gettext("Export_location_chooser"),
+    title = _("Export_location_chooser"),
     value = "",
     is_directory = true
 }
 
 local identity_label = dt.new_widget("label"){
-  label = gettext.gettext("choose the identity haldclut file")
+  label = _("choose the identity haldclut file")
 }
 
 local output_label = dt.new_widget("label"){
-  label = gettext.gettext("choose the output location")
+  label = _("choose the output location")
 }
 
 local warning_label = dt.new_widget("label"){
-  label = gettext.gettext("WARNING: files may be silently overwritten")
+  label = _("WARNING: files may be silently overwritten")
 }
 
 local function end_job(job)
@@ -84,9 +90,9 @@ end
 local function export_luts()
   local identity = dt.database.import(file_chooser_button.value)
   if(type(identity) ~= "userdata") then
-    dt.print(gettext.gettext("Invalid identity lut file"))
+    dt.print(_("Invalid identity lut file"))
   else
-    local job = dt.gui.create_job(gettext.gettext('Exporting styles as haldCLUTs'), true, end_job)
+    local job = dt.gui.create_job(_('Exporting styles as haldCLUTs'), true, end_job)
     
     local size = 1
 
@@ -105,22 +111,22 @@ local function export_luts()
       io_lut:write_image(identity, output_path(style.name, job))
       count = count + 1
       job.percent = count / size
-      dt.print(gettext.gettext("Exported: ") .. output_path(style.name, job))
+      dt.print(_("Exported: ") .. output_path(style.name, job))
     end
-    dt.print(gettext.gettext("Done exporting haldCLUTs"))
+    dt.print(_("Done exporting haldCLUTs"))
     job.valid = false
     identity:reset()
   end
 end
 
 local export_button = dt.new_widget("button"){
-  label = gettext.gettext("export"),
+  label = _("export"),
   clicked_callback = export_luts
 }
 
 dt.register_lib(
-  gettext.gettext("export haldclut"),
-  gettext.gettext("export haldclut"),
+  _("export haldclut"),
+  _("export haldclut"),
   true,
   false,
   {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},
