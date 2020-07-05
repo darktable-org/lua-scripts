@@ -108,12 +108,13 @@ function MediaWikiApi.uploadfile(filepath, pagetext, filename, overwrite, commen
   local file_handler = io.open(filepath)
   local content = {
     action = "upload",
+    format = "json",
     filename = filename,
     text = pagetext,
     comment = comment,
     token = MediaWikiApi.getEditToken(),
     file = {
-      filename = "whatevs",
+      filename = filename,
       data = file_handler:read("*all")
     }
   }
@@ -125,10 +126,11 @@ function MediaWikiApi.uploadfile(filepath, pagetext, filename, overwrite, commen
   req.headers["cookie"] = MediaWikiApi.cookie2string()
   req.url = MediaWikiApi.apiPath
   req.sink = ltn12.sink.table(res)
-  local _, code, resheaders = https.request(req)
-  --MediaWikiApi.trace("  Result headers:", resheaders)
+  local _, _, resheaders = https.request(req)
+  local jsonres = json.decode(table.concat(res))
+  local success = jsonres.upload.result == 'Success'
   MediaWikiApi.parseCookie(resheaders["set-cookie"])
-  return code, resheaders, res
+  return success
 end
 
 -- Code adapted from LrMediaWiki:
@@ -289,7 +291,8 @@ function MediaWikiApi.login(username, password)
     if loginResult == "PASS" then
       return true
     else
-      return jsonres.clientlogin.message
+      MediaWikiApi.track('Login failed: ' .. jsonres.clientlogin.message)
+      return false
     end
   else -- credentials == bot-account
     assert(credentials == "bot-account")
@@ -305,7 +308,8 @@ function MediaWikiApi.login(username, password)
     if loginResult == "Success" then
       return true
     else
-      return jsonres.login.reason
+      MediaWikiApi.track('Login failed: ' .. jsonres.login.reason)
+      return false
     end
   end
 end
