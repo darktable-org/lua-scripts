@@ -1,11 +1,25 @@
 --[[
+  ext_editor.lua - edit images with external editors
 
-  DESCRIPTION
+  darktable is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+  
+  darktable is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU General Public License
+  along with darktable.  If not, see <http://www.gnu.org/licenses/>.
+]]
+
+--[[
     ext_editor.lua - edit images with external editors
 
     This script provides helpers to edit image files with programs external to darktable. It adds:
-      - a new target storage "collection". Image exported will be reimported to collection for
-        further edit with external programs
+      - a new target storage "collection". Image exported will be reimported to collection for further edit with external programs
       - a new lighttable module "external editors", to select a program from a list of up to
       - 9 external editors and run it on a selected image (adjust this limit by changing MAX_EDITORS)
       - a set of lua preferences in order to configure name and path of up to 9 external editors
@@ -48,16 +62,8 @@
   CAVEATS
     * MAC compatibility not tested
   
-  TODO
-    * send multiple images to the same program, maybe
-  
   BUGS, COMMENTS, SUGGESTIONS
     * send to Marco Carrarini, marco.carrarini@gmail.com
-
-  CHANGES
-    * 20191224 - initial version
-    * 20191227 - added button "update list", better error handling, fixed bug with groups/tags in "edit"
-  
 ]]
 
 
