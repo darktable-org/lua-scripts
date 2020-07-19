@@ -118,7 +118,7 @@ end
 
 local executable_path_widgets = {}
 local executable_path_values = {}
-local placeholder_text = dt.configuration.running_os == windows and "select an executable" or "search path for executable"
+local placeholder_text = dt.configuration.running_os == windows and _("select an executable") or _("search path for executable")
 
 for i,exec in ipairs(exec_table) do 
   executable_path_values[exec] = dt.new_widget("entry"){
@@ -163,11 +163,11 @@ exec_man.selector = dt.new_widget("combobox"){
 
 for i,exec in ipairs(exec_table) do
   exec_man.stack[i] = dt.new_widget("box"){
-    dt.new_widget("section_label"){label = "current"},
+    dt.new_widget("section_label"){label = _("current")},
     executable_path_values[exec],
-    dt.new_widget("section_label"){label = "select"},
+    dt.new_widget("section_label"){label = _("select")},
     executable_path_widgets[exec],
-    dt.new_widget("section_label"){label = "reset"},
+    dt.new_widget("section_label"){label = _("reset")},
     dt.new_widget("button"){
       label = "clear",
       tooltip = _("Clear path for ") .. exec,
