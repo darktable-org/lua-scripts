@@ -46,7 +46,7 @@ geoJSON_export|No|L|Create a geo JSON script with thumbnails for use in ...
 geoToolbox|No|LMW|A toolbox of geo functions
 gimp|No|LMW|Open an image in GIMP for editing and return the result
 gpx_export|No|LMW|Export a GPX track file from selected images GPS data
-HDRMerge|No|LMW|Combind the selected images into an HDR DNG and return the result
+HDRMerge|No|LMW|Combine the selected images into an HDR DNG and return the result
 hugin|No|LMW|Combine selected images into a panorama and return the result
 image_stack|No|LMW|Combine a stack of images to remove noise or transient objects
 kml_export|No|L|Export photos with a KML file for usage in Google Earth
