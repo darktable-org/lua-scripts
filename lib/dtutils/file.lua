@@ -35,6 +35,112 @@ local function _(msgid)
     return gettext.dgettext("dtutils.file", msgid)
 end
 
+dtutils_file.libdoc.functions["is_dir"] = {
+  Name = [[is_dir]],
+  Synopsis = [[check if a path is a directory]],
+  Usage = [[local df = require "lib/dtutils.file"
+
+    local result = df.is_dir(path)
+      path - string - the path to check]],
+  Description = [[is_dir checks a path to see if it is a directory]],
+  Return_Value = [[result - boolean - true if path is a directory, nil if not]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_file.is_dir(path)
+  local cmd = nil
+
+  if dt.configuration.running_os == "windows" then
+    cmd = "if exist " .. ds.sanitize(path .. "\\*")
+  else
+    cmd = "test -d " .. ds.sanitize(path)
+  end
+
+  return os.execute(cmd)
+end
+
+dtutils_file.libdoc.functions["is_file"] = {
+  Name = [[is_file]],
+  Synopsis = [[check if a path is a file]],
+  Usage = [[local df = require "lib/dtutils.file"
+
+    local result = df.is_file(path)
+      path - string - the path to check]],
+  Description = [[is_file checks a path to see if it is a file]],
+  Return_Value = [[result - boolean - true if path is a file, nil if not]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_file.is_file(path)
+  local cmd = nil
+
+  if dt.configuration.running_os == "windows" then
+    if not dtutils_file.is_dir(path) then
+      cmd = "if exist " .. ds.sanitize(path)
+    else
+      return nil
+    end
+  else
+    cmd = "test -f " .. ds.sanitize(path)
+  end
+
+  return os.execute(cmd)
+end
+
+dtutils_file.libdoc.functions["is_executable"] = {
+  Name = [[is_executable]],
+  Synopsis = [[check if a path is a executable]],
+  Usage = [[local df = require "lib/dtutils.file"
+
+    local result = df.is_executable(path)
+      path - string - the path to check]],
+  Description = [[is_executable checks a path to see if it is an executable]],
+  Return_Value = [[result - boolean - true if path is an executable, nil if not]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+local function _is_windows_executable(path)
+  local result = nil
+
+  if (string.match(path, ".exe$") or string.match(path, ".EXE$")) or
+     (string.match(path, ".com$") or string.match(path, ".COM$")) or
+     (string.match(path, ".bat$") or string.match(path, ".BAT$")) or
+     (string.match(path, ".cmd$") or string.match(path, ".CMD$")) then
+      result = true
+  end
+  return result
+end
+
+
+function dtutils_file.is_executable(path)
+
+  local result = nil
+
+  if dt.configuration.running_os == "windows" then
+    if _is_windows_executable(path) then
+        result = true
+    end
+  else
+    result = os.execute("test -x " .. ds.sanitize(path))
+  end
+  return result
+end
+
 dtutils_file.libdoc.functions["check_if_bin_exists"] = {
   Name = [[check_if_bin_exists]],
   Synopsis = [[check if an executable exists]],
@@ -67,11 +173,9 @@ local function _check_if_bin_exists_windows(bin)
     path = dtutils_file.get_executable_path_preference(bin)
   end
 
-  if (string.match(path, ".exe$") or string.match(path, ".EXE$")) or
-     (string.match(path, ".com$") or string.match(path, ".COM$")) or
-     (string.match(path, ".bat$") or string.match(path, ".BAT$")) or
-     (string.match(path, ".cmd$") or string.match(path, ".CMD$")) then
-    if dtutils_file.check_if_file_exists(path) then
+
+  if dtutils_file.check_if_file_exists(path) then
+    if dtutils_file.is-executable(path) then
       result = dtutils_file.sanitize_filename(path)
     end
   end
@@ -93,16 +197,14 @@ local function _check_if_bin_exists_nix(bin)
 
   if string.len(path) > 0 then
     -- check for windows executable to run under wine
-    if string.match(path, ".exe$") or string.match(path, ".EXE$") then
+    if _is-windows_executable(path) then
       if dtutils_file.check_if_file_exists(path) then
         result = dtutils_file.sanitize_filename(path)
       end
     else
       if dtutils_file.check_if_file_exists(path) then
-        local spath = dtutils_file.sanitize_filename(path)
-        -- check that it's an executable file
-        if os.execute("test -f " .. spath .. " && test -x " .. spath) then
-          result = spath
+        if dtutils_file.is_file(path) and dtutils_file.is_executable(path) then
+          result = ds.sanitize(path)
         end
       end
     end
@@ -112,8 +214,9 @@ local function _check_if_bin_exists_nix(bin)
     local output = p:read("*a")
     p:close()
     if string.len(output) > 0 then
+
       local spath = dtutils_file.sanitize_filename(output:sub(1,-2))
-      if os.execute("test -f " .. spath .. " && test -x " .. spath) then
+      if dtutils_file.is_file(spath) and dtutils_file.is_executable(spath) then
         result = spath 
       end
     end
@@ -668,6 +771,61 @@ dtutils_file.libdoc.functions["rmdir"] = {
 function dtutils_file.rmdir(path)
   local rm_cmd = dt.configuration.running_os == "windows" and "rmdir /S /Q" or "rm -r"
   return dsys.external_command(rm_cmd.." "..path)
+end
+
+function dtutils_file.is_dir(path)
+  local cmd = nil
+
+  if dt.configuration.running_os == "windows" then
+    cmd = "if exist " .. ds.sanitize(path .. "\\*")
+  else
+    cmd = "test -d " .. ds.sanitize(path)
+  end
+
+  return os.execute(cmd)
+end
+
+function dtutils_file.is_file(path)
+  local cmd = nil
+
+  if dt.configuration.running_os == "windows" then
+    if not dtutils_file.is_dir(path) then
+      cmd = "if exist " .. ds.sanitize(path)
+    else
+      return nil
+    end
+  else
+    cmd = "test -f " .. ds.sanitize(path)
+  end
+
+  return os.execute(cmd)
+end
+
+local function is_windows_executable(path)
+  local result = nil
+
+  if (string.match(path, ".exe$") or string.match(path, ".EXE$")) or
+     (string.match(path, ".com$") or string.match(path, ".COM$")) or
+     (string.match(path, ".bat$") or string.match(path, ".BAT$")) or
+     (string.match(path, ".cmd$") or string.match(path, ".CMD$")) then
+      result = true
+  end
+  return result
+end
+
+
+function dtutils_file.is_executable(path)
+
+  local result = nil
+
+  if dt.configuration.running_os == "windows" then
+    if _is_windows_executable(path) then
+        result = true
+    end
+  else
+    result = os.execute("test -x " .. ds.sanitize(path))
+  end
+  return result
 end
 
 
