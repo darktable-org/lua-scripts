@@ -83,18 +83,27 @@ dtutils_file.libdoc.functions["is_file"] = {
 
 function dtutils_file.is_file(path)
   local cmd = nil
+  local result = false
 
   if dt.configuration.running_os == "windows" then
     if not dtutils_file.is_dir(path) then
-      cmd = "if exist " .. ds.sanitize(path)
+      cmd = "if exist " .. ds.sanitize(path)  .. " echo true"
+      local p = io.popen(cmd)
+      output = p:read("*a")
+      p:close()
+      if string.match(output, "true") then 
+        result = true
+      else
+        result = false
+      end
     else
-      return nil
+      return false
     end
   else
-    cmd = "test -f " .. ds.sanitize(path)
+    result = os.execute("test -f " .. ds.sanitize(path))
   end
 
-  return os.execute(cmd)
+  return result
 end
 
 dtutils_file.libdoc.functions["is_executable"] = {
@@ -116,16 +125,16 @@ dtutils_file.libdoc.functions["is_executable"] = {
 
 local function _is_windows_executable(path)
   local result = nil
+  dt.print_log("checking " .. path)
 
-  if (string.match(path, ".exe$") or string.match(path, ".EXE$")) or
-     (string.match(path, ".com$") or string.match(path, ".COM$")) or
-     (string.match(path, ".bat$") or string.match(path, ".BAT$")) or
-     (string.match(path, ".cmd$") or string.match(path, ".CMD$")) then
+  if string.match(path, ".exe$") or string.match(path, ".EXE$") or
+     string.match(path, ".com$") or string.match(path, ".COM$") or
+     string.match(path, ".bat$") or string.match(path, ".BAT$") or
+     string.match(path, ".cmd$") or string.match(path, ".CMD$") then
       result = true
   end
   return result
 end
-
 
 function dtutils_file.is_executable(path)
 
@@ -163,73 +172,146 @@ dtutils_file.libdoc.functions["check_if_bin_exists"] = {
   Copyright = [[]],
 }
 
-local function _check_if_bin_exists_windows(bin)
+local function _search_for_bin_windows(bin)
   local result = false
-  local path = nil
+  -- use where on path
+  -- use where on program files 
+  -- use where on program files (x86)
+  local args = {"", '/R "C:\\Program Files"', '/R "C:\\Program Files (x86)"'}
 
-  if string.match(bin, "\\") then 
-    path = bin
-  else
-    path = dtutils_file.get_executable_path_preference(bin)
-  end
-
-
-  if dtutils_file.check_if_file_exists(path) then
-    if dtutils_file.is-executable(path) then
-      result = dtutils_file.sanitize_filename(path)
-    end
-  end
-  return result
-end
-
--- check_if_bin_exists for unix like systems (linux, macos)
-local function _check_if_bin_exists_nix(bin)
-  local result = false
-  local path = nil
-
-  if string.match(bin, "/") then
-    path = bin
-  else
-    path = dtutils_file.get_executable_path_preference(bin)
-  end
-
-  if path then dt.print_log("path is " .. path) end
-
-  if string.len(path) > 0 then
-    -- check for windows executable to run under wine
-    if _is-windows_executable(path) then
-      if dtutils_file.check_if_file_exists(path) then
-        result = dtutils_file.sanitize_filename(path)
-      end
-    else
-      if dtutils_file.check_if_file_exists(path) then
-        if dtutils_file.is_file(path) and dtutils_file.is_executable(path) then
-          result = ds.sanitize(path)
+  for _,arg in ipairs(args) do
+    local cmd = "where " .. arg .. " " .. ds.sanitize(bin)
+    local p = io.popen(cmd)
+    local output = p:read("*a")
+    p:close()
+    local lines = du.split(output, "\n")
+    for _,line in ipairs(lines) do
+      if string.match(line, bin) then
+        if dtutils_file.is_file(line) and dtutils_file.is_executable(line) then
+          dtutils_file.set_executable_path_preference(bin, line)  -- save it so we don't have to search again
+          return line
         end
       end
     end
   end
+  return result
+end
+
+local function _search_for_bin_nix(bin)
+  local result = false
+  local p = io.popen("which " .. bin)
+  local output = p:read("*a")
+  p:close()
+  if string.len(output) > 0 then
+    local spath = dtutils_file.sanitize_filename(output:sub(1,-2))
+    if dtutils_file.is_file(spath) and dtutils_file.is_executable(spath) then
+      result = spath 
+    end
+  end
+  return result
+end
+
+local function _search_for_bin_macos(bin)
+  local result = false
+  
+  result = _search_for_bin_nix(bin)
+
   if not result then
-    local p = io.popen("which " .. bin)
+    local search_start = "/Applications"
+
+    if dtutils_file.check_if_file_exists("/Applications/" .. bin .. ".app") then
+      search_start = "/Applications/" .. bin .. ".app"
+    end
+
+    local p = io.popen("find " .. search_start .. " -type f -name " .. bin .. " -print")
     local output = p:read("*a")
     p:close()
-    if string.len(output) > 0 then
+    local lines = du.split(output, "\n")
 
-      local spath = dtutils_file.sanitize_filename(output:sub(1,-2))
-      if dtutils_file.is_file(spath) and dtutils_file.is_executable(spath) then
-        result = spath 
+    for _,line in ipairs(lines) do
+      local spath = dtutils_file.sanitize_filename(line:sub(1, -2))
+      if dtutils_file.is_executable(spath) then
+        dtutils_file.set_executable_path_preference(bin, spath)
+        result = spath
+      end
+    end
+  end
+
+  return result
+end
+
+local function _search_for_bin(bin)
+  local result = false
+
+  if dt.configuration.running_os == "windows" then
+    result = _search_for_bin_windows(bin)
+  elseif dt.configuration.running_os == "macos" then
+    result = _search_for_bin_macos(bin)
+  else
+    result = _search_for_bin_nix(bin)
+  end
+
+  return result
+end
+
+local function _check_path_for_wine_bin(path)
+  local result = false
+
+  if string.len(path) > 0 then
+    -- check for windows executable to run under wine
+    if _is_windows_executable(path) then
+      if dtutils_file.check_if_file_exists(path) then
+        result = "wine " .. dtutils_file.sanitize_filename(path)
       end
     end
   end
   return result
 end
 
-function dtutils_file.check_if_bin_exists(bin)
-  if dt.configuration.running_os == "windows" then
-    return _check_if_bin_exists_windows(bin)
+local function _check_path_for_bin(bin)
+  local result = false
+  local path = nil
+
+  local PS = dt.configuration.running_os == "windows" and "\\" or "/"
+
+  if string.match(bin, PS) then 
+    path = bin
   else
-    return _check_if_bin_exists_nix(bin)
+    path = dtutils_file.get_executable_path_preference(bin)
+    -- reset path preference is the returned preference is a directory
+    if dtutils_file.is_dir(path) then
+      dtutils_file.set_executable_path_preference(bin, "")
+      path = nil
+    end
   end
+
+  if path and dtutils_file.is_dir(path) then
+    path = nil
+  end
+
+  if path and dt.configuration.running_os ~= "windows" then
+    result = _check_path_for_wine_bin(path)
+  end
+
+  if path and not result then
+    if dtutils_file.is_executable(path) then
+      result = dtutils_file.sanitize_filename(path)
+    end
+  end
+
+  return result
+end
+
+function dtutils_file.check_if_bin_exists(bin)
+  local result = false
+
+  result = _check_path_for_bin(bin)
+
+  if not result then
+    result = _search_for_bin(bin)
+  end
+  
+  return result
 end
 
 dtutils_file.libdoc.functions["split_filepath"] = {
@@ -688,10 +770,11 @@ function dtutils_file.executable_path_widget(executables)
       is_directory = false,
       changed_callback = function(self)
         if dtutils_file.check_if_bin_exists(self.value) then
-          dtutils_file.set_executable_path_preference(executable, dtutils_file.check_if_bin_exists(self.value))
+          dtutils_file.set_executable_path_preference(executable, self.value)
         end
-      end}
-    )
+      end
+    }
+  )
   end
   local box = dt.new_widget("box"){
     orientation = "vertical",
