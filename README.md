@@ -39,6 +39,7 @@ CollectHelper|Yes|LMW|Add buttons to selected images module to manipulate the co
 copy_attach_detach_tags|Yes|LMW|Copy and paste tags from/to images
 cr2hdr|Yes|L|Process image created with Magic Lantern Dual ISO
 enfuseAdvanced|No|LMW|Merge multiple images into Dynamic Range Increase (DRI) or Depth From Focus (DFF) images
+exportLUT|Yes|LMW|Create a LUT from a style and export it
 ext_editor|No|LW|Export pictures to collection and edit them with up to nine user-defined external editors
 face_recognition|No|LM|Identify and tag images using facial recognition
 fujifilm_ratings|No|LM|Support importing Fujifilm ratings
@@ -49,6 +50,7 @@ gpx_export|No|LMW|Export a GPX track file from selected images GPS data
 HDRMerge|No|LMW|Combine the selected images into an HDR DNG and return the result
 hugin|No|LMW|Combine selected images into a panorama and return the result
 image_stack|No|LMW|Combine a stack of images to remove noise or transient objects
+image_time|Yes|LMW|Adjust the EXIF image time
 kml_export|No|L|Export photos with a KML file for usage in Google Earth
 LabelsToTags|Yes|LMW|Apply tags based on color labels and ratings
 OpenInExplorer|No|LMW|Open the selected images in the system file manager
@@ -215,7 +217,7 @@ Open a terminal and start darktable with the command `darktable -d lua`. This pr
 
 ### Windows
 
-Open the Git Bash Shell. Start darktable with the command `/c/Program\ Files/darktable/bin/darktable -d lua`. This provides debugging information to give you insight into what is happening.
+Open a command prompt. Start darktable with the command "C:\Program Files\darktable\bin\darktable" -d lua > log.txt. This provides debugging information to give you insight into what is happening.
 
 ## Contributing
 
