@@ -271,7 +271,6 @@ if enfuse_installed then
         "view-changed",
         function(event, old_view, new_view)
           if new_view.name == "lighttable" and old_view.name == "darkroom" then
-            dt.print_log("view changed from darkroom to lighttable")
             install_module()
            end
         end
