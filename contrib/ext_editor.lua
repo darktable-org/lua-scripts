@@ -84,6 +84,12 @@ du.check_min_api_version("5.0.2", MODULE_NAME)  -- darktable 3.x
 -- OS compatibility
 local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 
+-- namespace
+local ee = {}
+ee.module_installed = false
+ee.event_registered = false
+ee.widgets = {}
+
 
 -- translation
 local gettext = dt.gettext
@@ -329,6 +335,26 @@ local function export2collection(storage, image_table, extra_data)
   dt.print (_("finished exporting"))
   end
 
+-- install the module in the UI
+local function install_module()
+  if not ee.module_installed then
+    -- register new module "external editors" in lighttable ------------------------
+    dt.register_lib(
+      MODULE_NAME,          
+      _("external editors"),  
+      true, -- expandable
+      false,  -- resetable
+      {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},  
+      dt.new_widget("box") {
+        orientation = "vertical",
+        table.unpack(ee.widgets),
+        },
+      nil,  -- view_enter
+      nil   -- view_leave
+      )
+    ee.module_installed = true
+  end
+end
 
 -- combobox, with variable number of entries ----------------------------------
 local combobox = dt.new_widget("combobox") {
@@ -381,22 +407,26 @@ local box1 = dt.new_widget("box") {
   button_update_list
   }
 
+table.insert(ee.widgets, combobox)
+table.insert(ee.widgets, box1)
 
 -- register new module "external editors" in lighttable ------------------------
-dt.register_lib(
-  MODULE_NAME,          
-  _("external editors"),  
-  true, -- expandable
-  false,  -- resetable
-  {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},  
-  dt.new_widget("box") {
-    orientation = "vertical",
-    combobox,
-    box1
-    },
-  nil,  -- view_enter
-  nil   -- view_leave
-  )
+if dt.gui.current_view().name == "lighttable" then
+  install_module()
+else
+  if not ee.event_registered then
+    dt.register_event(
+      "view-changed",
+      function(event, old_view, new_view)
+        if new_view.name == "lighttable" and old_view.name == "darkroom" then
+          install_module()
+         end
+      end
+    )
+    ee.event_registered = true
+  end
+end
+
 
 
 -- initialize list of programs and widgets ------------------------------------ 
