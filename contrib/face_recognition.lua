@@ -55,6 +55,8 @@ local OUTPUT = dt.configuration.tmp_dir .. PS .. "facerecognition.txt"
 -- namespace
 
 local fc = {}
+fc.module_installed = false
+fc.event_registered = false
 
 -- ensure we meet the minimum api
 du.check_min_api_version("5.0.0", "face_recognition")
@@ -337,6 +339,22 @@ local function face_recognition ()
   end
 end
 
+local function install_module()
+  if not fc.module_installed then
+    dt.register_lib(
+      "face_recognition",     -- Module name
+      _("face recognition"),     -- Visible name
+      true,                -- expandable
+      true,               -- resetable
+      {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 300}},   -- containers
+      fc.widget,
+      nil,-- view_enter
+      nil -- view_leave
+    )
+    fc.module_installed = true
+  end
+end
+
 -- build the interface
 
 fc.unknown_tag = dt.new_widget("entry"){
@@ -466,16 +484,21 @@ fc.widget = dt.new_widget("box"){
   table.unpack(widgets),
 }
 
-dt.register_lib(
-  "face_recognition",     -- Module name
-  _("face recognition"),     -- Visible name
-  true,                -- expandable
-  true,               -- resetable
-  {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 300}},   -- containers
-  fc.widget,
-  nil,-- view_enter
-  nil -- view_leave
-)
+if dt.gui.current_view().name == "lighttable" then
+  install_module()
+else
+  if not fc.event_registered then
+    dt.register_event(
+      "view-changed",
+      function(event, old_view, new_view)
+        if new_view.name == "lighttable" and old_view.name == "darkroom" then
+          install_module()
+         end
+      end
+    )
+    fc.event_registered = true
+  end
+end
 
 fc.tolerance.value = dt.preferences.read(MODULE, "tolerance", "float")
 
