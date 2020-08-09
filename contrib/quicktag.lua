@@ -47,6 +47,12 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 local debug = require "darktable.debug"
 
+local qt = {}
+qt.module_installed = false
+qt.event_registered = false
+qt.widget_table = {}
+
+
 
 local gettext = dt.gettext
 
@@ -177,6 +183,27 @@ local function update_quicktag_list()
   end
 end
 
+local function install_module()
+  if not qt.module_installed then
+    dt.register_lib(
+      "quicktag",     -- Module name
+      "quicktag",     -- name
+      true,                -- expandable
+      false,               -- resetable
+      {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 490}},
+
+      dt.new_widget("box"){
+        orientation = "vertical",
+        table.unpack(qt.widget_table),
+
+      },
+      nil,-- view_enter
+      nil -- view_leave
+    )
+    qt.module_installed = true
+  end
+end
+
 update_quicktag_list()
 
 local new_quicktag = dt.new_widget("entry"){
@@ -213,33 +240,32 @@ local new_qt_widget = dt.new_widget ("box") {
 
 -- back UI elements in a table
 -- thanks to wpferguson for the hint
-local widget_table = {}
 
 for i=1,qnr do
-  widget_table[#widget_table  + 1] =  button[i]
+  qt.widget_table[#qt.widget_table  + 1] =  button[i]
 end
 
-widget_table[#widget_table  + 1] = dt.new_widget("separator"){}
-widget_table[#widget_table  + 1] = old_quicktag
-widget_table[#widget_table  + 1] = new_qt_widget
+qt.widget_table[#qt.widget_table  + 1] = dt.new_widget("separator"){}
+qt.widget_table[#qt.widget_table  + 1] = old_quicktag
+qt.widget_table[#qt.widget_table  + 1] = new_qt_widget
 
 
 --create module
-dt.register_lib(
-  "quicktag",     -- Module name
-  "quicktag",     -- name
-  true,                -- expandable
-  false,               -- resetable
-  {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 490}},
-
-  dt.new_widget("box"){
-    orientation = "vertical",
-    table.unpack(widget_table),
-
-  },
-  nil,-- view_enter
-  nil -- view_leave
-)
+if dt.gui.current_view().name == "lighttable" then
+  install_module()
+else
+  if not qt.event_registered then
+    dt.register_event(
+      "view-changed",
+      function(event, old_view, new_view)
+        if new_view.name == "lighttable" and old_view.name == "darkroom" then
+          install_module()
+         end
+      end
+    )
+    qt.event_registered = true
+  end
+end
 
 -- create shortcuts
 for i=1,qnr do
