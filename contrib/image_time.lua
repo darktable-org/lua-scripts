@@ -110,6 +110,8 @@ local ds = require "lib/dtutils.string"
 local gettext = dt.gettext
 
 local img_time = {}
+img_time.module_installed = false
+img_time.event_registered = false
 
 du.check_min_api_version("3.0.0", "image_time") 
 
@@ -390,6 +392,22 @@ local function reset_widgets()
   img_time.adir.selected = 1
 end
 
+local function install_module()
+  if not img_time.module_installed then
+    dt.register_lib(
+      "image_time",     -- Module name
+      _("image time"),     -- Visible name
+      true,                -- expandable
+      true,               -- resetable
+      {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},   -- containers
+      img_time.widget,
+      nil,-- view_enter
+      nil -- view_leave
+    )
+    img_time.module_installed = true
+  end
+end
+
 -- widgets
 
 img_time.widgets  = {
@@ -528,13 +546,19 @@ img_time.widget = dt.new_widget("box"){
   img_time.stack,
 }
 
-dt.register_lib(
-  "image_time",     -- Module name
-  _("image time"),     -- Visible name
-  true,                -- expandable
-  true,               -- resetable
-  {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},   -- containers
-  img_time.widget,
-  nil,-- view_enter
-  nil -- view_leave
-)
+if dt.gui.current_view().name == "lighttable" then
+  install_module()
+else
+  if not img_time.event_registered then
+    dt.register_event(
+      "view-changed",
+      function(event, old_view, new_view)
+        if new_view.name == "lighttable" and old_view.name == "darkroom" then
+          install_module()
+         end
+      end
+    )
+    img_time.event_registered = true
+  end
+end
+
