@@ -41,6 +41,11 @@ end
 
 du.check_min_api_version("5.0.0", "exportLUT") 
 
+local eL = {}
+eL.module_installed = false
+eL.event_registered = false
+eL.widgets = {}
+
 -- Thanks Kevin Ertel for this bit
 local os_path_seperator = '/'
 if dt.configuration.running_os == 'windows' then os_path_seperator = '\\' end
@@ -119,27 +124,51 @@ local function export_luts()
   end
 end
 
+local function install_module()
+  if not eL.module_installed then
+    dt.register_lib(
+      _("export haldclut"),
+      _("export haldclut"),
+      true,
+      false,
+      {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},
+      dt.new_widget("box")
+      {
+        orientation = "vertical",
+        table.unpack(eL.widgets),
+      },
+      nil,
+      nil
+    )
+    eL.module_installed = true
+  end
+end
+
 local export_button = dt.new_widget("button"){
   label = _("export"),
   clicked_callback = export_luts
 }
 
-dt.register_lib(
-  _("export haldclut"),
-  _("export haldclut"),
-  true,
-  false,
-  {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},
-  dt.new_widget("box")
-  {
-    orientation = "vertical",
-    identity_label,
-    file_chooser_button,
-    output_label,
-    export_chooser_button,
-    warning_label,
-    export_button
-  },
-  nil,
-  nil
-)
+table.insert(eL.widgets, identity_label)
+table.insert(eL.widgets, file_chooser_button)
+table.insert(eL.widgets, output_label)
+table.insert(eL.widgets, export_chooser_button)
+table.insert(eL.widgets, warning_label)
+table.insert(eL.widgets, export_button)
+
+if dt.gui.current_view().name == "lighttable" then
+  install_module()
+else
+  if not eL.event_registered then
+    dt.register_event(
+      "view-changed",
+      function(event, old_view, new_view)
+        if new_view.name == "lighttable" and old_view.name == "darkroom" then
+          install_module()
+         end
+      end
+    )
+    eL.event_registered = true
+  end
+end
+

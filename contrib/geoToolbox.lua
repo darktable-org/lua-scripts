@@ -40,6 +40,12 @@ local function _(msgid)
     return gettext.dgettext("geoToolbox", msgid)
 end
 
+
+local gT = {}
+gT.module_installed = false
+gT.event_registered = false
+
+
 -- <GUI>
 local labelDistance = dt.new_widget("label")
 labelDistance.label = _("Distance:")
@@ -572,6 +578,22 @@ local function altitude_profile()
 
 end
 
+local function install_module()
+  if not gT.module_installed then
+    dt.register_lib(
+      "geoToolbox",        -- Module name
+      "geo toolbox",       -- name
+      true,                -- expandable
+      false,               -- resetable
+      {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},   -- containers
+      gT.widget,
+      nil,-- view_enter
+      nil -- view_leave
+    )
+    gT.module_installed = true
+  end
+end
+
 
 local separator = dt.new_widget("separator"){}
 local separator2 = dt.new_widget("separator"){}
@@ -579,13 +601,7 @@ local separator3 = dt.new_widget("separator"){}
 local separator4 = dt.new_widget("separator"){}
 local separator5 = dt.new_widget("separator"){}
 
-dt.register_lib(
-  "geoToolbox",        -- Module name
-  "geo toolbox",       -- name
-  true,                -- expandable
-  false,               -- resetable
-  {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},   -- containers
-  dt.new_widget("box")
+gT.widget = dt.new_widget("box")
   {
     orientation = "vertical",
     dt.new_widget("button")
@@ -664,10 +680,24 @@ dt.register_lib(
       clicked_callback = altitude_profile
     },
     labelDistance
-  },
-  nil,-- view_enter
-  nil -- view_leave
-)
+  }
+
+
+if dt.gui.current_view().name == "lighttable" then
+  install_module()
+else
+  if not gT.event_registered then
+    dt.register_event(
+      "view-changed",
+      function(event, old_view, new_view)
+        if new_view.name == "lighttable" and old_view.name == "darkroom" then
+          install_module()
+         end
+      end
+    )
+    gT.event_registered = true
+  end
+end
 
 -- Preferences
 dt.preferences.register("geoToolbox",

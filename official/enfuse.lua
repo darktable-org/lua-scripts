@@ -46,10 +46,35 @@ du.check_min_api_version("3.0.0", "enfuse")
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("enfuse",dt.configuration.config_dir..PS .. "lua" .. PS .. "locale" .. PS)
 
+local enf = {}
+enf.event_registered = false
+enf.module_installed = false
+enf.lib_widgets = {}
+
 local function _(msgid)
     return gettext.dgettext("enfuse", msgid)
 end
 
+local function install_module()
+  if not enf.module_installed then
+    dt.register_lib(
+      "enfuse",                                                                    -- plugin name
+      "enfuse",                                                                    -- name
+      true,                                                                        -- expandable
+      false,                                                                       -- resetable
+      {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},   -- containers
+      dt.new_widget("box")                                                         -- widget
+      {
+        orientation = "vertical",
+        sensitive = enfuse_installed,
+        table.unpack(enf.lib_widgets)
+      },
+      nil,-- view_enter
+      nil -- view_leave
+    )
+    enf.module_installed = true
+  end
+end
 -- add a new lib
 -- is enfuse installed?
 local enfuse_installed = df.check_if_bin_exists("enfuse")
@@ -229,30 +254,30 @@ if enfuse_installed then
   local lib_widgets = {}
 
   if not enfuse_installed then
-    table.insert(lib_widgets, df.executable_path_widget({"ffmpeg"}))
+    table.insert(enf.lib_widgets, df.executable_path_widget({"ffmpeg"}))
   end
-  table.insert(lib_widgets, exposure_mu)
-  table.insert(lib_widgets, depth)
-  table.insert(lib_widgets, blend_colorspace)
-  table.insert(lib_widgets, enfuse_button)
+  table.insert(enf.lib_widgets, exposure_mu)
+  table.insert(enf.lib_widgets, depth)
+  table.insert(enf.lib_widgets, blend_colorspace)
+  table.insert(enf.lib_widgets, enfuse_button)
 
    
   -- ... and tell dt about it all
-  dt.register_lib(
-    "enfuse",                                                                    -- plugin name
-    "enfuse",                                                                    -- name
-    true,                                                                        -- expandable
-    false,                                                                       -- resetable
-    {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},   -- containers
-    dt.new_widget("box")                                                         -- widget
-    {
-      orientation = "vertical",
-      sensitive = enfuse_installed,
-      table.unpack(lib_widgets)
-    },
-    nil,-- view_enter
-    nil -- view_leave
-  )
+  if dt.gui.current_view().name == "lighttable" then
+    install_module()
+  else
+    if not enf.event_registered then
+      dt.register_event(
+        "view-changed",
+        function(event, old_view, new_view)
+          if new_view.name == "lighttable" and old_view.name == "darkroom" then
+            install_module()
+           end
+        end
+      )
+      enf.event_registered = true
+    end
+  end
 else
   dt.print_error("enfuse executable not found")
   error("enfuse executable not found")
