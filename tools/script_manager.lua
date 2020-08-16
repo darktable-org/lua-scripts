@@ -285,7 +285,7 @@ local function deactivate(script, scriptname)
 end
 
 local function create_enable_disable_button(btext, sname, req)
-  button =  dt.new_widget("button")
+  local button =  dt.new_widget("button")
   {
     label = btext .. sname,
     tooltip = get_script_doc(req),
