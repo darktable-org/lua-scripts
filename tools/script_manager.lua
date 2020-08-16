@@ -65,6 +65,7 @@ local CS = dt.configuration.running_os == "windows" and "&" or ";"
 
 local LUA_DIR = dt.configuration.config_dir .. PS .. "lua"
 local LUA_SCRIPT_REPO = "https://github.com/darktable-org/lua-scripts.git"
+local CURR_API_VERSION = dt.configuration.api_version_string
 
 dt.print_log("LUA_DIR is " .. LUA_DIR)
 
@@ -284,7 +285,7 @@ local function deactivate(script, scriptname)
 end
 
 local function create_enable_disable_button(btext, sname, req)
-  return dt.new_widget("button")
+  button =  dt.new_widget("button")
   {
     label = btext .. sname,
     tooltip = get_script_doc(req),
@@ -310,6 +311,10 @@ local function create_enable_disable_button(btext, sname, req)
       end
     end
   }
+  if CURR_API_VERSION >= "6.0.1" then
+    button.ellipsize = "middle"
+  end
+  return button
 end
 
 local function load_script_stack()
@@ -732,6 +737,12 @@ table.insert(sm.main_stack_items, sm.config_box)
 sm.main_stack = dt.new_widget("stack"){
   table.unpack(sm.main_stack_items),
 }
+
+if CURR_API_VERSION >= "6.0.1" then
+  sm.main_stack.h_size_fixed = false
+  sm.main_stack.v_size_fixed = false
+end
+
 
   -- make a combobox for the selector
 
