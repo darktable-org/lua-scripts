@@ -141,7 +141,7 @@ table.insert(mE.widgets, slider)
 -- ... and tell dt about it all
 
 
-if dt.gui.current_view().name == "lighttable" then -- make sure we are in lighttable view
+if dt.gui.current_view().id == "lighttable" then -- make sure we are in lighttable view
   install_module()  -- register the lib
 else
   if not mE.event_registered then -- if we are not in lighttable view then register an event to signal when we might be

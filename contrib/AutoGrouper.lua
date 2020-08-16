@@ -169,7 +169,7 @@ GUI.collection = dt.new_widget("button"){
     clicked_callback = function() main(true) end
 }
 
-if dt.gui.current_view().name == "lighttable" then
+if dt.gui.current_view().id == "lighttable" then
   install_module()
 else
   if not Ag.event_registered then

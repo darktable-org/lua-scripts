@@ -225,7 +225,7 @@ cadt.widget_table[#cadt.widget_table+1] = taglist_label
 
 
 -- create modul
-if dt.gui.current_view().name == "lighttable" then
+if dt.gui.current_view().id == "lighttable" then
   install_module()
 else
   if not cadt.event_registered then

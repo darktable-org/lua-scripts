@@ -251,7 +251,7 @@ qt.widget_table[#qt.widget_table  + 1] = new_qt_widget
 
 
 --create module
-if dt.gui.current_view().name == "lighttable" then
+if dt.gui.current_view().id == "lighttable" then
   install_module()
 else
   if not qt.event_registered then

@@ -546,7 +546,7 @@ img_time.widget = dt.new_widget("box"){
   img_time.stack,
 }
 
-if dt.gui.current_view().name == "lighttable" then
+if dt.gui.current_view().id == "lighttable" then
   install_module()
 else
   if not img_time.event_registered then

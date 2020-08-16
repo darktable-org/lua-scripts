@@ -432,7 +432,7 @@ else
     GUI.stack.active = 2
 end
 
-if dt.gui.current_view().name == "lighttable" then
+if dt.gui.current_view().id == "lighttable" then
   install_module()
 else
   if not HDRM.event_registered then

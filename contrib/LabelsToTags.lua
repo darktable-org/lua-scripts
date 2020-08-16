@@ -242,7 +242,7 @@ darktable.register_tag_mapping("Example",
 				 ["*****R"] = { "Rejected" } })
 ]]
 
-if darktable.gui.current_view().name == "lighttable" then
+if darktable.gui.current_view().id == "lighttable" then
   install_module()
 else
   if not ltt.event_registered then

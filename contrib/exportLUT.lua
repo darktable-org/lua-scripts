@@ -156,7 +156,7 @@ table.insert(eL.widgets, export_chooser_button)
 table.insert(eL.widgets, warning_label)
 table.insert(eL.widgets, export_button)
 
-if dt.gui.current_view().name == "lighttable" then
+if dt.gui.current_view().id == "lighttable" then
   install_module()
 else
   if not eL.event_registered then

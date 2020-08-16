@@ -435,7 +435,7 @@ dt.preferences.register(MODULE_NAME,
 
 dt.register_event("mouse-over-image-changed",PHOTILS.image_changed)
 
-if dt.gui.current_view().name == "lighttable" then
+if dt.gui.current_view().id == "lighttable" then
   install_module()
 else
   if not PHOTILS.event_registered then

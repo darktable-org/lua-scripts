@@ -361,7 +361,7 @@ darktable.preferences.register(
 
 -- Preferences: END
 
-if darktable.gui.current_view().name == "lighttable" then
+if darktable.gui.current_view().id == "lighttable" then
   install_module()
 else
   if not th.event_registered then
