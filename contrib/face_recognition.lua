@@ -484,7 +484,7 @@ fc.widget = dt.new_widget("box"){
   table.unpack(widgets),
 }
 
-if dt.gui.current_view().name == "lighttable" then
+if dt.gui.current_view().id == "lighttable" then
   install_module()
 else
   if not fc.event_registered then

@@ -68,7 +68,7 @@ end
 
 main_label.reset_callback = reset_widget
 
-if dt.gui.current_view().name == "lighttable" then
+if dt.gui.current_view().id == "lighttable" then
   install_module()
 else
   if not ipiu.event_registered then

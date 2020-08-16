@@ -209,7 +209,7 @@ update_combobox_choices(exec_man.selector, exec_table, 1)
 -- register the lib
 
 
-if dt.gui.current_view().name == "lighttable" then
+if dt.gui.current_view().id == "lighttable" then
   install_module()
 else
   if not exec_man.event_registered then

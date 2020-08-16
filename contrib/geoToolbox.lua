@@ -683,7 +683,7 @@ gT.widget = dt.new_widget("box")
   }
 
 
-if dt.gui.current_view().name == "lighttable" then
+if dt.gui.current_view().id == "lighttable" then
   install_module()
 else
   if not gT.event_registered then

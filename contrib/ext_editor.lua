@@ -411,7 +411,7 @@ table.insert(ee.widgets, combobox)
 table.insert(ee.widgets, box1)
 
 -- register new module "external editors" in lighttable ------------------------
-if dt.gui.current_view().name == "lighttable" then
+if dt.gui.current_view().id == "lighttable" then
   install_module()
 else
   if not ee.event_registered then

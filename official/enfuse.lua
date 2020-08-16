@@ -263,7 +263,7 @@ if enfuse_installed then
 
    
   -- ... and tell dt about it all
-  if dt.gui.current_view().name == "lighttable" then
+  if dt.gui.current_view().id == "lighttable" then
     install_module()
   else
     if not enf.event_registered then
