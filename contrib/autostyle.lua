@@ -40,6 +40,16 @@ local darktable = require "darktable"
 local du = require "lib/dtutils"
 local filelib = require "lib/dtutils.file"
 
+local gettext = dt.gettext
+
+
+-- Tell gettext where to find the .mo file translating messages for a particular domain
+gettext.bindtextdomain("autostyle",dt.configuration.config_dir.."/lua/locale/")
+
+local function _(msgid)
+    return gettext.dgettext("autostyle", msgid)
+end
+
 -- Forward declare the functions
 local autostyle_apply_one_image,autostyle_apply_one_image_event,autostyle_apply,exiftool_attribute,capture
 
@@ -58,19 +68,19 @@ function autostyle_apply_one_image (image)
 
   -- check they all exist (correct syntax)
   if (not tag) then
-	  darktable.print("EXIF TAG not found in " .. darktable.preferences.read("autostyle","exif_tag","string"))
+	  darktable.print(_("EXIF TAG not found in ") .. darktable.preferences.read("autostyle","exif_tag","string"))
 	  return 0
   end
   if (not value) then
-	  darktable.print("value to match not found in " .. darktable.preferences.read("autostyle","exif_tag","string"))
+	  darktable.print(_("value to match not found in ") .. darktable.preferences.read("autostyle","exif_tag","string"))
 	  return 0
   end
   if (not style_name) then
-	  darktable.print("style name not found in " .. darktable.preferences.read("autostyle","exif_tag","string"))
+	  darktable.print(_("style name not found in ") .. darktable.preferences.read("autostyle","exif_tag","string"))
 	  return 0
   end
   if not filelib.check_if_bin_exists("exiftool") then
-	  darktable.print("Can't find exiftool")
+	  darktable.print(_("Can't find exiftool"))
           return 0
   end
 	
@@ -84,7 +94,7 @@ function autostyle_apply_one_image (image)
 	  end
   end
   if (not style) then
-	  darktable.print("style not found for autostyle: " .. style_name)
+	  darktable.print(_("style not found for autostyle: ") .. style_name)
           return 0
   end
 
@@ -93,15 +103,15 @@ function autostyle_apply_one_image (image)
   --darktable.print_error("dr_attr:" .. auto_dr_attr)
   -- If the lookup fails, stop here
   if (not ok) then
-    darktable.print("Couldn't get attribute " .. auto_dr_attr .. " from exiftool's output")
+    darktable.print(_("Couldn't get attribute ") .. auto_dr_attr .. _(" from exiftool's output"))
     return 0
   end
   if auto_dr_attr==value then
-	  darktable.print_log("Image " .. image.filename .. ": autostyle automatically applied " .. darktable.preferences.read("autostyle","exif_tag","string") )
+	  darktable.print_log(_("Image ") .. image.filename .. _(": autostyle automatically applied ") .. darktable.preferences.read("autostyle","exif_tag","string") )
 	  darktable.styles.apply(style,image)
 	  return 1
   else
-	  darktable.print_log("Image " .. image.filename .. ": autostyle not applied, exif tag " .. darktable.preferences.read("autostyle","exif_tag","string")  .. " not matched: " .. auto_dr_attr)
+	  darktable.print_log(_("Image ") .. image.filename .. _(": autostyle not applied, exif tag ") .. darktable.preferences.read("autostyle","exif_tag","string")  .. _(" not matched: ") .. auto_dr_attr)
 	  return 0
   end
 end 
@@ -115,7 +125,7 @@ function autostyle_apply( shortcut)
     images_submitted = images_submitted +1
     images_processed = images_processed + autostyle_apply_one_image(image)
   end
-  darktable.print("Applied auto style to " .. images_processed .. " out of " .. images_submitted .. " image(s)")
+  darktable.print(_("Applied auto style to ") .. images_processed .. _(" out of ") .. images_submitted .. _(" image(s)"))
 end
 
 -- Retrieve the attribute through exiftool
@@ -124,9 +134,9 @@ function exiftool_attribute(path,attr)
   local exifresult=get_stdout(cmd)
   local attribute=string.match(exifresult,": (.*)")
   if (attribute == nil) then
-    darktable.print_error( "Could not find the attribute " .. attr .. " using the command: <" .. cmd .. ">")
+    darktable.print_error(_("Could not find the attribute ") .. attr .. _(" using the command: <") .. cmd .. _(">"))
     -- Raise an error to the caller
-    error( "Could not find the attribute " .. attr .. " using the command: <" .. cmd .. ">");
+    error(_("Could not find the attribute ") .. attr .. _(" using the command: <") .. cmd .. _(">"));
   end
 --  darktable.print_error("Returning attribute: " .. attribute)
   return attribute
@@ -152,9 +162,9 @@ end
 
 -- Registering events
 darktable.register_event("shortcut",autostyle_apply,
-       "Apply your chosen style from exiftool tags")
+       _("Apply your chosen style from exiftool tags"))
 
-darktable.preferences.register("autostyle","exif_tag","string","Autostyle: EXIF_tag=value=>style","apply a style automatically if an EXIF_tag matches value. Find the tag with exiftool","")
+darktable.preferences.register("autostyle","exif_tag","string","Autostyle: EXIF_tag=value=>style",_("apply a style automatically if an EXIF_tag matches value. Find the tag with exiftool"),"")
 
 darktable.register_event("post-import-image",autostyle_apply_one_image_event)
 
