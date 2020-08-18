@@ -126,7 +126,17 @@ Ensure git is installed on your system. If it isn't, use the package manager to 
     cd ~/snap/darktable/current
     git clone https://github.com/darktable-org/lua-scripts.git lua
 
-### flatpak and appimage packages
+### flatpak packages
+
+Flatpak packages now use the internal lua interpreter.
+
+
+Ensure git is installed on your system. If it isn't, use the package manager to install it. Then open a terminal and:
+
+    cd ~/.var/app/org.darktable.Darktable/config/darktable
+    git clone https://github.com/darktable-org/lua-scripts.git lua
+
+### appimage packages
 
 These packages run in their own environment and don't have access to a lua interpreter, therefore the scripts can't run. The packagers could enable the internal interpreter, or allow the package to link the interpreter from the operating system, or bundle a copy of lua with the package. If you use one of these packages and wish to use the lua scripts, please contact the package maintainer and suggest the above fixes.
 
@@ -150,23 +160,33 @@ If you don't have %LOCALAPPDATA%\darktable you have to start dartable at least o
 
 When darktable starts it looks for a file name `~/.config/darktable/luarc` (`%LOCALAPPDATA%\darktable\luarc` for windows) and reads it to see which scripts to include. The file is a plain text file with entries of the form `require "<directory>/<name>"` where directory is the directory containing the scripts, from the above list, and name is the name from the above list. To include GIMP the line would be `require "contrib/gimp"`.
 
+The recommended way to enable and disable specific scripts is using the script manager module.  To use script manager do the following:
+
+### Linux or MacOS
+
+    echo 'require "tools/script_manager"' > ~/.config/darktable/luarc
+
+### Windows
+
+    echo "require 'tools/script_manager'" > %LOCALAPPDATA%\darktable\luarc
+
+### Snap
+
+    echo 'require "tools/script_manager"' > ~/snap/darktable/current/luarc
+
+### Flatpak
+
+    echo require "tools/script_manager"' > ~/.var/app/org.darktable.Darktable/config/darktable/luarc
+
 You can also create or add lines to the luarc file from the command line:
 
 `echo 'require "contrib/gimp"' > ~/.config/darktable/luarc` to create the file with a gimp entry\
 or `echo 'require "contrib/hugin"' >> ~/.config/darktable/luarc` to add an entry for hugin.
 
-Alteratively you can use script_manager.lua as your luarc file.  script_manager.lua provides a point and click interface for managing the lua scripts.  To use it:
-
-	ln -s $HOME/.config/darktable/lua/tools/script_manager.lua $HOME/.config/darktable/luarc
-
 On windows from a command prompt:
 
 `echo require "contrib/gimp" > %LOCALAPPDATA%\darktable\luarc` to create the file with a gimp entry\
 or `echo require "contrib/hugin" >> %LOCALAPPDATA%\darktable\luarc` to add an entry for hugin.
-
-Alteratively you can use script_manager.lua as your luarc file.  script_manager.lua provides a point and click interface for managing the lua scripts.  To use it:
-
-        copy %LOCALAPPDATA%\darktable\lua\tools\script_manager.lua %LOCALAPPDATA%\darktable\luarc
 
 ## Disabling
 
@@ -179,6 +199,12 @@ To update the script repository, open a terminal or command prompt and do the fo
 ### Snap
 
     cd ~/snap/darktable/current/lua
+    git pull
+
+
+### Flatpak
+
+    cd ~/.var/app/org.darktable.Darktable/config/darktable/lua
     git pull
 
 ### Linux and MacOS
