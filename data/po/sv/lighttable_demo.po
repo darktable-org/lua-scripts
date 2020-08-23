@@ -1,0 +1,59 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: darktable lua-scripts\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-08-22 22:33-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../examples/lighttable_demo.lua:136
+msgid "lighttable layout and zoom level demonstration"
+msgstr ""
+
+#: ../../examples/lighttable_demo.lua:141
+msgid "set lighttable layout to "
+msgstr ""
+
+#: ../../examples/lighttable_demo.lua:145
+#: ../../examples/lighttable_demo.lua:150
+msgid "Set zoom level to "
+msgstr ""
+
+#: ../../examples/lighttable_demo.lua:157
+msgid "lighttable sorting demonstration"
+msgstr ""
+
+#: ../../examples/lighttable_demo.lua:163
+msgid "set lighttable sort to "
+msgstr ""
+
+#: ../../examples/lighttable_demo.lua:168
+msgid "sort order set to "
+msgstr ""
+
+#: ../../examples/lighttable_demo.lua:175
+msgid "lighttable filtering demonstration"
+msgstr ""
+
+#: ../../examples/lighttable_demo.lua:179
+msgid "set filter to "
+msgstr ""
+
+#: ../../examples/lighttable_demo.lua:184
+msgid "set rating comparator to "
+msgstr ""
+
+#: ../../examples/lighttable_demo.lua:191
+msgid "restoring settings"
+msgstr ""

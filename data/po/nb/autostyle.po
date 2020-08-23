@@ -1,0 +1,96 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: darktable lua-scripts\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-08-22 22:33-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: nb\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../contrib/autostyle.lua:71
+msgid "EXIF TAG not found in "
+msgstr ""
+
+#: ../../contrib/autostyle.lua:75
+msgid "value to match not found in "
+msgstr ""
+
+#: ../../contrib/autostyle.lua:79
+msgid "style name not found in "
+msgstr ""
+
+#: ../../contrib/autostyle.lua:83
+msgid "Can't find exiftool"
+msgstr ""
+
+#: ../../contrib/autostyle.lua:97
+msgid "style not found for autostyle: "
+msgstr ""
+
+#: ../../contrib/autostyle.lua:106
+msgid "Couldn't get attribute "
+msgstr ""
+
+#: ../../contrib/autostyle.lua:106
+msgid " from exiftool's output"
+msgstr ""
+
+#: ../../contrib/autostyle.lua:110 ../../contrib/autostyle.lua:114
+msgid "Image "
+msgstr ""
+
+#: ../../contrib/autostyle.lua:110
+msgid ": autostyle automatically applied "
+msgstr ""
+
+#: ../../contrib/autostyle.lua:114
+msgid ": autostyle not applied, exif tag "
+msgstr ""
+
+#: ../../contrib/autostyle.lua:114
+msgid " not matched: "
+msgstr ""
+
+#: ../../contrib/autostyle.lua:128
+msgid "Applied auto style to "
+msgstr ""
+
+#: ../../contrib/autostyle.lua:128
+msgid " out of "
+msgstr ""
+
+#: ../../contrib/autostyle.lua:128
+msgid " image(s)"
+msgstr ""
+
+#: ../../contrib/autostyle.lua:137 ../../contrib/autostyle.lua:139
+msgid "Could not find the attribute "
+msgstr ""
+
+#: ../../contrib/autostyle.lua:137 ../../contrib/autostyle.lua:139
+msgid " using the command: <"
+msgstr ""
+
+#: ../../contrib/autostyle.lua:137 ../../contrib/autostyle.lua:139
+msgid ">"
+msgstr ""
+
+#: ../../contrib/autostyle.lua:165
+msgid "Apply your chosen style from exiftool tags"
+msgstr ""
+
+#: ../../contrib/autostyle.lua:167
+msgid ""
+"apply a style automatically if an EXIF_tag matches value. Find the tag with "
+"exiftool"
+msgstr ""

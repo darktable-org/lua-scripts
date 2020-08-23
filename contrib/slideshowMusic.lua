@@ -33,10 +33,10 @@ local gettext = dt.gettext
 du.check_min_api_version("2.0.2", "slideshowMusic") 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("slideshowMusic",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("scripts",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("slideshowMusic", msgid)
+    return gettext.dgettext("scripts", msgid)
 end
 
 local function playSlideshowMusic(_, old_view, new_view)

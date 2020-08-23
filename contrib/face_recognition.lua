@@ -62,10 +62,10 @@ fc.event_registered = false
 du.check_min_api_version("5.0.0", "face_recognition")
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("face_recognition", dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("scripts", dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-  return gettext.dgettext("face_recognition", msgid)
+  return gettext.dgettext("scripts", msgid)
 end
 
 local function build_image_table(images)

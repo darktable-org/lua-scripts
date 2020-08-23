@@ -41,10 +41,10 @@ local gettext = dt.gettext
 du.check_min_api_version("3.0.0", "geoJSON_export") 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("geoJSON_export",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("scripts",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("geoJSON_export", msgid)
+    return gettext.dgettext("scripts", msgid)
 end
 
 -- Sort a table

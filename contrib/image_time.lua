@@ -117,10 +117,10 @@ du.check_min_api_version("3.0.0", "image_time")
 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("image_time",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("scripts",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("image_time", msgid)
+    return gettext.dgettext("scripts", msgid)
 end
 
 local PS = dt.configuration.runnin_os == "windows" and "\\" or "/"

@@ -44,10 +44,10 @@ du.check_min_api_version("5.0.0")
 local MODULE_NAME = "video_ffmpeg"
 
 local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
-gettext.bindtextdomain(MODULE_NAME, dt.configuration.config_dir..PS.."lua"..PS.."locale"..PS)
+gettext.bindtextdomain("scripts", dt.configuration.config_dir..PS.."lua"..PS.."locale"..PS)
 
 local function _(msgid)
-  return gettext.dgettext(MODULE_NAME, msgid)
+  return gettext.dgettext("scripts", msgid)
 end
 
 

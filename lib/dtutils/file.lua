@@ -29,10 +29,10 @@ local gettext = dt.gettext
 du.check_min_api_version("5.0.0", "dtutils.file")
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("dtutils.file",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("scripts",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("dtutils.file", msgid)
+    return gettext.dgettext("scripts", msgid)
 end
 
 dtutils_file.libdoc.functions["check_if_bin_exists"] = {

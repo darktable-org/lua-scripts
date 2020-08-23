@@ -73,10 +73,10 @@ local dtsys = require "lib/dtutils.system"  -- system utilities
 local gettext = dt.gettext
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("multi_os",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("scripts",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("multi_os", msgid)
+    return gettext.dgettext("scripts", msgid)
 end
 
 --[[

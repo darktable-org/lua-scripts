@@ -30,10 +30,10 @@ local gettext = dt.gettext
 
 du.check_min_api_version("4.0.0", "fujifilm_ratings")
 
-gettext.bindtextdomain("fujifilm_ratings", dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("scripts", dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-	return gettext.dgettext("fujifilm_ratings", msgid)
+	return gettext.dgettext("scripts", msgid)
 end
 
 local function detect_rating(event, image)

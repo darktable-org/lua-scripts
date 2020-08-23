@@ -1,0 +1,58 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: darktable lua-scripts\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-08-22 22:33-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: th\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../lib/dtutils.lua:75
+msgid "This application is written for lua api version "
+msgstr ""
+
+#: ../../lib/dtutils.lua:75
+msgid " or later."
+msgstr ""
+
+#: ../../lib/dtutils.lua:76
+msgid "The current lua api version is "
+msgstr ""
+
+#: ../../lib/dtutils.lua:77
+msgid "ERROR: "
+msgstr ""
+
+#: ../../lib/dtutils.lua:77
+msgid " failed to load. Lua API version "
+msgstr ""
+
+#: ../../lib/dtutils.lua:77
+msgid " or later required."
+msgstr ""
+
+#: ../../lib/dtutils.lua:78
+msgid "Minimum API "
+msgstr ""
+
+#: ../../lib/dtutils.lua:78
+msgid " not met for "
+msgstr ""
+
+#: ../../lib/dtutils.lua:195
+msgid "Loaded "
+msgstr ""
+
+#: ../../lib/dtutils.lua:197
+msgid "Error loading "
+msgstr ""

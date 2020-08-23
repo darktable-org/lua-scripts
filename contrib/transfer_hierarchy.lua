@@ -87,10 +87,10 @@ local PATH_SEGMENT_REGEX = "(" .. PATH_SEPARATOR .. "?)([^" .. PATH_SEPARATOR ..
 unpack = unpack or table.unpack
 gmatch = string.gfind or string.gmatch
 
-darktable.gettext.bindtextdomain(LIB_ID, darktable.configuration.config_dir .. PATH_SEPARATOR .. "lua" .. PATH_SEPARATOR .. "locale" .. PATH_SEPARATOR)
+darktable.gettext.bindtextdomain("scripts", darktable.configuration.config_dir .. PATH_SEPARATOR .. "lua" .. PATH_SEPARATOR .. "locale" .. PATH_SEPARATOR)
 
 local function _(msgid)
-    return darktable.gettext.dgettext(LIB_ID, msgid)
+    return darktable.gettext.dgettext("scripts", msgid)
 end
 
 -- Header material: END

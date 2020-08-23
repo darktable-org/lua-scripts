@@ -69,9 +69,9 @@ du.check_min_api_version('5.0.0', 'enfuseAdvanced')
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 local gettext = dt.gettext
-gettext.bindtextdomain('enfuseAdvanced',dt.configuration.config_dir..'/lua/locale/')
+gettext.bindtextdomain('scripts',dt.configuration.config_dir..'/lua/locale/')
 local function _(msgid)
-    return gettext.dgettext('enfuseAdvanced', msgid)
+    return gettext.dgettext('scripts', msgid)
 end
 
 -- INITS --

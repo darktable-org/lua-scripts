@@ -42,10 +42,10 @@ local gettext = dt.gettext
 du.check_min_api_version("2.0.0", "passport_guide") 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("passport_guide",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("scripts",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-  return gettext.dgettext("passport_guide", msgid)
+  return gettext.dgettext("scripts", msgid)
 end
 
 dt.guides.register_guide("passport",

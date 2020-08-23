@@ -53,9 +53,9 @@ if dt.configuration.running_os == 'windows' then os_path_seperator = '\\' end
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 local gettext = dt.gettext
-gettext.bindtextdomain('HDRMerge',dt.configuration.config_dir..'/lua/locale/')
+gettext.bindtextdomain('scripts',dt.configuration.config_dir..'/lua/locale/')
 local function _(msgid)
-    return gettext.dgettext('HDRMerge', msgid)
+    return gettext.dgettext('scripts', msgid)
 end
 
 local temp

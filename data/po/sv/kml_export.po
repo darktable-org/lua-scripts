@@ -1,0 +1,88 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: darktable lua-scripts\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-08-22 22:33-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../contrib/kml_export.lua:56
+#, lua-format
+msgid "Export Image %i/%i"
+msgstr ""
+
+#: ../../contrib/kml_export.lua:83
+msgid "magick not found"
+msgstr ""
+
+#: ../../contrib/kml_export.lua:88
+msgid "xdg-user-dir not found"
+msgstr ""
+
+#: ../../contrib/kml_export.lua:98
+msgid "zip not found"
+msgstr ""
+
+#: ../../contrib/kml_export.lua:309
+msgid "KML export: Open KML file after export"
+msgstr ""
+
+#: ../../contrib/kml_export.lua:310 ../../contrib/kml_export.lua:317
+msgid ""
+"Opens the KML file after the export with the standard program for KML files"
+msgstr ""
+
+#: ../../contrib/kml_export.lua:316
+msgid "KML export: Open KML/KMZ file after export"
+msgstr ""
+
+#: ../../contrib/kml_export.lua:336
+msgid "KML export: Export directory"
+msgstr ""
+
+#: ../../contrib/kml_export.lua:337
+msgid "A directory that will be used to export the KML/KMZ files"
+msgstr ""
+
+#: ../../contrib/kml_export.lua:344
+msgid "KML export: ImageMagick binary Location"
+msgstr ""
+
+#: ../../contrib/kml_export.lua:345
+msgid "Install location of magick[.exe]. Requires restart to take effect."
+msgstr ""
+
+#: ../../contrib/kml_export.lua:352
+msgid "KML export: Connect images with path"
+msgstr ""
+
+#: ../../contrib/kml_export.lua:353
+msgid "connect all images with a path"
+msgstr ""
+
+#: ../../contrib/kml_export.lua:360
+msgid "KML export: Create KMZ file"
+msgstr ""
+
+#: ../../contrib/kml_export.lua:361
+msgid "Compress all imeges to one KMZ file"
+msgstr ""
+
+#: ../../contrib/kml_export.lua:367
+msgid "KML Export"
+msgstr ""
+
+#: ../../contrib/kml_export.lua:369
+msgid "KML/KMZ Export"
+msgstr ""

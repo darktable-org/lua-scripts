@@ -47,10 +47,10 @@ du.check_min_api_version("3.0.0", "clear_GPS")
 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("clear_GPS",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("scripts",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("clear_GPS", msgid)
+    return gettext.dgettext("scripts", msgid)
 end
 
 local function clear_GPS(images)

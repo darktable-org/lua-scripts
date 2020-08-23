@@ -46,10 +46,10 @@ require "official/yield"
 local gettext = dt.gettext
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("pdf_slideshow",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("scripts",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("pdf_slideshow", msgid)
+    return gettext.dgettext("scripts", msgid)
 end
 
 if not df.check_if_bin_exists("pdflatex") then

@@ -1,0 +1,73 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: darktable lua-scripts\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-08-22 22:33-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: th\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../contrib/transfer_hierarchy.lua:145
+msgid "Lowest directory containing all selected images"
+msgstr ""
+
+#: ../../contrib/transfer_hierarchy.lua:248
+msgid ""
+"transfer hierarchy: ERROR: existing root is out of sync -- click 'calculate' "
+"to update"
+msgstr ""
+
+#: ../../contrib/transfer_hierarchy.lua:252
+msgid "transfer hierarchy: ERROR: destination not specified"
+msgstr ""
+
+#: ../../contrib/transfer_hierarchy.lua:262
+msgid "transfer hierarchy: ERROR: could not create directory: "
+msgstr ""
+
+#: ../../contrib/transfer_hierarchy.lua:267
+msgid "transfer hierarchy: ERROR: not a directory: "
+msgstr ""
+
+#: ../../contrib/transfer_hierarchy.lua:272
+msgid "transfer hierarchy: ERROR: could not create film: "
+msgstr ""
+
+#: ../../contrib/transfer_hierarchy.lua:281
+#, lua-format
+msgid "transfer hierarchy"
+msgstr ""
+
+#: ../../contrib/transfer_hierarchy.lua:312
+msgid "calculate"
+msgstr ""
+
+#: ../../contrib/transfer_hierarchy.lua:316
+msgid "existing root"
+msgstr ""
+
+#: ../../contrib/transfer_hierarchy.lua:321
+msgid "root of destination"
+msgstr ""
+
+#: ../../contrib/transfer_hierarchy.lua:326
+msgid "move"
+msgstr ""
+
+#: ../../contrib/transfer_hierarchy.lua:331
+msgid "copy"
+msgstr ""
+
+#: ../../contrib/transfer_hierarchy.lua:332
+msgid "Copy all selected images"
+msgstr ""

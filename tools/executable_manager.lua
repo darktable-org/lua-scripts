@@ -38,7 +38,7 @@ local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 
 local gettext = dt.gettext
 
-gettext.bindtextdomain("executable_manager",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("scripts",dt.configuration.config_dir.."/lua/locale/")
 
 local exec_man = {} -- our own namespace
 exec_man.module_installed = false
@@ -49,7 +49,7 @@ exec_man.event_registered = false
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 local function _(msg)
-    return gettext.dgettext("executable_manager", msg)
+    return gettext.dgettext("scripts", msg)
 end
 
 local function grep(file, pattern)

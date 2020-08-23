@@ -1,0 +1,243 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: darktable lua-scripts\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-08-22 22:33-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: sk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../contrib/image_time.lua:169
+msgid "Error: 2 images must be selected"
+msgstr ""
+
+#: ../../contrib/image_time.lua:222
+msgid "unable to detect exiv2"
+msgstr ""
+
+#: ../../contrib/image_time.lua:243 ../../contrib/image_time.lua:260
+msgid "unable to get information for  "
+msgstr ""
+
+#: ../../contrib/image_time.lua:308
+msgid "reset time: no images selected"
+msgstr ""
+
+#: ../../contrib/image_time.lua:309
+msgid "please select the images that need their time reset"
+msgstr ""
+
+#: ../../contrib/image_time.lua:322 ../../contrib/image_time.lua:347
+msgid "please select some images and try again"
+msgstr ""
+
+#: ../../contrib/image_time.lua:326 ../../contrib/image_time.lua:421
+#: ../../contrib/image_time.lua:428
+msgid "subtract"
+msgstr ""
+
+#: ../../contrib/image_time.lua:399
+msgid "image time"
+msgstr ""
+
+#: ../../contrib/image_time.lua:415
+msgid "years"
+msgstr ""
+
+#: ../../contrib/image_time.lua:415
+msgid "years to adjust by, 0 - ?"
+msgstr ""
+
+#: ../../contrib/image_time.lua:416
+msgid "months"
+msgstr ""
+
+#: ../../contrib/image_time.lua:417
+msgid "days"
+msgstr ""
+
+#: ../../contrib/image_time.lua:418
+msgid "hours"
+msgstr ""
+
+#: ../../contrib/image_time.lua:418
+msgid "hours to adjust by, 0-23"
+msgstr ""
+
+#: ../../contrib/image_time.lua:419
+msgid "minutes"
+msgstr ""
+
+#: ../../contrib/image_time.lua:419
+msgid "minutes to adjust by, 0-59"
+msgstr ""
+
+#: ../../contrib/image_time.lua:420 ../../contrib/image_time.lua:427
+msgid "seconds"
+msgstr ""
+
+#: ../../contrib/image_time.lua:420
+msgid "seconds to adjust by, 0-59"
+msgstr ""
+
+#: ../../contrib/image_time.lua:421 ../../contrib/image_time.lua:428
+msgid "add/subtract"
+msgstr ""
+
+#: ../../contrib/image_time.lua:421 ../../contrib/image_time.lua:428
+msgid "add or subtract time"
+msgstr ""
+
+#: ../../contrib/image_time.lua:421 ../../contrib/image_time.lua:428
+msgid "add"
+msgstr ""
+
+#: ../../contrib/image_time.lua:422
+msgid "year"
+msgstr ""
+
+#: ../../contrib/image_time.lua:422
+msgid "year to set,  1900 - now"
+msgstr ""
+
+#: ../../contrib/image_time.lua:423
+msgid "month"
+msgstr ""
+
+#: ../../contrib/image_time.lua:423
+msgid "month to set, 1-12"
+msgstr ""
+
+#: ../../contrib/image_time.lua:424
+msgid "day"
+msgstr ""
+
+#: ../../contrib/image_time.lua:424
+msgid "day to set, 1-31"
+msgstr ""
+
+#: ../../contrib/image_time.lua:425
+msgid "hour"
+msgstr ""
+
+#: ../../contrib/image_time.lua:425
+msgid "hour to set, 0-23"
+msgstr ""
+
+#: ../../contrib/image_time.lua:426
+msgid "minute"
+msgstr ""
+
+#: ../../contrib/image_time.lua:426
+msgid "minutes to set, 0-59"
+msgstr ""
+
+#: ../../contrib/image_time.lua:427
+msgid "seconds to set, 0-59"
+msgstr ""
+
+#: ../../contrib/image_time.lua:443
+msgid "Time difference between images in seconds"
+msgstr ""
+
+#: ../../contrib/image_time.lua:444
+msgid "Select 2 images and use the calculate button"
+msgstr ""
+
+#: ../../contrib/image_time.lua:449
+msgid "Calculate"
+msgstr ""
+
+#: ../../contrib/image_time.lua:450
+msgid "calculate time difference between 2 images"
+msgstr ""
+
+#: ../../contrib/image_time.lua:457
+msgid "synchronize image times"
+msgstr ""
+
+#: ../../contrib/image_time.lua:458
+msgid "apply the time difference from selected images"
+msgstr ""
+
+#: ../../contrib/image_time.lua:468 ../../contrib/image_time.lua:534
+msgid "adjust time"
+msgstr ""
+
+#: ../../contrib/image_time.lua:469
+msgid "days, months, years"
+msgstr ""
+
+#: ../../contrib/image_time.lua:473
+msgid "hours, minutes, seconds"
+msgstr ""
+
+#: ../../contrib/image_time.lua:477
+msgid "adjustment direction"
+msgstr ""
+
+#: ../../contrib/image_time.lua:480
+msgid "adjust"
+msgstr ""
+
+#: ../../contrib/image_time.lua:488 ../../contrib/image_time.lua:535
+msgid "set time"
+msgstr ""
+
+#: ../../contrib/image_time.lua:489
+msgid "date: "
+msgstr ""
+
+#: ../../contrib/image_time.lua:493
+msgid "time:"
+msgstr ""
+
+#: ../../contrib/image_time.lua:498
+msgid "set"
+msgstr ""
+
+#: ../../contrib/image_time.lua:506
+msgid "synchronize image time"
+msgstr ""
+
+#: ../../contrib/image_time.lua:507
+msgid "calculate difference between images"
+msgstr ""
+
+#: ../../contrib/image_time.lua:510
+msgid "apply difference"
+msgstr ""
+
+#: ../../contrib/image_time.lua:516
+msgid "reset to original time"
+msgstr ""
+
+#: ../../contrib/image_time.lua:519
+msgid "reset"
+msgstr ""
+
+#: ../../contrib/image_time.lua:528
+msgid "mode"
+msgstr ""
+
+#: ../../contrib/image_time.lua:529
+msgid "select mode"
+msgstr ""
+
+#: ../../contrib/image_time.lua:536
+msgid "synchronize time"
+msgstr ""
+
+#: ../../contrib/image_time.lua:537
+msgid "reset time"
+msgstr ""

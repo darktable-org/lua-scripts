@@ -45,10 +45,10 @@ local gettext = dt.gettext
 du.check_min_api_version("3.0.0", "copy_attach_detach_tags") 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("copy_attach_detach_tags",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("scripts",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("copy_attach_detach_tags", msgid)
+    return gettext.dgettext("scripts", msgid)
 end
 
 local cadt = {}

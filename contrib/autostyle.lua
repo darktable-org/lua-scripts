@@ -40,14 +40,14 @@ local darktable = require "darktable"
 local du = require "lib/dtutils"
 local filelib = require "lib/dtutils.file"
 
-local gettext = dt.gettext
+local gettext = darktable.gettext
 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("autostyle",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("scripts",darktable.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("autostyle", msgid)
+    return gettext.dgettext("scripts", msgid)
 end
 
 -- Forward declare the functions

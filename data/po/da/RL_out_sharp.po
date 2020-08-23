@@ -1,0 +1,74 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: darktable lua-scripts\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-08-22 22:33-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: da\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../contrib/RL_out_sharp.lua:111
+msgid "GMic executable not configured"
+msgstr ""
+
+#: ../../contrib/RL_out_sharp.lua:131
+msgid "sharpening image "
+msgstr ""
+
+#: ../../contrib/RL_out_sharp.lua:146
+msgid "sharpening error"
+msgstr ""
+
+#: ../../contrib/RL_out_sharp.lua:155
+msgid "finished exporting"
+msgstr ""
+
+#: ../../contrib/RL_out_sharp.lua:161 ../../contrib/RL_out_sharp.lua:162
+msgid "select output folder"
+msgstr ""
+
+#: ../../contrib/RL_out_sharp.lua:171
+msgid "sigma"
+msgstr ""
+
+#: ../../contrib/RL_out_sharp.lua:172
+msgid "controls the width of the blur that's applied"
+msgstr ""
+
+#: ../../contrib/RL_out_sharp.lua:183
+msgid "iterations"
+msgstr ""
+
+#: ../../contrib/RL_out_sharp.lua:184
+msgid "increase for better sharpening, but slower"
+msgstr ""
+
+#: ../../contrib/RL_out_sharp.lua:195
+msgid "output jpg quality"
+msgstr ""
+
+#: ../../contrib/RL_out_sharp.lua:196
+msgid "quality of the output jpg file"
+msgstr ""
+
+#: ../../contrib/RL_out_sharp.lua:215
+msgid "RL output sharpen"
+msgstr ""
+
+#: ../../contrib/RL_out_sharp.lua:219
+msgid "executable for GMic CLI"
+msgstr ""
+
+#: ../../contrib/RL_out_sharp.lua:220
+msgid "select executable for GMic command line version"
+msgstr ""
