@@ -123,7 +123,7 @@ local function install_scripts()
   local git = df.check_if_bin_exists("git")
 
   if not git then
-    dt.print("ERROR: git not found.  Install or specify the location of the git executable.")
+    dt.print(_("ERROR: git not found.  Install or specify the location of the git executable."))
     return
   end
 
@@ -145,7 +145,7 @@ local function update_scripts()
   local git = df.check_if_bin_exists("git")
 
   if not git then
-    dt.print("ERROR: git not found.  Install or specify the location of the git executable.")
+    dt.print(_("ERROR: git not found.  Install or specify the location of the git executable."))
     return
   end
 
@@ -255,7 +255,7 @@ local function get_script_doc(script)
   if description then
     return description
   else
-    return "No documentation available"
+    return _("No documentation available")
   end
 end
 
@@ -264,9 +264,9 @@ local function activate(script, scriptname)
   local status, err = prequire(sm.script_paths[script])
   if status then
     dt.preferences.write("script_manager", script, "bool", true)
-    dt.print("Loaded " .. scriptname)
+    dt.print(_("Loaded ") .. scriptname)
   else
-    dt.print(scriptname .. " failed to load")
+    dt.print(scriptname .. _(" failed to load"))
     dt.print_error("Error loading " .. scriptname)
     dt.print_error("Error message: " .. err)
   end
@@ -281,7 +281,7 @@ local function deactivate(script, scriptname)
 
   dt.preferences.write("script_manager", script, "bool", false)
   dt.print_log("setting " .. scriptname .. " to not start")
-  dt.print(scriptname .. " will not be active when darktable is restarted")
+  dt.print(scriptname .. _(" will not be active when darktable is restarted"))
 end
 
 local function create_enable_disable_button(btext, sname, req)
@@ -300,14 +300,15 @@ local function create_enable_disable_button(btext, sname, req)
       local starget = du.join({scat, target}, "/")
       dt.print_log("starget to activate is " .. starget)
       dt.print_log("target to activate is " .. target)
-      if action == "Enable" then
+--      if action == "Enable" then
+      if dt.preferences.read("script_manager", target, "bool") then
         local status = activate(starget, target)
         if status then
-          self.label = "Disable " .. target
+          self.label = _("Disable ") .. target
         end
       else
         deactivate(starget, target)
-        self.label = "Enable " .. target
+        self.label = _("Enable ") .. target
       end
     end
   }
@@ -353,7 +354,7 @@ local function load_script_stack()
         if sm.script_widgets[cat][index] then
           sm.script_widgets[cat][index] = nil
         end
-        sm.script_widgets[cat][index] = create_enable_disable_button("Enable ", sname, req)
+        sm.script_widgets[cat][index] = create_enable_disable_button(_("Enable "), sname, req)
       end
     end
   end
@@ -400,8 +401,8 @@ local function build_scripts_block()
     -- set up the combobox for the categories
 
     sm.category_selector = dt.new_widget("combobox"){
-      label = "Category",
-      tooltip = "Select the script category",
+      label = _( "Category"),
+      tooltip = _("Select the script category"),
       value = 1, "placeholder",
       changed_callback = function(self)
         local cnt = 1
@@ -419,7 +420,7 @@ local function build_scripts_block()
   if not sm.scripts then
     sm.scripts = dt.new_widget("box"){
       orientation = "vertical",
-      dt.new_widget("label"){ label = "Scripts" },
+      dt.new_widget("label"){ label = _("Scripts") },
       sm.category_selector,
       sm.script_stack,
     }
@@ -427,7 +428,7 @@ local function build_scripts_block()
 end
 
 local function insert_scripts_block()
-  table.insert(sm.main_menu_choices, "Enable/Disable Scripts")
+  table.insert(sm.main_menu_choices, _("Enable/Disable Scripts"))
   update_combobox_choices(sm.main_menu, sm.main_menu_choices, 1)
   sm.main_stack[#sm.main_stack + 1] = sm.scripts
 end
@@ -459,7 +460,7 @@ local function install_module()
   if not sm.module_installed then
     dt.register_lib(
       "script_manager",     -- Module name
-      "script manager",     -- Visible name
+      _("script manager"),     -- Visible name
       true,                -- expandable
       false,               -- resetable
       {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_CENTER", 0}},   -- containers
@@ -561,17 +562,17 @@ sm.install_update_button = dt.new_widget("button"){
         sm.git_managed = true
         sm.need_install = false
         self.label = _("update scripts")
-        dt.print(_("installed scripts from " .. sm.repository.text))
+        dt.print(_("installed scripts from ") .. sm.repository.text)
       else
-        dt.print(_("Error installing scripts from " .. sm.repository.text))
+        dt.print(_("Error installing scripts from ") .. sm.repository.text)
       end
     else
       local result = update_scripts()
       if result then
         --build_scripts_block()
-        dt.print(_("updated scripts from " .. sm.repository.text))
+        dt.print(_("updated scripts from ") .. sm.repository.text)
       else
-        dt.print(_("Error updating scripts from " .. sm.repository.text))
+        dt.print(_("Error updating scripts from ") .. sm.repository.text)
       end
     end
   end
@@ -579,7 +580,7 @@ sm.install_update_button = dt.new_widget("button"){
 
 if not sm.need_install then
   sm.reinstall_button = dt.new_widget("button"){
-    label = "reinstall scripts",
+    label = _("reinstall scripts"),
     clicked_callback = function(self)
       sm.lua_repository = sm.repository.text
       dt.preferences.write("script_manager", "lua_repository", "string", sm.repository.text)
@@ -590,12 +591,12 @@ if not sm.need_install then
         sm.have_scripts = true
         sm.git_managed = true
         sm.need_install = false
-        sm.install_update_button.label = "update scripts"
-        dt.print(_("reinstalled scripts from " .. sm.repository.text))
-        dt.print_log(_("scripts reinstalled"))
+        sm.install_update_button.label = _("update scripts")
+        dt.print(_("reinstalled scripts from ") .. sm.repository.text)
+        dt.print_log("scripts reinstalled")
       else
         dt.print(_("ERROR: script reinstallation failed"))
-        dt.print_error(_("script reinstall failed"))
+        dt.print_error("script reinstall failed")
       end
     end
   }
@@ -612,20 +613,20 @@ end
 
 sm.install_update_box = dt.new_widget("box"){
   orientation = "vertical",
-  dt.new_widget("label"){ label = "Install/Update scripts" },
+  dt.new_widget("label"){ label = _("Install/Update scripts") },
   table.unpack(sm.install_update_widgets),
 }
 
-table.insert(sm.main_menu_choices, "Install/Update Scripts")
+table.insert(sm.main_menu_choices, _("Install/Update Scripts"))
 table.insert(sm.main_stack_items, sm.install_update_box)
 
 -- configuration items
 
 sm.repository_update = dt.new_widget("button"){
-  label = "update",
+  label = _("update"),
   clicked_callback = function()
     dt.preferences.write("script_manager", "lua_repository", "string", sm.repository.text)
-    sm.install_update_button.label = "install"
+    sm.install_update_button.label = _("install")
     sm.install_update_button.sensitive = true
     sm.reinstall_button.sensitive = false
     sm.need_install = true
@@ -633,11 +634,11 @@ sm.repository_update = dt.new_widget("button"){
 }
 
 sm.repository_reset = dt.new_widget("button"){
-  label = "reset",
+  label = _("reset"),
   clicked_callback = function()
     sm.repository.text = LUA_SCRIPT_REPO
     dt.preferences.write("script_manager", "lua_repository", "string", LUA_SCRIPT_REPO)
-    sm.install_update_button.label = "install"
+    sm.install_update_button.label = _("install")
     sm.install_update_button.sensitive = true
     sm.reinstall_button.sensitive = false
     sm.need_install = true
@@ -655,8 +656,8 @@ sm.update_reset = dt.new_widget("box"){
   -- this option won't be active until the repository version of this script is accepted
 
 sm.use_lua_scripts_version = dt.new_widget("check_button"){
-  label = "Use lua scripts distributed version",
-  tooltip = "Use the standalone version (false) or the distributed version (true)",
+  label = _("Use lua scripts distributed version"),
+  tooltip = _("Use the standalone version (false) or the distributed version (true)"),
   value = dt.preferences.read("script_manager", "use_distro_version", "bool"),
   clicked_callback = function(self)
     if dt.preferences.read("script_manager", "use_distro_version", "bool") == self.value then
@@ -670,8 +671,8 @@ sm.use_lua_scripts_version = dt.new_widget("check_button"){
 -- link downloads to $HOME/downloads on linux and MacOS
 
 sm.link_downloads_directory = dt.new_widget("check_button"){
-  label = "Link lua/downloads to $HOME/Downloads",
-  tooltip = "Linking the directories enables dropping a script in $HOME/downloads\nand having it recognized the next time darktable starts",
+  label = _("Link lua/downloads to $HOME/Downloads"),
+  tooltip = _("Linking the directories enables dropping a script in $HOME/downloads\nand having it recognized the next time darktable starts"),
   value = dt.preferences.read("script_manager", "link_downloads_directory", "bool"),
   clicked_callback = function(self)
     if dt.preferences.read("script_manager", "link_downloads_directory", "bool") == self.value then
@@ -683,7 +684,7 @@ sm.link_downloads_directory = dt.new_widget("check_button"){
 }
 
 sm.apply_configuration = dt.new_widget("button"){
-  label = "Apply",
+  label = _("Apply"),
   sensitive = false,
   clicked_callback = function(self)
     dt.preferences.write("script_manager", "use_distro_version", "bool", sm.use_lua_scripts_version.value)
@@ -722,12 +723,12 @@ sm.configuration_widgets[#sm.configuration_widgets + 1] = sm.apply_configuration
 
 sm.config_box = dt.new_widget("box"){
   orientation = "vertical",
-  dt.new_widget("label") { label = "Configuration" },
+  dt.new_widget("label") { label = _("Configuration") },
   table.unpack(sm.configuration_widgets),
 }
 
 
-table.insert(sm.main_menu_choices, "Configure")
+table.insert(sm.main_menu_choices, _("Configure"))
 table.insert(sm.main_stack_items, sm.config_box)
 
 -- set up the outside stack for config, install/update, and download
@@ -747,9 +748,9 @@ end
   -- make a combobox for the selector
 
 sm.main_menu = dt.new_widget("combobox"){
-  label = "Action",
-  tooltip = "Select the action you want to perform",
-  value = 1, "No actions available",
+  label = _("Action"),
+  tooltip = _("Select the action you want to perform"),
+  value = 1, _("No actions available"),
   changed_callback = function(self)
     for pos,str in ipairs(sm.main_menu_choices) do
       if self.value == str then

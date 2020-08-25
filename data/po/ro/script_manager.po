@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: darktable lua-scripts\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-22 22:33-0400\n"
+"POT-Creation-Date: 2020-08-24 23:13-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,39 +17,42 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../../tools/script_manager.lua:543
+#: ../../tools/script_manager.lua:543 ../../tools/script_manager.lua:544
+#: ../../tools/script_manager.lua:629 ../../tools/script_manager.lua:641
 msgid "install"
 msgstr ""
 
-#: ../../tools/script_manager.lua:545
+#: ../../tools/script_manager.lua:545 ../../tools/script_manager.lua:546
+#: ../../tools/script_manager.lua:626
 msgid "update"
 msgstr ""
 
-#: ../../tools/script_manager.lua:551
+#: ../../tools/script_manager.lua:551 ../../tools/script_manager.lua:552
 msgid " scripts"
 msgstr ""
 
-#: ../../tools/script_manager.lua:563
+#: ../../tools/script_manager.lua:563 ../../tools/script_manager.lua:564
+#: ../../tools/script_manager.lua:594
 msgid "update scripts"
 msgstr ""
 
-#: ../../tools/script_manager.lua:564
+#: ../../tools/script_manager.lua:564 ../../tools/script_manager.lua:565
 msgid "installed scripts from "
 msgstr ""
 
-#: ../../tools/script_manager.lua:566
+#: ../../tools/script_manager.lua:566 ../../tools/script_manager.lua:567
 msgid "Error installing scripts from "
 msgstr ""
 
-#: ../../tools/script_manager.lua:572
+#: ../../tools/script_manager.lua:572 ../../tools/script_manager.lua:573
 msgid "updated scripts from "
 msgstr ""
 
-#: ../../tools/script_manager.lua:574
+#: ../../tools/script_manager.lua:574 ../../tools/script_manager.lua:575
 msgid "Error updating scripts from "
 msgstr ""
 
-#: ../../tools/script_manager.lua:594
+#: ../../tools/script_manager.lua:594 ../../tools/script_manager.lua:595
 msgid "reinstalled scripts from "
 msgstr ""
 
@@ -57,10 +60,117 @@ msgstr ""
 msgid "scripts reinstalled"
 msgstr ""
 
-#: ../../tools/script_manager.lua:597
+#: ../../tools/script_manager.lua:597 ../../tools/script_manager.lua:598
 msgid "ERROR: script reinstallation failed"
 msgstr ""
 
 #: ../../tools/script_manager.lua:598
 msgid "script reinstall failed"
+msgstr ""
+
+#: ../../tools/script_manager.lua:126 ../../tools/script_manager.lua:148
+msgid ""
+"ERROR: git not found.  Install or specify the location of the git executable."
+msgstr ""
+
+#: ../../tools/script_manager.lua:258
+msgid "No documentation available"
+msgstr ""
+
+#: ../../tools/script_manager.lua:267
+msgid "Loaded "
+msgstr ""
+
+#: ../../tools/script_manager.lua:269
+msgid " failed to load"
+msgstr ""
+
+#: ../../tools/script_manager.lua:284
+msgid " will not be active when darktable is restarted"
+msgstr ""
+
+#: ../../tools/script_manager.lua:307
+msgid "Disable "
+msgstr ""
+
+#: ../../tools/script_manager.lua:311 ../../tools/script_manager.lua:357
+msgid "Enable "
+msgstr ""
+
+#: ../../tools/script_manager.lua:404
+msgid "Category"
+msgstr ""
+
+#: ../../tools/script_manager.lua:405
+msgid "Select the script category"
+msgstr ""
+
+#: ../../tools/script_manager.lua:423
+msgid "Scripts"
+msgstr ""
+
+#: ../../tools/script_manager.lua:431
+msgid "Enable/Disable Scripts"
+msgstr ""
+
+#: ../../tools/script_manager.lua:463
+msgid "script manager"
+msgstr ""
+
+#: ../../tools/script_manager.lua:583
+msgid "reinstall scripts"
+msgstr ""
+
+#: ../../tools/script_manager.lua:616
+msgid "Install/Update scripts"
+msgstr ""
+
+#: ../../tools/script_manager.lua:620
+msgid "Install/Update Scripts"
+msgstr ""
+
+#: ../../tools/script_manager.lua:637
+msgid "reset"
+msgstr ""
+
+#: ../../tools/script_manager.lua:659
+msgid "Use lua scripts distributed version"
+msgstr ""
+
+#: ../../tools/script_manager.lua:660
+msgid "Use the standalone version (false) or the distributed version (true)"
+msgstr ""
+
+#: ../../tools/script_manager.lua:674
+msgid "Link lua/downloads to $HOME/Downloads"
+msgstr ""
+
+#: ../../tools/script_manager.lua:675
+msgid ""
+"Linking the directories enables dropping a script in $HOME/downloads\n"
+"and having it recognized the next time darktable starts"
+msgstr ""
+
+#: ../../tools/script_manager.lua:687
+msgid "Apply"
+msgstr ""
+
+#: ../../tools/script_manager.lua:726
+msgid "Configuration"
+msgstr ""
+
+#: ../../tools/script_manager.lua:731
+msgid "Configure"
+msgstr ""
+
+#: ../../tools/script_manager.lua:751
+msgid "Action"
+msgstr ""
+
+#: ../../tools/script_manager.lua:752
+msgid "Select the action you want to perform"
+msgstr ""
+
+#: ../../tools/script_manager.lua:753
+msgid "No actions available"
 msgstr ""
