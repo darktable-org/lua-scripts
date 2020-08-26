@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: darktable lua-scripts\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-19 20:10-0400\n"
+"POT-Creation-Date: 2020-08-26 14:15-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,23 +29,23 @@ msgstr "T( or later.)"
 msgid "The current lua api version is "
 msgstr "T(The current lua api version is )"
 
-#: lib/dtutils.lua:77
+#: lib/dtutils.lua:77 ../../lib/dtutils.lua:77
 msgid "ERROR: "
 msgstr "T(ERROR: )"
 
-#: lib/dtutils.lua:77
+#: lib/dtutils.lua:77 ../../lib/dtutils.lua:77
 msgid " failed to load. Lua API version "
 msgstr "T( failed to load. Lua API version )"
 
-#: lib/dtutils.lua:77
+#: lib/dtutils.lua:77 ../../lib/dtutils.lua:77
 msgid " or later required."
 msgstr "T( or later required.)"
 
-#: lib/dtutils.lua:78
+#: lib/dtutils.lua:78 ../../lib/dtutils.lua:78
 msgid "Minimum API "
 msgstr "T(Minimum API )"
 
-#: lib/dtutils.lua:78
+#: lib/dtutils.lua:78 ../../lib/dtutils.lua:78
 msgid " not met for "
 msgstr "T( not met for )"
 
