@@ -530,7 +530,7 @@ dtutils_file.libdoc.functions["executable_path_widget"] = {
 function dtutils_file.executable_path_widget(executables)
   local box_widgets = {}
   table.insert(box_widgets, dt.new_widget("section_label"){label = _("select executable(s)")})
-  for _, executable in pairs(executables) do
+  for i, executable in pairs(executables) do
     table.insert(box_widgets, dt.new_widget("label"){label = _("select ") .. executable .. _(" executable")})
     local path = dtutils_file.get_executable_path_preference(executable)
     if not path then
