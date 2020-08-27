@@ -301,7 +301,7 @@ local function create_enable_disable_button(btext, sname, req)
       dt.print_log("starget to activate is " .. starget)
       dt.print_log("target to activate is " .. target)
 --      if action == "Enable" then
-      if dt.preferences.read("script_manager", target, "bool") then
+      if not dt.preferences.read("script_manager", starget, "bool") then
         local status = activate(starget, target)
         if status then
           self.label = _("Disable ") .. target
