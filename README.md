@@ -237,9 +237,13 @@ Running darktable with Lua debugging enabled provides more information about wha
 
 Open a terminal and start darktable with the command `snap run darktable -d lua`. This provides debugging information to give you insight into what is happening.
 
-### Linux and MacOS
+### Linux
 
 Open a terminal and start darktable with the command `darktable -d lua`. This provides debugging information to give you insight into what is happening.
+
+### MacOS
+
+Open a terminal and start darktable with the command `/Applications/darktable.app/Contents/MacOS/darktable -d lua`. This provides debugging information to give you insight into what is happening.
 
 ### Windows
 
