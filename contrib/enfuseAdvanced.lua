@@ -939,7 +939,7 @@ GUI.Presets.current_preset = dt.new_widget('combobox'){
     end 
 }
 GUI.Presets.load = dt.new_widget('button'){
-    label = _('laod fusion preset'),
+    label = _('load fusion preset'),
     tooltip = _('load current fusion parameters from selected preset'),
     clicked_callback = function() LoadFromPreference(GUI.Presets.current_preset.value) end
 }
