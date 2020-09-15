@@ -240,7 +240,7 @@ end
 
 local function ExeUpdate(prog_tbl) --updates executable paths and verifies them
     dt.preferences.write(mod, 'bin_exists', 'bool', true)
-    for _,prog in pairs(prog_tbl) do
+    for x,prog in pairs(prog_tbl) do
         dt.preferences.write('executable_paths', prog.name, 'string', GUI.exes[prog.name].value)
         prog.bin = df.check_if_bin_exists(prog.name)
         if not prog.bin then 
@@ -455,7 +455,7 @@ local function main(storage, image_table, extra_data)
     local image_num = 0
     local job = dt.gui.create_job('blending '..#variants..' image(s)', true) --create a GUI job bar to display enfuse progress
     UpdateActivePreference() --load current GUI values into active preference (only applies to elements without a clicked/changed callback)
-    for _,prefix in pairs(variants) do --for each image to be created load in the preference values, build arguments string, output image, and run command then execute.
+    for x,prefix in pairs(variants) do --for each image to be created load in the preference values, build arguments string, output image, and run command then execute.
         job.percent = image_num /(#variants)
         image_num = image_num+1
         ENF.images_string, final_image, source_raw = UpdateENFargs(image_table, prefix)
