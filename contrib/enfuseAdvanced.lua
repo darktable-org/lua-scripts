@@ -311,7 +311,7 @@ local function UpdateENFargs(image_table, prefix) --updates the Enfuse arguments
     local largest_id = 0
     local first_raw = {}
     for raw, temp_image in pairs(image_table) do
-        _, source_name, source_id = GetFileName(raw.filename)
+        local _, source_name, source_id = GetFileName(raw.filename)
         source_id = tonumber(source_id)
         if source_id < smallest_id then 
             smallest_id = source_id
