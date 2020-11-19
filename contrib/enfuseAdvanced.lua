@@ -470,6 +470,8 @@ local function main(storage, image_table, extra_data)
         
         --copy exif data from original file
         run_cmd = EXF.bin..' -TagsFromFile '..df.sanitize_filename(source_raw.path..os_path_seperator..source_raw.filename)..' -exif:all --subifd:all -overwrite_original '..df.sanitize_filename(final_image)
+        -- replace comma decimal separator with period
+        run_cmd = string.gsub(run_cmd, '(%d),(%d)', "%1.%2")
         resp = dsys.external_command(run_cmd)
         
         
