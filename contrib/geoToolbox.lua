@@ -28,7 +28,6 @@ require "geoToolbox"
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-require "official/yield"
 local gettext = dt.gettext
 
 du.check_min_api_version("3.0.0", "geoToolbox") 
