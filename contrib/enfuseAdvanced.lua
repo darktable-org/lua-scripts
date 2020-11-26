@@ -180,6 +180,11 @@ for _,i in pairs(dt.styles) do
 end
 
 -- FUNCTION --
+
+local function sanitize_decimals(cmd) -- make sure decimal separator is a '.'
+    return string.gsub(cmd, '(%d),(%d)', "%1.%2")
+end
+
 local function InRange(test, low, high) -- tests if test value is within range of low and high (inclusive)
     if test >= low and test <= high then
         return true
@@ -435,6 +440,9 @@ local function main(storage, image_table, extra_data)
         local job = dt.gui.create_job('aligning images')
         image_table, images_to_remove, AIS.images_string = UpdateAISargs(image_table, images_to_remove)
         local run_cmd = BuildExecuteCmd(AIS)
+        dt.print_log("AIS run command is " .. run_cmd)
+        run_cmd = sanitize_decimals(run_cmd)
+        dt.print_log("AIS decimaal sanitized command is " .. run_cmd)
         local resp = dsys.external_command(run_cmd)
         job.valid = false
         if resp ~= 0 then
@@ -460,6 +468,9 @@ local function main(storage, image_table, extra_data)
         image_num = image_num+1
         ENF.images_string, final_image, source_raw = UpdateENFargs(image_table, prefix)
         local run_cmd = BuildExecuteCmd(ENF)
+        dt.print_log("ENF run command is " .. run_cmd)
+        run_cmd = sanitize_decimals(run_cmd)
+        dt.print_log("ENF decimaal sanitized command is " .. run_cmd)
         local resp = dsys.external_command(run_cmd)
         if resp ~= 0 then
             remove_temp_files(images_to_remove)
@@ -471,12 +482,15 @@ local function main(storage, image_table, extra_data)
         --copy exif data from original file
         run_cmd = EXF.bin..' -TagsFromFile '..df.sanitize_filename(source_raw.path..os_path_seperator..source_raw.filename)..' -exif:all --subifd:all -overwrite_original '..df.sanitize_filename(final_image)
         -- replace comma decimal separator with period
-        run_cmd = string.gsub(run_cmd, '(%d),(%d)', "%1.%2")
+        dt.print_log("EXF run command is " .. run_cmd)
+        run_cmd = sanitize_decimals(run_cmd)
+        dt.print_log("EXF decimaal sanitized command is " .. run_cmd)
         resp = dsys.external_command(run_cmd)
         
         
         if GUI.Target.auto_import.value then --import image into dt if specified
             local imported = dt.database.import(final_image)
+            dt.print_log("image imported")
             if GUI.Target.apply_style.selected > 1 then --apply specified style to imported image
                 local set_style = styles[GUI.Target.apply_style.selected - 1]
                 dt.styles.apply(set_style , imported)
