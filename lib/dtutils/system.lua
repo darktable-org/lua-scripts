@@ -1,7 +1,6 @@
 local dtutils_system = {}
 
 local dt = require "darktable"
-require "official/yield"  -- necessary for dt.control.execute()
 
 dtutils_system.libdoc = {
   Name = [[dtutils.system]],

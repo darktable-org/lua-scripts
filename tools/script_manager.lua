@@ -226,7 +226,7 @@ local function scan_scripts()
             if not string.match(script_file, "yield") then          -- special case, because everything needs this
               add_script_data(script_file)
             else
-              prequire(script_file) -- load yield.lua
+              -- prequire(script_file) -- load yield.lua
             end
           end
         end

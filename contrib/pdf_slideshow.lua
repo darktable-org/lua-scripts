@@ -41,7 +41,6 @@ format (all fields can be the empty string):
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-require "official/yield"
 
 local gettext = dt.gettext
 

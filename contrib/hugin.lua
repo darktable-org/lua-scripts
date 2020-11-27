@@ -40,7 +40,6 @@ local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 local log = require "lib/dtutils.log"
 local dtsys = require "lib/dtutils.system"
-require "official/yield"
 local gettext = dt.gettext
 
 local namespace = 'module_hugin'
