@@ -207,9 +207,9 @@ local function _search_for_bin_macos(bin)
     local lines = du.split(output, "\n")
 
     for _,line in ipairs(lines) do
-      local spath = dtutils_file.sanitize_filename(line:sub(1, -2))
+      local spath = dtutils_file.sanitize_filename(line:sub(1, -1))
       if dtutils_file.test_file(spath, "x") then
-        dtutils_file.set_executable_path_preference(bin, spath)
+        dtutils_file.set_executable_path_preference(bin, spath) -- save it so we don't have to search again
         result = spath
       end
     end
