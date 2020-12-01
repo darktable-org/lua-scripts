@@ -937,6 +937,38 @@ function dtutils_file.rmdir(path)
   return dsys.external_command(rm_cmd.." "..path)
 end
 
+dtutils_file.libdoc.functions["create_tmp_file"] = {
+  Name = [[create_tmp_file]],
+  Synopsis = [[creates a temporary file]],
+  Usage = [[local df = require "lib/dtutils.file
+
+    local result = df.create_tmp_file()]],
+  Description = [[create_tmp_file can be used to create temporary files]],
+  Return_Value = [[result - string - path to the created temporary file.]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_file.create_tmp_file()
+  local tmp_file = os.tmpname()
+  if dt.configuration.running_os == "windows" then
+      tmp_file = dt.configuration.tmp_dir .. tmp_file -- windows os.tmpname() defaults to root directory
+  end
+
+  local f = io.open(tmp_file, "w")
+  if not f then
+      log.msg(log.error, string.format("Error writing to `%s`", tmp_file))
+      os.remove(tmp_file)
+      return nil
+  end
+
+  return tmp_file
+end
+
 --[[
   The new check_if_bin_exists() does multiple calls to the operating system to check
   if the file exists and is an executable.  On windows, each call to the operating system
