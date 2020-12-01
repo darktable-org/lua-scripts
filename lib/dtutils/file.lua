@@ -59,6 +59,7 @@ end
 
 local function _is_windows_executable(path)
   local result = false
+dt.print_log("in -is_windows_executable")
   if dtutils_file.test_file(path, "f") then
     if string.match(path, ".exe$") or string.match(path, ".EXE$") or
        string.match(path, ".com$") or string.match(path, ".COM$") or
@@ -142,11 +143,21 @@ function dtutils_file.test_file(path, test)
   return engine(cmdstring)
 end
 
+--[[
+  local function to return a case insensitive pattern for matching 
+  i.e. gimp becomes [Gg][Ii][Mm][Pp] which  should match any capitalization
+  of gimp.
+]]
+
 local function _case_insensitive_pattern(pattern)
   return pattern:gsub("(.)", function(letter)
     return string.format("[%s$s]", letter:lower(), letter:upper())
   end)
 end
+
+--[[
+  local function to search windows for an executable
+]]
 
 local function _search_for_bin_windows(bin)
   local result = false
@@ -175,24 +186,33 @@ local function _search_for_bin_windows(bin)
   return result
 end
 
+--[[
+  local function to search *nix systems for an executable
+]]
+
 local function _search_for_bin_nix(bin)
   local result = false
   local p = io.popen("which " .. bin)
   local output = p:read("*a")
   p:close()
   if string.len(output) > 0 then
-    local spath = dtutils_file.sanitize_filename(output:sub(1,-2))
+    local spath = dtutils_file.sanitize_filename(output:sub(1, -2))
     if dtutils_file.test_file(spath, "f") and dtutils_file.test_file(spath, "x") then
+      dtutils_file.set_executable_path_preference(bin, spath)
       result = spath 
     end
   end
   return result
 end
 
+--[[
+  local function to search macos systems for an executable
+]]
+
 local function _search_for_bin_macos(bin)
   local result = false
   
-  result = _search_for_bin_nix(bin)
+  result = _search_for_bin_nix(bin) -- see if it's in the path
 
   if not result then
     local search_start = "/Applications"
@@ -218,6 +238,11 @@ local function _search_for_bin_macos(bin)
   return result
 end
 
+--[[
+  local function to provide a generic search call that can be 
+  split into operating system specific calls
+]]
+
 local function _search_for_bin(bin)
   local result = false
 
@@ -235,6 +260,11 @@ local function _search_for_bin(bin)
   return result
 end
 
+--[[
+  local function to check if an executable path is
+  a windows executable on linux or macos, thus requiring wine to run
+]]
+
 local function _check_path_for_wine_bin(path)
   local result = false
 
@@ -248,6 +278,12 @@ local function _check_path_for_wine_bin(path)
   end
   return result
 end
+
+--[[
+  local function to check if an executable path is
+  a valid executable.  Some generic checks are done before
+  system specific checks are done.
+]]
 
 local function _check_path_for_bin(bin)
   local result = false
@@ -282,6 +318,12 @@ local function _check_path_for_bin(bin)
 
   return result
 end
+
+--[[
+  local function to the old check_if_bin_exists functionality
+  on windows in order to decrease the amount of windows being
+  created and destroyed by system calls.
+]]
 
 local function _old_check_if_bin_exists(bin)  -- only run on windows if preference checked
   local result = false
@@ -325,7 +367,10 @@ dtutils_file.libdoc.functions["check_if_bin_exists"] = {
   Return_Value = [[result - string - the sanitized path of the binary, false if not found]],
   Limitations = [[If more than one executable that satisfies the search results is found, the 
     wrong one may be returned.  If the wrong value is returned, the user can still specify the
-    correct execuable using tools/executable_manager.]],
+    correct execuable using tools/executable_manager.  Most packages are well behaved with the
+    notiable exception being GIMP on windows.  Depending on the packager there are multiple 
+    gimp executables, often with version numbers.  In this case, the user needs to specify
+    the location of the correct executable using executable_manager.]],
   Example = [[]],
   See_Also = [[executable_manager]],
   Reference = [[]],
@@ -334,6 +379,7 @@ dtutils_file.libdoc.functions["check_if_bin_exists"] = {
 }
 
 function dtutils_file.check_if_bin_exists(bin)
+dt.print_log("in check_if_bin_exists")
   local result = false
 
   if dt.configuration.running_os == "windows" and dt.preferences.read("dtutils.file", "use_old_check_if_bin_exists", "bool") then
