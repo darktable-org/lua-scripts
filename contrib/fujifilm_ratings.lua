@@ -41,7 +41,7 @@ local function detect_rating(event, image)
 		dt.print_error(_("exiftool not found"))
 		return
 	end
-	local RAF_filename = tostring(image)
+	local RAF_filename = df.sanitize_filename(tostring(image))
 	local JPEG_filename = string.gsub(RAF_filename, "%.RAF$", ".JPG")
 	local command = "exiftool -Rating " .. JPEG_filename
 	dt.print_error(command)
