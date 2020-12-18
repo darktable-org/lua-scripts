@@ -379,7 +379,6 @@ dtutils_file.libdoc.functions["check_if_bin_exists"] = {
 }
 
 function dtutils_file.check_if_bin_exists(bin)
-dt.print_log("in check_if_bin_exists")
   local result = false
 
   if dt.configuration.running_os == "windows" and dt.preferences.read("dtutils.file", "use_old_check_if_bin_exists", "bool") then
