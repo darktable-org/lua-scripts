@@ -59,7 +59,6 @@ end
 
 local function _is_windows_executable(path)
   local result = false
-dt.print_log("in -is_windows_executable")
   if dtutils_file.test_file(path, "f") then
     if string.match(path, ".exe$") or string.match(path, ".EXE$") or
        string.match(path, ".com$") or string.match(path, ".COM$") or
