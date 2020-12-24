@@ -35,6 +35,316 @@ local function _(msgid)
     return gettext.dgettext("dtutils.file", msgid)
 end
 
+--[[
+    local function to run a test command on windows and return a true if it succeeds
+    instead of returning true if it runs
+]]
+
+local function _win_os_execute(cmd)
+  local result = nil
+  local p = io.popen(cmd)
+  local output = p:read("*a")
+  p:close()
+  if string.match(output, "true") then 
+    result = true
+  else
+    result = false
+  end
+  return result
+end
+
+--[[
+  local function to determine if a path name is a windows executable
+]]
+
+local function _is_windows_executable(path)
+  local result = false
+  if dtutils_file.test_file(path, "f") then
+    if string.match(path, ".exe$") or string.match(path, ".EXE$") or
+       string.match(path, ".com$") or string.match(path, ".COM$") or
+       string.match(path, ".bat$") or string.match(path, ".BAT$") or
+       string.match(path, ".cmd$") or string.match(path, ".CMD$") then
+        result = true
+    end
+  end
+  return result
+end
+
+dtutils_file.libdoc.functions["test_file"] = {
+  Name = [[test_file]],
+  Synopsis = [[test a file to see what it is]],
+  Usage = [[local df = require "lib/dtutils.file"
+
+    local result = df.test_file(path, test)
+      path - string - the path to check
+      test - one of d, e, f, x where
+        d - directory
+        e - exists
+        f - file
+        x - executable]],
+  Description = [[test_file checks a path to see if it is a directory]],
+  Return_Value = [[result - boolean - true if path is a directory, nil if not]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_file.test_file(path, test)
+  local cmd = "test -"
+  local engine = os.execute
+  local cmdstring = ""
+
+  if dt.configuration.running_os == "windows" then
+    cmd = "if exist "
+    engine = _win_os_execute
+  end
+
+  if test == "d" then
+    -- test if directory
+    if dt.configuration.running_os == "windows" then
+      cmdstring = cmd .. dtutils_file.sanitize_filename(path .. "\\*")  .. " echo true"
+    else
+      cmdstring = cmd .. test .. " " .. dtutils_file.sanitize_filename(path)
+    end
+  elseif test == "e" then
+    -- test exists
+    if dt.configuration.running_os == "windows" then
+      cmdstring = cmd .. dtutils_file.sanitize_filename(path)  .. " echo true"
+    else
+      cmdstring = cmd .. test .. " " .. dtutils_file.sanitize_filename(path)
+    end
+  elseif test == "f" then
+    -- test if file
+    if dt.configuration.running_os == "windows" then
+      if not dtutils_file.test_file(path, "d") then -- make sure it's not a directory
+        cmdstring = cmd .. dtutils_file.sanitize_filename(path)  .. " echo true"
+      else
+        return false
+      end
+    else
+      cmdstring = cmd .. test .. " " .. dtutils_file.sanitize_filename(path)
+    end
+  elseif test == "x" then
+    -- test executable
+    if dt.configuration.running_os == "windows" then
+      return _is_windows_executable(path)
+    else
+      cmdstring = cmd .. test .. " " .. dtutils_file.sanitize_filename(path)
+    end
+  else
+    dt.print_error("[test_file] unknown test " .. test)
+    return false
+  end
+
+  return engine(cmdstring)
+end
+
+--[[
+  local function to return a case insensitive pattern for matching 
+  i.e. gimp becomes [Gg][Ii][Mm][Pp] which  should match any capitalization
+  of gimp.
+]]
+
+local function _case_insensitive_pattern(pattern)
+  return pattern:gsub("(.)", function(letter)
+    return string.format("[%s$s]", letter:lower(), letter:upper())
+  end)
+end
+
+--[[
+  local function to search windows for an executable
+]]
+
+local function _search_for_bin_windows(bin)
+  local result = false
+  -- use where on path
+  -- use where on program files 
+  -- use where on program files (x86)
+  local args = {"", '/R "C:\\Program Files"', '/R "C:\\Program Files (x86)"'}
+
+  for _,arg in ipairs(args) do
+    local cmd = "where " .. arg .. " " .. ds.sanitize(bin)
+    local p = io.popen(cmd)
+    local output = p:read("*a")
+    p:close()
+    local lines = du.split(output, "\n")
+    local cibin = _case_insensitive_pattern(bin)
+    for _,line in ipairs(lines) do
+      if string.match(line, cibin) then
+        dt.print_log("found win search match " .. line)
+        if dtutils_file.test_file(line, "f") and dtutils_file.test_file(line, "x") then
+          dtutils_file.set_executable_path_preference(bin, line)  -- save it so we don't have to search again
+          return line
+        end
+      end
+    end
+  end
+  return result
+end
+
+--[[
+  local function to search *nix systems for an executable
+]]
+
+local function _search_for_bin_nix(bin)
+  local result = false
+  local p = io.popen("which " .. bin)
+  local output = p:read("*a")
+  p:close()
+  if string.len(output) > 0 then
+    local spath = dtutils_file.sanitize_filename(output:sub(1, -2))
+    if dtutils_file.test_file(spath, "f") and dtutils_file.test_file(spath, "x") then
+      dtutils_file.set_executable_path_preference(bin, spath)
+      result = spath 
+    end
+  end
+  return result
+end
+
+--[[
+  local function to search macos systems for an executable
+]]
+
+local function _search_for_bin_macos(bin)
+  local result = false
+  
+  result = _search_for_bin_nix(bin) -- see if it's in the path
+
+  if not result then
+    local search_start = "/Applications"
+
+    if dtutils_file.check_if_file_exists("/Applications/" .. bin .. ".app") then
+      search_start = "/Applications/" .. bin .. ".app"
+    end
+
+    local p = io.popen("find " .. search_start .. " -type f -name " .. bin .. " -print")
+    local output = p:read("*a")
+    p:close()
+    local lines = du.split(output, "\n")
+
+    for _,line in ipairs(lines) do
+      local spath = dtutils_file.sanitize_filename(line:sub(1, -1))
+      if dtutils_file.test_file(spath, "x") then
+        dtutils_file.set_executable_path_preference(bin, spath) -- save it so we don't have to search again
+        result = spath
+      end
+    end
+  end
+
+  return result
+end
+
+--[[
+  local function to provide a generic search call that can be 
+  split into operating system specific calls
+]]
+
+local function _search_for_bin(bin)
+  local result = false
+
+  if dt.configuration.running_os == "windows" then
+    result = _search_for_bin_windows(bin)
+    if result then
+      result = dtutils_file.sanitize_filename(result)
+    end
+  elseif dt.configuration.running_os == "macos" then
+    result = _search_for_bin_macos(bin)
+  else
+    result = _search_for_bin_nix(bin)
+  end
+
+  return result
+end
+
+--[[
+  local function to check if an executable path is
+  a windows executable on linux or macos, thus requiring wine to run
+]]
+
+local function _check_path_for_wine_bin(path)
+  local result = false
+
+  if string.len(path) > 0 then
+    -- check for windows executable to run under wine
+    if _is_windows_executable(path) then
+      if dtutils_file.check_if_file_exists(path) then
+        result = "wine " .. dtutils_file.sanitize_filename(path)
+      end
+    end
+  end
+  return result
+end
+
+--[[
+  local function to check if an executable path is
+  a valid executable.  Some generic checks are done before
+  system specific checks are done.
+]]
+
+local function _check_path_for_bin(bin)
+  local result = false
+  local path = nil
+
+  local PS = dt.configuration.running_os == "windows" and "\\" or "/"
+
+  if string.match(bin, PS) then 
+    path = bin
+  else
+    path = dtutils_file.get_executable_path_preference(bin)
+    -- reset path preference is the returned preference is a directory
+    if dtutils_file.test_file(path, "d") then
+      dtutils_file.set_executable_path_preference(bin, "")
+      path = nil
+    end
+  end
+
+  if path and dtutils_file.test_file(path, "d") then
+    path = nil
+  end
+
+  if path and dt.configuration.running_os ~= "windows" then
+    result = _check_path_for_wine_bin(path)
+  end
+
+  if path and not result then
+    if dtutils_file.test_file(path, "x") then
+      result = dtutils_file.sanitize_filename(path)
+    end
+  end
+
+  return result
+end
+
+--[[
+  local function to the old check_if_bin_exists functionality
+  on windows in order to decrease the amount of windows being
+  created and destroyed by system calls.
+]]
+
+local function _old_check_if_bin_exists(bin)  -- only run on windows if preference checked
+  local result = false
+  local path = nil
+
+  if string.match(bin, "\\") then
+
+    path = bin
+  else
+    path = dtutils_file.get_executable_path_preference(bin)
+  end
+
+  if string.len(path) > 0 then
+    if dtutils_file.check_if_file_exists(path) then
+      if (string.match(path, ".exe$") or string.match(path, ".EXE$")) then
+        result = dtutils_file.sanitize_filename(path)
+      end
+    end
+  end
+  return result
+end
+
 dtutils_file.libdoc.functions["check_if_bin_exists"] = {
   Name = [[check_if_bin_exists]],
   Synopsis = [[check if an executable exists]],
@@ -44,14 +354,25 @@ dtutils_file.libdoc.functions["check_if_bin_exists"] = {
       bin - string - the binary to check for]],
   Description = [[check_if_bin_exists checks to see if the specified binary exists.
     check_if_bin_exists first checks to see if a preference for the binary has been
-    registered and uses that if found.  The presence of the file is verified, then
-    quoted and returned.  If no preference is specified and the operating system is
-    linux then the which command is used to check for a binary in the path.  If found
-    that path is returned.  If no binary is found, false is returned.]],
+    registered and uses that if found, after it's verified to be an executable and 
+    exist.  If no preference exissts, the user's path is checked for the executable.
+    If the executable is not found in the users path, then a search of the operating
+    system is conducted to see if the executable can be found.
+
+    If an executalble is found, it's verified to exist and be an executable.  Once 
+    the executable is verified, the path is saved as a preference to speed up 
+    subsequent checks.  The executable path is sanitized and returned.
+
+    If no executable is found, false is returned.]],
   Return_Value = [[result - string - the sanitized path of the binary, false if not found]],
-  Limitations = [[]],
+  Limitations = [[If more than one executable that satisfies the search results is found, the 
+    wrong one may be returned.  If the wrong value is returned, the user can still specify the
+    correct execuable using tools/executable_manager.  Most packages are well behaved with the
+    notiable exception being GIMP on windows.  Depending on the packager there are multiple 
+    gimp executables, often with version numbers.  In this case, the user needs to specify
+    the location of the correct executable using executable_manager.]],
   Example = [[]],
-  See_Also = [[]],
+  See_Also = [[executable_manager]],
   Reference = [[]],
   License = [[]],
   Copyright = [[]],
@@ -59,28 +380,15 @@ dtutils_file.libdoc.functions["check_if_bin_exists"] = {
 
 function dtutils_file.check_if_bin_exists(bin)
   local result = false
-  local path = nil
 
-  if string.match(bin, "/") or string.match(bin, "\\") then
-    path = bin
+  if dt.configuration.running_os == "windows" and dt.preferences.read("dtutils.file", "use_old_check_if_bin_exists", "bool") then
+    result = _old_check_if_bin_exists(bin)
   else
-    path = dtutils_file.get_executable_path_preference(bin)
-  end
 
-  if string.len(path) > 0 then
-    if dtutils_file.check_if_file_exists(path) then
-      if (string.match(path, ".exe$") or string.match(path, ".EXE$")) and dt.configuration.running_os ~= "windows" then
-       result = dtutils_file.sanitize_filename("wine " .. path)
-      else
-        result = dtutils_file.sanitize_filename(path)
-      end
-    end
-  elseif dt.configuration.running_os == "linux" then
-    local p = io.popen("which " .. bin)
-    local output = p:read("*a")
-    p:close()
-    if string.len(output) > 0 then
-      result = dtutils_file.sanitize_filename(output:sub(1,-2))
+    result = _check_path_for_bin(bin)
+
+    if not result then
+      result = _search_for_bin(bin)
     end
   end
   return result
@@ -544,8 +852,9 @@ function dtutils_file.executable_path_widget(executables)
         if dtutils_file.check_if_bin_exists(self.value) then
           dtutils_file.set_executable_path_preference(executable, self.value)
         end
-      end}
-    )
+      end
+    }
+  )
   end
   local box = dt.new_widget("box"){
     orientation = "vertical",
@@ -658,6 +967,23 @@ function dtutils_file.create_tmp_file()
 
   return tmp_file
 end
+
+--[[
+  The new check_if_bin_exists() does multiple calls to the operating system to check
+  if the file exists and is an executable.  On windows, each call to the operating system
+  causes a window to open in order to run the command, then the window closes when the 
+  command exits.  If the user gets annoyed by the "flickering windows", then they can
+  enable this preference to use the old check_if_bin_exists() that relys on the 
+  executable path preferences and doesn't do as many checks.
+]]
+
+if dt.configuration.running_os == "windows" then
+  dt.preferences.register("dtutils.file", "use_old_check_if_bin_exists", "bool",
+    "lua scripts use old check_if_bin_exists()",
+    "lessen flickering windows effect when scripts run",
+    false)
+end
+
 
 return dtutils_file
 
