@@ -51,54 +51,63 @@ local dt_print_error = dt.print_error
 local dt_print_log = dt.print_log
 local dt_print = dt.print
 
+
 -- set the default log levels
 
 dtutils_log.debug = {
-  label = "DEBUG:", 
+  label = "DEBUG: ", 
   enabled = false,
   engine = dt_print_log,
+  caller_info = 3,
   level = 1,
 }
 dtutils_log.info = {
-  label = "INFO:", 
+  label = "INFO: ", 
   enable = false,
   engine = dt_print_log,
+  caller_info = 1,
   level = 2,
 }
 dtutils_log.warn = {
-  label = "WARN:", 
+  label = "WARN: ", 
   enabled = false,
   engine = dt_print_log,
+  caller_info = 2,
   level = 3,
 }
 dtutils_log.error = {
-  label = "ERROR:",
+  label = "ERROR: ",
   enabled = true,
-  engine = dt_print_error,
+  engine = dt_print_log,
+  caller_info = 3,
   level = 4,
 }
 dtutils_log.success = {
-  label = "SUCCESS:", 
+  label = "SUCCESS: ", 
   enabled = true,
   engine = dt_print_log,
+  caller_info = 2,
   level = 5,
 }
 dtutils_log.screen = {
   label = "",
   enabled = true,
   engine = dt_print,
+  caller_info = 0,
   level = 9,
 }
 dtutils_log.always = {
   label = "",
   enabled = true,
   engine = dt_print_log,
+  caller_info = 3,
   level = 9,
 }
 dtutils_log.critical = {
-  label = "CRITICAL:",
+  label = "CRITICAL: ",
   enabled = true,
   engine = print,
+  caller_info = 3,
   level = 9,
 }
 
@@ -120,7 +129,7 @@ result = log.caller(level)
   Copyright = [[]],
 }
 
-function dtutils_log.caller(level)
+function dtutils_log.caller(level, info)
   local name = debug.getinfo(level).name
   local lineno = nil
   local source = nil
@@ -131,7 +140,16 @@ function dtutils_log.caller(level)
       -- we just need the filename, so grab it from the string
       -- Thanks, Tobias Jakobs  :-)
       source = string.match(source, "@.-([^\\/]-%.?[^%.\\/]*)$")
-      return name .. ": " .. source .. ": " .. lineno .. ":"
+
+      if info == 0 then
+        return ""
+      elseif info == 1 then
+        return source .. ": "
+      elseif info == 2 then
+        return source .. ": " .. name .. ": "
+      else
+        return source .. ": " .. name .. ": " .. lineno .. ":"
+      end
     else
       return "callback:"
     end
@@ -182,7 +200,7 @@ function dtutils_log.msg(level, ...)
     end
     local log_msg = level.label
     if level.engine ~= dt_screen and call_level ~= 0 then
-      log_msg = log_msg .. dtutils_log.caller(call_level) .. " "
+      log_msg = log_msg .. dtutils_log.caller(call_level, level.caller_info) .. " "
     elseif log_msg:len() > 2 then
       log_msg = log_msg .. " "
     end
