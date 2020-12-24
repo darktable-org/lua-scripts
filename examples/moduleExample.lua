@@ -46,6 +46,44 @@ local function _(msgid)
     return gettext.dgettext("moduleExample", msgid)
 end
 
+-- declare a local namespace and a couple of variables we'll need to install the module
+local mE = {}
+mE.widgets = {}
+mE.event_registered = false  -- keep track of whether we've added an event callback or not
+mE.module_installed = false  -- keep track of whether the module is module_installed
+
+--[[ We have to create the module in one of two ways depending on which view darktable starts
+     in.  In orker to not repeat code, we wrap the darktable.register_lib in a local function.
+  ]]
+
+local function install_module()
+  if not mE.module_installed then
+    -- https://www.darktable.org/lua-api/index.html#darktable_register_lib
+    dt.register_lib(
+      "exampleModule",     -- Module name
+      "exampleModule",     -- name
+      true,                -- expandable
+      false,               -- resetable
+      {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},   -- containers
+      -- https://www.darktable.org/lua-api/types_lua_box.html
+      dt.new_widget("box") -- widget
+      {
+        orientation = "vertical",
+        dt.new_widget("button")
+        {
+          label = _("MyButton"),
+          clicked_callback = function (_)
+            dt.print(_("Button clicked"))
+          end
+        },
+        table.unpack(mE.widgets),
+      },
+      nil,-- view_enter
+      nil -- view_leave
+    )
+    mE.module_installed = true
+  end
+end
 
 -- https://www.darktable.org/lua-api/types_lua_check_button.html
 local check_button = dt.new_widget("check_button"){label = _("MyCheck_button"), value = true}
@@ -90,35 +128,35 @@ local slider = dt.new_widget("slider")
   value = 52          -- The current value of the slider
 }
 
--- https://www.darktable.org/lua-api/index.html#darktable_register_lib
-dt.register_lib(
-  "exampleModule",     -- Module name
-  "exampleModule",     -- name
-  true,                -- expandable
-  false,               -- resetable
-  {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},   -- containers
-  -- https://www.darktable.org/lua-api/types_lua_box.html
-  dt.new_widget("box") -- widget
-  {
-    orientation = "vertical",
-    dt.new_widget("button")
-    {
-      label = _("MyButton"),
-      clicked_callback = function (_)
-        dt.print(_("Button clicked"))
+-- pack the widgets in a table for loading in the module
+
+table.insert(mE.widgets, check_button)
+table.insert(mE.widgets, combobox)
+table.insert(mE.widgets, entry)
+table.insert(mE.widgets, file_chooser_button)
+table.insert(mE.widgets, label)
+table.insert(mE.widgets, separator)
+table.insert(mE.widgets, slider)
+
+-- ... and tell dt about it all
+
+
+if dt.gui.current_view().id == "lighttable" then -- make sure we are in lighttable view
+  install_module()  -- register the lib
+else
+  if not mE.event_registered then -- if we are not in lighttable view then register an event to signal when we might be
+    -- https://www.darktable.org/lua-api/index.html#darktable_register_event
+    dt.register_event(
+      "view-changed",  -- we want to be informed when the view changes
+      function(event, old_view, new_view)
+        if new_view.name == "lighttable" and old_view.name == "darkroom" then  -- if the view changes from darkroom to lighttable
+          install_module()  -- register the lib
+         end
       end
-    },
-    check_button,
-    combobox,   
-    entry,
-    file_chooser_button,
-    label,
-    separator,
-    slider
-  },
-  nil,-- view_enter
-  nil -- view_leave
-)
+    )
+    mE.event_registered = true  --  keep track of whether we have an event handler installed
+  end
+end
 
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
 -- kate: hl Lua;

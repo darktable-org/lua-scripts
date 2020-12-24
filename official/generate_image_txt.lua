@@ -37,7 +37,6 @@ USAGE
 local dt = require "darktable"
 local du = require "lib/dtutils"
 require "darktable.debug"
-require "official/yield"
 
 du.check_min_api_version("2.1.0", "generate_image_txt") 
 

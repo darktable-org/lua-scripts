@@ -39,6 +39,7 @@ CollectHelper|Yes|LMW|Add buttons to selected images module to manipulate the co
 copy_attach_detach_tags|Yes|LMW|Copy and paste tags from/to images
 cr2hdr|Yes|L|Process image created with Magic Lantern Dual ISO
 enfuseAdvanced|No|LMW|Merge multiple images into Dynamic Range Increase (DRI) or Depth From Focus (DFF) images
+exportLUT|Yes|LMW|Create a LUT from a style and export it
 ext_editor|No|LW|Export pictures to collection and edit them with up to nine user-defined external editors
 face_recognition|No|LM|Identify and tag images using facial recognition
 fujifilm_ratings|No|LM|Support importing Fujifilm ratings
@@ -46,14 +47,16 @@ geoJSON_export|No|L|Create a geo JSON script with thumbnails for use in ...
 geoToolbox|No|LMW|A toolbox of geo functions
 gimp|No|LMW|Open an image in GIMP for editing and return the result
 gpx_export|No|LMW|Export a GPX track file from selected images GPS data
-HDRMerge|No|LMW|Combind the selected images into an HDR DNG and return the result
+HDRMerge|No|LMW|Combine the selected images into an HDR DNG and return the result
 hugin|No|LMW|Combine selected images into a panorama and return the result
 image_stack|No|LMW|Combine a stack of images to remove noise or transient objects
+image_time|Yes|LMW|Adjust the EXIF image time
 kml_export|No|L|Export photos with a KML file for usage in Google Earth
 LabelsToTags|Yes|LMW|Apply tags based on color labels and ratings
 OpenInExplorer|No|LMW|Open the selected images in the system file manager
 passport_guide|Yes|LMW|Add passport cropping guide to darkroom crop tool
 pdf_slideshow|No|LM|Export images to a PDF slideshow
+[photils](https://github.com/scheckmedia/photils-dt)|No|LM|Automatic tag suggestions for your images
 quicktag|Yes|LMW|Create shortcuts for quickly applying tags
 rate_group|Yes|LMW|Apply or remove a star rating from grouped images
 rename-tags|Yes|LMW|Change a tag name
@@ -116,14 +119,24 @@ are met as well as providing an easy update path. Single scripts listed as stand
 
 ### snap packages
 
-The snap version of darktable comes with lua included starting with version 2.4.3snap2. It is currently in the edge channel, but should reach the stable channel soon.
+The snap version of darktable comes with lua included starting with version 2.4.3snap2.
 
 Ensure git is installed on your system. If it isn't, use the package manager to install it. Then open a terminal and:
 
     cd ~/snap/darktable/current
     git clone https://github.com/darktable-org/lua-scripts.git lua
 
-### flatpak and appimage packages
+### flatpak packages
+
+Flatpak packages now use the internal lua interpreter.
+
+
+Ensure git is installed on your system. If it isn't, use the package manager to install it. Then open a terminal and:
+
+    cd ~/.var/app/org.darktable.Darktable/config/darktable
+    git clone https://github.com/darktable-org/lua-scripts.git lua
+
+### appimage packages
 
 These packages run in their own environment and don't have access to a lua interpreter, therefore the scripts can't run. The packagers could enable the internal interpreter, or allow the package to link the interpreter from the operating system, or bundle a copy of lua with the package. If you use one of these packages and wish to use the lua scripts, please contact the package maintainer and suggest the above fixes.
 
@@ -138,8 +151,6 @@ Ensure git is installed on your system. If it isn't, use the package manager to 
 
 Ensure git is installed on your system. Git can be obtained from https://gitforwindows.org/, as well as other places. If you use the gitforwindows.org distribution, install the Git Bash Shell also as it will aid in debugging the scripts if necessary. Then open a command prompt and run:
 
-Open a command prompt.
-
     cd %LOCALAPPDATA%\darktable
     git clone https://github.com/darktable-org/lua-scripts.git lua
 
@@ -148,6 +159,24 @@ If you don't have %LOCALAPPDATA%\darktable you have to start dartable at least o
 ## Enabling
 
 When darktable starts it looks for a file name `~/.config/darktable/luarc` (`%LOCALAPPDATA%\darktable\luarc` for windows) and reads it to see which scripts to include. The file is a plain text file with entries of the form `require "<directory>/<name>"` where directory is the directory containing the scripts, from the above list, and name is the name from the above list. To include GIMP the line would be `require "contrib/gimp"`.
+
+The recommended way to enable and disable specific scripts is using the script manager module.  To use script manager do the following:
+
+### Linux or MacOS
+
+    echo 'require "tools/script_manager"' > ~/.config/darktable/luarc
+
+### Windows
+
+    echo "require 'tools/script_manager'" > %LOCALAPPDATA%\darktable\luarc
+
+### Snap
+
+    echo 'require "tools/script_manager"' > ~/snap/darktable/current/luarc
+
+### Flatpak
+
+    echo require "tools/script_manager"' > ~/.var/app/org.darktable.Darktable/config/darktable/luarc
 
 You can also create or add lines to the luarc file from the command line:
 
@@ -170,6 +199,12 @@ To update the script repository, open a terminal or command prompt and do the fo
 ### Snap
 
     cd ~/snap/darktable/current/lua
+    git pull
+
+
+### Flatpak
+
+    cd ~/.var/app/org.darktable.Darktable/config/darktable/lua
     git pull
 
 ### Linux and MacOS
@@ -202,13 +237,17 @@ Running darktable with Lua debugging enabled provides more information about wha
 
 Open a terminal and start darktable with the command `snap run darktable -d lua`. This provides debugging information to give you insight into what is happening.
 
-### Linux and MacOS
+### Linux
 
 Open a terminal and start darktable with the command `darktable -d lua`. This provides debugging information to give you insight into what is happening.
 
+### MacOS
+
+Open a terminal and start darktable with the command `/Applications/darktable.app/Contents/MacOS/darktable -d lua`. This provides debugging information to give you insight into what is happening.
+
 ### Windows
 
-Open the Git Bash Shell. Start darktable with the command `/c/Program\ Files/darktable/bin/darktable -d lua`. This provides debugging information to give you insight into what is happening.
+Open a command prompt. Start darktable with the command "C:\Program Files\darktable\bin\darktable" -d lua > log.txt. This provides debugging information to give you insight into what is happening.
 
 ## Contributing
 

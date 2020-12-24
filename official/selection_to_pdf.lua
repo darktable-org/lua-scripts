@@ -35,7 +35,6 @@ Plugin allows you to choose how many thumbnails you need per row
 ]]
 local dt = require "darktable"
 local du = require "lib/dtutils"
-require "official/yield"
 
 du.check_min_api_version("2.0.0", "selection_to_pdf")
 

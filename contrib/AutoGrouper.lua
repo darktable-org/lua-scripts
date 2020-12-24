@@ -45,6 +45,17 @@ local function _(msgid)
     return gettext.dgettext("AutoGrouper", msgid)
 end
 
+local Ag = {}
+Ag.module_installed = false
+Ag.event_registered = false
+
+local GUI = {
+    gap =           {},
+    selected =      {},
+    collection =    {}
+}
+
+
 local function InRange(test, low, high) --tests if test value is within range of low and high (inclusive)
     if test >= low and test <= high then
         return true
@@ -111,12 +122,26 @@ local function main(on_collection)
     end
 end
 
+local function install_module()
+  if not Ag.module_installed then
+    dt.register_lib(
+        'AutoGroup_Lib',    -- Module name
+        _('auto group'),    -- name
+        true,   -- expandable
+        true,   -- resetable
+        {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 99}},   -- containers
+        dt.new_widget("box"){
+            orientation = "vertical",
+            GUI.gap,
+            GUI.selected,
+            GUI.collection
+            }
+    )
+    Ag.module_installed = true
+  end
+end
+
 -- GUI --
-GUI = {
-    gap =           {},
-    selected =      {},
-    collection =    {}
-}
 temp = dt.preferences.read(MOD, 'active_gap', 'integer')
 if not InRange(temp, 1, 86400) then temp = 3 end
 GUI.gap = dt.new_widget('slider'){
@@ -143,16 +168,20 @@ GUI.collection = dt.new_widget("button"){
     tooltip =_('auto group the entire collection'),
     clicked_callback = function() main(true) end
 }
-dt.register_lib(
-    'AutoGroup_Lib',    -- Module name
-    _('auto group'),    -- name
-    true,   -- expandable
-    true,   -- resetable
-    {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 99}},   -- containers
-    dt.new_widget("box"){
-        orientation = "vertical",
-        GUI.gap,
-        GUI.selected,
-        GUI.collection
-        }
-)
+
+if dt.gui.current_view().id == "lighttable" then
+  install_module()
+else
+  if not Ag.event_registered then
+    dt.register_event(
+      "view-changed",
+      function(event, old_view, new_view)
+        if new_view.name == "lighttable" and old_view.name == "darkroom" then
+          install_module()
+         end
+      end
+    )
+    Ag.event_registered = true
+  end
+end
+

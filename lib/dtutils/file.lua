@@ -329,6 +329,7 @@ local function _old_check_if_bin_exists(bin)  -- only run on windows if preferen
   local path = nil
 
   if string.match(bin, "\\") then
+
     path = bin
   else
     path = dtutils_file.get_executable_path_preference(bin)
@@ -540,7 +541,7 @@ function dtutils_file.check_if_file_exists(filepath)
     local p = io.popen("if exist " .. dtutils_file.sanitize_filename(filepath) .. " (echo 'yes') else (echo 'no')")
     local ans = p:read("*all")
     p:close()
-    if string.match(ans, "yes") then 
+    if string.match(ans, "yes") then
       result = true
     end
 --    result = os.execute('if exist "'..filepath..'" (cmd /c exit 0) else (cmd /c exit 1)')
@@ -690,8 +691,8 @@ dtutils_file.libdoc.functions["filename_increment"] = {
 
     local result = df.filename_increment(filepath)
       filepath - string - filename to increment]],
-  Description = [[filename_increment solves the problem of filename confllict by adding an 
-    increment to the filename.  If the supplied filename has no increment then 
+  Description = [[filename_increment solves the problem of filename confllict by adding an
+    increment to the filename.  If the supplied filename has no increment then
     "01" is added to the basename.  If the filename already has an increment, then
     1 is added to it and the filename returned.]],
   Return_Value = [[result - string - the incremented filename]],
@@ -743,7 +744,7 @@ dtutils_file.libdoc.functions["create_unique_filename"] = {
       filepath - string - the path and filename requested]],
   Description = [[create_unique_filename takes a requested filepath and checks to see if
   it exists.  If if doesn't then it's returned intact.  If it already exists, then a two
-  digit increment is added to the filename and it is tested again.  The increment keeps 
+  digit increment is added to the filename and it is tested again.  The increment keeps
   increasing until either a unique filename is found or there have been 100 attempts.]],
   Return_Value = [[result - string - the incremented filename]],
   Limitations = [[create_unique_filename will only attempt 100 increments.]],
@@ -822,7 +823,7 @@ dtutils_file.libdoc.functions["executable_path_widget"] = {
     local widget = df.executable_path_widget(executables)
       executables - table - a table of strings that are executable names]],
   Description = [[executable_path_widget takes a table of executable names
-    and builds a set of file selector widgets to get the path to the executable. 
+    and builds a set of file selector widgets to get the path to the executable.
     The resulting widgets are wrapped in a box widget and returned.]],
   Return_Value = [[widget - widget - a widget containing a file selector widget for
     each executable.]],
@@ -837,10 +838,10 @@ dtutils_file.libdoc.functions["executable_path_widget"] = {
 function dtutils_file.executable_path_widget(executables)
   local box_widgets = {}
   table.insert(box_widgets, dt.new_widget("section_label"){label = "select executable(s)"})
-  for _, executable in pairs(executables) do 
+  for _, executable in pairs(executables) do
     table.insert(box_widgets, dt.new_widget("label"){label = "select " .. executable .. " executable"})
     local path = dtutils_file.get_executable_path_preference(executable)
-    if not path then 
+    if not path then
       path = ""
     end
     table.insert(box_widgets, dt.new_widget("file_chooser_button"){
@@ -870,7 +871,7 @@ dtutils_file.libdoc.functions["sanitize_filename"] = {
     local sanitized_filename = df.sanitize_filename(filename)
       filename - string - a filepath and filename]],
   Description = [[sanitize_file places quotes around the filename in an
-    operating system specific manner.  The result is safe to pass as 
+    operating system specific manner.  The result is safe to pass as
     an argument to the operating system.]],
   Return_Value = [[sanitized_filename - string - quoted filename]],
   Limitations = [[]],
@@ -892,7 +893,7 @@ dtutils_file.libdoc.functions["mkdir"] = {
 
      df.mkdir(path)
       path - string - a directory path]],
-  Description = [[mkdir creates directories if not already exists. It 
+  Description = [[mkdir creates directories if not already exists. It
     create whole parents subtree if needed
   ]],
   Return_Value = [[path - string - a directory path]],
@@ -904,7 +905,7 @@ dtutils_file.libdoc.functions["mkdir"] = {
   Copyright = [[]],
 }
 
-function dtutils_file.mkdir(path) 
+function dtutils_file.mkdir(path)
   if not dtutils_file.check_if_file_exists(path) then
     local mkdir_cmd = dt.configuration.running_os == "windows" and "mkdir" or "mkdir -p"
     return dsys.external_command(mkdir_cmd.." "..path)
@@ -982,6 +983,7 @@ if dt.configuration.running_os == "windows" then
     "lessen flickering windows effect when scripts run",
     false)
 end
+
 
 return dtutils_file
 

@@ -39,6 +39,7 @@
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+local ds = require "lib/dtutils.string"
 local dtsys = require "lib/dtutils.system"
 
 local gettext = dt.gettext
@@ -64,6 +65,7 @@ local CS = dt.configuration.running_os == "windows" and "&" or ";"
 
 local LUA_DIR = dt.configuration.config_dir .. PS .. "lua"
 local LUA_SCRIPT_REPO = "https://github.com/darktable-org/lua-scripts.git"
+local CURR_API_VERSION = dt.configuration.api_version_string
 
 dt.print_log("LUA_DIR is " .. LUA_DIR)
 
@@ -215,7 +217,7 @@ local function scan_scripts()
   -- scan the scripts
   local output = io.popen(find_cmd)
   for line in output:lines() do
-    local l = string.gsub(line, LUA_DIR .. PS, "") -- strip the lua dir off
+    local l = string.gsub(line, ds.sanitize_lua(LUA_DIR) .. PS, "") -- strip the lua dir off
     local script_file = l:sub(1,-5)
     if not string.match(script_file, "script_manager") then  -- let's not include ourself
       if not string.match(script_file, "plugins") then         -- skip plugins
@@ -224,7 +226,7 @@ local function scan_scripts()
             if not string.match(script_file, "yield") then          -- special case, because everything needs this
               add_script_data(script_file)
             else
-              prequire(script_file) -- load yield.lua
+              -- prequire(script_file) -- load yield.lua
             end
           end
         end
@@ -283,7 +285,7 @@ local function deactivate(script, scriptname)
 end
 
 local function create_enable_disable_button(btext, sname, req)
-  return dt.new_widget("button")
+  local button =  dt.new_widget("button")
   {
     label = btext .. sname,
     tooltip = get_script_doc(req),
@@ -309,6 +311,10 @@ local function create_enable_disable_button(btext, sname, req)
       end
     end
   }
+  if CURR_API_VERSION >= "6.0.1" then
+    button.ellipsize = "middle"
+  end
+  return button
 end
 
 local function load_script_stack()
@@ -449,6 +455,26 @@ local function link_downloads_directory()
   os.execute("ln -s " .. "$HOME/Downloads " .. LUA_DIR .. "/downloads")
 end
 
+local function install_module()
+  if not sm.module_installed then
+    dt.register_lib(
+      "script_manager",     -- Module name
+      "script manager",     -- Visible name
+      true,                -- expandable
+      false,               -- resetable
+      {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_CENTER", 0}},   -- containers
+      dt.new_widget("box") -- widget
+      {
+        orientation = "vertical",
+        sm.main_box,
+      },
+      nil,-- view_enter
+      nil -- view_leave
+    )
+    sm.module_installed = true
+  end
+end
+
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- M A I N  P R O G R A M
 -- - - - - - - - - - - - - - - - - - - - - - - - 
@@ -465,6 +491,8 @@ sm.script_names = {}
 sm.script_paths = {}
 sm.main_menu_choices = {}
 sm.main_stack_items = {}
+sm.event_registered = false
+sm.module_installed = false
 
 -- see if we've run this before
 
@@ -710,6 +738,12 @@ sm.main_stack = dt.new_widget("stack"){
   table.unpack(sm.main_stack_items),
 }
 
+if CURR_API_VERSION >= "6.0.1" then
+  sm.main_stack.h_size_fixed = false
+  sm.main_stack.v_size_fixed = false
+end
+
+
   -- make a combobox for the selector
 
 sm.main_menu = dt.new_widget("combobox"){
@@ -741,21 +775,21 @@ sm.main_box = dt.new_widget("box"){
 -- D A R K T A B L E  I N T E G R A T I O N 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
--- register the module
-dt.register_lib(
-  "script_manager",     -- Module name
-  "script manager",     -- Visible name
-  true,                -- expandable
-  false,               -- resetable
-  {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_CENTER", 0}},   -- containers
-  dt.new_widget("box") -- widget
-  {
-    orientation = "vertical",
-    sm.main_box,
-  },
-  nil,-- view_enter
-  nil -- view_leave
-)
+if dt.gui.current_view().id == "lighttable" then
+  install_module()
+else
+  if not sm.event_registered then
+    dt.register_event(
+      "view-changed",
+      function(event, old_view, new_view)
+        if new_view.name == "lighttable" and old_view.name == "darkroom" then
+          install_module()
+         end
+      end
+    )
+    sm.event_registered = true
+  end
+end
 
 -- set up the scripts block if we have them otherwise we'll wait until we download them
 

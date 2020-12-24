@@ -33,7 +33,21 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("2.0.0", "image_path_in_ui") 
 
+local ipiu = {}
+ipiu.module_installed = false
+ipiu.event_registered = false
+
 local main_label = dt.new_widget("label"){selectable = true, ellipsize = "middle", halign = "start"}
+
+local function install_module()
+  if not ipiu.module_installed then
+    dt.register_lib("image_path_no_ui","Selected Images path",true,false,{
+      [dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_CENTER",300}
+      }, main_label
+    )
+    ipiu.module_installed = true
+  end
+end
 
 local function reset_widget()
   local selection = dt.gui.selection()
@@ -54,10 +68,21 @@ end
 
 main_label.reset_callback = reset_widget
 
-dt.register_lib("image_path_no_ui","Selected Images path",true,false,{
-    [dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_CENTER",300}
-    }, main_label
-  );
+if dt.gui.current_view().id == "lighttable" then
+  install_module()
+else
+  if not ipiu.event_registered then
+    dt.register_event(
+      "view-changed",
+      function(event, old_view, new_view)
+        if new_view.name == "lighttable" and old_view.name == "darkroom" then
+          install_module()
+         end
+      end
+    )
+    ipiu.event_registered = true
+  end
+end
 
 dt.register_event("mouse-over-image-changed",reset_widget);
 

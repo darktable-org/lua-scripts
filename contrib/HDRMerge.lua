@@ -94,6 +94,10 @@ local GUI = { --GUI Elements Table
     }
 }
 
+HDRM.module_installed = false
+HDRM.event_registered = false
+
+
 --Detect User Styles--
 local styles = dt.styles
 local styles_count = 1 -- 'none' = 1
@@ -264,6 +268,23 @@ local function main()
 
 end
 
+local function install_module()
+  if not HDRM.module_installed then
+    dt.register_lib( -- register HDRMerge module
+        'HDRMerge_Lib', -- Module name
+        _('HDRMerge'), -- name
+        true,   -- expandable
+        true,   -- resetable
+        {[dt.gui.views.lighttable] = {'DT_UI_CONTAINER_PANEL_RIGHT_CENTER', 99}},   -- containers
+        dt.new_widget('box'){
+            orientation = 'vertical',
+            GUI.stack
+        }
+    )
+    HDRM.module_installed = true
+  end
+end
+
 -- GUI Elements --
 local lbl_hdr = dt.new_widget('section_label'){
     label = _('HDRMerge options')
@@ -411,14 +432,18 @@ else
     GUI.stack.active = 2
 end
 
-dt.register_lib( -- register HDRMerge module
-    'HDRMerge_Lib', -- Module name
-    _('HDRMerge'), -- name
-    true,   -- expandable
-    true,   -- resetable
-    {[dt.gui.views.lighttable] = {'DT_UI_CONTAINER_PANEL_RIGHT_CENTER', 99}},   -- containers
-    dt.new_widget('box'){
-        orientation = 'vertical',
-        GUI.stack
-        }
-)
+if dt.gui.current_view().id == "lighttable" then
+  install_module()
+else
+  if not HDRM.event_registered then
+    dt.register_event(
+      "view-changed",
+      function(event, old_view, new_view)
+        if new_view.name == "lighttable" and old_view.name == "darkroom" then
+          install_module()
+         end
+      end
+    )
+    HDRM.event_registered = true
+  end
+end

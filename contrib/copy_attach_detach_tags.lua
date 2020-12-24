@@ -51,6 +51,11 @@ local function _(msgid)
     return gettext.dgettext("copy_attach_detach_tags", msgid)
 end
 
+local cadt = {}
+cadt.module_installed = false
+cadt.event_registered = false
+cadt.widget_table = {}
+
 
 local image_tags = {}
 
@@ -156,6 +161,26 @@ local function replace_tags()
   dt.print(_('Tags replaced'))
 end
 
+local function install_module()
+  if not cadt.module_installed then
+    dt.register_lib("tagging_addon","Tagging addon",true,true,{
+        [dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER",500}
+        },
+        dt.new_widget("box") {
+      --    orientation = "vertical",
+          reset_callback = function()
+                        taglist_label.label = ""
+                        image_tags = {}
+                        end,
+          table.unpack(cadt.widget_table),
+          },
+       nil,
+       nil
+      )
+    cadt.module_installed = true
+  end
+end
+
 -- create modul Tagging addons
 taglist_label.reset_callback = mcopy_tags
 
@@ -190,31 +215,31 @@ local box2 = dt.new_widget("box"){
 local sep = dt.new_widget("separator"){}
 
 -- pack elements into widget table for a nicer layout
-local widget_table = {}
 
-widget_table[1] = box1
-widget_table[#widget_table+1] = box2
+cadt.widget_table[1] = box1
+cadt.widget_table[#cadt.widget_table+1] = box2
 
-widget_table[#widget_table+1] = sep
-widget_table[#widget_table+1] = taglabel
-widget_table[#widget_table+1] = taglist_label
+cadt.widget_table[#cadt.widget_table+1] = sep
+cadt.widget_table[#cadt.widget_table+1] = taglabel
+cadt.widget_table[#cadt.widget_table+1] = taglist_label
 
 
 -- create modul
-dt.register_lib("tagging_addon","Tagging addon",true,true,{
-    [dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER",500}
-    },
-    dt.new_widget("box") {
-  --    orientation = "vertical",
-      reset_callback = function()
-                    taglist_label.label = ""
-                    image_tags = {}
-                    end,
-      table.unpack(widget_table),
-      },
-   nil,
-   nil
-  )
+if dt.gui.current_view().id == "lighttable" then
+  install_module()
+else
+  if not cadt.event_registered then
+    dt.register_event(
+      "view-changed",
+      function(event, old_view, new_view)
+        if new_view.name == "lighttable" and old_view.name == "darkroom" then
+          install_module()
+         end
+      end
+    )
+    cadt.event_registered = true
+  end
+end
 
 
 -- shortcut for copy

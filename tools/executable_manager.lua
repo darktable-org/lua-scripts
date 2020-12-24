@@ -40,6 +40,10 @@ local gettext = dt.gettext
 
 gettext.bindtextdomain("executable_manager",dt.configuration.config_dir.."/lua/locale/")
 
+local exec_man = {} -- our own namespace
+exec_man.module_installed = false
+exec_man.event_registered = false
+
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 -- F U N C T I O N S
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -86,11 +90,29 @@ local function update_combobox_choices(combobox, choice_table, selected)
   combobox.value = selected
 end
 
+local function install_module()
+  if not exec_man.module_installed then
+    dt.register_lib(
+      "executable_manager",     -- Module name
+      "executable manager",     -- Visible name
+      true,                -- expandable
+      false,               -- resetable
+      {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_BOTTOM", 100}},   -- containers
+      dt.new_widget("box") -- widget
+      {
+        orientation = "vertical",
+        exec_man.selector,
+        exec_man.stack,
+      },
+      nil,-- view_enter
+      nil -- view_leave
+    )
+    exec_man.module_installed = true
+  end
+end
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 -- M A I N   P R O G R A M
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
-local exec_man = {} -- our own namespace
 
 local DARKTABLERC = dt.configuration.config_dir .. PS .. "darktablerc"
 
@@ -117,8 +139,15 @@ for _,pref  in ipairs(matches) do
 end
 
 local executable_path_widgets = {}
+local executable_path_values = {}
+local placeholder_text = dt.configuration.running_os == windows and _("select an executable") or _("search path for executable")
 
 for i,exec in ipairs(exec_table) do 
+  executable_path_values[exec] = dt.new_widget("entry"){
+    text = df.get_executable_path_preference(exec),
+    placeholder = placeholder_text,
+    editable = false
+  }
   executable_path_widgets[exec] = dt.new_widget("file_chooser_button"){
     title = _("select ") .. exec .. _(" executable"),
     value = df.get_executable_path_preference(exec),
@@ -126,6 +155,7 @@ for i,exec in ipairs(exec_table) do
     changed_callback = function(self)
       if df.check_if_bin_exists(self.value) then
         df.set_executable_path_preference(exec, self.value)
+        executable_path_values[exec].text = df.get_executable_path_preference(exec)
       end
     end
   }
@@ -155,13 +185,18 @@ exec_man.selector = dt.new_widget("combobox"){
 
 for i,exec in ipairs(exec_table) do
   exec_man.stack[i] = dt.new_widget("box"){
+    dt.new_widget("section_label"){label = _("current")},
+    executable_path_values[exec],
+    dt.new_widget("section_label"){label = _("select")},
     executable_path_widgets[exec],
+    dt.new_widget("section_label"){label = _("reset")},
     dt.new_widget("button"){
       label = "clear",
       tooltip = _("Clear path for ") .. exec,
       clicked_callback = function()
         df.set_executable_path_preference(exec, "")
         executable_path_widgets[exec].value = ""
+        executable_path_values[exec].text = ""
       end
     }
 
@@ -174,19 +209,18 @@ update_combobox_choices(exec_man.selector, exec_table, 1)
 -- register the lib
 
 
-dt.register_lib(
-  "executable_manager",     -- Module name
-  "executable manager",     -- Visible name
-  true,                -- expandable
-  false,               -- resetable
-  {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_BOTTOM", 100}},   -- containers
-  dt.new_widget("box") -- widget
-  {
-    orientation = "vertical",
-    exec_man.selector,
-    exec_man.stack,
-  },
-  nil,-- view_enter
-  nil -- view_leave
-)
-
+if dt.gui.current_view().id == "lighttable" then
+  install_module()
+else
+  if not exec_man.event_registered then
+    dt.register_event(
+      "view-changed",
+      function(event, old_view, new_view)
+        if new_view.name == "lighttable" and old_view.name == "darkroom" then
+          install_module()
+         end
+      end
+    )
+    exec_man.event_registered = true
+  end
+end

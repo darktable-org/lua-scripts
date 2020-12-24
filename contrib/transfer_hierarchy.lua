@@ -99,6 +99,10 @@ end
 
 -- Helper functions: BEGIN
 
+local th = {}
+th.module_installed = false
+th.event_registered = false
+
 local function pathExists(path)
    local success, err, errno = os.rename(path, path)
    if not success then
@@ -120,6 +124,16 @@ local function createDirectory(path)
    else
       return nil
    end
+end
+
+local function install_module()
+  if not th.module_installed then
+    darktable.register_lib(LIB_ID,
+               "transfer hierarchy", true, true, {
+            [darktable.gui.views.lighttable] = { "DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 700 }
+               }, th.transfer_widget, nil, nil)
+    th.module_installed = true
+  end
 end
 
 -- Helper functions: END
@@ -292,7 +306,7 @@ end
 
 
 
-local transfer_widget = darktable.new_widget("box") {
+th.transfer_widget = darktable.new_widget("box") {
    orientation = "vertical",
    darktable.new_widget("button") {
      label = _("calculate"),
@@ -347,12 +361,18 @@ darktable.preferences.register(
 
 -- Preferences: END
 
-
-
-
-
-
-darktable.register_lib(LIB_ID,
-		       "transfer hierarchy", true, true, {
-			  [darktable.gui.views.lighttable] = { "DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 700 }
-		       }, transfer_widget, nil, nil)
+if darktable.gui.current_view().id == "lighttable" then
+  install_module()
+else
+  if not th.event_registered then
+    darktable.register_event(
+      "view-changed",
+      function(event, old_view, new_view)
+        if new_view.name == "lighttable" and old_view.name == "darkroom" then
+          install_module()
+         end
+      end
+    )
+    th.event_registered = true
+  end
+end

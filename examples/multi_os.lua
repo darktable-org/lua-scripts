@@ -204,24 +204,26 @@ end
     to see if the executable is there.
 ]]
 
-local executable = "ufraw-batch"
-local ufraw_batch_path_widget = dt.new_widget("file_chooser_button"){
-  title = _("Select ufraw-batch[.exe] executable"),
-  value = df.get_executable_path_preference(executable),
-  is_directory = false,
-  changed_callback = function(self)
-    if df.check_if_bin_exists(self.value) then
-      df.set_executable_path_preference(executable, self.value)
+if dt.configuration.running_os ~= "linux" then
+  local executable = "ufraw-batch"
+  local ufraw_batch_path_widget = dt.new_widget("file_chooser_button"){
+    title = _("Select ufraw-batch[.exe] executable"),
+    value = df.get_executable_path_preference(executable),
+    is_directory = false,
+    changed_callback = function(self)
+      if df.check_if_bin_exists(self.value) then
+        df.set_executable_path_preference(executable, self.value)
+      end
     end
-  end
-}
-dt.preferences.register("executable_paths", "ufraw-batch", -- name
-  "file", -- type
-  _('multi_os: ufraw-batch location'),  -- label
-  _('Installed location of ufraw-batch. Requires restart to take effect.'), -- tooltip
-  "ufraw-batch", -- default
-  ufraw_batch_path_widget
-)
+  }
+  dt.preferences.register("executable_paths", "ufraw-batch", -- name
+    "file", -- type
+    _('multi_os: ufraw-batch location'),  -- label
+    _('Installed location of ufraw-batch. Requires restart to take effect.'), -- tooltip
+    "ufraw-batch", -- default
+    ufraw_batch_path_widget
+  )
+end
 
 --[[
     Add a button to the selected images module in lighttable
