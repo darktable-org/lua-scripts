@@ -46,10 +46,10 @@ local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 du.check_min_api_version("5.0.0", kml_export) 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("kml_export",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("scripts",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-  return gettext.dgettext("kml_export", msgid)
+  return gettext.dgettext("scripts", msgid)
 end
 
 local function show_status(storage, image, format, filename, number, total, high_quality, extra_data)

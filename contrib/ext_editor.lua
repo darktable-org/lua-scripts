@@ -93,9 +93,9 @@ ee.widgets = {}
 
 -- translation
 local gettext = dt.gettext
-gettext.bindtextdomain(MODULE_NAME, dt.configuration.config_dir..PS.."lua"..PS.."locale"..PS)
+gettext.bindtextdomain("scripts", dt.configuration.config_dir..PS.."lua"..PS.."locale"..PS)
 local function _(msgid)
-  return gettext.dgettext(MODULE_NAME, msgid)
+  return gettext.dgettext("scripts", msgid)
   end
 
 -- maximum number of external programs, can be increased to necessity

@@ -46,7 +46,7 @@ du.check_min_api_version("5.0.0", MODULE_NAME)
 
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 local gettext = dt.gettext
-gettext.bindtextdomain(MODULE_NAME,
+gettext.bindtextdomain("scripts",
     dt.configuration.config_dir .. PS .. "lua" .. PS .. "locale" .. PS)
 
 local exporter = dt.new_format("jpeg")
@@ -57,7 +57,7 @@ exporter.max_width = 224
 -- helper functions
 
 local function _(msgid)
-    return gettext.dgettext(MODULE_NAME, msgid)
+    return gettext.dgettext("scripts", msgid)
 end
 
 local function num_keys(tbl)

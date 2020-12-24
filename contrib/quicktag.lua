@@ -59,10 +59,10 @@ local gettext = dt.gettext
 du.check_min_api_version("3.0.0", "quicktag")
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("quicktag",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("scripts",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("quicktag", msgid)
+    return gettext.dgettext("scripts", msgid)
 end
 
 -- maximum length of button labels

@@ -40,9 +40,9 @@ local dt = require "darktable"
 local MOD = 'autogrouper'
 local gettext = dt.gettext
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("AutoGrouper",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("scripts",dt.configuration.config_dir.."/lua/locale/")
 local function _(msgid)
-    return gettext.dgettext("AutoGrouper", msgid)
+    return gettext.dgettext("scripts", msgid)
 end
 
 local Ag = {}

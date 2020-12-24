@@ -33,10 +33,10 @@ local ds = require("lib/dtutils.system")
 
 local gettext = dt.gettext
 
-gettext.bindtextdomain("exportLUT",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("scripts",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("exportLUT", msgid)
+    return gettext.dgettext("scripts", msgid)
 end
 
 du.check_min_api_version("5.0.0", "exportLUT") 

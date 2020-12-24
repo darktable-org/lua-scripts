@@ -1,0 +1,154 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: darktable lua-scripts\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-08-22 22:33-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: ca\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../contrib/HDRMerge.lua:161
+msgid "please update you binary locatoin"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:180
+msgid "update successful"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:182
+msgid "update unsuccessful, please try again"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:196
+msgid "HDRMerge install issue"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:197
+msgid "HDRMerge install issue, please ensure the binary path is proper"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:202
+msgid "not enough images selected, select at least 2 images to merge"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:263
+msgid "HDRMerge completed successfully"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:265 ../../contrib/HDRMerge.lua:266
+msgid "HDRMerge failed"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:275
+msgid "HDRMerge"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:290
+msgid "HDRMerge options"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:295
+msgid "bits per sample"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:296
+msgid "number of bits per sample in the output image"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:312
+msgid "embedded preview size"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:313
+msgid "size of the embedded preview in output image"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:315 ../../contrib/HDRMerge.lua:360
+msgid "none"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:315
+msgid "half"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:315
+msgid "full"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:327
+msgid "batch mode"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:329
+msgid ""
+"enable batch mode operation \n"
+"NOTE: resultant files will NOT be auto-imported"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:339
+msgid "batch gap [sec.]"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:340
+msgid "gap, in seconds, between batch mode groups"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:354
+msgid "import options"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:357
+msgid "apply style on import"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:358
+msgid "Apply selected style on auto-import to newly created image"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:378
+msgid "copy tags"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:380
+msgid "copy tags from first source image"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:387
+msgid ""
+"Additional tags to be added on import. Seperate with commas, all spaces will "
+"be removed"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:389
+msgid "Enter tags, seperated by commas"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:393
+msgid "merge"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:394
+msgid "run HDRMerge with the above specified settings"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:398
+msgid "Select HDRmerge executable"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:403
+msgid "update"
+msgstr ""
+
+#: ../../contrib/HDRMerge.lua:404
+msgid "update the binary path with current value"
+msgstr ""

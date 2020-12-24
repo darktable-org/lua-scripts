@@ -25,10 +25,10 @@ local gettext = dt.gettext
 du.check_min_api_version("3.0.0", "select_untagged") 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("select_untagged",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("scripts",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-  return gettext.dgettext("select_untagged", msgid)
+  return gettext.dgettext("scripts", msgid)
 end
 
 local function stop_job(job)

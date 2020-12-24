@@ -73,10 +73,10 @@ local gimp_widget = nil
 du.check_min_api_version("5.0.0", "gimp") 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("gimp",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("scripts",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("gimp", msgid)
+    return gettext.dgettext("scripts", msgid)
 end
 
 local function group_if_not_member(img, new_img)

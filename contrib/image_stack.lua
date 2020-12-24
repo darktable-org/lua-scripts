@@ -74,10 +74,10 @@ local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 du.check_min_api_version("5.0.0", "image_stack") 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("image_stack",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("scripts",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("image_stack", msgid)
+    return gettext.dgettext("scripts", msgid)
 end
 
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 

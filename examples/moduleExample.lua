@@ -40,10 +40,10 @@ du.check_min_api_version("3.0.0", "moduleExample")
 -- https://www.darktable.org/lua-api/index.html#darktable_gettext
 local gettext = dt.gettext
 
-gettext.bindtextdomain("moduleExample", dt.configuration.config_dir .. "/lua/locale/")
+gettext.bindtextdomain("scripts", dt.configuration.config_dir .. "/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("moduleExample", msgid)
+    return gettext.dgettext("scripts", msgid)
 end
 
 -- declare a local namespace and a couple of variables we'll need to install the module

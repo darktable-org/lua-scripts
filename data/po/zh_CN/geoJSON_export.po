@@ -1,0 +1,73 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: darktable lua-scripts\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-08-22 22:33-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../../contrib/geoJSON_export.lua:75
+#, lua-format
+msgid "Export Image %i/%i"
+msgstr ""
+
+#: ../../contrib/geoJSON_export.lua:80
+msgid "mkdir not found"
+msgstr ""
+
+#: ../../contrib/geoJSON_export.lua:84
+msgid "convert not found"
+msgstr ""
+
+#: ../../contrib/geoJSON_export.lua:88
+msgid "xdg-open not found"
+msgstr ""
+
+#: ../../contrib/geoJSON_export.lua:92
+msgid "xdg-user-dir not found"
+msgstr ""
+
+#: ../../contrib/geoJSON_export.lua:299
+msgid "geoJSON export: Create an additional HTML file"
+msgstr ""
+
+#: ../../contrib/geoJSON_export.lua:300
+msgid "Creates a HTML file, that loads the geoJASON file. (Needs a MapBox key"
+msgstr ""
+
+#: ../../contrib/geoJSON_export.lua:305
+msgid "geoJSON export: MapBox Key"
+msgstr ""
+
+#: ../../contrib/geoJSON_export.lua:306
+msgid "https://www.mapbox.com/studio/account/tokens"
+msgstr ""
+
+#: ../../contrib/geoJSON_export.lua:311
+msgid "geoJSON export: Open geoJSON file after export"
+msgstr ""
+
+#: ../../contrib/geoJSON_export.lua:312
+msgid ""
+"Opens the geoJSON file after the export with the standard program for "
+"geoJSON files"
+msgstr ""
+
+#: ../../contrib/geoJSON_export.lua:324
+msgid "geoJSON export: Export directory"
+msgstr ""
+
+#: ../../contrib/geoJSON_export.lua:325
+msgid "A directory that will be used to export the geoJSON files"
+msgstr ""

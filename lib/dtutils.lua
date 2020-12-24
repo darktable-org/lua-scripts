@@ -32,6 +32,16 @@ local dt = require "darktable"
 
 local log = require "lib/dtutils.log"
 
+local gettext = dt.gettext
+
+-- Tell gettext where to find the .mo file translating messages for a particular domain
+gettext.bindtextdomain("scripts",dt.configuration.config_dir.."/lua/locale/")
+
+local function _(msgid)
+    return gettext.dgettext("scripts", msgid)
+end
+
+
 dtutils.libdoc.functions["check_min_api_version"] = {
   Name = [[check_min_api_version]],
   Synopsis = [[check the minimum required api version against the current api version]],
@@ -64,8 +74,8 @@ function dtutils.check_min_api_version(min_api, script_name)
   if min_api > current_api then
     dt.print_error("This application is written for lua api version " .. min_api .. " or later.")
     dt.print_error("The current lua api version is " .. current_api)
-    dt.print("ERROR: " .. script_name .. " failed to load. Lua API version " .. min_api .. " or later required.")
-    error("Minimum API " .. min_api .. " not met for " .. script_name .. ".", 0)
+    dt.print(_("ERROR: ") .. script_name .. _(" failed to load. Lua API version ") .. min_api .. _(" or later required."))
+    error(_("Minimum API ") .. min_api .. _(" not met for ") .. script_name .. ".", 0)
   end
 end
 
