@@ -1,6 +1,6 @@
 --[[
 
-    clear_GPS.lua - export and edit with GIMP
+    clear_GPS.lua - plugin for Darktable
 
     Copyright (C) 2016 Bill Ferguson <wpferguson@gmail.com>.
 
