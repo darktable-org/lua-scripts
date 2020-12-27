@@ -66,11 +66,11 @@ end
 dt.gui.libs.image.register_action(
   _("clear GPS data"),
   function(event, images) clear_GPS(images) end,
-  "clear GPS data"
+  _("Clear GPS data from selected images")
 )
 
 dt.register_event(
   "shortcut",
   function(event, shortcut) clear_GPS(dt.gui.action_images) end,
-  "clear GPS data"
+  _("Clear GPS data")
 )
