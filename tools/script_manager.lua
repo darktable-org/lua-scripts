@@ -378,7 +378,7 @@ local function install_scripts()
   local category = sm.widgets.new_category.text
 
   if string.match(du.join(sm.categories, " "), ds.sanitize_lua(category)) then
-    log.msg(log.screen, _("category ") .. category .. _(" is already in use.  Please specify a different category name."))
+    log.msg(log.screen, _("category ") .. category .. _(" is already in use. Please specify a different category name."))
     log.msg(log.error, "category " .. category .. " already exists, returning...")
     return
   end
@@ -455,9 +455,9 @@ local function populate_buttons(category, first, last)
     script = sm.scripts[category][i]
     button = sm.widgets.buttons[button_num]
     if script.running then
-      button.label = script.name .. " started"
+      button.label = script.name .. _(" started")
     else
-      button.label = script.name .. " stopped"
+      button.label = script.name .. _(" stopped")
     end
     if CURR_API_STRING >= "6.0.1" then
       button.ellipsize = "middle"
@@ -717,7 +717,7 @@ sm.widgets.add_scripts = dt.new_widget("box"){
 }
 
 sm.widgets.allow_disable = dt.new_widget("check_button"){
-  label = _('Enable "Dsiable Scripts" button'),
+  label = _('Enable "Disable Scripts" button'),
   value = false,
   clicked_callback = function(this)
     if this.value == true then
