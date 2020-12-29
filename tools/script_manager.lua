@@ -436,6 +436,7 @@ end
 local function clear_button(number)
   local button = sm.widgets.buttons[number]
   button.label = ""
+  button.tooltip = ""
   button.sensitive = false
 end
 
