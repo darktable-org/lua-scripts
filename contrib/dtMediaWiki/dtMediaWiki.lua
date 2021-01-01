@@ -9,7 +9,7 @@ Dependencies:
 ]]
 local dt = require "darktable"
 local MediaWikiApi = require "contrib/dtMediaWiki/lib/mediawikiapi"
-local version = 51
+local version = 53
 
 -- Use this _ function for translatable strings
 local gettext = dt.gettext
@@ -110,8 +110,8 @@ dt.preferences.register(
   "authorpattern",
   "string",
   _("Commons: Preferred author pattern"),
-  _("Determines the author value; variables are trougnouf, $CREATOR"),
-  "[[User:trougnouf|$CREATOR]]"
+  _("Determines the author value; variables are username, $CREATOR"),
+  "[[User:$USERNAME|$CREATOR]]"
 )
 dt.preferences.register(
   preferences_prefix,
@@ -210,6 +210,7 @@ end
 
 local function substitute_keywords(string, image)
   local username = dt.preferences.read(preferences_prefix, "username", "string")
+  string = string:gsub("$USERNAME", username)
   string = string:gsub("$CREATOR", image.creator or username)
   string = string:gsub("$FILE_NAME", image.filename)
   string = string:gsub("$DATETIME", image.exif_datetime_taken)
@@ -353,7 +354,8 @@ local function register_storage_initialize(_, _, images, _, extra_data)
     elseif img.title == "" and img.description == "" then
       msgout(
         _("Error: ") ..
-          img.path .. _(" is missing a meaningful title and/or description, ") .. _("won't be exported to Wikimedia Commons")
+          img.path .. _(" is missing a meaningful title and/or description, ") ..
+          _("won't be exported to Wikimedia Commons")
       )
     else
       table.insert(out_images, img)
