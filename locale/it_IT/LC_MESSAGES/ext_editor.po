@@ -1,0 +1,122 @@
+# Italian translations for ext_editor package.
+# Copyright (C) 2019 THE ext_editor'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the ext_editor package.
+# marco <marco.carrarini@gmail.com>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ext_editor\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-01-01 19:15+0100\n"
+"PO-Revision-Date: 2019-12-28 21:45+0100\n"
+"Last-Translator: marco <marco.carrarini@gmail.com>\n"
+"Language-Team: Italian\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ASCII\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ext_editor.lua:143
+msgid " editors configured"
+msgstr " editor configurati"
+
+#: ext_editor.lua:150
+msgid "exporting image "
+msgstr "Esportazione immagine "
+
+#: ext_editor.lua:159
+msgid "not a valid choice"
+msgstr "Scelta non valida"
+
+#: ext_editor.lua:165
+msgid "please select one image"
+msgstr "Selezionare una immagine"
+
+#: ext_editor.lua:174
+msgid " not found"
+msgstr " non trovato"
+
+#: ext_editor.lua:195
+msgid "file type not allowed"
+msgstr "tipo di file non consentito"
+
+#: ext_editor.lua:232
+msgid "error copying file "
+msgstr "Errore copia file "
+
+#: ext_editor.lua:239
+msgid "launching "
+msgstr "Lancio "
+
+#: ext_editor.lua:242
+msgid "error launching "
+msgstr "Errore lancio "
+
+#: ext_editor.lua:341
+msgid "error moving file "
+msgstr "Errore spostamento file "
+
+#: ext_editor.lua:355
+msgid "collection"
+msgstr "Collezione"
+
+#: ext_editor.lua:360
+msgid "choose program"
+msgstr "Scegli programma"
+
+#: ext_editor.lua:361
+msgid "select the external editor from the list"
+msgstr "Seleziona un editor esterno dalla lista"
+
+#: ext_editor.lua:371
+msgid "edit"
+msgstr "Modifica"
+
+#: ext_editor.lua:372
+msgid "open the selected image in external editor"
+msgstr "Apre immagine selezionata in editor esterno"
+
+#: ext_editor.lua:382
+msgid "edit a copy"
+msgstr "Modifica copia"
+
+#: ext_editor.lua:383
+msgid "create a copy of the selected image and open it in external editor"
+msgstr "Apre una copia della immagine selezionata in editor esterno"
+
+#: ext_editor.lua:392
+msgid "update list"
+msgstr "Aggiorna lista"
+
+#: ext_editor.lua:393
+msgid "update list of programs if lua preferences are changed"
+msgstr "Aggiorna la lista dei programmi se le preferenze di lua sono cambiate"
+
+#: ext_editor.lua:413
+msgid "external editors"
+msgstr "Editor esterni"
+
+#: ext_editor.lua:434
+msgid "executable for external editor "
+msgstr "Eseguibile per editor esterno "
+
+#: ext_editor.lua:435
+msgid "select executable for external editor"
+msgstr "seleziona eseguibile per editor esterno "
+
+#: ext_editor.lua:435
+msgid "(None)"
+msgstr "(Nessuno)"
+
+#: ext_editor.lua:437
+msgid "name of external editor "
+msgstr "Nome editor esterno "
+
+#: ext_editor.lua:438
+msgid "friendly name of external editor"
+msgstr "Nome comune editor esterno"
+
+#: ext_editor.lua:444
+msgid "edit with program "
+msgstr "Modifica con programma "

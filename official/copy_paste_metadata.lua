@@ -27,6 +27,7 @@ USAGE
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
+local gettext = dt.gettext
 
 du.check_min_api_version("3.0.0", "copy_paste_metadata")
 
@@ -47,6 +48,13 @@ local creator = ""
 local publisher = ""
 local rights = ""
 local tags = {}
+
+-- Tell gettext where to find the .mo file translating messages for a particular domain
+gettext.bindtextdomain("copy_paste_metadata",dt.configuration.config_dir.."/lua/locale/")
+
+local function _(msgid)
+    return gettext.dgettext("copy_paste_metadata", msgid)
+end
 
 local function copy(image)
   if not image then
@@ -105,15 +113,15 @@ local function paste(images)
 end
 
 dt.gui.libs.image.register_action(
-  "copy metadata",
+  _("copy metadata"),
   function(event, images) copy(images[1]) end,
-  "copy metadata of the first selected image"
+  _("copy metadata of the first selected image")
 )
 
 dt.gui.libs.image.register_action(
-  "paste metadata",
+  _("paste metadata"),
   function(event, images) paste(images) end,
-  "paste metadata to the selected images"
+  _("paste metadata to the selected images")
 )
 
 dt.register_event(

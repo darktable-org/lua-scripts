@@ -55,6 +55,10 @@ du.check_min_api_version("3.0.0", "LabelsToTags")
 -- Lua 5.3 no longer has "unpack" but "table.unpack"
 unpack = unpack or table.unpack
 
+local ltt = {}
+ltt.module_installed = false
+ltt.event_registered = false
+
 local LIB_ID = "LabelsToTags"
 
 -- Helper functions: BEGIN
@@ -184,7 +188,7 @@ local function doTagging(selfC)
    job.valid = false
 end
 
-local my_widget = darktable.new_widget("box") {
+ltt.my_widget = darktable.new_widget("box") {
    orientation = "vertical",
    mappingComboBox,
    darktable.new_widget("button") {
@@ -217,6 +221,15 @@ darktable.register_tag_mapping = function(name, mapping)
    mappingComboBox.reset_callback(mappingComboBox)
 end
 
+local function install_module()
+  if not ltt.module_installed then
+   darktable.register_lib(LIB_ID,"labels to tags",true,true,{
+              [darktable.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER",20},
+                            },ltt.my_widget,nil,nil)
+    ltt.module_installed = true
+  end
+end
+
 --[[
 darktable.register_tag_mapping("Example",
 			       { ["+----*"] = { "Red", "Only red" },
@@ -229,6 +242,19 @@ darktable.register_tag_mapping("Example",
 				 ["*****R"] = { "Rejected" } })
 ]]
 
-darktable.register_lib(LIB_ID,"labels to tags",true,true,{
-			  [darktable.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER",20},
-								 },my_widget,nil,nil)
+if darktable.gui.current_view().id == "lighttable" then
+  install_module()
+else
+  if not ltt.event_registered then
+    darktable.register_event(
+      "view-changed",
+      function(event, old_view, new_view)
+        if new_view.name == "lighttable" and old_view.name == "darkroom" then
+          install_module()
+         end
+      end
+    )
+    ltt.event_registered = true
+  end
+end
+

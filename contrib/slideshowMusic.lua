@@ -27,7 +27,6 @@ USAGE
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-require "official/yield"
 local gettext = dt.gettext
 
 du.check_min_api_version("2.0.2", "slideshowMusic") 
