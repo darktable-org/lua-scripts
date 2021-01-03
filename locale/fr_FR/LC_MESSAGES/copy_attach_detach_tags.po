@@ -1,3 +1,5 @@
+# French messages for copy_attach_detach_tags.lua
+# Christophe Agathon <christophe.agathon@gmail.com>, 2021
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
