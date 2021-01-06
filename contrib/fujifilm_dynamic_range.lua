@@ -2,7 +2,7 @@
 
 Compensate for Fujifilm raw files made using "dynamic range".
 
-Copyright (C) 2020 Dan Torop <dant@pnym.net>
+Copyright (C) 2021 Dan Torop <dant@pnym.net>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -78,23 +78,29 @@ local function detect_dynamic_range(event, image)
 	local RAF_filename = df.sanitize_filename(tostring(image))
 	-- without -n flag, exiftool will round to the nearest tenth
 	local command = "exiftool -RawExposureBias -n -t " .. RAF_filename
-	dt.print_error(command)
+	dt.print_log(command)
 	output = io.popen(command)
 	local raf_result = output:read("*all")
 	output:close()
 	if string.len(raf_result) > 0 then
 		raf_result = string.match(raf_result, "\t(.*)")
-		if image.exif_exposure_bias ~= image.exif_exposure_bias then
-			-- is NAN (this is unlikely as RAFs should have ExposureBiasValue set)
-			image.exif_exposure_bias = 0
+		if raf_result then
+			if image.exif_exposure_bias ~= image.exif_exposure_bias then
+				-- is NAN (this is unlikely as RAFs should have ExposureBiasValue set)
+				image.exif_exposure_bias = 0
+			end
+			-- this should be auto-applied if plugins/darkroom/workflow is scene-referred
+			-- note that scene-referred workflow exposure preset also pushes exposure up by 0.5 EV
+			image.exif_exposure_bias = image.exif_exposure_bias + tonumber(raf_result)
+			dt.print_log(_("Using RAF exposure bias: ") .. tostring(raf_result))
+		else
+			dt.print_error(_("Could not parse exiftool output."))
 		end
-		-- this should be auto-applied if plugins/darkroom/workflow is scene-referred
-		-- note that scene-referred workflow exposure preset also pushes exposure up by 0.5 EV
-		image.exif_exposure_bias = image.exif_exposure_bias + tonumber(raf_result)
-		dt.print_error(_("Using RAF exposure bias: ") .. tostring(raf_result))
+	else
+		dt.print_error(_("No output returned by exiftool."))
 	end
 end
 
 dt.register_event("post-import-image", detect_dynamic_range)
 
-print(_("fujifilm_dynamic_range loaded."))
+dt.print_log(_("fujifilm_dynamic_range loaded."))
