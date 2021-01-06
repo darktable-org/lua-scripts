@@ -71,8 +71,17 @@ local function _(msgid)
 end
 
 local function detect_dynamic_range(event, image)
+	if image.exif_maker ~= "FUJIFILM" then
+		dt.print_log(_("[fujifilm_dynamic_range] ignoring non-Fujifilm image"))
+		return
+	end
+	-- it would be nice to check image.is_raw but this appears to not yet be set
+	if not string.match(image.filename, "%.RAF$") then
+		dt.print_log(_("[fujifilm_dynamic_range] ignoring non-raw image"))
+		return
+	end
 	if not df.check_if_bin_exists("exiftool") then
-		dt.print_error(_("exiftool not found"))
+		dt.print_error(_("[fujifilm_dynamic_range] exiftool not found"))
 		return
 	end
 	local RAF_filename = df.sanitize_filename(tostring(image))
@@ -82,25 +91,25 @@ local function detect_dynamic_range(event, image)
 	output = io.popen(command)
 	local raf_result = output:read("*all")
 	output:close()
-	if string.len(raf_result) > 0 then
-		raf_result = string.match(raf_result, "\t(.*)")
-		if raf_result then
-			if image.exif_exposure_bias ~= image.exif_exposure_bias then
-				-- is NAN (this is unlikely as RAFs should have ExposureBiasValue set)
-				image.exif_exposure_bias = 0
-			end
-			-- this should be auto-applied if plugins/darkroom/workflow is scene-referred
-			-- note that scene-referred workflow exposure preset also pushes exposure up by 0.5 EV
-			image.exif_exposure_bias = image.exif_exposure_bias + tonumber(raf_result)
-			dt.print_log(_("Using RAF exposure bias: ") .. tostring(raf_result))
-		else
-			dt.print_error(_("Could not parse exiftool output."))
-		end
-	else
-		dt.print_error(_("No output returned by exiftool."))
+	if #raf_result == 0 then
+		dt.print_error(_("[fujifilm_dynamic_range] no output returned by exiftool"))
+		return
 	end
+	raf_result = string.match(raf_result, "\t(.*)")
+	if not raf_result then
+		dt.print_error(_("[fujifilm_dynamic_range] could not parse exiftool output"))
+		return
+	end
+	if image.exif_exposure_bias ~= image.exif_exposure_bias then
+		-- is NAN (this is unlikely as RAFs should have ExposureBiasValue set)
+		image.exif_exposure_bias = 0
+	end
+	-- this should be auto-applied if plugins/darkroom/workflow is scene-referred
+	-- note that scene-referred workflow exposure preset also pushes exposure up by 0.5 EV
+	image.exif_exposure_bias = image.exif_exposure_bias + tonumber(raf_result)
+	dt.print_log(_("[fujifilm_dynamic_range] raw exposure bias ") .. tostring(raf_result))
 end
 
 dt.register_event("post-import-image", detect_dynamic_range)
 
-dt.print_log(_("fujifilm_dynamic_range loaded."))
+dt.print_log(_("[fujifilm_dynamic_range] loaded"))
