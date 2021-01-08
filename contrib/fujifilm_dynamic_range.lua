@@ -60,44 +60,38 @@ cameras may behave in other ways.
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-local gettext = dt.gettext
 
 du.check_min_api_version("4.0.0", "fujifilm_dynamic_range")
 
-gettext.bindtextdomain("fujifilm_dynamic_range", dt.configuration.config_dir.."/lua/locale/")
-
-local function _(msgid)
-	return gettext.dgettext("fujifilm_dynamic_range", msgid)
-end
-
 local function detect_dynamic_range(event, image)
 	if image.exif_maker ~= "FUJIFILM" then
-		dt.print_log(_("[fujifilm_dynamic_range] ignoring non-Fujifilm image"))
+		dt.print_log("[fujifilm_dynamic_range] ignoring non-Fujifilm image")
 		return
 	end
 	-- it would be nice to check image.is_raw but this appears to not yet be set
 	if not string.match(image.filename, "%.RAF$") then
-		dt.print_log(_("[fujifilm_dynamic_range] ignoring non-raw image"))
+		dt.print_log("[fujifilm_dynamic_range] ignoring non-raw image")
 		return
 	end
-	if not df.check_if_bin_exists("exiftool") then
-		dt.print_error(_("[fujifilm_dynamic_range] exiftool not found"))
+	local command = df.check_if_bin_exists("exiftool")
+	if not command then
+		dt.print_error("[fujifilm_dynamic_range] exiftool not found")
 		return
 	end
 	local RAF_filename = df.sanitize_filename(tostring(image))
 	-- without -n flag, exiftool will round to the nearest tenth
-	local command = "exiftool -RawExposureBias -n -t " .. RAF_filename
+	command = command .. " -RawExposureBias -n -t " .. RAF_filename
 	dt.print_log(command)
 	output = io.popen(command)
 	local raf_result = output:read("*all")
 	output:close()
 	if #raf_result == 0 then
-		dt.print_error(_("[fujifilm_dynamic_range] no output returned by exiftool"))
+		dt.print_error("[fujifilm_dynamic_range] no output returned by exiftool")
 		return
 	end
 	raf_result = string.match(raf_result, "\t(.*)")
 	if not raf_result then
-		dt.print_error(_("[fujifilm_dynamic_range] could not parse exiftool output"))
+		dt.print_error("[fujifilm_dynamic_range] could not parse exiftool output")
 		return
 	end
 	if image.exif_exposure_bias ~= image.exif_exposure_bias then
@@ -107,9 +101,9 @@ local function detect_dynamic_range(event, image)
 	-- this should be auto-applied if plugins/darkroom/workflow is scene-referred
 	-- note that scene-referred workflow exposure preset also pushes exposure up by 0.5 EV
 	image.exif_exposure_bias = image.exif_exposure_bias + tonumber(raf_result)
-	dt.print_log(_("[fujifilm_dynamic_range] raw exposure bias ") .. tostring(raf_result))
+	dt.print_log("[fujifilm_dynamic_range] raw exposure bias " .. tostring(raf_result))
 end
 
 dt.register_event("post-import-image", detect_dynamic_range)
 
-dt.print_log(_("[fujifilm_dynamic_range] loaded"))
+dt.print_log("[fujifilm_dynamic_range] loaded")
