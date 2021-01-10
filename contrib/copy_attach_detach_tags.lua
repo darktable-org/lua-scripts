@@ -163,7 +163,7 @@ end
 
 local function install_module()
   if not cadt.module_installed then
-    dt.register_lib("tagging_addon","tagging addon",true,true,{
+    dt.register_lib("tagging_addon",_('tagging addon'),true,true,{
         [dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER",500}
         },
         dt.new_widget("box") {
@@ -201,7 +201,6 @@ local box1 = dt.new_widget("box"){
 		    tooltip = _('paste tags to selected image(s)'),
                     label = _('paste tags'),
                     clicked_callback = attach_tags}
-
                   }
 
 local box2 = dt.new_widget("box"){
