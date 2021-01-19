@@ -283,4 +283,47 @@ function dtutils.check_os(operating_systems)
   return false
 end
 
+dtutils.libdoc.functions["find_image_by_id"] = {
+  Name = [[find_image_by_id]],
+  Synopsis = [[look up an image by ID in the database]],
+  Usage = [[local du = require "lib/dtutils"
+  local img = du.find_image_by_id(imgid)
+     id - int - the ID to look up
+  ]],
+  Description = [[find_image_by_id looks up an image by ID in the database.]],
+  Return_Value = [[result - dt_lua_image_t - image with the given ID if found, nil if not]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils.find_image_by_id(imgid)
+   if #dt.database == 0 or imgid > dt.database[#dt.database].id then
+      return nil
+   end
+   local min = 1
+   local max = #dt.database
+   while (max-min)//2 > 0 do
+     local mid = min + (max-min)//2
+     local midID = dt.database[mid].id
+     if imgid == midID then
+         return dt.database[mid]
+     elseif imgid < midID then
+         max = mid-1
+     else
+         min = mid+1
+     end
+   end
+   if dt.database[min].id == imgid then
+      return dt.database[min]
+   elseif dt.database[max].id == imgid then
+      return dt.database[max]
+   else
+      return nil
+   end
+end
+
 return dtutils
