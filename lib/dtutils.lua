@@ -286,8 +286,8 @@ end
 dtutils.libdoc.functions["find_image_by_id"] = {
   Name = [[find_image_by_id]],
   Synopsis = [[look up an image by ID in the database]],
-  Usage = [[local db = require "lib/dtutils.db"
-  local img = db.find_image_by_id(imgid)
+  Usage = [[local du = require "lib/dtutils"
+  local img = du.find_image_by_id(imgid)
      id - int - the ID to look up
   ]],
   Description = [[find_image_by_id looks up an image by ID in the database.]],
