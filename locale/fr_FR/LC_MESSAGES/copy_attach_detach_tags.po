@@ -1,0 +1,78 @@
+# French messages for copy_attach_detach_tags.lua
+# Christophe Agathon <christophe.agathon@gmail.com>, 2021
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2021-01-10 19:39+0100\n"
+"PO-Revision-Date: 2021-01-10 19:43+0100\n"
+"Last-Translator: Christophe Agathon <christophe.agathon@gmail.com>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.3\n"
+"X-Poedit-Basepath: ../../../contrib\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-KeywordsList: _\n"
+"X-Poedit-SearchPath-0: copy_attach_detach_tags.lua\n"
+
+#: copy_attach_detach_tags.lua:93
+msgid "Image tags copied ..."
+msgstr "Mots-clés de l'image copiés ..."
+
+#: copy_attach_detach_tags.lua:115
+msgid "No tag to attach, please copy tags first."
+msgstr "Pas de mot-clé à attacher, veuillez d'abord copier les mots-clés."
+
+#: copy_attach_detach_tags.lua:139
+msgid "Tags attached ..."
+msgstr "Mots-clés attachés ..."
+
+#: copy_attach_detach_tags.lua:155
+msgid "Tags removed from image(s)."
+msgstr "Mots-clés supprimés des images."
+
+#: copy_attach_detach_tags.lua:161
+msgid "Tags replaced"
+msgstr "Mots-clés remplacés"
+
+#: copy_attach_detach_tags.lua:166
+msgid "tagging addon"
+msgstr "mots-clés extra"
+
+#: copy_attach_detach_tags.lua:189
+msgid "tag clipboard"
+msgstr "presse-papier des mots-clés"
+
+#: copy_attach_detach_tags.lua:197
+msgid "multi copy tags"
+msgstr "copier mots-clés"
+
+#: copy_attach_detach_tags.lua:198 copy_attach_detach_tags.lua:252
+msgid "copy tags from selected image(s)"
+msgstr "copier les mots-clés des images sélectionnnées"
+
+#: copy_attach_detach_tags.lua:201 copy_attach_detach_tags.lua:257
+msgid "paste tags to selected image(s)"
+msgstr "coller les mots clés dans les images sélectionnées"
+
+#: copy_attach_detach_tags.lua:202
+msgid "paste tags"
+msgstr "coller mots-clés"
+
+#: copy_attach_detach_tags.lua:210
+msgid "replace tags"
+msgstr "remplacer mots-clés"
+
+#: copy_attach_detach_tags.lua:211 copy_attach_detach_tags.lua:267
+msgid "replace tags from selected image(s)"
+msgstr "remplacer les mots-clés des images sélectionnées"
+
+#: copy_attach_detach_tags.lua:214
+msgid "remove all tags"
+msgstr "supprimer tous mots-clés"
+
+#: copy_attach_detach_tags.lua:215 copy_attach_detach_tags.lua:262
+msgid "remove tags from selected image(s)"
+msgstr "supprimer les mots-clés des images sélectionnées"

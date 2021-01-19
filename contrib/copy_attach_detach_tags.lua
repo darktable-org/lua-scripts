@@ -112,7 +112,7 @@ local function mcopy_tags()
 local function attach_tags()
 
   if next(image_tags) == nil then
-    dt.print(_('No tags to attached, please copy tags first.'))
+    dt.print(_('No tag to attach, please copy tags first.'))
     return true
   end
 
@@ -163,7 +163,7 @@ end
 
 local function install_module()
   if not cadt.module_installed then
-    dt.register_lib("tagging_addon","Tagging addon",true,true,{
+    dt.register_lib("tagging_addon",_('tagging addon'),true,true,{
         [dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER",500}
         },
         dt.new_widget("box") {
@@ -194,22 +194,25 @@ local taglabel = dt.new_widget("label") {
 local box1 = dt.new_widget("box"){
                   orientation = "horizontal",
                   dt.new_widget("button") {
-                  label = _('multi copy tags'),
-                  clicked_callback = mcopy_tags},
+                    label = _('multi copy tags'),
+                    tooltip = _('copy tags from selected image(s)'),
+                    clicked_callback = mcopy_tags},
                   dt.new_widget("button") {
-                  label = _('paste tags'),
-                  clicked_callback = attach_tags}
-
+		    tooltip = _('paste tags to selected image(s)'),
+                    label = _('paste tags'),
+                    clicked_callback = attach_tags}
                   }
 
 local box2 = dt.new_widget("box"){
                   orientation = "horizontal",
                   dt.new_widget("button") {
-                  label = _('replace tags'),
-                  clicked_callback = replace_tags},
+                    label = _('replace tags'),
+		    tooltip = _('replace tags from selected image(s)'),
+                    clicked_callback = replace_tags},
                   dt.new_widget("button") {
-                  label = _('remove all tags'),
-                  clicked_callback = detach_tags}
+                    label = _('remove all tags'),
+		    tooltip = _('remove tags from selected image(s)'),
+                    clicked_callback = detach_tags}
                   }
 
 local sep = dt.new_widget("separator"){}
