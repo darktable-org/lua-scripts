@@ -304,26 +304,30 @@ function dtutils.find_image_by_id(imgid)
    if #dt.database == 0 or imgid > dt.database[#dt.database].id then
       return nil
    end
-   local min = 1
-   local max = #dt.database
-   while (max-min)//2 > 0 do
-     local mid = min + (max-min)//2
-     local midID = dt.database[mid].id
-     if imgid == midID then
-         return dt.database[mid]
-     elseif imgid < midID then
-         max = mid-1
-     else
-         min = mid+1
-     end
-   end
-   if dt.database[min].id == imgid then
-      return dt.database[min]
-   elseif dt.database[max].id == imgid then
-      return dt.database[max]
+   if dt.configuration.api_version_string >= "6.3.0" then
+      return dt.database.get_image(imgid)
    else
-      return nil
-   end
+       local min = 1
+       local max = #dt.database
+       while (max-min)//2 > 0 do
+         local mid = min + (max-min)//2
+         local midID = dt.database[mid].id
+         if imgid == midID then
+             return dt.database[mid]
+         elseif imgid < midID then
+             max = mid-1
+         else
+             min = mid+1
+         end
+       end
+       if dt.database[min].id == imgid then
+          return dt.database[min]
+       elseif dt.database[max].id == imgid then
+          return dt.database[max]
+       else
+          return nil
+       end
+    end
 end
 
 return dtutils
