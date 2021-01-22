@@ -304,7 +304,7 @@ function dtutils.find_image_by_id(imgid)
    if #dt.database == 0 or imgid > dt.database[#dt.database].id then
       return nil
    end
-   if dt.configuration.api_version_string >= "6.3.0" then
+   if dt.configuration.api_version_string >= "6.2.0" then
       return dt.database.get_image(imgid)
    else
        local min = 1
