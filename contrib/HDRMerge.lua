@@ -50,6 +50,7 @@ local dsys = require 'lib/dtutils.system'
 local mod = 'module_HDRMerge'
 local os_path_seperator = '/'
 if dt.configuration.running_os == 'windows' then os_path_seperator = '\\' end
+local CURR_API_STRING = dt.configuration.api_version_string
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 local gettext = dt.gettext
@@ -437,7 +438,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not HDRM.event_registered then
     dt.register_event(
-      "view-changed",
+      CURR_API_STRING >= "6.2.1" and "HDRmerge", "view-changed" or "view-changed" ,
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()

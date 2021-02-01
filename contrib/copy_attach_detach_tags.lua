@@ -43,6 +43,7 @@ local debug = require "darktable.debug"
 local gettext = dt.gettext
 
 du.check_min_api_version("3.0.0", "copy_attach_detach_tags") 
+local CURR_API_STRING = dt.configuration.api_version_string
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("copy_attach_detach_tags",dt.configuration.config_dir.."/lua/locale/")
@@ -233,7 +234,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not cadt.event_registered then
     dt.register_event(
-      "view-changed",
+      CURR_API_STRING >= "6.2.1" and "cadt", "view-changed" or "view-changed" ,
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()
@@ -246,22 +247,22 @@ end
 
 
 -- shortcut for copy
-dt.register_event("shortcut",
+dt.register_event(CURR_API_STRING >= "6.2.1" and "cadt_ct", "shortcut" or "shortcut" ,
                    mcopy_tags,
                    _('copy tags from selected image(s)'))
 
 -- shortcut for attach
-dt.register_event("shortcut",
+dt.register_event(CURR_API_STRING >= "6.2.1" and "cadt_at", "shortcut" or "shortcut" ,
                    attach_tags,
                    _('paste tags to selected image(s)'))
 
 -- shortcut for detaching tags
-dt.register_event("shortcut",
+dt.register_event(CURR_API_STRING >= "6.2.1" and "cadt_dt", "shortcut" or "shortcut" ,
                    detach_tags,
                    _('remove tags from selected image(s)'))
 
                    -- shortcut for replace tags
-dt.register_event("shortcut",
+dt.register_event(CURR_API_STRING >= "6.2.1" and "cadt_rt", "shortcut" or "shortcut" ,
                    replace_tags,
                    _('replace tags from selected image(s)'))
 

@@ -75,6 +75,7 @@ local dtsys = require "lib/dtutils.system"
 
 -- module name
 local MODULE_NAME = "ext_editor"
+local CURR_API_STRING = dt.configuration.api_version_string
 
 
 -- check API version
@@ -416,7 +417,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not ee.event_registered then
     dt.register_event(
-      "view-changed",
+      CURR_API_STRING >= "6.2.1" and MODULE_NAME, "view-changed" or "view-changed" ,
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()
@@ -451,7 +452,8 @@ for i = MAX_EDITORS, 1, -1 do
 
 -- register the new shortcuts -------------------------------------------------
 for i = 1, MAX_EDITORS do
-  dt.register_event("shortcut", program_shortcut, _("edit with program ")..string.format("%02d", i)) 
+  dt.register_event(CURR_API_STRING >= "6.2.1" and MODULE_NAME .. i, "shortcut" or "shortcut" , 
+    program_shortcut, _("edit with program ")..string.format("%02d", i)) 
   end
 
 

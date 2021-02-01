@@ -65,6 +65,7 @@ end
 
 local act_os = dt.configuration.running_os
 local PS = act_os == "windows" and  "\\"  or  "/"
+local CURR_API_STRING = dt.configuration.api_version_string
 
 --Detect OS and quit if it is not supported.	
 if act_os ~= "macos" and act_os ~= "windows" and act_os ~= "linux" then
@@ -208,7 +209,7 @@ if act_os ~= "windows" then
 end
 
 dt.register_event(
-    "shortcut",
+    CURR_API_STRING >= "6.2.1" and "OpenInExplorer", "shortcut" or "shortcut",
     function(event, shortcut) open_in_fmanager() end,
     "OpenInExplorer"
 )  

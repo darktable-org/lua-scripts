@@ -34,6 +34,7 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 
 du.check_min_api_version("3.0.0", "moduleExample") 
+local CURR_API_STRING = dt.configuration.api_version_string
 
 -- translation
 
@@ -147,7 +148,7 @@ else
   if not mE.event_registered then -- if we are not in lighttable view then register an event to signal when we might be
     -- https://www.darktable.org/lua-api/index.html#darktable_register_event
     dt.register_event(
-      "view-changed",  -- we want to be informed when the view changes
+      CURR_API_STRING >= "6.2.1" and "mdouleExample", "view-changed" or "view-chagned" ,  -- we want to be informed when the view changes
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then  -- if the view changes from darkroom to lighttable
           install_module()  -- register the lib

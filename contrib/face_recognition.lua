@@ -51,6 +51,7 @@ local gettext = dt.gettext
 local MODULE = "face_recognition"
 local PS = dt.configuration.running_os == "windows" and '\\' or '/'
 local OUTPUT = dt.configuration.tmp_dir .. PS .. "facerecognition.txt"
+local CURR_API_STRING = dt.configuration.api_version_string
 
 -- namespace
 
@@ -489,7 +490,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not fc.event_registered then
     dt.register_event(
-      "view-changed",
+      CURR_API_STRING >= "6.2.1" and MODULE, "view-changed" or "view-changed" ,
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()

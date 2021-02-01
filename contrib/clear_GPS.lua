@@ -44,6 +44,7 @@ local gettext = dt.gettext
 local NaN = 0/0
 
 du.check_min_api_version("3.0.0", "clear_GPS") 
+local CURR_API_STRING = dt.configuration.api_version_string
 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
@@ -70,7 +71,7 @@ dt.gui.libs.image.register_action(
 )
 
 dt.register_event(
-  "shortcut",
+  CURR_API_STRING >= "6.2.1" and "clearGPS", "shortcut" or "shortcut" ,
   function(event, shortcut) clear_GPS(dt.gui.action_images) end,
   _("Clear GPS data")
 )

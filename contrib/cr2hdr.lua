@@ -37,6 +37,7 @@ local du = require "lib/dtutils"
 
 -- Tested with darktable 2.0.1
 du.check_min_api_version("2.0.0", "cr2hdr")
+local CURR_API_STRING = darktable.configuration.api_version_string
 
 local queue = {}
 local processed_files = {}
@@ -107,8 +108,11 @@ local function convert_action_images(shortcut)
     convert_images()
 end
 
-darktable.register_event("shortcut", convert_action_images, "Run cr2hdr (Magic Lantern DualISO converter) on selected images")
-darktable.register_event("post-import-image", file_imported)
-darktable.register_event("post-import-film", film_imported)
+darktable.register_event(CURR_API_STRING >= "6.2.1" and "cr2hdr", "shortcut" or "shortcut" , 
+    convert_action_images, "Run cr2hdr (Magic Lantern DualISO converter) on selected images")
+darktable.register_event(CURR_API_STRING >= "6.2.1" and "cr2hdr", "post-import-image" or "post-import-image" , 
+    file_imported)
+darktable.register_event(CURR_API_STRING >= "6.2.1" and "cr2hdr", "post-import-film" or "post-import-film" , 
+    film_imported)
 
 darktable.preferences.register("cr2hdr", "onimport", "bool", "Invoke on import", "If true then cr2hdr will try to proccess every file during importing. Warning: cr2hdr is quite slow even in figuring out on whether the file is Dual ISO or not.", false)

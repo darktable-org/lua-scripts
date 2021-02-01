@@ -34,6 +34,7 @@ local ds = require("lib/dtutils.system")
 local gettext = dt.gettext
 
 gettext.bindtextdomain("exportLUT",dt.configuration.config_dir.."/lua/locale/")
+local CURR_API_STRING = dt.configuration.api_version_string
 
 local function _(msgid)
     return gettext.dgettext("exportLUT", msgid)
@@ -161,7 +162,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not eL.event_registered then
     dt.register_event(
-      "view-changed",
+      CURR_API_STRING >= "6.2.1" and "exportLUT", "view-changed" or "view-changed" ,
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()

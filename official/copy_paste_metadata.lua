@@ -30,6 +30,7 @@ local du = require "lib/dtutils"
 local gettext = dt.gettext
 
 du.check_min_api_version("3.0.0", "copy_paste_metadata")
+local CURR_API_STRING = dt.configuration.api_version_string
 
 -- set this to "false" if you don't want to overwrite metadata fields
 -- (title, description, creator, publisher and rights) that are already set
@@ -125,13 +126,13 @@ dt.gui.libs.image.register_action(
 )
 
 dt.register_event(
-  "shortcut",
+  CURR_API_STRING >= "6.2.1" and "capmd1", "shortcut" or "shortcut" ,
   function(event, shortcut) copy(dt.gui.action_images[1]) end,
   "copy metadata"
 )
 
 dt.register_event(
-  "shortcut",
+  CURR_API_STRING >= "6.2.1" and "capmd2", "shortcut" or "shortcut" ,
   function(event, shortcut) paste(dt.gui.action_images) end,
   "paste metadata"
 )

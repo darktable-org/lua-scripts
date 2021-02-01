@@ -31,6 +31,7 @@ local df = require "lib/dtutils.file"
 local gettext = dt.gettext
 
 du.check_min_api_version("3.0.0", "geoToolbox") 
+local CURR_API_STRING = dt.configuration.api_version_string
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("geoToolbox",dt.configuration.config_dir.."/lua/locale/")
@@ -687,7 +688,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not gT.event_registered then
     dt.register_event(
-      "view-changed",
+      CURR_API_STRING >= "6.2.1" and "geoToolbox", "view-changed" or "view-chagned",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()
@@ -707,11 +708,15 @@ dt.preferences.register("geoToolbox",
 	'' )
 
 -- Register
-dt.register_event("shortcut", print_calc_distance, _("Calculate the distance from latitude and longitude in km"))
-dt.register_event("mouse-over-image-changed", toolbox_calc_distance)
+dt.register_event(CURR_API_STRING >= "6.2.1" and "geoToolbox_cd", "shortcut" or "shortcut" , 
+  print_calc_distance, _("Calculate the distance from latitude and longitude in km"))
+dt.register_event(CURR_API_STRING >= "6.2.1" and "geoToolbox", "mouse-over-image-changed" or "mouse-over-image-changed" , 
+  toolbox_calc_distance)
 
-dt.register_event("shortcut", select_with_gps, _("Select all images with GPS information"))
-dt.register_event("shortcut", select_without_gps, _("Select all images without GPS information"))
+dt.register_event(CURR_API_STRING >= "6.2.1" and "geoToolbox_wg", "shortcut" or "shortcut" , 
+  select_with_gps, _("Select all images with GPS information"))
+dt.register_event(CURR_API_STRING >= "6.2.1" and "geoToolbox_ng", "shortcut" or "shortcut" , 
+  select_without_gps, _("Select all images without GPS information"))
 
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
 -- kate: hl Lua;

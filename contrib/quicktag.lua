@@ -57,6 +57,7 @@ qt.widget_table = {}
 local gettext = dt.gettext
 
 du.check_min_api_version("3.0.0", "quicktag")
+local CURR_API_STRING = dt.configuration.api_version_string
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("quicktag",dt.configuration.config_dir.."/lua/locale/")
@@ -256,7 +257,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not qt.event_registered then
     dt.register_event(
-      "view-changed",
+      CURR_API_STRING >= "6.2.1" and "quicktag", "view-changed" or "view-changed" ,
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()
@@ -269,7 +270,7 @@ end
 
 -- create shortcuts
 for i=1,qnr do
-  dt.register_event("shortcut",
+  dt.register_event(CURR_API_STRING >= "6.2.1" and "quicktag", "shortcut" or "shortcut" ,
 		   function(event, shortcut) tagattach(tostring(quicktag_table[i])) end,
 		  string.format(_("quicktag %i"),i))
 end

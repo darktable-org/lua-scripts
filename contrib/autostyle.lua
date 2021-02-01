@@ -42,6 +42,7 @@ local filelib = require "lib/dtutils.file"
 
 -- Forward declare the functions
 local autostyle_apply_one_image,autostyle_apply_one_image_event,autostyle_apply,exiftool_attribute,capture
+local CURR_API_STRING = darktable.configuration.api_version_string
 
 -- Tested it with darktable 1.6.1 and darktable git from 2014-01-25
 du.check_min_api_version("2.0.2", "autostyle") 
@@ -151,11 +152,12 @@ function get_stdout(cmd)
 end
 
 -- Registering events
-darktable.register_event("shortcut",autostyle_apply,
+darktable.register_event(CURR_API_STRING >= "6.2.1" and "autostyle", "shortcut" or "shortcut" ,autostyle_apply,
        "Apply your chosen style from exiftool tags")
 
 darktable.preferences.register("autostyle","exif_tag","string","Autostyle: EXIF_tag=value=>style","apply a style automatically if an EXIF_tag matches value. Find the tag with exiftool","")
 
-darktable.register_event("post-import-image",autostyle_apply_one_image_event)
+darktable.register_event(CURR_API_STRING >= "6.2.1" and "autostyle", "post-import-image" or "post-import-image" ,
+  autostyle_apply_one_image_event)
 
 

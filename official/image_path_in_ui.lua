@@ -32,6 +32,7 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 
 du.check_min_api_version("2.0.0", "image_path_in_ui") 
+local CURR_API_STRING = dt.configuration.api_version_string
 
 local ipiu = {}
 ipiu.module_installed = false
@@ -73,7 +74,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not ipiu.event_registered then
     dt.register_event(
-      "view-changed",
+      CURR_API_STRING >= "6.2.1" and "ipiu", "view-changed" or "view-changed" ,
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()
@@ -84,7 +85,7 @@ else
   end
 end
 
-dt.register_event("mouse-over-image-changed",reset_widget);
+dt.register_event(CURR_API_STRING >= "6.2.1" and "ipiu", "mouse-over-image-changed" or "mouse-over-image-changed" , reset_widget);
 
   --
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
