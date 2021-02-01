@@ -83,6 +83,7 @@ dtutils.check_min_api_version("5.0.0", LIB_ID)
 local MKDIR_COMMAND = darktable.configuration.running_os == "windows" and "mkdir " or "mkdir -p "
 local PATH_SEPARATOR = darktable.configuration.running_os == "windows" and "\\\\"  or  "/"
 local PATH_SEGMENT_REGEX = "(" .. PATH_SEPARATOR .. "?)([^" .. PATH_SEPARATOR .. "]+)"
+local CURR_API_STRING = darktable.configuration.api_version_string
 
 unpack = unpack or table.unpack
 gmatch = string.gfind or string.gmatch
@@ -366,7 +367,7 @@ if darktable.gui.current_view().id == "lighttable" then
 else
   if not th.event_registered then
     darktable.register_event(
-      "view-changed",
+      CURR_API_STRING >= "6.2.1" and LIB_ID, "view-changed" or "view-changed" ,
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()

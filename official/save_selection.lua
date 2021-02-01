@@ -37,21 +37,22 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 
 du.check_min_api_version("2.0.0", "save_selection") 
+local CURR_API_STRING = dt.configuration.api_version_string
 
 local buffer_count = 5
 
 for i=1,buffer_count do
   local saved_selection
-  dt.register_event("shortcut",function()
+  dt.register_event(CURR_API_STRING >= "6.2.1" and "save_selection", "shortcut" or "shortcut" ,function()
     saved_selection = dt.gui.selection()
   end,"save to buffer "..i)
-  dt.register_event("shortcut",function()
+  dt.register_event(CURR_API_STRING >= "6.2.1" and "save_selection1", "shortcut" or "shortcut" ,function()
     dt.gui.selection(saved_selection)
   end,"restore from buffer "..i)
 end
 
 local bounce_buffer = {}
-dt.register_event("shortcut",function()
+dt.register_event(CURR_API_STRING >= "6.2.1" and "save_selection2", "shortcut" or "shortcut" ,function()
   bounce_buffer = dt.gui.selection(bounce_buffer)
 end,"switch selection with temporary buffer")
 

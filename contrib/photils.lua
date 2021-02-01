@@ -44,6 +44,7 @@ local dtsys = require "lib/dtutils.system"
 local MODULE_NAME = "photils"
 du.check_min_api_version("5.0.0", MODULE_NAME)
 
+local CURR_API_STRING = dt.configuration.api_version_string
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 local gettext = dt.gettext
 gettext.bindtextdomain(MODULE_NAME,
@@ -433,14 +434,15 @@ dt.preferences.register(MODULE_NAME,
                         _("if enabled, the confidence value for each tag is displayed"),
                         true)
 
-dt.register_event("mouse-over-image-changed",PHOTILS.image_changed)
+dt.register_event(CURR_API_STRING >= "6.2.1" and "photils", "mouse-over-image-changed" or "mouse-over-image-changed" ,
+    PHOTILS.image_changed)
 
 if dt.gui.current_view().id == "lighttable" then
   install_module()
 else
   if not PHOTILS.event_registered then
     dt.register_event(
-      "view-changed",
+      CURR_API_STRING >= "6.2.1" and "photils", "view-changed" or "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()

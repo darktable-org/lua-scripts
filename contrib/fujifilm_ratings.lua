@@ -29,6 +29,7 @@ local df = require "lib/dtutils.file"
 local gettext = dt.gettext
 
 du.check_min_api_version("4.0.0", "fujifilm_ratings")
+local CURR_API_STRING = dt.configuration.api_version_string
 
 gettext.bindtextdomain("fujifilm_ratings", dt.configuration.config_dir.."/lua/locale/")
 
@@ -66,6 +67,7 @@ local function detect_rating(event, image)
 	end
 end
 
-dt.register_event("post-import-image", detect_rating)
+dt.register_event(CURR_API_STRING >= "6.2.1" and "fujifilm_rat", "post-import-image" or "post-import-image" , 
+	detect_rating)
 
 print(_("fujifilm_ratings loaded."))

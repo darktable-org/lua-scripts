@@ -43,6 +43,7 @@ local du = require "lib/dtutils"
 
 -- added version check
 du.check_min_api_version("3.0.0", "rate_group") 
+local CURR_API_STRING = dt.configuration.api_version_string
 
 local function apply_rating(rating)
   local images = dt.gui.action_images
@@ -59,30 +60,37 @@ local function apply_rating(rating)
   end
 end
 
-dt.register_event("shortcut",function(event, shortcut)
+dt.register_event(CURR_API_STRING >= "6.2.1" and "rg_reject", "shortcut" or "shortcut" ,
+  function(event, shortcut)
     apply_rating(-1)
 end, "Reject group")
 
-dt.register_event("shortcut",function(event, shortcut)
+dt.register_event(CURR_API_STRING >= "6.2.1" and "rg0", "shortcut" or "shortcut",
+  function(event, shortcut)
     apply_rating(0)
 end, "Rate group 0")
 
-dt.register_event("shortcut",function(event, shortcut)
+dt.register_event(CURR_API_STRING >= "6.2.1" and "rg1", "shortcut" or "shortcut",
+  function(event, shortcut)
     apply_rating(1)
 end, "Rate group 1")
 
-dt.register_event("shortcut",function(event, shortcut)
+dt.register_event(CURR_API_STRING >= "6.2.1" and "rg2", "shortcut" or "shortcut",
+  function(event, shortcut)
     apply_rating(2)
 end, "Rate group 2")
 
-dt.register_event("shortcut",function(event, shortcut)
+dt.register_event(CURR_API_STRING >= "6.2.1" and "rg3", "shortcut" or "shortcut",
+  function(event, shortcut)
     apply_rating(3)
 end, "Rate group 3")
 
-dt.register_event("shortcut",function(event, shortcut)
+dt.register_event(CURR_API_STRING >= "6.2.1" and "rg4", "shortcut" or "shortcut",
+  function(event, shortcut)
     apply_rating(4)
 end, "Rate group 4")
 
-dt.register_event("shortcut",function(event, shortcut)
+dt.register_event(CURR_API_STRING >= "6.2.1" and "rg5", "shortcut" or "shortcut",
+  function(event, shortcut)
     apply_rating(5)
 end, "Rate group 5")

@@ -62,6 +62,7 @@ local dt = require "darktable"
 local du = require "lib/dtutils"  -- utilities
 local df = require "lib/dtutils.file"   -- file utilities
 local dtsys = require "lib/dtutils.system"  -- system utilities
+local CURR_API_STRING = dt.configuration.api_version_string
 
 --[[
     darktable is an international program, and it's user interface has been translated into
@@ -240,7 +241,7 @@ dt.gui.libs.image.register_action(
 ]]
 
 dt.register_event(
-  "shortcut",
+  CURR_API_STRING >= "6.2.1" and "multi_os", "shortcut" or "shortcut" ,
   function(event, shortcut) extract_embedded_jpeg(dt.gui.action_images) end,
   "extract embedded jpeg"
 )

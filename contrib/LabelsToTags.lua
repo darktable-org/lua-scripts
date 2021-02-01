@@ -60,6 +60,7 @@ ltt.module_installed = false
 ltt.event_registered = false
 
 local LIB_ID = "LabelsToTags"
+local CURR_API_STRING = darktable.configuration.api_version_string
 
 -- Helper functions: BEGIN
 
@@ -247,7 +248,7 @@ if darktable.gui.current_view().id == "lighttable" then
 else
   if not ltt.event_registered then
     darktable.register_event(
-      "view-changed",
+      CURR_API_STRING >= "6.2.1" and LIB_ID, "view-changed" or "view-changed" ,
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()

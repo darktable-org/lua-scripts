@@ -31,6 +31,8 @@ local gettext = dt.gettext
 
 du.check_min_api_version("2.0.2", "slideshowMusic") 
 
+local CURR_API_STRING = dt.configuration.api_version_string
+
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("slideshowMusic",dt.configuration.config_dir.."/lua/locale/")
 
@@ -76,4 +78,5 @@ dt.preferences.register("slideshowMusic",
                         _("Plays music with rhythmbox if a slideshow starts"),
                         true)
 -- Register
-dt.register_event("view-changed",playSlideshowMusic)
+dt.register_event(CURR_API_STRING >= "6.2.1" and "slideshow_music", "view-changed" or "view-changed" ,
+  playSlideshowMusic)

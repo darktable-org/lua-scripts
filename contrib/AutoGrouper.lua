@@ -40,6 +40,7 @@ local dt = require "darktable"
 local MOD = 'autogrouper'
 local gettext = dt.gettext
 -- Tell gettext where to find the .mo file translating messages for a particular domain
+local CURR_API_STRING = dt.configuration_api_version_string
 gettext.bindtextdomain("AutoGrouper",dt.configuration.config_dir.."/lua/locale/")
 local function _(msgid)
     return gettext.dgettext("AutoGrouper", msgid)
@@ -174,7 +175,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not Ag.event_registered then
     dt.register_event(
-      "view-changed",
+      CURR_API_STRING >= "6.2.1" and "AutoGrouper", "view-changed" or "view-changed" ,
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()
