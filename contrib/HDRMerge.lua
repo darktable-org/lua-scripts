@@ -46,6 +46,7 @@ Select a style, whether you want tags to be copied from the original, and any ad
 
 local dt = require 'darktable'
 local df = require 'lib/dtutils.file'
+           require "lib/darktable_transition"
 local dsys = require 'lib/dtutils.system'
 local mod = 'module_HDRMerge'
 local os_path_seperator = '/'
@@ -438,7 +439,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not HDRM.event_registered then
     dt.register_event(
-      CURR_API_STRING >= "6.2.1" and "HDRmerge", "view-changed" or "view-changed" ,
+      "HDRmerge", "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()

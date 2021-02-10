@@ -25,6 +25,7 @@ For each source folder, a separate <trk> is generated in the gpx file.
 local dt = require "darktable"
 local df = require "lib/dtutils.file"
 local dl = require "lib/dtutils"
+           require "lib/darktable_transition"
 local gettext = dt.gettext
 
 dl.check_min_api_version("3.0.0", "gpx-export") 
@@ -174,7 +175,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not gpx.event_registered then
     dt.register_event(
-      CURR_API_STRING >= "6.2.1" and "gpx_export", "view-changed" or "view-changed" ,
+      "gpx_export", "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()

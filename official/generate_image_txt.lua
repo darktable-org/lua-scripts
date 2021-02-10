@@ -36,6 +36,7 @@ USAGE
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
+           require "lib/darktable_transition"
 require "darktable.debug"
 
 du.check_min_api_version("2.1.0", "generate_image_txt") 
@@ -66,7 +67,7 @@ end
 local command_setting = dt.preferences.read("generate_image_txt", "command", "string")
 check_command(command_setting)
 
-dt.register_event(CURR_API_STRING >= "6.2.1" and "gen_img_txt", "mouse-over-image-changed" or "mouse-over-image-chagned" , 
+dt.register_event("gen_img_txt", "mouse-over-image-changed", 
     function(event, img)
     -- no need to waste processing time if the image has a txt file already
     if not img or img.has_txt or not dt.preferences.read("generate_image_txt", "enabled", "bool") then

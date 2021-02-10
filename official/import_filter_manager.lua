@@ -31,6 +31,7 @@ USAGE
 ]]
 
 local dt = require "darktable"
+           require "lib/darktable_transition"
 
 local import_filter_list = {}
 local n_import_filters = 1
@@ -57,7 +58,7 @@ dt.gui.libs.import.register_widget(filter_dropdown)
 
 
 -- this is just a wrapper which calls the active import filter
-dt.register_event(CURR_API_STRING >= "6.2.1" and "ifm", "pre-import" or "pre-import" , function(event, images)
+dt.register_event("ifm", "pre-import", function(event, images)
   local active_filter = dt.preferences.read("import_filter_manager", "active_filter", "string")
   if active_filter == "" then return end
   local callback = import_filter_list[active_filter]

@@ -27,6 +27,7 @@ USAGE
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+           require "lib/darktable_transition"
 local gettext = dt.gettext
 
 du.check_min_api_version("2.0.2", "slideshowMusic") 
@@ -78,5 +79,5 @@ dt.preferences.register("slideshowMusic",
                         _("Plays music with rhythmbox if a slideshow starts"),
                         true)
 -- Register
-dt.register_event(CURR_API_STRING >= "6.2.1" and "slideshow_music", "view-changed" or "view-changed" ,
+dt.register_event("slideshow_music", "view-changed",
   playSlideshowMusic)
