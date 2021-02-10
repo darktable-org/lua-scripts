@@ -36,23 +36,23 @@ local function stop_job(job)
   job.valid = false
 end
 
-local function select_untagged_images()
+local function select_untagged_images(event, images)
   job = dt.gui.create_job(_("select untagged images"), true, stop_job)
 
   local selection = {}
 
-  for key,image in ipairs(dt.collection) do
+  for key,image in ipairs(images) do
     if(job.valid) then
-      job.percent = (key-1)/#dt.collection
+      job.percent = (key - 1)/#images
       local tags =  dt.tags.get_tags(image)
       local hasTags = false
       for _,tag in ipairs(tags) do
-        if not string.match(tag.name,"darktable|") then
+        if not string.match(tag.name, "darktable|") then
           hasTags = true
         end
       end
       if hasTags == false then
-        table.insert(selection,image)
+        table.insert(selection, image)
       end
     else
       break
@@ -60,7 +60,8 @@ local function select_untagged_images()
   end
 
   job.valid = false
-  dt.gui.selection(selection)
+  -- return table of images to set the selection to
+  return selection
 end
 
 if CURR_API_STRING >= "6.2.2" then
