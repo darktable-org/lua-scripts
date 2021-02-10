@@ -39,6 +39,7 @@
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+           require "lib/darktable_transition"
 local dtsys = require "lib/dtutils.system"
 
 local MODULE_NAME = "photils"
@@ -434,7 +435,7 @@ dt.preferences.register(MODULE_NAME,
                         _("if enabled, the confidence value for each tag is displayed"),
                         true)
 
-dt.register_event(CURR_API_STRING >= "6.2.1" and "photils", "mouse-over-image-changed" or "mouse-over-image-changed" ,
+dt.register_event("photils", "mouse-over-image-changed",
     PHOTILS.image_changed)
 
 if dt.gui.current_view().id == "lighttable" then
@@ -442,7 +443,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not PHOTILS.event_registered then
     dt.register_event(
-      CURR_API_STRING >= "6.2.1" and "photils", "view-changed" or "view-changed",
+      "photils", "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()

@@ -49,6 +49,7 @@
 
 local darktable = require("darktable")
 local du = require "lib/dtutils"
+           require "lib/darktable_transition"
 
 du.check_min_api_version("3.0.0", "LabelsToTags") 
 
@@ -248,7 +249,7 @@ if darktable.gui.current_view().id == "lighttable" then
 else
   if not ltt.event_registered then
     darktable.register_event(
-      CURR_API_STRING >= "6.2.1" and LIB_ID, "view-changed" or "view-changed" ,
+      LIB_ID, "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()

@@ -76,6 +76,7 @@ local darktable = require("darktable")
 local dtutils = require("lib/dtutils")
 local dtutils_file = require("lib/dtutils.file")
 local dtutils_system = require("lib/dtutils.system")
+           require "lib/darktable_transition"
 
 local LIB_ID = "transfer_hierarchy"
 dtutils.check_min_api_version("5.0.0", LIB_ID)
@@ -367,7 +368,7 @@ if darktable.gui.current_view().id == "lighttable" then
 else
   if not th.event_registered then
     darktable.register_event(
-      CURR_API_STRING >= "6.2.1" and LIB_ID, "view-changed" or "view-changed" ,
+      LIB_ID, "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()

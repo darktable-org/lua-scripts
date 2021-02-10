@@ -60,6 +60,7 @@ cameras may behave in other ways.
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+           require "lib/darktable_transition"
 
 du.check_min_api_version("4.0.0", "fujifilm_dynamic_range")
 local CURR_API_STRING = dt.configuration.api_version_string
@@ -105,7 +106,7 @@ local function detect_dynamic_range(event, image)
 	dt.print_log("[fujifilm_dynamic_range] raw exposure bias " .. tostring(raf_result))
 end
 
-dt.register_event(CURR_API_STRING >= "6.2.1" and "fujifilm_dr", "post-import-image" or "post-import-image" , 
+dt.register_event("fujifilm_dr", "post-import-image", 
 	detect_dynamic_range)
 
 dt.print_log("[fujifilm_dynamic_range] loaded")

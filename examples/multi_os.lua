@@ -52,6 +52,7 @@
 ]]
 
 local dt = require "darktable"
+           require "lib/darktable_transition"
 
 --[[
     require "lib/..." provides access to functions that have been pulled from various 
@@ -241,7 +242,7 @@ dt.gui.libs.image.register_action(
 ]]
 
 dt.register_event(
-  CURR_API_STRING >= "6.2.1" and "multi_os", "shortcut" or "shortcut" ,
+  "multi_os", "shortcut",
   function(event, shortcut) extract_embedded_jpeg(dt.gui.action_images) end,
   "extract embedded jpeg"
 )

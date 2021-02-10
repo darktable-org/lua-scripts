@@ -27,6 +27,7 @@ USAGE
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
+           require "lib/darktable_transition"
 local gettext = dt.gettext
 
 du.check_min_api_version("3.0.0", "copy_paste_metadata")
@@ -126,13 +127,13 @@ dt.gui.libs.image.register_action(
 )
 
 dt.register_event(
-  CURR_API_STRING >= "6.2.1" and "capmd1", "shortcut" or "shortcut" ,
+  "capmd1", "shortcut",
   function(event, shortcut) copy(dt.gui.action_images[1]) end,
   "copy metadata"
 )
 
 dt.register_event(
-  CURR_API_STRING >= "6.2.1" and "capmd2", "shortcut" or "shortcut" ,
+  "capmd2", "shortcut",
   function(event, shortcut) paste(dt.gui.action_images) end,
   "paste metadata"
 )
