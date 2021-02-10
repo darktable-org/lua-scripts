@@ -63,7 +63,14 @@ local function select_untagged_images()
   dt.gui.selection(selection)
 end
 
-dt.gui.libs.select.register_selection(
-  CURR_API_STRING >= "6.2.2" and "select_untagged", _("select untagged") or _("select untagged") ,
-  select_untagged_images,
-  _("select all images containing no tags or only tags added by darktable"))
+if CURR_API_STRING >= "6.2.2" then
+  dt.gui.libs.select.register_selection(
+    "select_untagged", _("select untagged"),
+    select_untagged_images,
+    _("select all images containing no tags or only tags added by darktable"))
+else
+  dt.gui.libs.select.register_selection(
+    _("select untagged"),
+    select_untagged_images,
+    _("select all images containing no tags or only tags added by darktable"))
+end
