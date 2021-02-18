@@ -114,17 +114,37 @@ local function paste(images)
   end
 end
 
-dt.gui.libs.image.register_action(
-  _("copy metadata"),
-  function(event, images) copy(images[1]) end,
-  _("copy metadata of the first selected image")
-)
+if CURR_API_STRING < "6.2.3" then
+  dt.gui.libs.image.register_action(
+    _("copy metadata"),
+    function(event, images) copy(images[1]) end,
+    _("copy metadata of the first selected image")
+  )
+else
+  dt.gui.libs.image.register_action(
+    "metadata_copy", _("copy metadata"),
+    function(event, images) copy(images[1]) end,
+    _("copy metadata of the first selected image")
+  )
+end
+  
 
-dt.gui.libs.image.register_action(
-  _("paste metadata"),
-  function(event, images) paste(images) end,
-  _("paste metadata to the selected images")
-)
+
+if CURR_API_STRING < "6.2.3" then
+  dt.gui.libs.image.register_action(
+    _("paste metadata"),
+    function(event, images) paste(images) end,
+    _("paste metadata to the selected images")
+  )
+else
+  dt.gui.libs.image.register_action(
+    "metadata_paste", _("paste metadata"),
+    function(event, images) paste(images) end,
+    _("paste metadata to the selected images")
+  )
+end
+  
+
 
 dt.register_event(
   "capmd1", "shortcut",
