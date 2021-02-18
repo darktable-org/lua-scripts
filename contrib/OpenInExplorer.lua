@@ -184,11 +184,21 @@ end
 
 
 -- GUI --
-dt.gui.libs.image.register_action(
-  _("show in file explorer"),
-  function() open_in_fmanager() end,
-  _("Open the file manager at the selected image's location")
-)
+if CURR_API_STRING < "6.2.3" then
+  dt.gui.libs.image.register_action(
+    _("show in file explorer"),
+    function() open_in_fmanager() end,
+    _("Open the file manager at the selected image's location")
+  )
+else
+  dt.gui.libs.image.register_action(
+    "OpenInExplorer", _("show in file explorer"),
+    function() open_in_fmanager() end,
+    _("Open the file manager at the selected image's location")
+  )
+end
+  
+
 if act_os ~= "windows" then
   dt.preferences.register("OpenInExplorer", "linked_image_files_dir",  -- name
     "directory", -- type
