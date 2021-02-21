@@ -20,8 +20,8 @@
 
     This script provides helpers to edit image files with programs external to darktable. It adds:
       - a new target storage "collection". Image exported will be reimported to collection for further edit with external programs
-      - a new lighttable module "external editors", to select a program from a list of up to
-      - 9 external editors and run it on a selected image (adjust this limit by changing MAX_EDITORS)
+      - a new module "external editors", visible in lightable and darkroom, to select a program from a list 
+      - of up to 9 external editors and run it on a selected image (adjust this limit by changing MAX_EDITORS)
       - a set of lua preferences in order to configure name and path of up to 9 external editors
       - a set of lua shortcuts in order to quick launch the external editors
     
@@ -32,7 +32,7 @@
       * in "preferences/lua options" configure name and path/command of external programs
       * note that if a program name is left empty, that and all following entries will be ignored
       * in "preferences/shortcuts/lua" configure shortcuts for external programs (optional)
-      * whenever programs preferences are changed, in lighttable/external editors, press "update list"
+      * whenever programs preferences are changed, in external editors GUI, press "update list"
 
     -- use --
       * in the export dialog choose "collection" and select the format and bit depth for the
@@ -40,21 +40,19 @@
       * press "export"
       * the exported image will be imported into collection and grouped with the original image
       
-      * select an image for editing with en external program, and:
-      * in lighttable/external editors, select program and press "edit"
+      * in lighttable, select an image for editing with en external program 
+      * (or in darkroom for the image being edited):
+      * in external editors GUI, select program and press "edit"
       * edit the image with the external editor, overwite the file, quit the external program
       * the selected image will be updated
       or
-      * in lighttable/external editors, select program and press "edit a copy"
+      * in external editors GUI, select program and press "edit a copy"
       * edit the image with the external editor, overwite the file, quit the external program
       * a copy of the selected image will be created and updated
       or
-      * in lighttable select target storage "collection"
-      * enter in darkroom
-      * to create an export or a copy press CRTL+E
       * use the shortcut to edit the current image with the corresponding external editor
       * overwite the file, quit the external program
-      * the darkroom view will be updated
+      * the image will be updated
     
     * warning: mouseover on lighttable/filmstrip will prevail on current image
     * this is the default DT behavior, not a bug of this script
@@ -101,7 +99,7 @@ local function _(msgid)
   end
 
 -- maximum number of external programs, can be increased to necessity
-local MAX_EDITORS = 9
+local MAX_EDITORS = 12
 
 -- number of valid entries in the list of external programs
 local n_entries
@@ -280,13 +278,9 @@ local function OpenWith(images, choice, copy)
       new_image = dt.database.import(name)
       new_image:group_with(image_leader)
       end
-    -- refresh darkroom view
-    if dt.gui.current_view() == dt.gui.views.darkroom then
-      dt.gui.views.darkroom.display_image(new_image)
-      end
     end   
 
-  -- restore image tags, rating and color, must be put after refresh darkroom view
+  -- restore image tags, rating and color
   for i, tag in ipairs(tags) do dt.tags.attach(tag, new_image) end
   new_image.rating = rating
   new_image.red = red
@@ -298,8 +292,12 @@ local function OpenWith(images, choice, copy)
     -- select the new image
   local selection = {}
   table.insert(selection, new_image)
-  dt.gui.selection (selection)
+  dt.gui.selection(selection)
 
+  -- refresh darkroom view
+  if dt.gui.current_view().id == "darkroom" then
+    dt.gui.views.darkroom.display_image(new_image)
+    end
   end
 
 
@@ -334,19 +332,21 @@ local function export2collection(storage, image_table, extra_data)
     new_image:group_with(image.group_leader)
     end 
   
-  dt.print (_("finished exporting"))
+  dt.print(_("finished exporting"))
   end
 
--- install the module in the UI
+
+-- install the module in the UI -----------------------------------------------
 local function install_module()
   if not ee.module_installed then
-    -- register new module "external editors" in lighttable ------------------------
+    -- register new module "external editors" in lighttable and darkroom ------
     dt.register_lib(
       MODULE_NAME,          
       _("external editors"),  
       true, -- expandable
       false,  -- resetable
-      {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},  
+      {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100},
+       [dt.gui.views.darkroom] = {"DT_UI_CONTAINER_PANEL_LEFT_CENTER", 100}},  
       dt.new_widget("box") {
         orientation = "vertical",
         table.unpack(ee.widgets),
@@ -357,6 +357,7 @@ local function install_module()
     ee.module_installed = true
   end
 end
+
 
 -- combobox, with variable number of entries ----------------------------------
 local combobox = dt.new_widget("combobox") {
@@ -409,30 +410,11 @@ local box1 = dt.new_widget("box") {
   button_update_list
   }
 
+
+-- install module in lighttable and darkroom ----------------------------------
 table.insert(ee.widgets, combobox)
 table.insert(ee.widgets, box1)
-
--- register new module "external editors" in lighttable ------------------------
-if dt.gui.current_view().id == "lighttable" then
-  install_module()
-else
-  if not ee.event_registered then
-    dt.register_event(
-      MODULE_NAME, "view-changed",
-      function(event, old_view, new_view)
-        if new_view.name == "lighttable" and old_view.name == "darkroom" then
-          install_module()
-         end
-      end
-    )
-    ee.event_registered = true
-  end
-end
-
-
-
--- initialize list of programs and widgets ------------------------------------ 
-UpdateProgramList(combobox, button_edit, button_edit_copy, false) 
+install_module()
 
 
 -- register new storage -------------------------------------------------------
