@@ -99,7 +99,7 @@ local function _(msgid)
   end
 
 -- maximum number of external programs, can be increased to necessity
-local MAX_EDITORS = 12
+local MAX_EDITORS = 9
 
 -- number of valid entries in the list of external programs
 local n_entries
