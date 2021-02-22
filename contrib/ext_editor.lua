@@ -416,6 +416,9 @@ table.insert(ee.widgets, combobox)
 table.insert(ee.widgets, box1)
 install_module()
 
+-- initialize list of programs and widgets ------------------------------------ 
+UpdateProgramList(combobox, button_edit, button_edit_copy, false) 
+
 
 -- register new storage -------------------------------------------------------
 dt.register_storage("exp2coll", _("collection"), nil, export2collection)
