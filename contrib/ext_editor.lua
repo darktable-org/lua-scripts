@@ -411,10 +411,28 @@ local box1 = dt.new_widget("box") {
   }
 
 
--- install module in lighttable and darkroom ----------------------------------
+-- table with all the widgets --------------------------------------------------
 table.insert(ee.widgets, combobox)
 table.insert(ee.widgets, box1)
-install_module()
+
+
+-- register new module, but only when in lighttable ----------------------------
+if dt.gui.current_view().id == "lighttable" then
+  install_module()
+else
+  if not ee.event_registered then
+    dt.register_event(
+      MODULE_NAME, "view-changed",
+      function(event, old_view, new_view)
+        if new_view.name == "lighttable" and old_view.name == "darkroom" then
+          install_module()
+         end
+      end
+    )
+    ee.event_registered = true
+  end
+end
+
 
 -- initialize list of programs and widgets ------------------------------------ 
 UpdateProgramList(combobox, button_edit, button_edit_copy, false) 
