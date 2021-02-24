@@ -338,39 +338,28 @@ local function export2collection(storage, image_table, extra_data)
 
 -- install the module in the UI -----------------------------------------------
 local function install_module(dr)
+  
+  local views = {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}}
+  if dr then 
+    views = {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100},
+            [dt.gui.views.darkroom] = {"DT_UI_CONTAINER_PANEL_LEFT_CENTER", 100}}
+  end
+  
   if not ee.module_installed then
-    if dr then
-      -- register new module "external editors" in lighttable and darkroom ----
-      dt.register_lib(
-        MODULE_NAME,          
-        _("external editors"),  
-        true, -- expandable
-        false,  -- resetable
-        {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100},
-         [dt.gui.views.darkroom] = {"DT_UI_CONTAINER_PANEL_LEFT_CENTER", 100}},  
-        dt.new_widget("box") {
-          orientation = "vertical",
-          table.unpack(ee.widgets),
-          },
-        nil,  -- view_enter
-        nil   -- view_leave
-        )
-    else 
-      -- register new module "external editors" in lighttable only ------------
-      dt.register_lib(
-        MODULE_NAME,          
-        _("external editors"),  
-        true, -- expandable
-        false,  -- resetable
-        {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},  
-        dt.new_widget("box") {
-          orientation = "vertical",
-          table.unpack(ee.widgets),
-          },
-        nil,  -- view_enter
-        nil   -- view_leave
-        )
-    end
+    -- register new module "external editors" in lighttable and darkroom ----
+    dt.register_lib(
+      MODULE_NAME,          
+      _("external editors"),  
+      true, -- expandable
+      false,  -- resetable
+      views,
+      dt.new_widget("box") {
+        orientation = "vertical",
+        table.unpack(ee.widgets),
+        },
+      nil,  -- view_enter
+      nil   -- view_leave
+      )
     ee.module_installed = true
   end
 end
