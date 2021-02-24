@@ -337,23 +337,40 @@ local function export2collection(storage, image_table, extra_data)
 
 
 -- install the module in the UI -----------------------------------------------
-local function install_module()
+local function install_module(dr)
   if not ee.module_installed then
-    -- register new module "external editors" in lighttable and darkroom ------
-    dt.register_lib(
-      MODULE_NAME,          
-      _("external editors"),  
-      true, -- expandable
-      false,  -- resetable
-      {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100},
-       [dt.gui.views.darkroom] = {"DT_UI_CONTAINER_PANEL_LEFT_CENTER", 100}},  
-      dt.new_widget("box") {
-        orientation = "vertical",
-        table.unpack(ee.widgets),
-        },
-      nil,  -- view_enter
-      nil   -- view_leave
-      )
+    if dr then
+      -- register new module "external editors" in lighttable and darkroom ----
+      dt.register_lib(
+        MODULE_NAME,          
+        _("external editors"),  
+        true, -- expandable
+        false,  -- resetable
+        {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100},
+         [dt.gui.views.darkroom] = {"DT_UI_CONTAINER_PANEL_LEFT_CENTER", 100}},  
+        dt.new_widget("box") {
+          orientation = "vertical",
+          table.unpack(ee.widgets),
+          },
+        nil,  -- view_enter
+        nil   -- view_leave
+        )
+    else 
+      -- register new module "external editors" in lighttable only ------------
+      dt.register_lib(
+        MODULE_NAME,          
+        _("external editors"),  
+        true, -- expandable
+        false,  -- resetable
+        {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},  
+        dt.new_widget("box") {
+          orientation = "vertical",
+          table.unpack(ee.widgets),
+          },
+        nil,  -- view_enter
+        nil   -- view_leave
+        )
+    end
     ee.module_installed = true
   end
 end
@@ -417,15 +434,16 @@ table.insert(ee.widgets, box1)
 
 
 -- register new module, but only when in lighttable ----------------------------
+local show_dr = dt.preferences.read(MODULE_NAME, "show_in_darkrooom", "bool")
 if dt.gui.current_view().id == "lighttable" then
-  install_module()
+  install_module(show_dr)
 else
   if not ee.event_registered then
     dt.register_event(
       MODULE_NAME, "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
-          install_module()
+          install_module(show_dr)
          end
       end
     )
@@ -452,6 +470,9 @@ for i = MAX_EDITORS, 1, -1 do
   _("name of external editor ")..i, 
   _("friendly name of external editor"), "")
   end
+dt.preferences.register(MODULE_NAME, "show_in_darkrooom", "bool", 
+  _("show external editors in darkroom"), 
+  _("check to show external editors module also in darkroom (requires restart)"), false)
 
 
 -- register the new shortcuts -------------------------------------------------
