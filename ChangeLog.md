@@ -1,5 +1,7 @@
 ## Changes from most recent to oldest
 
+**24 Feb 2021 - Mark64 - make ext_editor lib visible in darkroom view**
+
 **17 Feb 2021 - wpferguson - API 6.2.3 register_action changes**
 
 * Added check for API version and supplied a name argument if the 
