@@ -41,7 +41,9 @@
     * require this script from your main lua file
     * select an image or images for editing with GIMP
     * in the export dialog select "Edit with GIMP" and select the format and bit depth for the
-      exported image
+      exported image.  Check the  "run_detached" button to run GIMP in detached mode.  Images
+      will not be returned to darktable in this mode, but additional images can be sent to 
+      GIMP without stopping it.
     * Press "export"
     * Edit the image with GIMP then save the changes with File->Overwrite....
     * Exit GIMP
@@ -103,6 +105,8 @@ end
 
 local function gimp_edit(storage, image_table, extra_data) --finalize
 
+  local run_detached = dt.preferences.read("gimp", "run_detached", "bool")
+
   local gimp_executable = df.check_if_bin_exists("gimp")
 
   if not gimp_executable then
@@ -111,7 +115,11 @@ local function gimp_edit(storage, image_table, extra_data) --finalize
   end
 
   if dt.configuration.running_os == "macos" then
-    gimp_executable = "open -W -a " .. gimp_executable
+    if run_detached then
+      gimp_executable = "open -a " .. gimp_executable
+    else
+      gimp_executable = "open -W -a " .. gimp_executable
+    end
   end
 
   -- list of exported images
@@ -130,54 +138,67 @@ local function gimp_edit(storage, image_table, extra_data) --finalize
   local gimpStartCommand
   gimpStartCommand = gimp_executable .. " " .. img_list
 
+  if run_detached then
+    if dt.configuration.running_os == "windows" then
+      gimpStartCommand = "start /b \"\" " .. gimpStartCommand
+    else
+      gimpStartCommand = gimpStartCommand .. " &"
+    end
+  end
+
   dt.print_log(gimpStartCommand)
 
   dtsys.external_command(gimpStartCommand)
 
-  -- for each of the image, exported image pairs
-  --   move the exported image into the directory with the original
-  --   then import the image into the database which will group it with the original
-  --   and then copy over any tags other than darktable tags
+  if not run_detached then
 
-  for image,exported_image in pairs(image_table) do
+    -- for each of the image, exported image pairs
+    --   move the exported image into the directory with the original
+    --   then import the image into the database which will group it with the original
+    --   and then copy over any tags other than darktable tags
 
-    local myimage_name = image.path .. "/" .. df.get_filename(exported_image)
+    for image,exported_image in pairs(image_table) do
 
-    while df.check_if_file_exists(myimage_name) do
-      myimage_name = df.filename_increment(myimage_name)
-      -- limit to 99 more exports of the original export
-      if string.match(df.get_basename(myimage_name), "_(d-)$") == "99" then
-        break
+      local myimage_name = image.path .. "/" .. df.get_filename(exported_image)
+
+      while df.check_if_file_exists(myimage_name) do
+        myimage_name = df.filename_increment(myimage_name)
+        -- limit to 99 more exports of the original export
+        if string.match(df.get_basename(myimage_name), "_(d-)$") == "99" then
+          break
+        end
       end
-    end
 
-    dt.print_log("moving " .. exported_image .. " to " .. myimage_name)
-    local result = df.file_move(exported_image, myimage_name)
+      dt.print_log("moving " .. exported_image .. " to " .. myimage_name)
+      local result = df.file_move(exported_image, myimage_name)
 
-    if result then
-      dt.print_log("importing file")
-      local myimage = dt.database.import(myimage_name)
+      if result then
+        dt.print_log("importing file")
+        local myimage = dt.database.import(myimage_name)
 
-      group_if_not_member(image, myimage)
+        group_if_not_member(image, myimage)
 
-      for _,tag in pairs(dt.tags.get_tags(image)) do
-        if not (string.sub(tag.name,1,9) == "darktable") then
-          dt.print_log("attaching tag")
-          dt.tags.attach(tag,myimage)
+        for _,tag in pairs(dt.tags.get_tags(image)) do
+          if not (string.sub(tag.name,1,9) == "darktable") then
+            dt.print_log("attaching tag")
+            dt.tags.attach(tag,myimage)
+          end
         end
       end
     end
   end
-
 end
 
 -- Register
 
-local executables = {"gimp"}
-
-if dt.configuration.running_os ~= "linux" then
-  gimp_widget = df.executable_path_widget(executables)
-end
+gimp_widget = dt.new_widget("check_button"){
+  label = _("run detached"),
+  tooltip = _("don't import resulting image back into darktable"),
+  value = dt.preferences.read("gimp", "run_detached", "bool"),
+  clicked_callback = function(this)
+    dt.preferences.write("gimp", "run_detached", "bool", this.value)
+  end
+}
 
 dt.register_storage("module_gimp", _("Edit with GIMP"), show_status, gimp_edit, nil, nil, gimp_widget)
 

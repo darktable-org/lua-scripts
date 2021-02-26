@@ -1,5 +1,11 @@
 ## Changes from most recent to oldest
 
+** 25 Feb 2021 - wpferguson - added detached mode to contrib/gimp.lua**
+
+* Added run_detached checkbox to the exporter GUI.  Selecting run_detached
+let's GIMP keep running and accepting additional images.  It does not return
+the edited images to darktable.
+
 **24 Feb 2021 - Mark64 - make ext_editor lib visible in darkroom view**
 
 **17 Feb 2021 - wpferguson - API 6.2.3 register_action changes**
