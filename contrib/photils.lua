@@ -237,9 +237,9 @@ function PHOTILS.attach_tags()
         end
 
         job.percent = i / num_selected
-        dt.print(_("Tags successfully attached to image"))
     end
 
+    dt.print(_("Tags successfully attached to image"))
     job.valid = false
 end
 
