@@ -1,5 +1,9 @@
 ## Changes from most recent to oldest
 
+** 19 Mar 2021 - wpferguson - fixed crash in contrib/HDRmerge.lua**
+* Made generated filename routine gracefully handle names that
+are not in the exported format.
+
 ** 25 Feb 2021 - wpferguson - added detached mode to contrib/gimp.lua**
 
 * Added run_detached checkbox to the exporter GUI.  Selecting run_detached
