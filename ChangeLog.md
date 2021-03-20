@@ -2,7 +2,12 @@
 
 ** 19 Mar 2021 - wpferguson - fixed crash in contrib/HDRmerge.lua**
 * Made generated filename routine gracefully handle names that
-are not in the exported format.
+are not in the expected format.
+
+** 15 Mar 2021 - scheckmedia - updated contrib/photils.lua**
+* refactor print method
+* add option to apply selected tags from a single image to multiple images
+* add setting parameter to enable/disable the export of an image before tag suggestion
 
 ** 25 Feb 2021 - wpferguson - added detached mode to contrib/gimp.lua**
 
