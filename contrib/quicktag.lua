@@ -211,7 +211,7 @@ update_quicktag_list()
 local new_quicktag = dt.new_widget("entry"){
     text = "",
     placeholder = _("new tag"),
-    is_password = true,
+    is_password = false,
     editable = true,
     tooltip = _("enter your tag here")
 }
