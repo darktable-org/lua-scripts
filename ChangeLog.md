@@ -1,5 +1,9 @@
 ## Changes from most recent to oldest
 
+** 02 Jun 2021 - wpferguson - fix contrib/quicktag**
+* set new entry field is_password to false so entry
+is visible to user while typing.
+
 ** 19 Mar 2021 - wpferguson - fixed crash in contrib/HDRmerge.lua**
 * Made generated filename routine gracefully handle names that
 are not in the expected format.
