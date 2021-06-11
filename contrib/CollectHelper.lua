@@ -175,63 +175,31 @@ local function CollectOnAll_AND()
 end
 
 -- GUI --
-if CURR_API_STRING < "6.2.3" then
-	dt.gui.libs.image.register_action(
-		_("collect: previous"),
-		function() PreviousCollection() end,
-		_("Sets the Collect parameters to be the previously active parameters")
-	)
-else
-	dt.gui.libs.image.register_action(
-		"CollectHelper_prev", _("collect: previous"),
-		function() PreviousCollection() end,
-		_("Sets the Collect parameters to be the previously active parameters")
-	)
-end
+dt.gui.libs.image.register_action(
+	_("collect: previous"),
+	function() PreviousCollection() end,
+	_("Sets the Collect parameters to be the previously active parameters")
+)
 if dt.preferences.read('module_CollectHelper','folder','bool') then
-	if CURR_API_STRING < "6.2.3" then
-		dt.gui.libs.image.register_action(
-			_("collect: folder"),
-			function() CollectOnFolder(_ , false) end,
-			_("Sets the Collect parameters to be the selected images's folder")
-		)
-	else
-			dt.gui.libs.image.register_action(
-			"CollectHelper_folder", _("collect: folder"),
-			function() CollectOnFolder(_ , false) end,
-			_("Sets the Collect parameters to be the selected images's folder")
-		)
-	end
+	dt.gui.libs.image.register_action(
+		_("collect: folder"),
+		function() CollectOnFolder(_ , false) end,
+		_("Sets the Collect parameters to be the selected images's folder")
+	)
 end
 if dt.preferences.read('module_CollectHelper','colors','bool') then
-	if CURR_API_STRING < "6.2.3" then
-		dt.gui.libs.image.register_action(
-			_("collect: color label(s)"),
-			function() CollectOnColors(_ , false) end,
-			_("Sets the Collect parameters to be the selected images's color label(s)")
-		)
-	else
-			dt.gui.libs.image.register_action(
-			"CollectHelper_labels", _("collect: color label(s)"),
-			function() CollectOnColors(_ , false) end,
-			_("Sets the Collect parameters to be the selected images's color label(s)")
-		)
-	end
+	dt.gui.libs.image.register_action(
+		_("collect: color label(s)"),
+		function() CollectOnColors(_ , false) end,
+		_("Sets the Collect parameters to be the selected images's color label(s)")
+	)
 end
 if dt.preferences.read('module_CollectHelper','all_and','bool') then
-	if CURR_API_STRING < "6.2.3" then
-		dt.gui.libs.image.register_action(
-			_("collect: all (AND)"),
-			function() CollectOnAll_AND() end,
-			_("Sets the Collect parameters based on all activated CollectHelper options")
-		)
-	else
-			dt.gui.libs.image.register_action(
-			"CollectHelper_and", _("collect: all (AND)"),
-			function() CollectOnAll_AND() end,
-			_("Sets the Collect parameters based on all activated CollectHelper options")
-		)
-	end
+	dt.gui.libs.image.register_action(
+		_("collect: all (AND)"),
+		function() CollectOnAll_AND() end,
+		_("Sets the Collect parameters based on all activated CollectHelper options")
+	)
 end
 
 -- PREFERENCES --

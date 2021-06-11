@@ -68,7 +68,7 @@ end
 
 -- api check
 
-du.check_min_api_version("5.0.0", "script_manager")
+du.check_min_api_version("6.1.0", "script_manager")
 
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
@@ -461,9 +461,7 @@ local function populate_buttons(category, first, last)
     else
       button.label = script.name .. _(" stopped")
     end
-    if CURR_API_STRING >= "6.0.1" then
-      button.ellipsize = "middle"
-    end
+    button.ellipsize = "middle"
     button.sensitive = true
     button.tooltip = script.doc
     button.clicked_callback = function (this)
@@ -772,12 +770,8 @@ for i =1, DEFAULT_BUTTONS_PER_PAGE do
   sm.page_status.buttons_create = sm.page_status.buttons_created + 1
 end
 
-local page_back = "<"
-local page_forward = ">"
-if CURR_API_STRING < "6.1.0" then
-  page_back = "     <     "
-  page_forward = "     >     "
-end
+local page_back = "     <     "
+local page_forward = "     >     "
 
 sm.widgets.page_status = dt.new_widget("label"){label = _("Page:")}
 sm.widgets.page_back = dt.new_widget("button"){
@@ -849,10 +843,8 @@ sm.widgets.main_stack = dt.new_widget("stack"){
   sm.widgets.scripts,
 }
 
-if CURR_API_STRING >= "6.0.1" then
-  sm.widgets.main_stack.h_size_fixed = false
-  sm.widgets.main_stack.v_size_fixed = false
-end
+sm.widgets.main_stack.h_size_fixed = false
+sm.widgets.main_stack.v_size_fixed = false
 
 -- main menu
 
