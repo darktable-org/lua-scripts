@@ -39,7 +39,7 @@
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-           require "lib/darktable_transition"
+
 local dtsys = require "lib/dtutils.system"
 
 local MODULE_NAME = "photils"
@@ -454,7 +454,7 @@ dt.preferences.register(MODULE_NAME,
                           "The embedded thumbnail could speedup the tag suggestion but can fail if the RAW file is not supported."),
                         true)
 
-dt.register_event("photils", "mouse-over-image-changed",
+dt.register_event("mouse-over-image-changed",
     PHOTILS.image_changed)
 
 if dt.gui.current_view().id == "lighttable" then
@@ -462,7 +462,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not PHOTILS.event_registered then
     dt.register_event(
-      "photils", "view-changed",
+      "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()

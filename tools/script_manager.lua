@@ -54,7 +54,6 @@ local df = require "lib/dtutils.file"
 local ds = require "lib/dtutils.string"
 local dtsys = require "lib/dtutils.system"
 local log = require "lib/dtutils.log"
-            require "lib/darktable_transition"
 
 local gettext = dt.gettext
 
@@ -875,7 +874,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not sm.event_registered then
     dt.register_event(
-      "script_manager", "view-changed",
+      "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()

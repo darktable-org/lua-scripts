@@ -30,7 +30,6 @@ This plugin will add a widget at the bottom of the left column in lighttable mod
 ]]
 local dt = require "darktable"
 local du = require "lib/dtutils"
-           require "lib/darktable_transition"
 
 du.check_min_api_version("2.0.0", "image_path_in_ui") 
 local CURR_API_STRING = dt.configuration.api_version_string
@@ -86,7 +85,7 @@ else
   end
 end
 
-dt.register_event("ipiu", "mouse-over-image-changed", reset_widget);
+dt.register_event("mouse-over-image-changed", reset_widget);
 
   --
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua

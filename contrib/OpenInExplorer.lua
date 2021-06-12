@@ -50,7 +50,6 @@ As an alternative option you can choose to show the image file names as symbolic
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-           require "lib/darktable_transition"
 local dsys = require "lib/dtutils.system"
 local gettext = dt.gettext
 
@@ -211,7 +210,7 @@ if act_os ~= "windows" then
 end
 
 dt.register_event(
-    "OpenInExplorer", "shortcut",
+    "shortcut",
     function(event, shortcut) open_in_fmanager() end,
     "OpenInExplorer"
 )  

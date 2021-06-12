@@ -36,7 +36,6 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 local dtsys = require "lib/dtutils.system"
-           require "lib/darktable_transition"
 
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 local CURR_API_STRING = dt.configuration.api_version_string
@@ -270,7 +269,7 @@ if enfuse_installed then
   else
     if not enf.event_registered then
       dt.register_event(
-        "enfuse", "view-changed",
+        "view-changed",
         function(event, old_view, new_view)
           if new_view.name == "lighttable" and old_view.name == "darkroom" then
             install_module()

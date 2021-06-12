@@ -38,7 +38,7 @@
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
-           require "lib/darktable_transition"
+
 local gettext = dt.gettext
 
 -- not a number
@@ -71,7 +71,7 @@ dt.gui.libs.image.register_action(
 )
 
 dt.register_event(
-  "clearGPS", "shortcut",
+  "shortcut",
   function(event, shortcut) clear_GPS(dt.gui.action_images) end,
   _("Clear GPS data")
 )

@@ -52,8 +52,7 @@
 ]]
 
 local dt = require "darktable"
-           require "lib/darktable_transition"
-
+ 
 --[[
     require "lib/..." provides access to functions that have been pulled from various 
     scripts and consolidated into libraries.  Using the libraries eliminates having to 
@@ -243,7 +242,7 @@ dt.gui.libs.image.register_action(
 ]]
 
 dt.register_event(
-  "multi_os", "shortcut",
+  "shortcut",
   function(event, shortcut) extract_embedded_jpeg(dt.gui.action_images) end,
   "extract embedded jpeg"
 )

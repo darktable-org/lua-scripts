@@ -37,7 +37,7 @@ selected images, the other button performs grouping on the entire active collect
 ]]
 
 local dt = require "darktable"
-           require "lib/darktable_transition"
+
 local MOD = 'autogrouper'
 local gettext = dt.gettext
 -- Tell gettext where to find the .mo file translating messages for a particular domain
@@ -176,7 +176,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not Ag.event_registered then
     dt.register_event(
-      "AutoGrouper", "view-changed",
+      "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()

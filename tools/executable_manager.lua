@@ -31,7 +31,6 @@
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-           require "lib/darktable_transition"
 
 du.check_min_api_version("5.0.0", "executable_manager")
 
@@ -216,7 +215,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not exec_man.event_registered then
     dt.register_event(
-      "executable_manager", "view-changed",
+      "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()

@@ -68,7 +68,6 @@
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-           require "lib/darktable_transition"
 local dtsys = require "lib/dtutils.system"
 
 
@@ -429,7 +428,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not ee.event_registered then
     dt.register_event(
-      MODULE_NAME, "view-changed",
+      "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module(show_dr)
@@ -466,7 +465,7 @@ dt.preferences.register(MODULE_NAME, "show_in_darkrooom", "bool",
 
 -- register the new shortcuts -------------------------------------------------
 for i = 1, MAX_EDITORS do
-  dt.register_event(MODULE_NAME .. i, "shortcut", 
+  dt.register_event("shortcut", 
     program_shortcut, _("edit with program ")..string.format("%02d", i)) 
   end
 
