@@ -1,5 +1,7 @@
 ## Changes from most recent to oldest
 
+** 19 Jun 2021 - wpferguson - fix issue 312, image_path_in_ui**
+
 ** 02 Jun 2021 - wpferguson - fix contrib/quicktag**
 * set new entry field is_password to false so entry
 is visible to user while typing.

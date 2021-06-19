@@ -43,8 +43,8 @@ local main_label = dt.new_widget("label"){selectable = true, ellipsize = "middle
 
 local function install_module()
   if not ipiu.module_installed then
-    dt.register_lib("image_path_no_ui","Selected Images path",true,false,{
-      [dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_CENTER",300}
+    dt.register_lib("image_path_no_ui", "selected images path", true, false,{
+      [dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_CENTER", 300}
       }, main_label
     )
     ipiu.module_installed = true
