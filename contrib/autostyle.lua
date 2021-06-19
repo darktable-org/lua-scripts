@@ -38,7 +38,6 @@ GPLv2
 
 local darktable = require "darktable"
 local du = require "lib/dtutils"
-           require "lib/darktable_transition"
 local filelib = require "lib/dtutils.file"
 
 -- Forward declare the functions
@@ -153,12 +152,12 @@ function get_stdout(cmd)
 end
 
 -- Registering events
-darktable.register_event("autostyle", "shortcut", autostyle_apply,
+darktable.register_event("shortcut", autostyle_apply,
        "Apply your chosen style from exiftool tags")
 
 darktable.preferences.register("autostyle","exif_tag","string","Autostyle: EXIF_tag=value=>style","apply a style automatically if an EXIF_tag matches value. Find the tag with exiftool","")
 
-darktable.register_event("autostyle", "post-import-image",
+darktable.register_event("post-import-image",
   autostyle_apply_one_image_event)
 
 

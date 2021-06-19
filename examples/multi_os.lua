@@ -52,8 +52,7 @@
 ]]
 
 local dt = require "darktable"
-           require "lib/darktable_transition"
-
+ 
 --[[
     require "lib/..." provides access to functions that have been pulled from various 
     scripts and consolidated into libraries.  Using the libraries eliminates having to 
@@ -231,28 +230,19 @@ end
     Add a button to the selected images module in lighttable
 ]]
 
-if CURR_API_STRING < "6.2.3" then
-  dt.gui.libs.image.register_action(
-    _("extract embedded jpeg"),
-    function(event, images) extract_embedded_jpeg(images) end,
-    "extract embedded jpeg"
-  )
-else
-  dt.gui.libs.image.register_action(
-    "multi_os", _("extract embedded jpeg"),
-    function(event, images) extract_embedded_jpeg(images) end,
-    "extract embedded jpeg"
-  )
-end
+dt.gui.libs.image.register_action(
+  _("extract embedded jpeg"),
+  function(event, images) extract_embedded_jpeg(images) end,
+  "extract embedded jpeg"
+)
   
-
 
 --[[
     Add a shortcut
 ]]
 
 dt.register_event(
-  "multi_os", "shortcut",
+  "shortcut",
   function(event, shortcut) extract_embedded_jpeg(dt.gui.action_images) end,
   "extract embedded jpeg"
 )

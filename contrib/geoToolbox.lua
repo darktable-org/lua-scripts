@@ -28,7 +28,7 @@ require "geoToolbox"
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-           require "lib/darktable_transition"
+
 local gettext = dt.gettext
 
 du.check_min_api_version("3.0.0", "geoToolbox") 
@@ -689,7 +689,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not gT.event_registered then
     dt.register_event(
-      "geoToolbox", "view-changed",
+      "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()
@@ -709,14 +709,14 @@ dt.preferences.register("geoToolbox",
 	'' )
 
 -- Register
-dt.register_event("geoToolbox_cd", "shortcut", 
+dt.register_event("shortcut", 
   print_calc_distance, _("Calculate the distance from latitude and longitude in km"))
-dt.register_event("geoToolbox", "mouse-over-image-changed", 
+dt.register_event("mouse-over-image-changed", 
   toolbox_calc_distance)
 
-dt.register_event("geoToolbox_wg", "shortcut", 
+dt.register_event("shortcut", 
   select_with_gps, _("Select all images with GPS information"))
-dt.register_event("geoToolbox_ng", "shortcut", 
+dt.register_event("shortcut", 
   select_without_gps, _("Select all images without GPS information"))
 
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua

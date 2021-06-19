@@ -27,7 +27,6 @@ USAGE
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
-           require "lib/darktable_transition"
 local gettext = dt.gettext
 
 du.check_min_api_version("3.0.0", "copy_paste_metadata")
@@ -114,46 +113,26 @@ local function paste(images)
   end
 end
 
-if CURR_API_STRING < "6.2.3" then
-  dt.gui.libs.image.register_action(
-    _("copy metadata"),
-    function(event, images) copy(images[1]) end,
-    _("copy metadata of the first selected image")
-  )
-else
-  dt.gui.libs.image.register_action(
-    "metadata_copy", _("copy metadata"),
-    function(event, images) copy(images[1]) end,
-    _("copy metadata of the first selected image")
-  )
-end
-  
+dt.gui.libs.image.register_action(
+  _("copy metadata"),
+  function(event, images) copy(images[1]) end,
+  _("copy metadata of the first selected image")
+)
 
-
-if CURR_API_STRING < "6.2.3" then
-  dt.gui.libs.image.register_action(
-    _("paste metadata"),
-    function(event, images) paste(images) end,
-    _("paste metadata to the selected images")
-  )
-else
-  dt.gui.libs.image.register_action(
-    "metadata_paste", _("paste metadata"),
-    function(event, images) paste(images) end,
-    _("paste metadata to the selected images")
-  )
-end
-  
-
+dt.gui.libs.image.register_action(
+  _("paste metadata"),
+  function(event, images) paste(images) end,
+  _("paste metadata to the selected images")
+)
 
 dt.register_event(
-  "capmd1", "shortcut",
+  "shortcut",
   function(event, shortcut) copy(dt.gui.action_images[1]) end,
   "copy metadata"
 )
 
 dt.register_event(
-  "capmd2", "shortcut",
+  "shortcut",
   function(event, shortcut) paste(dt.gui.action_images) end,
   "paste metadata"
 )

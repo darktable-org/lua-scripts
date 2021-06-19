@@ -39,7 +39,6 @@ USAGE
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local debug = require "darktable.debug"
-           require "lib/darktable_transition"
 
 local gettext = dt.gettext
 
@@ -235,7 +234,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not cadt.event_registered then
     dt.register_event(
-      "cadt", "view-changed",
+      "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()
@@ -248,22 +247,22 @@ end
 
 
 -- shortcut for copy
-dt.register_event("cadt_ct", "shortcut",
+dt.register_event("shortcut",
                    mcopy_tags,
                    _('copy tags from selected image(s)'))
 
 -- shortcut for attach
-dt.register_event("cadt_at", "shortcut",
+dt.register_event("shortcut",
                    attach_tags,
                    _('paste tags to selected image(s)'))
 
 -- shortcut for detaching tags
-dt.register_event("cadt_dt", "shortcut",
+dt.register_event("shortcut",
                    detach_tags,
                    _('remove tags from selected image(s)'))
 
                    -- shortcut for replace tags
-dt.register_event("cadt_rt", "shortcut",
+dt.register_event("shortcut",
                    replace_tags,
                    _('replace tags from selected image(s)'))
 

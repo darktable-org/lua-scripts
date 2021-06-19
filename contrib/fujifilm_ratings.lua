@@ -26,7 +26,7 @@ Dependencies:
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-           require "lib/darktable_transition"
+
 local gettext = dt.gettext
 
 du.check_min_api_version("4.0.0", "fujifilm_ratings")
@@ -68,7 +68,7 @@ local function detect_rating(event, image)
 	end
 end
 
-dt.register_event("fujifilm_rat", "post-import-image", 
+dt.register_event("post-import-image", 
 	detect_rating)
 
 print(_("fujifilm_ratings loaded."))

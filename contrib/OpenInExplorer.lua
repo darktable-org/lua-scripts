@@ -50,7 +50,6 @@ As an alternative option you can choose to show the image file names as symbolic
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-           require "lib/darktable_transition"
 local dsys = require "lib/dtutils.system"
 local gettext = dt.gettext
 
@@ -184,20 +183,11 @@ end
 
 
 -- GUI --
-if CURR_API_STRING < "6.2.3" then
-  dt.gui.libs.image.register_action(
-    _("show in file explorer"),
-    function() open_in_fmanager() end,
-    _("Open the file manager at the selected image's location")
-  )
-else
-  dt.gui.libs.image.register_action(
-    "OpenInExplorer", _("show in file explorer"),
-    function() open_in_fmanager() end,
-    _("Open the file manager at the selected image's location")
-  )
-end
-  
+dt.gui.libs.image.register_action(
+  _("show in file explorer"),
+  function() open_in_fmanager() end,
+  _("Open the file manager at the selected image's location")
+)  
 
 if act_os ~= "windows" then
   dt.preferences.register("OpenInExplorer", "linked_image_files_dir",  -- name
@@ -220,7 +210,7 @@ if act_os ~= "windows" then
 end
 
 dt.register_event(
-    "OpenInExplorer", "shortcut",
+    "shortcut",
     function(event, shortcut) open_in_fmanager() end,
     "OpenInExplorer"
 )  

@@ -40,7 +40,6 @@
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
-           require "lib/darktable_transition"
 
 -- added version check
 du.check_min_api_version("3.0.0", "rate_group") 
@@ -61,37 +60,37 @@ local function apply_rating(rating)
   end
 end
 
-dt.register_event("rg_reject", "shortcut",
+dt.register_event("shortcut",
   function(event, shortcut)
     apply_rating(-1)
 end, "Reject group")
 
-dt.register_event("rg0", "shortcut",
+dt.register_event("shortcut",
   function(event, shortcut)
     apply_rating(0)
 end, "Rate group 0")
 
-dt.register_event("rg1", "shortcut",
+dt.register_event("shortcut",
   function(event, shortcut)
     apply_rating(1)
 end, "Rate group 1")
 
-dt.register_event("rg2", "shortcut",
+dt.register_event("shortcut",
   function(event, shortcut)
     apply_rating(2)
 end, "Rate group 2")
 
-dt.register_event("rg3", "shortcut",
+dt.register_event("shortcut",
   function(event, shortcut)
     apply_rating(3)
 end, "Rate group 3")
 
-dt.register_event("rg4", "shortcut",
+dt.register_event("shortcut",
   function(event, shortcut)
     apply_rating(4)
 end, "Rate group 4")
 
-dt.register_event("rg5", "shortcut",
+dt.register_event("shortcut",
   function(event, shortcut)
     apply_rating(5)
 end, "Rate group 5")
