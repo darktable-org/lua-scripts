@@ -36,25 +36,43 @@ increase it if you need more temporary selection buffers
 local dt = require "darktable"
 local du = require "lib/dtutils"
 
-du.check_min_api_version("2.0.0", "save_selection") 
-local CURR_API_STRING = dt.configuration.api_version_string
+du.check_min_api_version("7.0.0", "save_selection") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 local buffer_count = 5
 
-for i=1,buffer_count do
+local function destroy()
+  for i = 1, buffer_count do
+    dt.destroy_event("save_selection save " .. i, "shortcut")
+    dt.destroy_event("save_selection restore " .. i, "shortcut")
+  end
+  dt.destroy_event("save_selection switch", "shortcut")
+end
+
+for i = 1, buffer_count do
   local saved_selection
-  dt.register_event("shortcut", function()
+  dt.register_event("save_selection save " .. i, "shortcut", function()
     saved_selection = dt.gui.selection()
-  end,"save to buffer "..i)
-  dt.register_event("shortcut", function()
+  end, "save to buffer " .. i)
+  dt.register_event("save_selection restore " .. i, "shortcut", function()
     dt.gui.selection(saved_selection)
-  end,"restore from buffer "..i)
+  end, "restore from buffer " .. i)
 end
 
 local bounce_buffer = {}
-dt.register_event("shortcut", function()
+dt.register_event("save_selection switch", "shortcut", function()
   bounce_buffer = dt.gui.selection(bounce_buffer)
-end,"switch selection with temporary buffer")
+end, "switch selection with temporary buffer")
 
+script_data.destroy = destroy
+
+return script_data
 --
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua

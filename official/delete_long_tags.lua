@@ -33,10 +33,22 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("2.0.0", "delete_long_tags") 
 
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
+
 dt.preferences.register("delete_long_tags", "length", "integer",
                         "maximum length of tags to keep",
                         "tags longer than this get deleted on start",
                         666, 0, 65536)
+
+local function destroy()
+  -- noting to destroy
+end
 
 local max_length = dt.preferences.read("delete_long_tags", "length", "integer")
 
@@ -55,3 +67,7 @@ for _,name in pairs(long_tags) do
   tag = dt.tags.find(name)
   tag:delete()
 end
+
+script_data.destroy = destroy
+
+return script_data

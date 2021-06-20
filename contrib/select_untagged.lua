@@ -22,11 +22,18 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 local gettext = dt.gettext
 
-du.check_min_api_version("3.0.0", "select_untagged") 
+du.check_min_api_version("7.0.0", "select_untagged") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("select_untagged",dt.configuration.config_dir.."/lua/locale/")
-local CURR_API_STRING = dt.configuration.api_version_string
 
 local function _(msgid)
   return gettext.dgettext("select_untagged", msgid)
@@ -64,7 +71,15 @@ local function select_untagged_images(event, images)
   return selection
 end
 
+local function destroy()
+  dt.gui.libs.select.destroy_selection("select_untagged")
+end
+
 dt.gui.libs.select.register_selection(
-  _("select untagged"),
+  "select_untagged", _("select untagged"),
   select_untagged_images,
   _("select all images containing no tags or only tags added by darktable"))
+
+script_data.destroy = destroy
+
+return script_data

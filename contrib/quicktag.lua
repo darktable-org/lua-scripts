@@ -47,17 +47,22 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 local debug = require "darktable.debug"
 
+du.check_min_api_version("7.0.0", "quicktag") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
+
 local qt = {}
 qt.module_installed = false
 qt.event_registered = false
 qt.widget_table = {}
 
-
-
 local gettext = dt.gettext
-
-du.check_min_api_version("3.0.0", "quicktag")
-local CURR_API_STRING = dt.configuration.api_version_string
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("quicktag",dt.configuration.config_dir.."/lua/locale/")
@@ -163,7 +168,7 @@ abbrevate_tags(quicktag_table)
 local button = {}
 
 -- function to create buttons with tags as labels
-for j=1,qnr do
+for j = 1, qnr do
       button[#button+1] = dt.new_widget("button") {
          label = j..": "..quicktag_table[j],
          clicked_callback = function() tagattach(tostring(quicktag_table[j]),j) end}
@@ -205,12 +210,35 @@ local function install_module()
   end
 end
 
+local function destroy()
+  dt.gui.libs["quicktag"].visible = false
+  for i=1,qnr do
+    dt.destroy_event("quicktag " .. tostring(i), "shortcut")
+  end
+end
+
+local function restart()
+  dt.gui.libs["quicktag"].visible = true
+  for i = 1 ,qnr do
+  dt.register_event("quicktag", "shortcut",
+       function(event, shortcut) tagattach(tostring(quicktag_table[i])) end,
+      string.format(_("quicktag %i"),i))
+  end
+end
+
+local function show()
+  dt.gui.libs["quicktag"].visible = true
+end
+
+
+
+
 update_quicktag_list()
 
 local new_quicktag = dt.new_widget("entry"){
     text = "",
     placeholder = _("new tag"),
-    is_password = false,
+    is_password = true,
     editable = true,
     tooltip = _("enter your tag here")
 }
@@ -257,7 +285,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not qt.event_registered then
     dt.register_event(
-      "view-changed",
+      "quicktag", "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()
@@ -270,10 +298,17 @@ end
 
 -- create shortcuts
 for i=1,qnr do
-  dt.register_event("shortcut",
+  dt.register_event("quicktag " .. tostring(i), "shortcut",
 		   function(event, shortcut) tagattach(tostring(quicktag_table[i])) end,
 		  string.format(_("quicktag %i"),i))
 end
+
+script_data.destroy = destroy
+script_data.restart = restart
+script_data.destroy_method = "hide"
+script_data.show = show
+
+return script_data
 
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
 -- kate: tab-indents: off; indent-width 2; replace-tabs on; remove-trailing-space on;

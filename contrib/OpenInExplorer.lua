@@ -54,7 +54,15 @@ local dsys = require "lib/dtutils.system"
 local gettext = dt.gettext
 
 --Check API version
-du.check_min_api_version("5.0.0", "OpenInExplorer") 
+du.check_min_api_version("7.0.0", "OpenInExplorer") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("OpenInExplorer",dt.configuration.config_dir.."/lua/locale/")
@@ -65,7 +73,6 @@ end
 
 local act_os = dt.configuration.running_os
 local PS = act_os == "windows" and  "\\"  or  "/"
-local CURR_API_STRING = dt.configuration.api_version_string
 
 --Detect OS and quit if it is not supported.	
 if act_os ~= "macos" and act_os ~= "windows" and act_os ~= "linux" then
@@ -181,13 +188,23 @@ local function open_in_fmanager()
   end
 end
 
+local function destroy()
+  dt.gui.libs.image.destroy_action("OpenInExplorer")
+  dt.destroy_event("OpenInExplorer", "shortcut")
+  if act_os ~= "windows" then
+    dt.preferences.destroy("OpenInExplorer", "linked_image_files_dir")
+  end
+  dt.preferences.destroy("OpenInExplorer", "use_links")
+end
+
 
 -- GUI --
 dt.gui.libs.image.register_action(
-  _("show in file explorer"),
+  "OpenInExplorer", _("show in file explorer"),
   function() open_in_fmanager() end,
   _("Open the file manager at the selected image's location")
-)  
+)
+  
 
 if act_os ~= "windows" then
   dt.preferences.register("OpenInExplorer", "linked_image_files_dir",  -- name
@@ -210,8 +227,11 @@ if act_os ~= "windows" then
 end
 
 dt.register_event(
-    "shortcut",
+    "OpenInExplorer", "shortcut",
     function(event, shortcut) open_in_fmanager() end,
     "OpenInExplorer"
 )  
 
+script_data.destroy = destroy
+
+return script_data

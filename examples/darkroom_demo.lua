@@ -42,6 +42,12 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("5.0.2", "darkroom_mode")  -- darktable 3.0
 
+-- script_manager integration to allow a script to be removed
+-- without restarting darktable
+local function destroy()
+    -- nothing to destroy
+end
+
 -- - - - - - - - - - - - - - - - - - - - - - - -
 -- C O N S T A N T S
 -- - - - - - - - - - - - - - - - - - - - - - - -
@@ -70,6 +76,16 @@ local sleep = dt.control.sleep
 
 local current_view = dt.gui.current_view()
 
+-- check that there is an image selected, otherwise we can't activate darkroom viewe
+
+local images = dt.gui.action_images
+dt.print_log(#images .. " images selected")
+if not images or #images == 0 then
+  dt.print_log("no images selected, creating selection")
+  dt.print_log("using image " .. dt.collection[1].filename)
+  dt.gui.selection({dt.collection[1]})
+end
+
 -- enter darkroom view
 
 dt.gui.current_view(dt.gui.views.darkroom)
@@ -96,3 +112,10 @@ dt.print(_("Restoring view"))
 sleep(1500)
 dt.gui.current_view(current_view)
 
+-- set the destroy routine so that script_manager can call it when
+-- it's time to destroy the script and then return the data to 
+-- script_manager
+local script_data = {}
+script_data.destroy = destroy
+
+return script_data

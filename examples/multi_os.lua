@@ -52,7 +52,7 @@
 ]]
 
 local dt = require "darktable"
- 
+
 --[[
     require "lib/..." provides access to functions that have been pulled from various 
     scripts and consolidated into libraries.  Using the libraries eliminates having to 
@@ -62,7 +62,6 @@ local dt = require "darktable"
 local du = require "lib/dtutils"  -- utilities
 local df = require "lib/dtutils.file"   -- file utilities
 local dtsys = require "lib/dtutils.system"  -- system utilities
-local CURR_API_STRING = dt.configuration.api_version_string
 
 --[[
     darktable is an international program, and it's user interface has been translated into
@@ -87,7 +86,7 @@ end
     screen stating that you couldn't load because the minimum api version wasn't met.
 ]]
 
-du.check_min_api_version("5.0.0", "multi_os") 
+du.check_min_api_version("7.0.0", "multi_os") 
 
 --[[
     copy_image_attributes is a local subroutine to copy image attributes in the database from the raw image
@@ -198,6 +197,15 @@ local function extract_embedded_jpeg(images)
 end
 
 --[[
+    script_manager integration to allow a script to be removed
+    without restarting darktable
+]] 
+
+local function destroy()
+    dt.destroy_event("multi_os", "shortcut") -- destroy the event since the callback will no longer be present
+    dt.gui.libs.image.destroy_action("multi_os") -- remove the button from the selected images module
+end
+--[[
     Windows and MacOS don't place executables in the user's path so their location needs to be specified
     so that the script can find them. An exception to this is packages installed on MacOS with homebrew.  Those
     executables are put in /usr/local/bin.  These are saved as executable path preferences.  check_if_bin_exists()
@@ -231,18 +239,28 @@ end
 ]]
 
 dt.gui.libs.image.register_action(
-  _("extract embedded jpeg"),
+  "multi_os", _("extract embedded jpeg"),
   function(event, images) extract_embedded_jpeg(images) end,
   "extract embedded jpeg"
 )
   
-
 --[[
     Add a shortcut
 ]]
 
 dt.register_event(
-  "shortcut",
+  "multi_os", "shortcut",
   function(event, shortcut) extract_embedded_jpeg(dt.gui.action_images) end,
   "extract embedded jpeg"
 )
+
+--[[
+    set the destroy routine so that script_manager can call it when
+    it's time to destroy the script and then return the data to 
+    script_manager
+]]
+
+local script_data = {}
+script_data.destroy = destroy
+
+return script_data

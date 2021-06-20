@@ -25,11 +25,17 @@ For each source folder, a separate <trk> is generated in the gpx file.
 local dt = require "darktable"
 local df = require "lib/dtutils.file"
 local dl = require "lib/dtutils"
-
 local gettext = dt.gettext
 
-dl.check_min_api_version("3.0.0", "gpx-export") 
-local CURR_API_STRING = dt.configuration.api_version_string
+dl.check_min_api_version("7.0.0", "gpx_export") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("gpx_export",dt.configuration.config_dir.."/lua/locale/")
@@ -149,6 +155,14 @@ local function install_module()
   end
 end
 
+local function destroy()
+  dt.gui.libs["gpx_exporter"].visible = false
+end
+
+local function restart()
+  dt.gui.libs["gpx_exporter"].visible = true
+end
+
 gpx.widget = dt.new_widget("box")
 {
   orientation = "vertical",
@@ -175,7 +189,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not gpx.event_registered then
     dt.register_event(
-      "view-changed",
+      "gpx_export", "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()
@@ -185,3 +199,9 @@ else
     gpx.event_registered = true
   end
 end
+
+script_data.destroy = destroy
+script_data.restart = restart
+script_data.destroy_method = "hide"
+
+return script_data

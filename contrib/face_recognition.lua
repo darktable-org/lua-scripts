@@ -44,7 +44,6 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 local dtsys = require "lib/dtutils.system"
-
 local gettext = dt.gettext
 
 -- constants
@@ -52,16 +51,22 @@ local gettext = dt.gettext
 local MODULE = "face_recognition"
 local PS = dt.configuration.running_os == "windows" and '\\' or '/'
 local OUTPUT = dt.configuration.tmp_dir .. PS .. "facerecognition.txt"
-local CURR_API_STRING = dt.configuration.api_version_string
+
+du.check_min_api_version("7.0.0", MODULE) 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 -- namespace
 
 local fc = {}
 fc.module_installed = false
 fc.event_registered = false
-
--- ensure we meet the minimum api
-du.check_min_api_version("5.0.0", "face_recognition")
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("face_recognition", dt.configuration.config_dir.."/lua/locale/")
@@ -344,7 +349,7 @@ end
 local function install_module()
   if not fc.module_installed then
     dt.register_lib(
-      "face_recognition",     -- Module name
+      MODULE,     -- Module name
       _("face recognition"),     -- Visible name
       true,                -- expandable
       true,               -- resetable
@@ -355,6 +360,14 @@ local function install_module()
     )
     fc.module_installed = true
   end
+end
+
+local function destroy()
+  dt.gui.libs[MODULE].visible = false
+end
+
+local function restart()
+  dt.gui.libs[MODULE].visible = true
 end
 
 -- build the interface
@@ -491,7 +504,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not fc.event_registered then
     dt.register_event(
-      "view-changed",
+      MODULE, "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()
@@ -512,5 +525,11 @@ if not dt.preferences.read(MODULE, "initialized", "bool") then
   dt.preferences.write(MODULE, "initialized", "bool", true)
 end
 
+script_data.destroy = destroy
+script_data.restart = restart
+script_data.destroy_method = "hide"
+script_data.show = restart
+
+return script_data
 --
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua

@@ -23,5 +23,19 @@ USAGE
 ]] 
 local dt = require "darktable"
 
+-- script_manager integration to allow a script to be removed
+-- without restarting darktable
+local function destroy()
+    -- nothing to destroy
+end
+
 local result = dt.configuration.api_version_string
 dt.print_error("API Version: "..result)
+
+-- set the destroy routine so that script_manager can call it when
+-- it's time to destroy the script and then return the data to 
+-- script_manager
+local script_data = {}
+script_data.destroy = destroy
+
+return script_data

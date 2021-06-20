@@ -41,7 +41,13 @@ local du = require "lib/dtutils"
 -- V E R S I O N  C H E C K
 -- - - - - - - - - - - - - - - - - - - - - - - -
 
-du.check_min_api_version("5.0.2", "panels_demo")  -- darktable 3.0
+du.check_min_api_version("7.0.0", "panels_demo") 
+
+-- script_manager integration to allow a script to be removed
+-- without restarting darktable
+local function destroy()
+    -- nothing to destroy
+end
 
 -- - - - - - - - - - - - - - - - - - - - - - - -
 -- C O N S T A N T S
@@ -134,3 +140,11 @@ for i = 1, #panels do
     dt.gui.panel_hide(panels[i])
   end
 end
+
+-- set the destroy routine so that script_manager can call it when
+-- it's time to destroy the script and then return the data to 
+-- script_manager
+local script_data = {}
+script_data.destroy = destroy
+
+return script_data

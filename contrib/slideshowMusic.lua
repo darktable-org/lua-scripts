@@ -27,12 +27,17 @@ USAGE
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-
 local gettext = dt.gettext
 
-du.check_min_api_version("2.0.2", "slideshowMusic") 
+du.check_min_api_version("7.0.0", "slideshowMusic") 
 
-local CURR_API_STRING = dt.configuration.api_version_string
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("slideshowMusic",dt.configuration.config_dir.."/lua/locale/")
@@ -70,6 +75,12 @@ local function playSlideshowMusic(_, old_view, new_view)
   end
 end
 
+function destroy()
+  dt.destroy_event("slideshow_music", "view-changed")
+  dt.preferences.destroy("slideshowMusic", "SlideshowMusic")
+  dt.preferences.destroy("slideshowMusic", "PlaySlideshowMusic")
+end
+
 -- Preferences
 dt.preferences.register("slideshowMusic", "SlideshowMusic", "file", _("Slideshow background music file"), "", "")
 dt.preferences.register("slideshowMusic",
@@ -79,5 +90,9 @@ dt.preferences.register("slideshowMusic",
                         _("Plays music with rhythmbox if a slideshow starts"),
                         true)
 -- Register
-dt.register_event("view-changed",
+dt.register_event("slideshow_music", "view-changed",
   playSlideshowMusic)
+
+script_data.destroy = destroy
+
+return script_data

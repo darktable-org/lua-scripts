@@ -50,7 +50,15 @@
 local darktable = require("darktable")
 local du = require "lib/dtutils"
 
-du.check_min_api_version("3.0.0", "LabelsToTags") 
+du.check_min_api_version("7.0.0", "LabelsToTags") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 -- Lua 5.3 no longer has "unpack" but "table.unpack"
 unpack = unpack or table.unpack
@@ -60,7 +68,6 @@ ltt.module_installed = false
 ltt.event_registered = false
 
 local LIB_ID = "LabelsToTags"
-local CURR_API_STRING = darktable.configuration.api_version_string
 
 -- Helper functions: BEGIN
 
@@ -144,16 +151,16 @@ local mappingComboBox = darktable.new_widget("combobox"){
    tooltip = getComboboxTooltip(),
    reset_callback = function(selfC)
       if selfC == nil then
-	 return
+	     return
       end
       i = 1
       for _,m in pairs(keySet(getAvailableMappings())) do
-	 selfC[i] = m
-	 i = i+1
+   	 selfC[i] = m
+   	 i = i+1
       end
       n = #selfC
       for j = i,n do
-	 selfC[i] = nil
+	     selfC[i] = nil
       end
       selfC.value = 1
       selfC.tooltip = getComboboxTooltip()
@@ -172,17 +179,17 @@ local function doTagging(selfC)
       local tagsToApply = {}
       local hash = generateLabelHash(img)
       for k,v in pairs(availableMappings[mappingComboBox.value]) do
-	 if hashMatch(hash,k) then
-	    for _,tag in ipairs(v) do
-	       tagsToApply[tag] = true
-	    end
-	 end
+   	 if hashMatch(hash,k) then
+   	    for _,tag in ipairs(v) do
+   	       tagsToApply[tag] = true
+   	    end
+   	 end
       end
       for k,_ in pairs(tagsToApply) do
-	 if memoizedTags[k] == nil then
-	    memoizedTags[k] = darktable.tags.create(k)
-	 end
-	 darktable.tags.attach(memoizedTags[k],img)
+   	 if memoizedTags[k] == nil then
+   	    memoizedTags[k] = darktable.tags.create(k)
+   	 end
+   	 darktable.tags.attach(memoizedTags[k],img)
       end
       job.percent = job.percent + pctIncrement
    end
@@ -208,14 +215,14 @@ darktable.register_tag_mapping = function(name, mapping)
    end
    for pattern,tags in pairs(mapping) do
       if string.match(pattern,PATTERN_PATTERN) == nil then
-	 darktable.print_error("In tag mapping '" .. name .. "': Pattern '" .. pattern .. "' invalid")
-	 return
+   	 darktable.print_error("In tag mapping '" .. name .. "': Pattern '" .. pattern .. "' invalid")
+   	 return
       end
       for _,tag in ipairs(tags) do
-	 if type(tag) ~= "string" then
-	    darktable.print_error("In tag mapping '" .. name .. "': All tag mappings must be lists of strings")
-	    return
-	 end
+   	 if type(tag) ~= "string" then
+   	    darktable.print_error("In tag mapping '" .. name .. "': All tag mappings must be lists of strings")
+   	    return
+   	 end
       end
    end
    availableMappings[name] = mapping
@@ -229,6 +236,14 @@ local function install_module()
                             },ltt.my_widget,nil,nil)
     ltt.module_installed = true
   end
+end
+
+local function destroy()
+   darktable.gui.libs[LIB_ID].visible = false
+end
+
+local function restart()
+   darktable.gui.libs[LIB_ID].visible = true
 end
 
 --[[
@@ -248,7 +263,7 @@ if darktable.gui.current_view().id == "lighttable" then
 else
   if not ltt.event_registered then
     darktable.register_event(
-      "view-changed",
+      LIB_ID, "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()
@@ -259,3 +274,9 @@ else
   end
 end
 
+script_data.destroy = destroy
+script_data.restart = restart
+script_data.destroy_method = "hide"
+script_data.show = restart
+
+return script_data

@@ -46,6 +46,7 @@ In the "Selected Images" module click on "Collect on this Image"
 ]]
 
 local dt = require "darktable"
+local du = require "lib/dtutils"
 local gettext = dt.gettext
 local previous = nil
 local all_active = false
@@ -53,7 +54,15 @@ local all_active = false
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("CollectHelper",dt.configuration.config_dir.."/lua/locale/")
 
-local CURR_API_STRING = dt.configuration.api_version_string
+du.check_min_api_version("7.0.0", "CollectHelper") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 local function _(msgid)
     return gettext.dgettext("CollectHelper", msgid)
@@ -67,6 +76,7 @@ local function CheckSingleImage(selection)
 	end
 	return false
 end
+
 local function CheckHasColorLabel(selection)
 	local ret = false
 	for _,image in pairs(selection) do
@@ -83,6 +93,7 @@ local function PreviousCollection()
 		previous = dt.gui.libs.collect.filter(previous)
 	end
 end
+
 local function CollectOnFolder(all_rules, all_active)
 	local images = dt.gui.selection()
 	if CheckSingleImage(images) then
@@ -103,6 +114,7 @@ local function CollectOnFolder(all_rules, all_active)
 		previous = dt.gui.libs.collect.filter(rules)
 	end
 end
+
 local function CollectOnColors(all_rules, all_active)
 	local images = dt.gui.selection()
 	if CheckSingleImage(images) then
@@ -159,6 +171,7 @@ local function CollectOnColors(all_rules, all_active)
 		end
 	end
 end
+
 local function CollectOnAll_AND()
 	local images = dt.gui.selection()
 	if CheckSingleImage(images) then
@@ -174,29 +187,42 @@ local function CollectOnAll_AND()
 	previous = dt.gui.libs.collect.filter(rules)
 end
 
+local function destroy()
+	dt.gui.libs.image.destroy_action("CollectHelper_prev")
+	if dt.preferences.read('module_CollectHelper','folder','bool') then
+		dt.gui.libs.image.destroy_action("CollectHelper_folder")
+	end
+	if dt.preferences.read('module_CollectHelper','colors','bool') then
+		dt.gui.libs.image.destroy_action("CollectHelper_labels")
+	end
+	if dt.preferences.read('module_CollectHelper','all_and','bool') then
+		dt.gui.libs.image.destroy_action("CollectHelper_and")
+	end
+end
+
 -- GUI --
 dt.gui.libs.image.register_action(
-	_("collect: previous"),
+	"CollectHelper_prev", _("collect: previous"),
 	function() PreviousCollection() end,
 	_("Sets the Collect parameters to be the previously active parameters")
 )
 if dt.preferences.read('module_CollectHelper','folder','bool') then
-	dt.gui.libs.image.register_action(
-		_("collect: folder"),
+		dt.gui.libs.image.register_action(
+		"CollectHelper_folder", _("collect: folder"),
 		function() CollectOnFolder(_ , false) end,
 		_("Sets the Collect parameters to be the selected images's folder")
 	)
 end
 if dt.preferences.read('module_CollectHelper','colors','bool') then
-	dt.gui.libs.image.register_action(
-		_("collect: color label(s)"),
+		dt.gui.libs.image.register_action(
+		"CollectHelper_labels", _("collect: color label(s)"),
 		function() CollectOnColors(_ , false) end,
 		_("Sets the Collect parameters to be the selected images's color label(s)")
 	)
 end
 if dt.preferences.read('module_CollectHelper','all_and','bool') then
-	dt.gui.libs.image.register_action(
-		_("collect: all (AND)"),
+		dt.gui.libs.image.register_action(
+		"CollectHelper_and", _("collect: all (AND)"),
 		function() CollectOnAll_AND() end,
 		_("Sets the Collect parameters based on all activated CollectHelper options")
 	)
@@ -206,7 +232,7 @@ end
 dt.preferences.register("module_CollectHelper", "all_and",	-- name
 	"bool",	-- type
 	_('CollectHelper: All'),	-- label
-	_('Will create a collect parameter set that utelizes all enabled CollectHelper types (AND)'),	-- tooltip
+	_('Will create a collect parameter set that utilizes all enabled CollectHelper types (AND)'),	-- tooltip
 	true	-- default
 )
 dt.preferences.register("module_CollectHelper", "colors",	-- name
@@ -221,3 +247,7 @@ dt.preferences.register("module_CollectHelper", "folder",	-- name
 	_('Enable the button that allows you to swap to a collection based on selected image\'s FOLDER location'),	-- tooltip
 	true	-- default
 )
+
+script_data.destroy = destroy 
+
+return script_data

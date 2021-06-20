@@ -33,8 +33,15 @@ https://www.darktable.org/lua-api/index.html.php#darktable_new_widget
 local dt = require "darktable"
 local du = require "lib/dtutils"
 
-du.check_min_api_version("3.0.0", "moduleExample") 
-local CURR_API_STRING = dt.configuration.api_version_string
+du.check_min_api_version("7.0.0", "moduleExample") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 -- translation
 
@@ -84,6 +91,16 @@ local function install_module()
     )
     mE.module_installed = true
   end
+end
+
+-- script_manager integration to allow a script to be removed
+-- without restarting darktable
+local function destroy()
+    dt.gui.libs["exampleModule"].visible = false -- we haven't figured out how to destroy it yet, so we hide it for now
+end
+
+local function restart()
+    dt.gui.libs["exampleModule"].visible = true -- the user wants to use it again, so we just make it visible and it shows up in the UI
 end
 
 -- https://www.darktable.org/lua-api/types_lua_check_button.html
@@ -148,7 +165,7 @@ else
   if not mE.event_registered then -- if we are not in lighttable view then register an event to signal when we might be
     -- https://www.darktable.org/lua-api/index.html#darktable_register_event
     dt.register_event(
-      "view-changed",  -- we want to be informed when the view changes
+      "mdouleExample", "view-changed",  -- we want to be informed when the view changes
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then  -- if the view changes from darkroom to lighttable
           install_module()  -- register the lib
@@ -159,5 +176,14 @@ else
   end
 end
 
+-- set the destroy routine so that script_manager can call it when
+-- it's time to destroy the script and then return the data to 
+-- script_manager
+script_data.destroy = destroy
+script_data.restart = restart  -- only required for lib modules until we figure out how to destroy them
+script_data.destroy_method = "hide" -- tell script_manager that we are hiding the lib so it knows to use the restart function
+script_data.show = restart  -- if the script was "off" when darktable exited, the module is hidden, so force it to show on start
+
+return script_data
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
 -- kate: hl Lua;

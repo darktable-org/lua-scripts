@@ -43,7 +43,15 @@ local gettext = dt.gettext
 
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 
-du.check_min_api_version("5.0.0", kml_export) 
+du.check_min_api_version("7.0.0", "kml_export") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("kml_export",dt.configuration.config_dir.."/lua/locale/")
@@ -301,6 +309,10 @@ local function create_kml_file(storage, image_table, extra_data)
 
 end
 
+local function destroy()
+  dt.destroy_storage("kml_export")
+end
+
 -- Preferences
 if dt.configuration.running_os == "windows" then
   dt.preferences.register("kml_export",
@@ -368,6 +380,10 @@ if dt.configuration.running_os == "windows" then
 else
   dt.register_storage("kml_export", _("KML/KMZ Export"), nil, create_kml_file)
 end
+
+script_data.destroy = destroy
+
+return script_data
 
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
 -- kate: hl Lua;

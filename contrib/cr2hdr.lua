@@ -35,9 +35,15 @@ USAGE
 local darktable = require "darktable"
 local du = require "lib/dtutils"
 
--- Tested with darktable 2.0.1
-du.check_min_api_version("2.0.0", "cr2hdr")
-local CURR_API_STRING = darktable.configuration.api_version_string
+du.check_min_api_version("7.0.0", "cr2hdr") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 local queue = {}
 local processed_files = {}
@@ -108,11 +114,21 @@ local function convert_action_images(shortcut)
     convert_images()
 end
 
-darktable.register_event("shortcut", 
+local function destroy()
+    darktable.destroy_event("cr2hdr", "shortcut")
+    darktable.destroy_event("cr2hdr", "post-import-image")
+    darktable.destroy_event("cr2hdr", "post-import-film")
+end
+
+darktable.register_event("cr2hdr", "shortcut", 
     convert_action_images, "Run cr2hdr (Magic Lantern DualISO converter) on selected images")
-darktable.register_event("post-import-image", 
+darktable.register_event("cr2hdr", "post-import-image", 
     file_imported)
-darktable.register_event("post-import-film", 
+darktable.register_event("cr2hdr", "post-import-film", 
     film_imported)
 
 darktable.preferences.register("cr2hdr", "onimport", "bool", "Invoke on import", "If true then cr2hdr will try to proccess every file during importing. Warning: cr2hdr is quite slow even in figuring out on whether the file is Dual ISO or not.", false)
+
+script_data.destroy = destroy 
+
+return script_data

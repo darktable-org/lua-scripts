@@ -78,12 +78,19 @@ local dtutils_file = require("lib/dtutils.file")
 local dtutils_system = require("lib/dtutils.system")
 
 local LIB_ID = "transfer_hierarchy"
-dtutils.check_min_api_version("5.0.0", LIB_ID)
+dtutils.check_min_api_version("7.0.0", LIB_ID) 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 local MKDIR_COMMAND = darktable.configuration.running_os == "windows" and "mkdir " or "mkdir -p "
 local PATH_SEPARATOR = darktable.configuration.running_os == "windows" and "\\\\"  or  "/"
 local PATH_SEGMENT_REGEX = "(" .. PATH_SEPARATOR .. "?)([^" .. PATH_SEPARATOR .. "]+)"
-local CURR_API_STRING = darktable.configuration.api_version_string
 
 unpack = unpack or table.unpack
 gmatch = string.gfind or string.gmatch
@@ -302,6 +309,13 @@ local function doCopy()
     doTransfer(darktable.database.copy_image)
 end
 
+local function destroy()
+   darktable.gui.libs[LIB_ID].visible = false
+end
+
+local function restart()
+   darktable.gui.libs[LIB_ID].visible = true
+end
 
 
 
@@ -367,7 +381,7 @@ if darktable.gui.current_view().id == "lighttable" then
 else
   if not th.event_registered then
     darktable.register_event(
-      "view-changed",
+      LIB_ID, "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()
@@ -377,3 +391,11 @@ else
     th.event_registered = true
   end
 end
+
+
+script_data.destroy = destroy
+script_data.restart = restart
+script_data.destroy_method = "hide"
+script_data.show = restart
+
+return script_data

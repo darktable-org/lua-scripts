@@ -34,6 +34,14 @@ local cjson = require "cjson"
 
 du.check_min_api_version("2.0.0", "check_for_updates") 
 
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
+
 -- compare two version strings of the form "major.minor.patch"
 -- returns -1, 0, 1 if the first version is smaller, equal, greater than the second version,
 -- or nil if one or both are of the wrong format
@@ -78,6 +86,10 @@ local function compare_versions(a, b)
   else
     return
   end
+end
+
+local function destroy()
+  -- nothing to destroy
 end
 
 
@@ -134,3 +146,6 @@ if now > (back_then + 60 * 60 * 24 * 7) then
   end
 
 end
+
+script_data.destroy = destroy
+return script_data

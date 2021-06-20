@@ -45,9 +45,21 @@ Select a style, whether you want tags to be copied from the original, and any ad
 ]]
 
 local dt = require 'darktable'
+local du = require "lib/dtutils"
 local df = require 'lib/dtutils.file'
-
 local dsys = require 'lib/dtutils.system'
+
+du.check_min_api_version("7.0.0", "HDRmerge") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
+
+
 local mod = 'module_HDRMerge'
 local os_path_seperator = '/'
 if dt.configuration.running_os == 'windows' then os_path_seperator = '\\' end
@@ -287,6 +299,14 @@ local function install_module()
   end
 end
 
+local function destroy()
+  dt.gui.libs["HDRMerge_Lib"].visible = false
+end
+
+local function restart()
+  dt.gui.libs["HDRMerge_Lib"].visible = true
+end
+
 -- GUI Elements --
 local lbl_hdr = dt.new_widget('section_label'){
   label = _('HDRMerge options')
@@ -439,7 +459,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not HDRM.event_registered then
     dt.register_event(
-      "view-changed",
+      "HDRmerge", "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()
@@ -449,3 +469,10 @@ else
     HDRM.event_registered = true
   end
 end
+
+script_data.destroy = destroy
+script_data.restart = restart
+script_data.destroy_method = "hide"
+script_data.show = restart
+
+return script_data

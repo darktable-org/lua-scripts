@@ -42,8 +42,15 @@ local debug = require "darktable.debug"
 
 local gettext = dt.gettext
 
-du.check_min_api_version("3.0.0", "copy_attach_detach_tags") 
-local CURR_API_STRING = dt.configuration.api_version_string
+du.check_min_api_version("7.0.0", "copy_attach_detach_tags") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("copy_attach_detach_tags",dt.configuration.config_dir.."/lua/locale/")
@@ -182,6 +189,41 @@ local function install_module()
   end
 end
 
+local function destroy()
+  dt.destroy_event("cadt_ct", "shortcut")
+  dt.destroy_event("cadt_at", "shortcut")
+  dt.destroy_event("cadt_dt", "shortcut")
+  dt.destroy_event("cadt_rt", "shortcut")
+  dt.gui.libs["tagging_addon"].visible = false
+end
+
+local function restart()
+  -- shortcut for copy
+  dt.register_event("cadt_ct", "shortcut",
+                     mcopy_tags,
+                     _('copy tags from selected image(s)'))
+
+  -- shortcut for attach
+  dt.register_event("cadt_at", "shortcut",
+                     attach_tags,
+                     _('paste tags to selected image(s)'))
+
+  -- shortcut for detaching tags
+  dt.register_event("cadt_dt", "shortcut",
+                     detach_tags,
+                     _('remove tags from selected image(s)'))
+
+                     -- shortcut for replace tags
+  dt.register_event("cadt_rt", "shortcut",
+                     replace_tags,
+                     _('replace tags from selected image(s)'))
+  dt.gui.libs["tagging_addon"].visible = true
+end
+
+local function show()
+  dt.gui.libs["tagging_addon"].visible = true
+end
+
 -- create modul Tagging addons
 taglist_label.reset_callback = mcopy_tags
 
@@ -234,7 +276,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not cadt.event_registered then
     dt.register_event(
-      "view-changed",
+      "cadt", "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()
@@ -247,24 +289,30 @@ end
 
 
 -- shortcut for copy
-dt.register_event("shortcut",
+dt.register_event("cadt_ct", "shortcut",
                    mcopy_tags,
                    _('copy tags from selected image(s)'))
 
 -- shortcut for attach
-dt.register_event("shortcut",
+dt.register_event("cadt_at", "shortcut",
                    attach_tags,
                    _('paste tags to selected image(s)'))
 
 -- shortcut for detaching tags
-dt.register_event("shortcut",
+dt.register_event("cadt_dt", "shortcut",
                    detach_tags,
                    _('remove tags from selected image(s)'))
 
                    -- shortcut for replace tags
-dt.register_event("shortcut",
+dt.register_event("cadt_rt", "shortcut",
                    replace_tags,
                    _('replace tags from selected image(s)'))
 
+script_data.destroy = destroy 
+script_data.restart = restart
+script_data.destroy_method = "hide"
+script_data.show = show
+
+return script_data
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
 -- kate: tab-indents: off; indent-width 2; replace-tabs on; remove-trailing-space on;

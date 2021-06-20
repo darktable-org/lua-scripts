@@ -37,14 +37,29 @@ selected images, the other button performs grouping on the entire active collect
 ]]
 
 local dt = require "darktable"
+local du = require "lib/dtutils"
 
+du.check_min_api_version("7.0.0", "AutoGrouper")
+
+dt.print_log("hiding styles")
+dt.gui.libs["styles"].visible = false
+           
 local MOD = 'autogrouper'
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
+
 local gettext = dt.gettext
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-local CURR_API_STRING = dt.configuration_api_version_string
 gettext.bindtextdomain("AutoGrouper",dt.configuration.config_dir.."/lua/locale/")
+
 local function _(msgid)
-    return gettext.dgettext("AutoGrouper", msgid)
+  return gettext.dgettext("AutoGrouper", msgid)
 end
 
 local Ag = {}
@@ -52,123 +67,134 @@ Ag.module_installed = false
 Ag.event_registered = false
 
 local GUI = {
-    gap =           {},
-    selected =      {},
-    collection =    {}
+  gap =        {},
+  selected =   {},
+  collection = {}
 }
 
 
 local function InRange(test, low, high) --tests if test value is within range of low and high (inclusive)
-    if test >= low and test <= high then
-        return true
-    else
-        return false
-    end
+  if test >= low and test <= high then
+    return true
+  else
+    return false
+  end
 end
 
 local function CompTime(first, second) --compares the timestamps and returns true if first was taken before second
-    first_time = first.exif_datetime_taken
-    if string.match(first_time, '[0-9]') == nil then first_time = '9999:99:99 99:99:99' end
-    first_time = tonumber(string.gsub(first_time, '[^0-9]*',''))
-    second_time = second.exif_datetime_taken
-    if string.match(second_time, '[0-9]') == nil then second_time = '9999:99:99 99:99:99' end
-    second_time = tonumber(string.gsub(second_time, '[^0-9]*',''))
-    return first_time < second_time
+  first_time = first.exif_datetime_taken
+  if string.match(first_time, '[0-9]') == nil then first_time = '9999:99:99 99:99:99' end
+  first_time = tonumber(string.gsub(first_time, '[^0-9]*',''))
+  second_time = second.exif_datetime_taken
+  if string.match(second_time, '[0-9]') == nil then second_time = '9999:99:99 99:99:99' end
+  second_time = tonumber(string.gsub(second_time, '[^0-9]*',''))
+  return first_time < second_time
 end
 
 local function SeperateTime(str) --seperates the timestamp into individual components for used with OS.time operations
-    local cleaned = string.gsub(str, '[^%d]',':')
-    cleaned = string.gsub(cleaned, '::*',':')  --YYYY:MM:DD:hh:mm:ss
-    local year = string.sub(cleaned,1,4)
-    local month = string.sub(cleaned,6,7)
-    local day = string.sub(cleaned,9,10)
-    local hour = string.sub(cleaned,12,13)
-    local min = string.sub(cleaned,15,16)
-    local sec = string.sub(cleaned,18,19)
-    return {year = year, month = month, day = day, hour = hour, min = min, sec = sec}
+  local cleaned = string.gsub(str, '[^%d]',':')
+  cleaned = string.gsub(cleaned, '::*',':')  --YYYY:MM:DD:hh:mm:ss
+  local year = string.sub(cleaned,1,4)
+  local month = string.sub(cleaned,6,7)
+  local day = string.sub(cleaned,9,10)
+  local hour = string.sub(cleaned,12,13)
+  local min = string.sub(cleaned,15,16)
+  local sec = string.sub(cleaned,18,19)
+  return {year = year, month = month, day = day, hour = hour, min = min, sec = sec}
 end
 
 local function GetTimeDiff(curr_image, prev_image) --returns the time difference (in sec.) from current image and the previous image
-    local curr_time = SeperateTime(curr_image.exif_datetime_taken)
-    local prev_time = SeperateTime(prev_image.exif_datetime_taken)
-    return os.time(curr_time)-os.time(prev_time)
+  local curr_time = SeperateTime(curr_image.exif_datetime_taken)
+  local prev_time = SeperateTime(prev_image.exif_datetime_taken)
+  return os.time(curr_time)-os.time(prev_time)
 end
 
 local function main(on_collection)
-    local images = {}
-    if on_collection then 
-        local col_images = dt.collection
-        for i,image in ipairs(col_images) do --copy images to a standard table, table.sort barfs on type dt_lua_singleton_image_collection
-            table.insert(images,i,image)
-        end
-    else
-        images = dt.gui.selection()
+  local images = {}
+  if on_collection then 
+    local col_images = dt.collection
+    for i,image in ipairs(col_images) do --copy images to a standard table, table.sort barfs on type dt_lua_singleton_image_collection
+      table.insert(images,i,image)
     end
-    dt.preferences.write(MOD, 'active_gap', 'integer', GUI.gap.value)
-    if #images < 2 then 
-        dt.print('please select at least 2 images')
-        return
+  else
+    images = dt.gui.selection()
+  end
+  dt.preferences.write(MOD, 'active_gap', 'integer', GUI.gap.value)
+  if #images < 2 then 
+    dt.print('please select at least 2 images')
+    return
+  end
+  table.sort(images, function(first, second) return CompTime(first,second) end)  --sort images by timestamp
+  
+  for i, image in ipairs(images) do
+    if i == 1 then 
+      prev_image = image
+    elseif string.match(image.exif_datetime_taken, '[%d]') ~= nil then --make sure current image has a timestamp, if so check if it is within the user specified gap value and add to group
+      local curr_image = image
+      if GetTimeDiff(curr_image, prev_image) <= GUI.gap.value then
+        images[i]:group_with(images[i-1])
+      end
+      prev_image = curr_image
     end
-    table.sort(images, function(first, second) return CompTime(first,second) end)  --sort images by timestamp
-    
-    for i, image in ipairs(images) do
-        if i == 1 then 
-            prev_image = image
-        elseif string.match(image.exif_datetime_taken, '[%d]') ~= nil then --make sure current image has a timestamp, if so check if it is within the user specified gap value and add to group
-            local curr_image = image
-            if GetTimeDiff(curr_image, prev_image) <= GUI.gap.value then
-                images[i]:group_with(images[i-1])
-            end
-            prev_image = curr_image
-        end
-    end
+  end
 end
 
 local function install_module()
   if not Ag.module_installed then
+    dt.print_log("installing module")
     dt.register_lib(
-        'AutoGroup_Lib',    -- Module name
-        _('auto group'),    -- name
-        true,   -- expandable
-        true,   -- resetable
-        {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 99}},   -- containers
-        dt.new_widget("box"){
-            orientation = "vertical",
-            GUI.gap,
-            GUI.selected,
-            GUI.collection
-            }
+      MOD,    -- Module name
+      _('auto group'),    -- name
+      true,   -- expandable
+      true,   -- resetable
+      {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 99}},   -- containers
+      dt.new_widget("box"){
+        orientation = "vertical",
+        GUI.gap,
+        GUI.selected,
+        GUI.collection
+      }
     )
     Ag.module_installed = true
+    dt.print_log("module installed")
+    dt.print_log("styles module visibility is " .. tostring(dt.gui.libs["styles"].visible))
   end
+end
+
+local function destroy()
+  dt.gui.libs[MOD].visible = false
+end
+
+local function restart()
+  dt.gui.libs[MOD].visible = true
 end
 
 -- GUI --
 temp = dt.preferences.read(MOD, 'active_gap', 'integer')
 if not InRange(temp, 1, 86400) then temp = 3 end
 GUI.gap = dt.new_widget('slider'){
-    label = _('group gap [sec.]'),
-    tooltip = _('minimum gap, in seconds, between groups'),
-    soft_min = 1,
-    soft_max = 60,
-    hard_min = 1,
-    hard_max = 86400,
-    step = 1,
-    digits = 0,
-    value = temp,
-    reset_callback = function(self) 
-        self.value = 3
-    end
+  label = _('group gap [sec.]'),
+  tooltip = _('minimum gap, in seconds, between groups'),
+  soft_min = 1,
+  soft_max = 60,
+  hard_min = 1,
+  hard_max = 86400,
+  step = 1,
+  digits = 0,
+  value = temp,
+  reset_callback = function(self) 
+    self.value = 3
+  end
 }
 GUI.selected = dt.new_widget("button"){
-    label = _('auto group: selected'),
-    tooltip =_('auto group selected images'),
-    clicked_callback = function() main(false) end
+  label = _('auto group: selected'),
+  tooltip =_('auto group selected images'),
+  clicked_callback = function() main(false) end
 }
 GUI.collection = dt.new_widget("button"){
-    label = _('auto group: collection'),
-    tooltip =_('auto group the entire collection'),
-    clicked_callback = function() main(true) end
+  label = _('auto group: collection'),
+  tooltip =_('auto group the entire collection'),
+  clicked_callback = function() main(true) end
 }
 
 if dt.gui.current_view().id == "lighttable" then
@@ -176,14 +202,20 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not Ag.event_registered then
     dt.register_event(
-      "view-changed",
-      function(event, old_view, new_view)
-        if new_view.name == "lighttable" and old_view.name == "darkroom" then
-          install_module()
-         end
-      end
-    )
-    Ag.event_registered = true
+     "AutoGrouper", "view-changed",
+     function(event, old_view, new_view)
+      if new_view.name == "lighttable" and old_view.name == "darkroom" then
+        install_module()
+       end
+    end
+  )
+  Ag.event_registered = true
   end
 end
 
+script_data.destroy = destroy
+script_data.destroy_method = "hide"
+script_data.restart = restart
+script_data.show = restart
+
+return script_data

@@ -38,8 +38,15 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 require "darktable.debug"
 
-du.check_min_api_version("2.1.0", "generate_image_txt") 
-local CURR_API_STRING = dt.configuration.api_version_string
+du.check_min_api_version("7.0.0", "generate_image_txt") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 dt.preferences.register("generate_image_txt",
                         "enabled",
@@ -62,11 +69,15 @@ local check_command = function(command)
   end
 end
 
+local function destroy()
+  dt.destroy_event("gen_img_txt", "mouse-over-image-changed")
+end
+
 
 local command_setting = dt.preferences.read("generate_image_txt", "command", "string")
 check_command(command_setting)
 
-dt.register_event("mouse-over-image-changed", 
+dt.register_event("gen_img_txt", "mouse-over-image-changed", 
     function(event, img)
     -- no need to waste processing time if the image has a txt file already
     if not img or img.has_txt or not dt.preferences.read("generate_image_txt", "enabled", "bool") then
@@ -105,6 +116,9 @@ dt.register_event("mouse-over-image-changed",
   end
 )
 
+script_data.destroy = destroy
+
+return script_data
 
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent
 -- kate: tab-indents: off; indent-width 2; replace-tabs on; remove-trailing-space on;

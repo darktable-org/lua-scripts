@@ -12,6 +12,10 @@ local libname = nil
 
 du.check_min_api_version("3.0.0", "get_lib_manpages") 
 
+local function destroy()
+  -- nothing to destroy
+end
+
 local keys = {"Name", "Synopsis", "Usage", "Description", "Return_Value", "Limitations", 
               "Example", "See_Also", "Reference", "License", "Copyright"}
 
@@ -74,3 +78,7 @@ for line in output:lines() do
   libname = nil
 end
 
+local script_data = {}
+script_data.destroy = destroy
+
+return script_data

@@ -32,12 +32,19 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 
-du.check_min_api_version("5.0.0", "executable_manager")
+du.check_min_api_version("7.0.0", "executable_manager")
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 
 local gettext = dt.gettext
-local CURR_API_STRING = dt.configuration.api_version_string
 
 gettext.bindtextdomain("executable_manager",dt.configuration.config_dir.."/lua/locale/")
 
@@ -111,6 +118,15 @@ local function install_module()
     exec_man.module_installed = true
   end
 end
+
+local function destroy()
+  dt.gui.libs["executable_manager"].visible = false
+end
+
+local function restart()
+  dt.gui.libs["executable_manager"].visible = true
+end
+
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 -- M A I N   P R O G R A M
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -215,7 +231,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not exec_man.event_registered then
     dt.register_event(
-      "view-changed",
+      "executable_manager", "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()
@@ -225,3 +241,10 @@ else
     exec_man.event_registered = true
   end
 end
+
+script_data.destroy = destroy
+script_data.restart = restart
+script_data.destroy_method = "hide"
+script_data.show = restart
+
+return script_data

@@ -71,7 +71,15 @@ local job = nil
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 
 -- works with LUA API version 5.0.0
-du.check_min_api_version("5.0.0", "image_stack") 
+du.check_min_api_version("7.0.0", "image_stack") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("image_stack",dt.configuration.config_dir.."/lua/locale/")
@@ -452,6 +460,10 @@ local function stop_job()
   job.valid = false
 end
 
+local function destroy()
+  dt.destroy_storage("module_image_stack")
+end
+
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 --  main program
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -585,3 +597,6 @@ dt.preferences.register("align_image_stack", "align_use_gpu", -- name
 
 dt.register_storage("module_image_stack", _("image stack"), show_status, image_stack, nil, nil, image_stack_widget)
 
+script_data.destroy = destroy
+
+return script_data

@@ -24,6 +24,12 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("5.0.0", "printExamples") 
 
+-- script_manager integration to allow a script to be removed
+-- without restarting darktable
+local function destroy()
+    -- nothing to destroy
+end
+
 -- Will print a string to the darktable control log (the long
 -- overlayed window that appears over the main panel).
 dt.print("print")
@@ -38,5 +44,12 @@ dt.print_error("print error")
 -- to enable the Lua logdomain.
 dt.print_log("print log")
 
+-- set the destroy routine so that script_manager can call it when
+-- it's time to destroy the script and then return the data to 
+-- script_manager
+local script_data = {}
+script_data.destroy = destroy
+
+return script_data
 --
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua

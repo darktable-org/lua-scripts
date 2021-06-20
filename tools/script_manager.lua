@@ -54,6 +54,7 @@ local df = require "lib/dtutils.file"
 local ds = require "lib/dtutils.string"
 local dtsys = require "lib/dtutils.system"
 local log = require "lib/dtutils.log"
+local debug = require "darktable.debug"
 
 local gettext = dt.gettext
 
@@ -67,7 +68,7 @@ end
 
 -- api check
 
-du.check_min_api_version("6.1.0", "script_manager")
+du.check_min_api_version("5.0.0", "script_manager")
 
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
@@ -91,7 +92,6 @@ local DEFAULT_LOG_LEVEL = log.error
 local LUA_DIR = dt.configuration.config_dir .. PS .. "lua"
 local LUA_SCRIPT_REPO = "https://github.com/darktable-org/lua-scripts.git"
 
-local CURR_API_STRING = dt.configuration.api_version_string
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- L O G  L E V E L
@@ -99,7 +99,7 @@ local CURR_API_STRING = dt.configuration.api_version_string
 
 local old_log_level = log.log_level()
 
-log.log_level(DEFAULT_LOG_LEVEL)
+log.log_level(log.debug)
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- N A M E  S P A C E
@@ -118,12 +118,53 @@ sm.event_registered = false
 
 sm.widgets = {}
 sm.categories = {}
+
+--[[
+
+  sm.scripts is a table of tables for containing the scripts
+  It is organized as into category (folder) subtables containing
+  each script definition, which is a table
+
+  sm.scripts-
+            |
+            - category------------|
+            |                     - script
+            - category----|       |
+                          - script|
+                          |       - script
+                          - script|
+
+  and a script table looks like
+
+  name          the name of the script file without the lua extension
+  path          category (folder), path separator, path, name without the lua extension
+  doc           the header comments from the script to be used as a tooltip
+  script_name   the folder, path separator, and name without the lua extension
+  running       true if running, false if not, hidden if running but the 
+                lib/storage/action for the script is hidden
+  has_lib       true if it creates a module
+  lib_name      name of the created lib
+  has_storage   true if it creates a storage (exporter)
+  storage_name  name of the exporter (in the exporter storage menu)
+  has_action    true if it creates an action
+  action_name   name on the button
+  has_event     true if it creates an event handler
+  event_type    type of event, shortcut, post-xxx, pre-xxx
+  callback      name of the callback routine
+  initialized   all of the above data has been retreived and set.  If the 
+                script is unloaded and reloaded we don't have to reparse the file
+
+]]
+
 sm.scripts = {}
 sm.page_status = {}
 sm.page_status.num_buttons = DEFAULT_BUTTONS_PER_PAGE
 sm.page_status.buttons_created = 0
 sm.page_status.current_page = 0
 sm.page_status.category = ""
+
+-- use color in the interface?
+sm.use_color = false
 
 -- installed script repositories
 sm.installed_repositories = {
@@ -169,6 +210,16 @@ local function update_combobox_choices(combobox, choice_table, selected)
   combobox.value = selected
 end
 
+local function string_trim(str)
+  local result = string.gsub(str, "^%s+", "")
+  result = string.gsub(result, "%s+$", "")
+  return result
+end
+
+local function string_dequote(str)
+  return string.gsub(str, "['\"]", "")
+end
+
 local function add_script_category(category)
   if #sm.categories == 0 or not string.match(du.join(sm.categories, " "), ds.sanitize_lua(category)) then
     table.insert(sm.categories, category)
@@ -197,30 +248,67 @@ local function get_script_doc(script)
 end
 
 local function activate(script)
+  local status = nil -- status of start function
+  local err = nil    -- error message returned if module doesn't start
   log.msg(log.info, "activating " .. script.name)
-  local status, err = du.prequire(script.path)
-  if status then
-    pref_write(script.script_name, "bool", true)
-    log.msg(log.screen, _("Loaded ") .. script.script_name)
+  if script.running == false then
+    status, err = du.prequire(script.path)
+    log.msg(log.debug, "prequire returned " .. tostring(status) .. " and for err " .. tostring(err))
+    if status then
+      pref_write(script.script_name, "bool", true)
+      log.msg(log.screen, _("Loaded ") .. script.script_name)
+      script.running = true
+      if err ~= true then
+        log.msg(log.debug, "got lib data")
+        script.data = err
+        if script.data.destroy_method and script.data.destroy_method == "hide" then
+          script.data.show()
+        end
+      else
+        script.data = nil
+      end
+     else
+      log.msg(log.screen, script.script_name .. _(" failed to load"))
+      log.msg(log.error, "Error loading " .. script.script_name)
+      log.msg(log.error, "Error message: " .. err)
+    end
+  else -- script is a lib and loaded but hidden and the user wants to reload
+    script.data.restart()
     script.running = true
-  else
-    log.msg(log.screen, script.script_name .. _(" failed to load"))
-    log.msg(log.error, "Error loading " .. script.script_name)
-    log.msg(log.error, "Error message: " .. err)
+    status = true
+    pref_write(script.script_name, "bool", true)
   end
   return status
 end
 
 local function deactivate(script)
-  -- presently the lua api doesn't support unloading gui elements therefore
-  -- we just mark then inactive for the next time darktable starts
+  -- presently the lua api doesn't support unloading gui elements however, we
+ -- can hide libs, so we just mark those as hidden and hide the gui
+ -- can delete storage
+  --therefore we just mark then inactive for the next time darktable starts
 
   -- deactivate it....
-
   pref_write(script.script_name, "bool", false)
-  script.running = false
-  log.msg(log.info, "setting " .. script.script_name .. " to not start")
-  log.msg(log.screen, script.name .. _(" will not start when darktable is restarted"))
+  if script.data then
+    script.data.destroy()
+    if script.data.destroy_method then
+      if string.match(script.data.destroy_method, "hide") then
+        script.running = "hidden"
+      else
+        package.loaded[script.script_name] = nil
+        script.running = false
+      end
+    else
+      package.loaded[script.script_name] = nil
+      script.running = false
+    end
+    log.msg(log.info, "turned off " .. script.script_name)
+    log.msg(log.screen, script.name .. _(" stopped"))
+  else
+    script.running = false
+    log.msg(log.info, "setting " .. script.script_name .. " to not start")
+    log.msg(log.screen, script.name .. _(" will not start when darktable is restarted"))
+  end
 end
 
 local function add_script_name(name, path, category)
@@ -231,7 +319,8 @@ local function add_script_name(name, path, category)
     path = category .. "/" .. path .. name,
     running = false,
     doc = get_script_doc(category .. "/" .. path .. name),
-    script_name = category .. "/" .. name
+    script_name = category .. "/" .. name,
+    data = nil
   }
   table.insert(sm.scripts[category], script)
   if pref_read(script.script_name, "bool") then
@@ -438,9 +527,11 @@ local function clear_button(number)
   button.label = ""
   button.tooltip = ""
   button.sensitive = false
+--button.name = ""
 end
 
 local function find_script(category, name)
+  log.msg(log.debug, "looking for script " .. name .. " in category " .. category)
   for _, script in ipairs(sm.scripts[category]) do
     if string.match(script.name, "^" .. ds.sanitize_lua(name) .. "$") then
       return script
@@ -455,28 +546,52 @@ local function populate_buttons(category, first, last)
   for i = first, last do
     script = sm.scripts[category][i]
     button = sm.widgets.buttons[button_num]
-    if script.running then
-      button.label = script.name .. _(" started")
+    if script.running == true then
+      if sm.use_color then
+        button.label = script.name
+        button.name = "sm_started"
+      else
+        button.label = script.name .. _(" started")
+      end
     else
-      button.label = script.name .. _(" stopped")
+      if sm.use_color then
+        button.label = script.name
+        button.name = "sm_stopped"
+      else
+        button.label = script.name .. _(" stopped")
+      end
     end
     button.ellipsize = "middle"
     button.sensitive = true
     button.tooltip = script.doc
     button.clicked_callback = function (this)
-      local script_name, state = string.match(this.label, "(.-) (.+)")
+      local script_name = nil
+      local state = nil
+      if sm.use_color then
+        script_name = string.match(this.label, "(.+)")
+      else
+        script_name, state = string.match(this.label, "(.-) (.+)")
+      end
       local script = find_script(sm.widgets.category_selector.value, script_name)
       if script then 
         log.msg(log.debug, "found script " .. script.name .. " with path " .. script.path)
-        if string.match(state, "started") then
+        if script.running == true then
           log.msg(log.debug, "deactivating " .. script.name .. " on " .. script.path .. " for button " .. this.label)
           deactivate(script)
-          this.label = script.name .. " stopped"
+          if sm.use_color then
+            this.name = "sm_stopped"
+          else
+            this.label = script.name .. _(" stopped")
+          end
         else
           log.msg(log.debug, "activating " .. script.name .. " on " .. script.path .. " for button " .. this.label)
           local result = activate(script)
           if result then
-            this.label = script.name .. " started"
+            if sm.use_color then
+              this.name = "sm_started"
+            else
+              this.label = script.name .. " started"
+            end
           end
         end
       else
@@ -650,9 +765,21 @@ local function install_module()
     sm.module_installed = true
   end
   sm.run = true
+  sm.use_color = pref_read("use_color", "bool")
   log.msg(log.debug, "set run to true, loading preferences")
   load_preferences()
   scan_repositories()
+  --[[dt.print_log("\n\nsetting sm visible false\n\n")
+  dt.gui.libs["script_manager"].visible = false
+  dt.control.sleep(5000)
+  dt.print_log("setting sm visible true")
+  dt.gui.libs["script_manager"].visible = true
+  --[[dt.control.sleep(5000)
+  dt.print_log("setting sm expanded false")
+  dt.gui.libs["script_manager"].expanded = false
+  dt.control.sleep(5000)
+  dt.print_log("setting sm expanded true")
+  dt.gui.libs["script_manager"].expanded = true]]
 end
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
@@ -664,8 +791,6 @@ log.msg(log.debug, "finished processing scripts")
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- U S E R  I N T E R F A C E
 -- - - - - - - - - - - - - - - - - - - - - - - - 
-
-sm.widgets = {}
 
 -- update the scripts
 
@@ -769,8 +894,8 @@ for i =1, DEFAULT_BUTTONS_PER_PAGE do
   sm.page_status.buttons_create = sm.page_status.buttons_created + 1
 end
 
-local page_back = "     <     "
-local page_forward = "     >     "
+local page_back = "<"
+local page_forward = ">"
 
 sm.widgets.page_status = dt.new_widget("label"){label = _("Page:")}
 sm.widgets.page_back = dt.new_widget("button"){
@@ -833,6 +958,16 @@ sm.widgets.configure = dt.new_widget("box"){
   sm.widgets.num_buttons,
   sm.widgets.change_buttons,
 }
+
+sm.widgets.color = dt.new_widget("check_button"){
+  label = _("use color interface?"),
+  value = pref_read("use_color", "bool"),
+  clicked_callback = function(this)
+    pref_write("use_color", "bool", this.value)
+    sm.use_color = this.value
+  end
+}
+table.insert(sm.widgets.configure, sm.widgets.color)
 
 -- stack for the options
 

@@ -42,8 +42,15 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 
 -- added version check
-du.check_min_api_version("3.0.0", "rate_group") 
-local CURR_API_STRING = dt.configuration.api_version_string
+du.check_min_api_version("7.0.0", "rate_group") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 local function apply_rating(rating)
   local images = dt.gui.action_images
@@ -60,37 +67,51 @@ local function apply_rating(rating)
   end
 end
 
-dt.register_event("shortcut",
+local function destroy()
+  dt.destroy_event("rg_reject", "shortcut")
+  dt.destroy_event("rg0", "shortcut")
+  dt.destroy_event("rg1", "shortcut")
+  dt.destroy_event("rg2", "shortcut")
+  dt.destroy_event("rg3", "shortcut")
+  dt.destroy_event("rg4", "shortcut")
+  dt.destroy_event("rg5", "shortcut")
+end
+
+dt.register_event("rg_reject", "shortcut",
   function(event, shortcut)
     apply_rating(-1)
 end, "Reject group")
 
-dt.register_event("shortcut",
+dt.register_event("rg0", "shortcut",
   function(event, shortcut)
     apply_rating(0)
 end, "Rate group 0")
 
-dt.register_event("shortcut",
+dt.register_event("rg1", "shortcut",
   function(event, shortcut)
     apply_rating(1)
 end, "Rate group 1")
 
-dt.register_event("shortcut",
+dt.register_event("rg2", "shortcut",
   function(event, shortcut)
     apply_rating(2)
 end, "Rate group 2")
 
-dt.register_event("shortcut",
+dt.register_event("rg3", "shortcut",
   function(event, shortcut)
     apply_rating(3)
 end, "Rate group 3")
 
-dt.register_event("shortcut",
+dt.register_event("rg4", "shortcut",
   function(event, shortcut)
     apply_rating(4)
 end, "Rate group 4")
 
-dt.register_event("shortcut",
+dt.register_event("rg5", "shortcut",
   function(event, shortcut)
     apply_rating(5)
 end, "Rate group 5")
+
+script_data.destroy = destroy
+
+return script_data

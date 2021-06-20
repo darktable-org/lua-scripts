@@ -63,7 +63,15 @@ local dtsys = require "lib/dtutils.system"
 local MODULE_NAME = "RL_out_sharp"
 
 -- check API version
-du.check_min_api_version("5.0.0", MODULE_NAME) 
+du.check_min_api_version("7.0.0", MODULE_NAME) 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 -- OS compatibility
 local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
@@ -155,6 +163,12 @@ local function export2RL(storage, image_table, extra_data)
   dt.print(_("finished exporting"))
   end
 
+  -- script_manager integration
+
+  local function destroy()
+    dt.destroy_storage("exp2RL")
+  end
+
 -- new widgets ----------------------------------------------------------------
 
 output_folder_selector = dt.new_widget("file_chooser_button"){
@@ -223,6 +237,12 @@ _("select executable for GMic command line version")  , "")
 sigma_slider.value = dt.preferences.read(MODULE_NAME, "sigma", "float")
 iterations_slider.value = dt.preferences.read(MODULE_NAME, "iterations", "float")
 jpg_quality_slider.value = dt.preferences.read(MODULE_NAME, "jpg_quality", "float")
+
+-- script_manager integration
+
+script_data.destroy = destroy
+
+return script_data
 
 -- end of script --------------------------------------------------------------
 

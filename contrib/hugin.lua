@@ -54,7 +54,15 @@ local executable_table = {"hugin", "hugin_executor", "pto_gen"}
 local PQ = dt.configuration.running_os == "windows" and '"' or "'"
 
 -- works with darktable API version from 5.0.0 on
-du.check_min_api_version("5.0.0", "hugin") 
+du.check_min_api_version("7.0.0", "hugin") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("hugin",dt.configuration.config_dir.."/lua/locale/")
@@ -205,6 +213,10 @@ local function create_panorama(storage, image_table, extra_data) --finalize
   end
 end
 
+local function destroy()
+  dt.destroy_storage(namespace)
+end
+
 -- Register
 if dt.configuration.running_os ~= "linux" then
   exec_widget = df.executable_path_widget(executable_table)
@@ -224,6 +236,8 @@ hugin_widget = dt.new_widget("box") {
 
 dt.register_storage(namespace, _("hugin panorama"), show_status, create_panorama, nil, nil, hugin_widget)
 
+script_data.destroy = destroy
 
+return script_data
 --
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua

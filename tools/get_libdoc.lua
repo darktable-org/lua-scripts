@@ -9,6 +9,10 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("3.0.0", "get_libdoc") 
 
+local function destroy()
+  -- nothing to destroy
+end
+
 local keys = {"Name", "Synopsis", "Usage", "Description", "Return_Value", "Limitations", 
               "Example", "See_Also", "Reference", "License", "Copyright"}
 
@@ -48,3 +52,7 @@ for line in output:lines() do
   end
 end
 
+local script_data = {}
+script_data.destroy = destroy
+
+return script_data

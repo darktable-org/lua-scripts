@@ -33,8 +33,15 @@ local du = require "lib/dtutils"
 local debug = require "darktable.debug"
 
 -- check API version
-du.check_min_api_version("3.0.0", "rename-tags") 
-local CURR_API_STRING = darktable.configuration.api_version_string
+du.check_min_api_version("7.0.0", "rename-tags") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 local rt = {}
 rt.module_installed = false
@@ -111,6 +118,14 @@ local function install_module()
   end
 end
 
+local function destroy()
+  darktable.gui.libs["rename_tags"].visible = false
+end
+
+local function restart()
+  darktable.gui.libs["rename_tags"].visible = true
+end
+
 -- GUI
 local old_widget = darktable.new_widget ("box") {
     orientation = "horizontal",
@@ -137,7 +152,7 @@ if darktable.gui.current_view().id == "lighttable" then
 else
   if not rt.event_registered then
     darktable.register_event(
-      "view-changed",
+      "rename_tags", "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()
@@ -147,5 +162,12 @@ else
     rt.event_registered = true
   end
 end
+
+script_data.destroy = destroy
+script_data.restart = restart
+script_data.destroy_method = "hide"
+script_data.show = restart
+
+return script_data
 
 

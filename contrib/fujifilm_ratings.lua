@@ -26,11 +26,17 @@ Dependencies:
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-
 local gettext = dt.gettext
 
-du.check_min_api_version("4.0.0", "fujifilm_ratings")
-local CURR_API_STRING = dt.configuration.api_version_string
+du.check_min_api_version("7.0.0", "fujifilm_ratings") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 gettext.bindtextdomain("fujifilm_ratings", dt.configuration.config_dir.."/lua/locale/")
 
@@ -68,7 +74,12 @@ local function detect_rating(event, image)
 	end
 end
 
-dt.register_event("post-import-image", 
+local function destroy()
+	dt.destroy_event("fujifilm_rat", "post-import-image")
+end
+
+dt.register_event("fujifilm_rat", "post-import-image", 
 	detect_rating)
 
-print(_("fujifilm_ratings loaded."))
+script_data.destroy = destroy
+return script_data

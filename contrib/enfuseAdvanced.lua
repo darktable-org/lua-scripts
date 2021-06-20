@@ -65,7 +65,15 @@ local mod = 'module_enfuseAdvanced'
 local os_path_seperator = '/'
 if dt.configuration.running_os == 'windows' then os_path_seperator = '\\' end
 
-du.check_min_api_version('5.0.0', 'enfuseAdvanced')
+du.check_min_api_version("7.0.0", "enfuseAdvanced") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 local gettext = dt.gettext
@@ -514,6 +522,10 @@ local function main(storage, image_table, extra_data)
     remove_temp_files(images_to_remove)
     job.valid = false
     dt.print('image fusion process complete')
+end
+
+local function destroy()
+    dt.destroy_storage('module_enfuseAdvanced')
 end
 
 --GUI--
@@ -1142,3 +1154,7 @@ else
     GUI.options_contain.active = 4
     GUI.show_options.sensitive = false
 end
+
+script_data.destroy = destroy
+
+return script_data

@@ -38,11 +38,18 @@ local df = require "lib/dtutils.file"
 local dtsys = require "lib/dtutils.system"
 
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"
-local CURR_API_STRING = dt.configuration.api_version_string
 
 local gettext = dt.gettext
 
-du.check_min_api_version("3.0.0", "enfuse")
+du.check_min_api_version("7.0.0", "enfuse")
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("enfuse",dt.configuration.config_dir..PS .. "lua" .. PS .. "locale" .. PS)
@@ -76,6 +83,15 @@ local function install_module()
     enf.module_installed = true
   end
 end
+
+local function destroy()
+  dt.gui.libs["enfuse"].visible = false
+end
+
+local function restart()
+  dt.gui.libs["enfuse"].visible = true
+end
+
 -- add a new lib
 -- is enfuse installed?
 local enfuse_installed = df.check_if_bin_exists("enfuse")
@@ -269,7 +285,7 @@ if enfuse_installed then
   else
     if not enf.event_registered then
       dt.register_event(
-        "view-changed",
+        "enfuse", "view-changed",
         function(event, old_view, new_view)
           if new_view.name == "lighttable" and old_view.name == "darkroom" then
             install_module()
@@ -285,5 +301,11 @@ else
   dt.print(_("Could not find enfuse executable. Not loading enfuse exporter..."))
 end
 
+script_data.destroy = destroy
+script_data.restart = restart
+script_data.destroy_method = "hide"
+script_data.show = restart
+
+return script_data
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
 -- kate: hl Lua;

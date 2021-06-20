@@ -61,8 +61,15 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 
-du.check_min_api_version("4.0.0", "fujifilm_dynamic_range")
-local CURR_API_STRING = dt.configuration.api_version_string
+du.check_min_api_version("7.0.0", "fujifilm_dynamic_range") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 local function detect_dynamic_range(event, image)
 	if image.exif_maker ~= "FUJIFILM" then
@@ -105,7 +112,15 @@ local function detect_dynamic_range(event, image)
 	dt.print_log("[fujifilm_dynamic_range] raw exposure bias " .. tostring(raf_result))
 end
 
-dt.register_event("post-import-image", 
+local function destroy()
+	dt.destroy_event("fujifilm_dr", "post-import-image")
+end
+
+dt.register_event("fujifilm_dr", "post-import-image", 
 	detect_dynamic_range)
 
 dt.print_log("[fujifilm_dynamic_range] loaded")
+
+script_data.destroy = destroy
+
+return script_data

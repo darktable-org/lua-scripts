@@ -31,6 +31,20 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("5.0.0", "delete_unused_tags") 
 
+local script_data = {}
+
+local function destroy()
+  -- noting to destroy
+end
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
+
 -- deleting while iterating the tags list seems to break the iterator!
 local unused_tags = {}
 
@@ -45,3 +59,6 @@ for _,name in pairs(unused_tags) do
   tag = dt.tags.find(name)
   tag:delete()
 end
+
+script_data.destroy = destroy
+return script_data

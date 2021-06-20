@@ -28,11 +28,17 @@ require "geoToolbox"
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-
 local gettext = dt.gettext
 
-du.check_min_api_version("3.0.0", "geoToolbox") 
-local CURR_API_STRING = dt.configuration.api_version_string
+du.check_min_api_version("7.0.0", "geoToolbox") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("geoToolbox",dt.configuration.config_dir.."/lua/locale/")
@@ -595,6 +601,33 @@ local function install_module()
   end
 end
 
+local function destroy()
+  dt.gui.libs["geoToolbox"].visible = false
+  dt.destroy_event("geoToolbox_cd", "shortcut")
+  dt.destroy_event("geoToolbox", "mouse-over-image-changed")
+  dt.destroy_event("geoToolbox_wg", "shortcut")
+  dt.destroy_event("geoToolbox_ng", "shortcut")
+end
+
+local function restart()
+  dt.register_event("geoToolbox_cd", "shortcut", 
+    print_calc_distance, _("Calculate the distance from latitude and longitude in km"))
+  dt.register_event("geoToolbox", "mouse-over-image-changed", 
+    toolbox_calc_distance)
+
+  dt.register_event("geoToolbox_wg", "shortcut", 
+    select_with_gps, _("Select all images with GPS information"))
+  dt.register_event("geoToolbox_ng", "shortcut", 
+    select_without_gps, _("Select all images without GPS information"))
+
+  dt.gui.libs["geoToolbox"].visible = true
+end
+
+local function show()
+  dt.gui.libs["geoToolbox"].visible = true
+end
+
+
 
 local separator = dt.new_widget("separator"){}
 local separator2 = dt.new_widget("separator"){}
@@ -689,7 +722,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not gT.event_registered then
     dt.register_event(
-      "view-changed",
+      "geoToolbox", "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()
@@ -709,15 +742,21 @@ dt.preferences.register("geoToolbox",
 	'' )
 
 -- Register
-dt.register_event("shortcut", 
+dt.register_event("geoToolbox_cd", "shortcut", 
   print_calc_distance, _("Calculate the distance from latitude and longitude in km"))
-dt.register_event("mouse-over-image-changed", 
+dt.register_event("geoToolbox", "mouse-over-image-changed", 
   toolbox_calc_distance)
 
-dt.register_event("shortcut", 
+dt.register_event("geoToolbox_wg", "shortcut", 
   select_with_gps, _("Select all images with GPS information"))
-dt.register_event("shortcut", 
+dt.register_event("geoToolbox_ng", "shortcut", 
   select_without_gps, _("Select all images without GPS information"))
 
+script_data.destroy = destroy
+script_data.restart = restart
+script_data.destroy_method = "hide"
+script_data.show = show
+
+return script_data
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua
 -- kate: hl Lua;

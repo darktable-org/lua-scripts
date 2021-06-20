@@ -58,6 +58,12 @@ local du = require "lib/dtutils"
 --check API version
 du.check_min_api_version("3.0.0", "gettextExample")
 
+-- script_manager integration to allow a script to be removed
+-- without restarting darktable
+local function destroy()
+    -- nothing to destroy
+end
+
 -- Not translated Text
 dt.print_error("Hello World!")
 
@@ -77,3 +83,11 @@ local function _(msgid)
     return gettext.dgettext("gettextExample", msgid)
 end
 dt.print_error(_('Hello World!'))
+
+-- set the destroy routine so that script_manager can call it when
+-- it's time to destroy the script and then return the data to 
+-- script_manager
+local script_data = {}
+script_data.destroy = destroy
+
+return script_data

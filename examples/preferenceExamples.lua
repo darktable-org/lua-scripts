@@ -26,6 +26,7 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("2.0.1", "preferenceExamples") 
 
+
 dt.preferences.register("preferenceExamples",        -- script: This is a string used to avoid name collision in preferences (i.e namespace). Set it to something unique, usually the name of the script handling the preference.
                         "preferenceExamplesString",  -- name
                         "string",                     -- type
@@ -34,14 +35,14 @@ dt.preferences.register("preferenceExamples",        -- script: This is a string
                         "String")                     -- default
 
 dt.preferences.register("preferenceExamples",        -- script: This is a string used to avoid name collision in preferences (i.e namespace). Set it to something unique, usually the name of the script handling the preference. 
-                        "preferenceExamplesString",  -- name
+                        "preferenceExamplesBool",  -- name
                         "bool",                       -- type
                         "Example Boolean",           -- label
                         "Example Boolean Tooltip",   -- tooltip
                         true)                         -- default
 
 dt.preferences.register("preferenceExamples",        -- script: This is a string used to avoid name collision in preferences (i.e namespace). Set it to something unique, usually the name of the script handling the preference. 
-                        "preferenceExamplesString",  -- name
+                        "preferenceExamplesInteger",  -- name
                         "integer",                    -- type
                         "Example Integer",           -- label
                         "Example Integer Tooltip",   -- tooltip
@@ -50,7 +51,7 @@ dt.preferences.register("preferenceExamples",        -- script: This is a string
                         99)                           -- max
 
 dt.preferences.register("preferenceExamples",        -- script: This is a string used to avoid name collision in preferences (i.e namespace). Set it to something unique, usually the name of the script handling the preference. 
-                        "preferenceExamplesString",  -- name
+                        "preferenceExamplesFloat",  -- name
                         "float",                      -- type
                         "Example Float",             -- label
                         "Example Float Tooltip",     -- tooltip
@@ -60,21 +61,21 @@ dt.preferences.register("preferenceExamples",        -- script: This is a string
                         0.5)                          -- step
 
 dt.preferences.register("preferenceExamples",        -- script: This is a string used to avoid name collision in preferences (i.e namespace). Set it to something unique, usually the name of the script handling the preference. 
-                        "preferenceExamplesString",  -- name
+                        "preferenceExamplesFile",  -- name
                         "file",                       -- type
                         "Example File",              -- label
                         "Example File Tooltip",      -- tooltip
                         "")                           -- default
 
 dt.preferences.register("preferenceExamples",        -- script: This is a string used to avoid name collision in preferences (i.e namespace). Set it to something unique, usually the name of the script handling the preference.
-                        "preferenceExamplesString",  -- name
+                        "preferenceExamplesDirectory",  -- name
                         "directory",                  -- type
                         "Example Directory",         -- label
                         "Example Directory Tooltip", -- tooltip
                         "")                           -- default
 
 dt.preferences.register("preferenceExamples",        -- script: This is a string used to avoid name collision in preferences (i.e namespace). Set it to something unique, usually the name of the script handling the preference.
-                        "preferenceExamplesString",  -- name
+                        "preferenceExamplesEnum",  -- name
                         "enum",                       -- type
                         "Example Enum",              -- label
                         "Example Enum Tooltip",      -- tooltip

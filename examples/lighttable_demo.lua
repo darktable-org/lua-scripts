@@ -50,6 +50,12 @@ du.check_min_api_version("5.0.2", "lighttable_demo")  -- darktable 3.0
 local MODULE_NAME = "lighttable"
 local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 
+-- script_manager integration to allow a script to be removed
+-- without restarting darktable
+local function destroy()
+    -- nothing to destroy
+end
+
 -- - - - - - - - - - - - - - - - - - - - - - - -
 -- T R A N S L A T I O N S
 -- - - - - - - - - - - - - - - - - - - - - - - -
@@ -75,6 +81,7 @@ local layouts = {
   "DT_LIGHTTABLE_LAYOUT_ZOOMABLE",
   "DT_LIGHTTABLE_LAYOUT_FILEMANAGER",
   "DT_LIGHTTABLE_LAYOUT_CULLING",
+  "DT_LIGHTTABLE_LAYOUT_CULLING_DYNAMIC",
 }
 
 local sorts = {
@@ -139,6 +146,7 @@ sleep(2000)
 for n, layout in ipairs(layouts) do
   dt.gui.libs.lighttable_mode.layout(layout)
   dt.print(_("set lighttable layout to " .. layout))
+  dt.print_log(_("set lighttable layout to " .. layout))
   sleep(1500)
   for i = 1, 10 do
     dt.gui.libs.lighttable_mode.zoom_level(i)
@@ -152,11 +160,17 @@ for n, layout in ipairs(layouts) do
   end
 end
 
+dt.print_log("finished layout and zoom level testing")
+dt.print_log("starting sort demonstration")
 -- cycle through sorts
 
 dt.print(_("lighttable sorting demonstration"))
+dt.print_log("setting lighttable to filemanager mode")
 dt.gui.libs.lighttable_mode.layout("DT_LIGHTTABLE_LAYOUT_FILEMANAGER")
+sleep(500)
+dt.print_log("setting lighttable to zoom level 5")
 dt.gui.libs.lighttable_mode.zoom_level(5)
+dt.print_log("starting sorts")
 
 for n, sort in ipairs(sorts) do
   dt.gui.libs.filter.sort(sort)
@@ -196,3 +210,11 @@ current_rating = dt.gui.libs.filter.rating(current_rating)
 current_rating_comparator = dt.gui.libs.filter.rating_comparator(current_rating_comparator)
 current_sort =dt.gui.libs.filter.sort(current_sort)
 current_sort_order = dt.gui.libs.filter.sort_order(current_sort_order)
+
+-- set the destroy routine so that script_manager can call it when
+-- it's time to destroy the script and then return the data to 
+-- script_manager
+local script_data = {}
+script_data.destroy = destroy
+
+return script_data

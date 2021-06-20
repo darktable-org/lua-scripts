@@ -36,7 +36,15 @@ Plugin allows you to choose how many thumbnails you need per row
 local dt = require "darktable"
 local du = require "lib/dtutils"
 
-du.check_min_api_version("2.0.0", "selection_to_pdf")
+du.check_min_api_version("7.0.0", "selection_to_pdf")
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 dt.preferences.register
    ("selection_to_pdf","Open with","string",
@@ -99,6 +107,12 @@ local function thumbnail(latexfile,i,image,file)
   my_write(latexfile,"\\includegraphics[width=\\textwidth]{{"..filenoext.."}"..ext.."}\\newline\n")
   my_write(latexfile,"\\centering{"..i..": \\verb|"..title.."|}\n")
   my_write(latexfile,"\\end{minipage}\\quad\n")
+end
+
+local function destroy()
+  dt.print_log("destroying storage")
+  dt.destroy_storage("export_pdf")
+  dt.print_log("done destroying")
 end
 
 dt.register_storage("export_pdf","Export thumbnails to pdf",
@@ -168,5 +182,8 @@ dt.register_storage("export_pdf","Export thumbnails to pdf",
       end
     end,nil,nil,widget)
 
+script_data.destroy = destroy
+
+return script_data
 --
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua

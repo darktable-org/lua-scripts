@@ -29,8 +29,15 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 local gettext = dt.gettext
 
-du.check_min_api_version("3.0.0", "copy_paste_metadata")
-local CURR_API_STRING = dt.configuration.api_version_string
+du.check_min_api_version("7.0.0", "copy_paste_metadata")
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 -- set this to "false" if you don't want to overwrite metadata fields
 -- (title, description, creator, publisher and rights) that are already set
@@ -113,26 +120,41 @@ local function paste(images)
   end
 end
 
+local function destroy()
+  dt.gui.libs.image.destroy_action("metadata_copy")
+  dt.gui.libs.image.destroy_action("metadata_paste")
+  dt.destroy_event("capmd1", "shortcut")
+  dt.destroy_event("capmd2", "shortcut")
+end
+
 dt.gui.libs.image.register_action(
-  _("copy metadata"),
+  "metadata_copy", _("copy metadata"),
   function(event, images) copy(images[1]) end,
   _("copy metadata of the first selected image")
 )
+  
+
 
 dt.gui.libs.image.register_action(
-  _("paste metadata"),
+  "metadata_paste", _("paste metadata"),
   function(event, images) paste(images) end,
   _("paste metadata to the selected images")
 )
+  
+
 
 dt.register_event(
-  "shortcut",
+  "capmd1", "shortcut",
   function(event, shortcut) copy(dt.gui.action_images[1]) end,
   "copy metadata"
 )
 
 dt.register_event(
-  "shortcut",
+  "capmd2", "shortcut",
   function(event, shortcut) paste(dt.gui.action_images) end,
   "paste metadata"
 )
+
+script_data.destroy = destroy
+
+return script_data

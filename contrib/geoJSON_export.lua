@@ -37,7 +37,15 @@ local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 local gettext = dt.gettext
 
-du.check_min_api_version("3.0.0", "geoJSON_export") 
+du.check_min_api_version("7.0.0", "geoJSON_export") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("geoJSON_export",dt.configuration.config_dir.."/lua/locale/")
@@ -291,6 +299,10 @@ local function create_geoJSON_file(storage, image_table, extra_data)
 
 end
 
+local function destroy()
+    dt.destroy_storage("geoJSON_export")
+end
+
 -- Preferences
 dt.preferences.register("geoJSON_export",
 	"CreateMapBoxHTMLFile",
@@ -326,3 +338,7 @@ dt.preferences.register("geoJSON_export",
 
 -- Register
 dt.register_storage("geoJSON_export", "geoJSON Export", nil, create_geoJSON_file)
+
+script_data.destroy = destroy
+
+return script_data

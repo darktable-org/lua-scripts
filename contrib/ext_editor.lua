@@ -73,12 +73,15 @@ local dtsys = require "lib/dtutils.system"
 
 -- module name
 local MODULE_NAME = "ext_editor"
-local CURR_API_STRING = dt.configuration.api_version_string
+du.check_min_api_version("7.0.0", MODULE_NAME) 
 
+-- return data structure for script_manager
 
--- check API version
-du.check_min_api_version("5.0.2", MODULE_NAME)  -- darktable 3.x
+local script_data = {}
 
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 -- OS compatibility
 local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
@@ -95,7 +98,7 @@ local gettext = dt.gettext
 gettext.bindtextdomain(MODULE_NAME, dt.configuration.config_dir..PS.."lua"..PS.."locale"..PS)
 local function _(msgid)
   return gettext.dgettext(MODULE_NAME, msgid)
-  end
+end
 
 -- maximum number of external programs, can be increased to necessity
 local MAX_EDITORS = 9
@@ -112,7 +115,7 @@ local allowed_file_types = {"JPG", "jpg", "JPEG", "jpeg", "TIF", "tif", "TIFF", 
 if not dt.preferences.read(MODULE_NAME, "initialized", "bool") then
   dt.preferences.write(MODULE_NAME, "lastchoice", "integer", 0)
   dt.preferences.write(MODULE_NAME, "initialized", "bool", true)
-  end 
+end 
 local lastchoice = 0
 
 
@@ -137,23 +140,23 @@ local function UpdateProgramList(combobox, button_edit, button_edit_copy, update
       program_names[i] = name
       program_paths[i] = df.sanitize_filename(dt.preferences.read(MODULE_NAME, "program_path_"..i, "string"))
       n_entries = i
-      end
-    end 
+    end
+  end 
 
-    lastchoice = dt.preferences.read(MODULE_NAME, "lastchoice", "integer")
-    if lastchoice == 0 and n_entries > 0 then lastchoice = 1 end
-    if lastchoice > n_entries then lastchoice = n_entries end
-    dt.preferences.write(MODULE_NAME, "lastchoice", "integer", lastchoice)
+  lastchoice = dt.preferences.read(MODULE_NAME, "lastchoice", "integer")
+  if lastchoice == 0 and n_entries > 0 then lastchoice = 1 end
+  if lastchoice > n_entries then lastchoice = n_entries end
+  dt.preferences.write(MODULE_NAME, "lastchoice", "integer", lastchoice)
 
-    -- widgets enabled if there is at least one program configured
-    combobox.selected = lastchoice 
-    local active = n_entries > 0
-        combobox.sensitive = active
-        button_edit.sensitive = active
-        button_edit_copy.sensitive = active
+  -- widgets enabled if there is at least one program configured
+  combobox.selected = lastchoice 
+  local active = n_entries > 0
+      combobox.sensitive = active
+      button_edit.sensitive = active
+      button_edit_copy.sensitive = active
 
-    if update_button_pressed then dt.print(n_entries.._(" editors configured")) end
-  end
+  if update_button_pressed then dt.print(n_entries.._(" editors configured")) end
+end
 
 
 -- callback for buttons "edit" and "edit a copy" ------------------------------
@@ -163,13 +166,13 @@ local function OpenWith(images, choice, copy)
   if choice > n_entries then
     dt.print(_("not a valid choice"))
     return
-    end
+  end
 
   -- check if one image is selected, return if not
   if #images ~= 1 then
     dt.print(_("please select one image"))
     return
-    end
+  end
   
   local bin = program_paths[choice]
   local friendly_name = program_names[choice]
@@ -188,18 +191,18 @@ local function OpenWith(images, choice, copy)
     if v == file_ext then
       allowed = true
       break
-      end
-    end 
+    end
+  end 
   if not allowed then
     dt.print(_("file type not allowed"))
     return
-    end
+  end
 
   -- save image tags, rating and color
   local tags = {}
-    for i, tag in ipairs(dt.tags.get_tags(image)) do
+  for i, tag in ipairs(dt.tags.get_tags(image)) do
     if not (string.sub(tag.name, 1, 9) == "darktable") then table.insert(tags, tag) end
-    end 
+  end 
   local rating = image.rating
   local red = image.red
   local blue = image.blue
@@ -221,8 +224,8 @@ local function OpenWith(images, choice, copy)
     if not copy_success then
       dt.print(_("error copying file ")..name)
       return
-      end    
-    end
+    end    
+  end
 
   -- launch the external editor, check result, return if error
   local run_cmd = bin.." "..df.sanitize_filename(new_name) 
@@ -231,7 +234,7 @@ local function OpenWith(images, choice, copy)
   if result ~= 0 then
     dt.print(_("error launching ")..friendly_name)
     return
-    end
+  end
 
   if copy then
     -- import in database and group
@@ -256,7 +259,7 @@ local function OpenWith(images, choice, copy)
         while not found do
           index, new_leader = next(group_members, index)
           if new_leader ~= image_leader then found = true end
-          end
+        end
         new_leader:make_group_leader()
         image:delete()
         if image.local_copy then image:drop_cache() end -- to fix fail to allocate cache error
@@ -269,15 +272,15 @@ local function OpenWith(images, choice, copy)
         if image.local_copy then image:drop_cache() end -- to fix fail to allocate cache error
         new_image = dt.database.import(name)
         new_image:group_with()
-        end
+      end
     else 
       -- case 3: image is in a group but is not leader
       image:delete()
       if image.local_copy then image:drop_cache() end -- to fix fail to allocate cache error
       new_image = dt.database.import(name)
       new_image:group_with(image_leader)
-      end
-    end   
+    end
+  end   
 
   -- restore image tags, rating and color
   for i, tag in ipairs(tags) do dt.tags.attach(tag, new_image) end
@@ -296,14 +299,14 @@ local function OpenWith(images, choice, copy)
   -- refresh darkroom view
   if dt.gui.current_view().id == "darkroom" then
     dt.gui.views.darkroom.display_image(new_image)
-    end
   end
+end
 
 
 -- callback function for shortcuts --------------------------------------------
 local function program_shortcut(event, shortcut)
   OpenWith(dt.gui.action_images, tonumber(string.sub(shortcut, -2)), false)
-  end
+end
 
 
 -- export images and reimport in collection -----------------------------------
@@ -324,23 +327,23 @@ local function export2collection(storage, image_table, extra_data)
     if not move_success then
       dt.print(_("error moving file ")..temp_name)
       return
-      end
+    end
 
     -- import in database and group
     new_image = dt.database.import(new_name)
     new_image:group_with(image.group_leader)
-    end 
+  end 
   
   dt.print(_("finished exporting"))
-  end
+end
 
 
 -- install the module in the UI -----------------------------------------------
 local function install_module(dr)
   
-  local views = {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}}
+  local views = {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 90}}
   if dr then 
-    views = {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100},
+    views = {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 90},
             [dt.gui.views.darkroom] = {"DT_UI_CONTAINER_PANEL_LEFT_CENTER", 100}}
   end
   
@@ -363,6 +366,27 @@ local function install_module(dr)
   end
 end
 
+local function destroy()
+  for i = 1, MAX_EDITORS do
+    dt.destroy_event(MODULE_NAME .. i, "shortcut") 
+  end
+  dt.destroy_storage("exp2coll")
+  dt.gui.libs[MODULE_NAME].visible = false
+end
+
+local function restart()
+  for i = 1, MAX_EDITORS do
+    dt.register_event(MODULE_NAME .. i, "shortcut", 
+      program_shortcut, _("edit with program ")..string.format("%02d", i)) 
+  end
+  dt.register_storage("exp2coll", _("collection"), nil, export2collection)
+  dt.gui.libs[MODULE_NAME].visible = true
+end
+
+local function show()
+  dt.gui.libs[MODULE_NAME].visible = true
+end
+
 
 -- combobox, with variable number of entries ----------------------------------
 local combobox = dt.new_widget("combobox") {
@@ -372,7 +396,7 @@ local combobox = dt.new_widget("combobox") {
     dt.preferences.write(MODULE_NAME, "lastchoice", "integer", self.selected)
     end,
   ""
-  }
+}
 
 
 -- button edit ----------------------------------------------------------------
@@ -382,8 +406,8 @@ local button_edit = dt.new_widget("button") {
   --sensitive = false,
   clicked_callback = function()
     OpenWith(dt.gui.action_images, combobox.selected, false)
-    end
-  }
+  end
+}
 
 
 -- button edit a copy ---------------------------------------------------------
@@ -392,8 +416,8 @@ local button_edit_copy = dt.new_widget("button") {
   tooltip = _("create a copy of the selected image and open it in external editor"),
   clicked_callback = function()
     OpenWith(dt.gui.action_images, combobox.selected, true)
-    end
-  }
+  end
+}
 
 
 -- button update list ---------------------------------------------------------
@@ -402,18 +426,18 @@ local button_update_list = dt.new_widget("button") {
   tooltip = _("update list of programs if lua preferences are changed"),
   clicked_callback = function()
     UpdateProgramList(combobox, button_edit, button_edit_copy, true)
-    end
-  }
+  end
+}
 
 
 -- box for the buttons --------------------------------------------------------
 -- it doesn't seem there is a way to make the buttons equal in size
 local box1 = dt.new_widget("box") {
-    orientation = "horizontal",
+  orientation = "horizontal",
   button_edit,
   button_edit_copy,
   button_update_list
-  }
+}
 
 
 -- table with all the widgets --------------------------------------------------
@@ -428,7 +452,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not ee.event_registered then
     dt.register_event(
-      "view-changed",
+      MODULE_NAME, "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module(show_dr)
@@ -457,7 +481,7 @@ for i = MAX_EDITORS, 1, -1 do
   dt.preferences.register(MODULE_NAME, "program_name_"..i, "string", 
   _("name of external editor ")..i, 
   _("friendly name of external editor"), "")
-  end
+end
 dt.preferences.register(MODULE_NAME, "show_in_darkrooom", "bool", 
   _("show external editors in darkroom"), 
   _("check to show external editors module also in darkroom (requires restart)"), false)
@@ -465,10 +489,17 @@ dt.preferences.register(MODULE_NAME, "show_in_darkrooom", "bool",
 
 -- register the new shortcuts -------------------------------------------------
 for i = 1, MAX_EDITORS do
-  dt.register_event("shortcut", 
+  dt.register_event(MODULE_NAME .. i, "shortcut", 
     program_shortcut, _("edit with program ")..string.format("%02d", i)) 
-  end
+end
 
+
+script_data.destroy = destroy
+script_data.restart = restart
+script_data.destroy_method = "hide"
+script_data.show = show
+
+return script_data
 
 -- end of script --------------------------------------------------------------
 

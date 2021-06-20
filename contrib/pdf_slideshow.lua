@@ -56,7 +56,15 @@ if not df.check_if_bin_exists("pdflatex") then
    return
 end
 
-du.check_min_api_version("4.0.0", "pdf_slideshow") 
+du.check_min_api_version("7.0.0", "pdf_slideshow") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 dt.preferences.register
    ("pdf_slideshow","open with","string",
@@ -164,6 +172,10 @@ local function slide(latexfile,i,image,file)
   my_write(latexfile,"\\end{figure}\n")
 end
 
+local function destroy()
+  dt.destroy_storage("pdf_slideshow")
+end
+
 dt.register_storage("pdf_slideshow",_("pdf slideshow"),
     nil,
     function(storage,image_table)
@@ -243,5 +255,8 @@ dt.register_storage("pdf_slideshow",_("pdf slideshow"),
     nil,
     widget)
 
+script_data.destroy = destroy
+
+return script_data
 --
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua

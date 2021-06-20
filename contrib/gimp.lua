@@ -72,7 +72,15 @@ local dtsys = require "lib/dtutils.system"
 local gettext = dt.gettext
 local gimp_widget = nil
 
-du.check_min_api_version("5.0.0", "gimp") 
+du.check_min_api_version("7.0.0", "gimp") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("gimp",dt.configuration.config_dir.."/lua/locale/")
@@ -189,6 +197,10 @@ local function gimp_edit(storage, image_table, extra_data) --finalize
   end
 end
 
+local function destroy()
+  dt.destroy_storage("module_gimp")
+end
+
 -- Register
 
 gimp_widget = dt.new_widget("check_button"){
@@ -203,3 +215,6 @@ gimp_widget = dt.new_widget("check_button"){
 dt.register_storage("module_gimp", _("Edit with GIMP"), show_status, gimp_edit, nil, nil, gimp_widget)
 
 --
+script_data.destroy = destroy
+
+return script_data

@@ -32,6 +32,10 @@ local dtsys = require "lib/dtutils.system"
 
 du.check_min_api_version("5.0.0", "gen_I18n_mo")
 
+local function destroy()
+  -- nothing to destroy
+end
+
 -- figure out the path separator
 
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"
@@ -97,3 +101,8 @@ dt.preferences.register("executable_paths", "msgfmt",  -- name
     is_directory = false,
   }
 )
+
+local script_data = {}
+script_data.destroy = destroy
+
+return script_data

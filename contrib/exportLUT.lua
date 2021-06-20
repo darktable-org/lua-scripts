@@ -31,10 +31,19 @@ local du = require "lib/dtutils"
 local df = require("lib/dtutils.file")
 local ds = require("lib/dtutils.system")
 
+du.check_min_api_version("7.0.0", "exportLUT") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
+
 local gettext = dt.gettext
 
 gettext.bindtextdomain("exportLUT",dt.configuration.config_dir.."/lua/locale/")
-local CURR_API_STRING = dt.configuration.api_version_string
 
 local function _(msgid)
     return gettext.dgettext("exportLUT", msgid)
@@ -128,7 +137,7 @@ end
 local function install_module()
   if not eL.module_installed then
     dt.register_lib(
-      _("export haldclut"),
+      "export haldclut",
       _("export haldclut"),
       true,
       false,
@@ -143,6 +152,14 @@ local function install_module()
     )
     eL.module_installed = true
   end
+end
+
+local function destroy()
+  dt.gui.libs["export haldclut"].visible = false
+end
+
+local function restart()
+  dt.gui.libs["export haldclut"].visible = true
 end
 
 local export_button = dt.new_widget("button"){
@@ -162,7 +179,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not eL.event_registered then
     dt.register_event(
-      "view-changed",
+      "exportLUT", "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()
@@ -173,3 +190,9 @@ else
   end
 end
 
+script_data.destroy = destroy
+script_data.restart = restart
+script_data.destroy_method = "hide"
+script_data.show = restart
+
+return script_data

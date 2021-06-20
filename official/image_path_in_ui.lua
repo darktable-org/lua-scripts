@@ -31,8 +31,15 @@ This plugin will add a widget at the bottom of the left column in lighttable mod
 local dt = require "darktable"
 local du = require "lib/dtutils"
 
-du.check_min_api_version("2.0.0", "image_path_in_ui") 
-local CURR_API_STRING = dt.configuration.api_version_string
+du.check_min_api_version("7.0.0", "image_path_in_ui") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 local ipiu = {}
 ipiu.module_installed = false
@@ -42,8 +49,8 @@ local main_label = dt.new_widget("label"){selectable = true, ellipsize = "middle
 
 local function install_module()
   if not ipiu.module_installed then
-    dt.register_lib("image_path_no_ui", "selected images path", true, false,{
-      [dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_CENTER", 300}
+    dt.register_lib("image_path_no_ui","selected images path",true,false,{
+      [dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_CENTER",300}
       }, main_label
     )
     ipiu.module_installed = true
@@ -67,6 +74,20 @@ local function reset_widget()
   main_label.label = result
 end
 
+local function destroy()
+  dt.gui.libs["image_path_no_ui"].visible = false
+  dt.destroy_event("ipiu", "mouse-over-image-changed")
+end
+
+local function restart()
+  dt.register_event("ipiu", "mouse-over-image-changed", reset_widget);
+  dt.gui.libs["image_path_no_ui"].visible = true
+end
+
+local function show()
+  dt.gui.libs["image_path_no_ui"].visible = true
+end
+
 main_label.reset_callback = reset_widget
 
 if dt.gui.current_view().id == "lighttable" then
@@ -85,7 +106,13 @@ else
   end
 end
 
-dt.register_event("mouse-over-image-changed", reset_widget);
+dt.register_event("ipiu", "mouse-over-image-changed", reset_widget);
 
+script_data.destroy = destroy
+script_data.restart = restart
+script_data.destroy_method = "hide"
+script_data.show = show
+
+return script_data
   --
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua

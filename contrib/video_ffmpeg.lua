@@ -39,7 +39,15 @@ local df = require "lib/dtutils.file"
 local dsys = require "lib/dtutils.system"
 local gettext = dt.gettext
 
-du.check_min_api_version("5.0.0")
+du.check_min_api_version("7.0.0", "video_ffmpeg") 
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 
 local MODULE_NAME = "video_ffmpeg"
 
@@ -448,6 +456,12 @@ local function finalize_export(storage, images_table, extra_data)
     df.rmdir(df.sanitize_filename(tmp_dir))
 end
 
+-- script_manager integration
+
+local function destroy()
+  dt.destroy_storage("module_video_ffmpeg")
+end
+
 dt.register_storage(
   "module_video_ffmpeg", 
   _(MODULE_NAME), 
@@ -458,3 +472,8 @@ dt.register_storage(
   module_widget
 )
 
+-- script_manager integration
+
+script_data.destroy = destroy
+
+return script_data
