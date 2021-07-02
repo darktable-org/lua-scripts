@@ -1,5 +1,5 @@
 ## Changes from most recent to oldest
-**02 Jul 2021 - wpferguson - merged API-7.0.0-dev branch to master
+**02 Jul 2021 - wpferguson - merged API-7.0.0-dev branch to master**
 * API-7.0.0 is darktable 3.6
 * breaking changes
   * register_event argments changed
@@ -10,9 +10,9 @@
 * script_manger updated to be API aware and check out the proper branch
   based on darktable API version
 
-**01 Jul 2021 - wpferguson - created branch for API-6.1.0 - darktable 3.4
+**01 Jul 2021 - wpferguson - created branch for API-6.1.0 - darktable 3.4**
 
-**20 Jun 2021 - wpferguson - created branches for older API versions
+**20 Jun 2021 - wpferguson - created branches for older API versions**
 * API-6.0.0 - darktable 3.2.1
 * API-5.0.2 - darktable 3.0
 * API-5.0.1 - darktable 2.6.1
