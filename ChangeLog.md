@@ -1,21 +1,41 @@
 ## Changes from most recent to oldest
+**02 Jul 2021 - wpferguson - merged API-7.0.0-dev branch to master
+* API-7.0.0 is darktable 3.6
+* breaking changes
+  * register_event argments changed
+  * register_action arguments changed
+  * register_selection arguments changed
+  * register_event arguments changed
+* scripts updated to API-7.0.0 compatibility
+* script_manger updated to be API aware and check out the proper branch
+  based on darktable API version
 
-** 19 Jun 2021 - wpferguson - fix issue 312, image_path_in_ui**
+**01 Jul 2021 - wpferguson - created branch for API-6.1.0 - darktable 3.4
 
-** 02 Jun 2021 - wpferguson - fix contrib/quicktag**
+**20 Jun 2021 - wpferguson - created branches for older API versions
+* API-6.0.0 - darktable 3.2.1
+* API-5.0.2 - darktable 3.0
+* API-5.0.1 - darktable 2.6.1
+* API-5.0.0 - darktable 2.4
+* API-4.0.0 - darktable 2.2
+* API-3.0.0 - darktable 2.0
+
+**19 Jun 2021 - wpferguson - fix issue 312, image_path_in_ui**
+
+**02 Jun 2021 - wpferguson - fix contrib/quicktag**
 * set new entry field is_password to false so entry
 is visible to user while typing.
 
-** 19 Mar 2021 - wpferguson - fixed crash in contrib/HDRmerge.lua**
+**19 Mar 2021 - wpferguson - fixed crash in contrib/HDRmerge.lua**
 * Made generated filename routine gracefully handle names that
 are not in the expected format.
 
-** 15 Mar 2021 - scheckmedia - updated contrib/photils.lua**
+**15 Mar 2021 - scheckmedia - updated contrib/photils.lua**
 * refactor print method
 * add option to apply selected tags from a single image to multiple images
 * add setting parameter to enable/disable the export of an image before tag suggestion
 
-** 25 Feb 2021 - wpferguson - added detached mode to contrib/gimp.lua**
+**25 Feb 2021 - wpferguson - added detached mode to contrib/gimp.lua**
 
 * Added run_detached checkbox to the exporter GUI.  Selecting run_detached
 let's GIMP keep running and accepting additional images.  It does not return
