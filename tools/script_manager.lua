@@ -87,7 +87,7 @@ local MIN_BUTTONS_PER_PAGE = 5
 local MAX_BUTTONS_PER_PAGE = 20
 local DEFAULT_BUTTONS_PER_PAGE = 10
 
-local DEFAULT_LOG_LEVEL = log.error
+local DEFAULT_LOG_LEVEL = log.debug
 
 local LUA_DIR = dt.configuration.config_dir .. PS .. "lua"
 local LUA_SCRIPT_REPO = "https://github.com/darktable-org/lua-scripts.git"
