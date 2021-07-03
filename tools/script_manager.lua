@@ -210,7 +210,7 @@ end
 local function get_current_repo_branch(repo_data)
   local branch = nil
   branch = string.match(repo_data, "On branch (.-)\n")
-  log.msg(log.info, "\ncurrent rep0 branch is " .. branch)
+  log.msg(log.info, "\ncurrent repo branch is " .. branch)
   return branch
 end
 
@@ -880,7 +880,7 @@ if sm.executables.git and clean and
         checkout_repo_branch(repo, "master")
       end
     end
-  elseif #branches and LUA_API_VER > branches[#branches] then
+  elseif #branches > 0 and LUA_API_VER > branches[#branches] then
     log.msg(log.info, "no newer branches, staying on master")
     -- stay on master
   else
