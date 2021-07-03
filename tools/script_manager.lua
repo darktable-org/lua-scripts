@@ -880,9 +880,11 @@ if sm.executables.git and clean and
         checkout_repo_branch(repo, "master")
       end
     end
-  elseif branches ~= nil and LUA_API_VER > branches[#branches] then
-    log.msg(log.info, "no newer branches, staying on master")
-    -- stay on master
+  elseif branches then
+    if  LUA_API_VER > branches[#branches] then
+      log.msg(log.info, "no newer branches, staying on master")
+      -- stay on master
+    end
   else
     -- checkout the appropriate branch for API version if it exists
     log.msg(log.info, "checking out the appropriate API branch")
