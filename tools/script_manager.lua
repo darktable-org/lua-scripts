@@ -203,14 +203,14 @@ local function get_repo_status(repo)
     p:close()
     return data
   end
-  dt.print_error("unable to get status of " .. repo)
+  log.msg(log.error, "unable to get status of " .. repo)
   return nil
 end
 
 local function get_current_repo_branch(repo_data)
   local branch = nil
   branch = string.match(repo_data, "On branch (.-)\n")
-  dt.print_log("\ncurrent rep branch is " .. branch)
+  log.msg(log.info, "\ncurrent rep0 branch is " .. branch)
   return branch
 end
 
@@ -220,13 +220,13 @@ local function get_repo_branches(repo)
   if p then
     local data = p:read("*a")
     p:close()
-    dt.print_log("data is \n" .. data)
+    log.msg(log.debug, "data is \n" .. data)
     local branch_data = du.split(data, "\n")
     for _, line in ipairs(branch_data) do
-      dt.print_log("line is  " .. line)
+      log.msg(log.debug, "line is  " .. line)
       local branch = string.gsub(line, "%s+remotes/%a+/", "")
       if string.match(branch, "API") then
-        dt.print_log("found branch - " .. branch)
+        log.msg(log.info, "found branch - " .. branch)
         table.insert(branches, branch)
       end
     end
@@ -237,16 +237,16 @@ end
 
 local function is_repo_clean(repo_data)
   if string.match(repo_data, "working tree clean") then
-    dt.print_log("repo is clean")
+    log.msg(log.info, "repo is clean")
     return true
   else
-    dt.print_log("repo is dirty")
+    log.msg(log.info, "repo is dirty")
     return false
   end
 end
 
 local function checkout_repo_branch(repo, branch)
-  dt.print_log("checkout out branch " .. branch .. " from repository " .. repo)
+  log.msg(log.info, "checkout out branch " .. branch .. " from repository " .. repo)
   os.execute("cd " .. repo .. CS .. "git checkout " .. branch)
 end
 
@@ -451,7 +451,7 @@ local function update_scripts()
   local git = sm.executables.git
 
   if not git then
-    dt.print("ERROR: git not found.  Install or specify the location of the git executable.")
+    dt.print(_("ERROR: git not found.  Install or specify the location of the git executable."))
     return
   end
 
@@ -535,7 +535,7 @@ local function install_scripts()
   local git = sm.executables.git
 
   if not git then
-    dt.print("ERROR: git not found.  Install or specify the location of the git executable.")
+    dt.print(_("ERROR: git not found.  Install or specify the location of the git executable."))
     return
   end
 
