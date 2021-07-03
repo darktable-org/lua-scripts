@@ -880,7 +880,7 @@ if sm.executables.git and clean and
         checkout_repo_branch(repo, "master")
       end
     end
-  elseif LUA_API_VER > branches[#branches] then
+  elseif #branches and LUA_API_VER > branches[#branches] then
     log.msg(log.info, "no newer branches, staying on master")
     -- stay on master
   else
