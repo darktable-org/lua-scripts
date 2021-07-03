@@ -881,6 +881,7 @@ if sm.executables.git and clean and
       end
     end
   elseif branches then
+    dt.print_log("branches has " .. #branches .. " branches")
     if  LUA_API_VER > branches[#branches] then
       log.msg(log.info, "no newer branches, staying on master")
       -- stay on master
