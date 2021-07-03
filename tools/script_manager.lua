@@ -87,7 +87,7 @@ local MIN_BUTTONS_PER_PAGE = 5
 local MAX_BUTTONS_PER_PAGE = 20
 local DEFAULT_BUTTONS_PER_PAGE = 10
 
-local DEFAULT_LOG_LEVEL = log.debug
+local DEFAULT_LOG_LEVEL = log.error
 
 local LUA_DIR = dt.configuration.config_dir .. PS .. "lua"
 local LUA_SCRIPT_REPO = "https://github.com/darktable-org/lua-scripts.git"
@@ -210,7 +210,7 @@ end
 local function get_current_repo_branch(repo_data)
   local branch = nil
   branch = string.match(repo_data, "On branch (.-)\n")
-  log.msg(log.info, "\ncurrent rep0 branch is " .. branch)
+  log.msg(log.info, "\ncurrent repo branch is " .. branch)
   return branch
 end
 
@@ -880,7 +880,7 @@ if sm.executables.git and clean and
         checkout_repo_branch(repo, "master")
       end
     end
-  elseif #branches >0 and LUA_API_VER > branches[#branches] then
+  elseif #branches > 0 and LUA_API_VER > branches[#branches] then
     log.msg(log.info, "no newer branches, staying on master")
     -- stay on master
   else
