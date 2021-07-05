@@ -210,7 +210,11 @@ end
 local function get_current_repo_branch(repo_data)
   local branch = nil
   branch = string.match(repo_data, "On branch (.-)\n")
-  log.msg(log.info, "\ncurrent repo branch is " .. branch)
+  if not branch then
+    log.msg(log.error, "no branch detected in repo_data\nrepo_data:\n" .. repo_data)
+  else
+    log.msg(log.info, "\ncurrent repo branch is " .. branch)
+  end
   return branch
 end
 
