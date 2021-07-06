@@ -209,7 +209,7 @@ end
 
 local function get_current_repo_branch(repo)
   local branch = nil
-  local p = io.popen("cd " .. repo .. CS .. "git branch")
+  local p = io.popen("cd " .. repo .. CS .. "git branch --all")
   if p then
     local data = p:read("*a")
     p:close()
@@ -857,56 +857,58 @@ local current_branch = get_current_repo_branch(LUA_DIR)
 local clean = is_repo_clean(repo_data)
 local repo = LUA_DIR
 
-if sm.executables.git and clean and 
-  (current_branch == "master" or string.match(current_branch, "^API%-")) then -- only make changes to clean branches
-  local branches = get_repo_branches(LUA_DIR)
-  if current_branch ~= LUA_API_VER and current_branch ~= "master" then
-    -- probably upgraded from an earlier api version so get back to master
-    -- to use the latest version of script_manager to get the proper API
-    checkout_repo_branch(repo, "master")
-    log.msg(log.screen, "lua API version reset, please restart darktable")
-  elseif LUA_API_VER == current_branch then
-    -- do nothing, we are fine
-    log.msg(log.debug, "took equal branch, doing nothing")
-  elseif string.match(LUA_API_VER, "dev") then
-    -- we are on a dev API version, so checkout the dev
-    -- api version or checkout/stay on master
-    log.msg(log.debug, "took the dev branch")
-    local match = false
-    for _, branch in ipairs(branches) do
-      log.msg(log.debug, "checking branch " .. branch .. " against API " .. LUA_API_VER)
-      if LUA_API_VER == branch then
-        match = true
-        log.msg(log.info, "checking out repo development branch " .. branch)
-        checkout_repo_branch(repo, branch)
+if current_branch then
+  if sm.executables.git and clean and 
+    (current_branch == "master" or string.match(current_branch, "^API%-")) then -- only make changes to clean branches
+    local branches = get_repo_branches(LUA_DIR)
+    if current_branch ~= LUA_API_VER and current_branch ~= "master" then
+      -- probably upgraded from an earlier api version so get back to master
+      -- to use the latest version of script_manager to get the proper API
+      checkout_repo_branch(repo, "master")
+      log.msg(log.screen, "lua API version reset, please restart darktable")
+    elseif LUA_API_VER == current_branch then
+      -- do nothing, we are fine
+      log.msg(log.debug, "took equal branch, doing nothing")
+    elseif string.match(LUA_API_VER, "dev") then
+      -- we are on a dev API version, so checkout the dev
+      -- api version or checkout/stay on master
+      log.msg(log.debug, "took the dev branch")
+      local match = false
+      for _, branch in ipairs(branches) do
+        log.msg(log.debug, "checking branch " .. branch .. " against API " .. LUA_API_VER)
+        if LUA_API_VER == branch then
+          match = true
+          log.msg(log.info, "checking out repo development branch " .. branch)
+          checkout_repo_branch(repo, branch)
+        end
       end
-    end
-    if not match then
-      if current_branch == "master" then
-        log.msg(log.info, "staying on master, no dev branch yet")
-      else
-        log.msg(log.info, "no dev branch available, checking out master")
-        checkout_repo_branch(repo, "master")
+      if not match then
+        if current_branch == "master" then
+          log.msg(log.info, "staying on master, no dev branch yet")
+        else
+          log.msg(log.info, "no dev branch available, checking out master")
+          checkout_repo_branch(repo, "master")
+        end
       end
-    end
-  elseif #branches > 0 and LUA_API_VER > branches[#branches] then
-    log.msg(log.info, "no newer branches, staying on master")
-    -- stay on master
-  else
-    -- checkout the appropriate branch for API version if it exists
-    log.msg(log.info, "checking out the appropriate API branch")
-    local match = false
-    for _, branch in ipairs(branches) do
-      log.msg(log.debug, "checking branch " .. branch .. " against API " .. LUA_API_VER)
-      if LUA_API_VER == branch then
-        match = true
-        log.msg(log.info, "checking out repo branch " .. branch)
-        checkout_repo_branch(repo, branch)
-        log.msg(log.screen, "you must restart darktable to use the correct version of the lua")
+    elseif #branches > 0 and LUA_API_VER > branches[#branches] then
+      log.msg(log.info, "no newer branches, staying on master")
+      -- stay on master
+    else
+      -- checkout the appropriate branch for API version if it exists
+      log.msg(log.info, "checking out the appropriate API branch")
+      local match = false
+      for _, branch in ipairs(branches) do
+        log.msg(log.debug, "checking branch " .. branch .. " against API " .. LUA_API_VER)
+        if LUA_API_VER == branch then
+          match = true
+          log.msg(log.info, "checking out repo branch " .. branch)
+          checkout_repo_branch(repo, branch)
+          log.msg(log.screen, "you must restart darktable to use the correct version of the lua")
+        end
       end
-    end
-    if not match then
-      log.msg(log.warn, "no matching branch found for " .. LUA_API_VER)
+      if not match then
+        log.msg(log.warn, "no matching branch found for " .. LUA_API_VER)
+      end
     end
   end
 end
