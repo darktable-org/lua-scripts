@@ -245,7 +245,7 @@ end
 
 
 local function is_repo_clean(repo_data)
-  if string.match(repo_data, "\n%s-%a.-%a:%s-%g-\n") then
+  if string.match(repo_data, "\n%s-%a.-%a:%s-%a%g-\n") then
     log.msg(log.info, "repo is dirty")
     return false
   else
