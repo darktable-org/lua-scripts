@@ -87,7 +87,7 @@ local MIN_BUTTONS_PER_PAGE = 5
 local MAX_BUTTONS_PER_PAGE = 20
 local DEFAULT_BUTTONS_PER_PAGE = 10
 
-local DEFAULT_LOG_LEVEL = log.debug
+local DEFAULT_LOG_LEVEL = log.error
 
 local LUA_DIR = dt.configuration.config_dir .. PS .. "lua"
 local LUA_SCRIPT_REPO = "https://github.com/darktable-org/lua-scripts.git"
@@ -218,7 +218,7 @@ local function get_current_repo_branch(repo)
   if not branch then
     log.msg(log.error, "no current branch detected in repo_data")
   else
-    log.msg(log.info, "\ncurrent repo branch is " .. branch)
+    log.msg(log.info, "current repo branch is " .. branch)
   end
   return branch
 end
