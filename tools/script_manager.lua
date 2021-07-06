@@ -207,13 +207,18 @@ local function get_repo_status(repo)
   return nil
 end
 
-local function get_current_repo_branch(repo_data)
+local function get_current_repo_branch(repo)
   local branch = nil
-  branch = string.match(repo_data, "On branch (.-)\n")
+  local p = io.popen("cd " .. repo .. CS .. "git branch")
+  if p then
+    local data = p:read("*a")
+    p:close()
+    branch = string.match(data, "\n%* (.-)\n")
+  end
   if not branch then
-    log.msg(log.error, "no branch detected in repo_data\nrepo_data:\n" .. repo_data)
+    log.msg(log.error, "no current branch detected in repo_data")
   else
-    log.msg(log.info, "\ncurrent repo branch is " .. branch)
+    log.msg(log.info, "current repo branch is " .. branch)
   end
   return branch
 end
@@ -240,12 +245,12 @@ end
 
 
 local function is_repo_clean(repo_data)
-  if string.match(repo_data, "working tree clean") then
-    log.msg(log.info, "repo is clean")
-    return true
-  else
+  if string.match(repo_data, "\n%s-%a.-%a:%s-%a%g-\n") then
     log.msg(log.info, "repo is dirty")
     return false
+  else
+    log.msg(log.info, "repo is clean")
+    return true
   end
 end
 
@@ -848,7 +853,7 @@ end
 -- M A I N  P R O G R A M
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 local repo_data = get_repo_status(LUA_DIR)
-local current_branch = get_current_repo_branch(repo_data)
+local current_branch = get_current_repo_branch(LUA_DIR)
 local clean = is_repo_clean(repo_data)
 local repo = LUA_DIR
 
