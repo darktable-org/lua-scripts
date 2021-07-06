@@ -87,7 +87,7 @@ local MIN_BUTTONS_PER_PAGE = 5
 local MAX_BUTTONS_PER_PAGE = 20
 local DEFAULT_BUTTONS_PER_PAGE = 10
 
-local DEFAULT_LOG_LEVEL = log.error
+local DEFAULT_LOG_LEVEL = log.debug
 
 local LUA_DIR = dt.configuration.config_dir .. PS .. "lua"
 local LUA_SCRIPT_REPO = "https://github.com/darktable-org/lua-scripts.git"
@@ -213,14 +213,20 @@ local function get_current_repo_branch(repo)
   if p then
     local data = p:read("*a")
     p:close()
-    branch = string.match(data, "\n%* (.-)\n")
+    local branches = du.split(data, "\n")
+    for _, b in ipairs(branches) do
+      log.msg(log.debug, "branch for testing is " .. b)
+      branch = string.match(b, "^%* (.-)$")
+      if branch then
+        log.msg(log.info, "current repo branch is " .. branch)
+        return branch
+      end
+    end
   end
   if not branch then
     log.msg(log.error, "no current branch detected in repo_data")
-  else
-    log.msg(log.info, "current repo branch is " .. branch)
   end
-  return branch
+  return nil
 end
 
 local function get_repo_branches(repo)
