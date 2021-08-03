@@ -44,7 +44,7 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 
-du.check_min_api_version("7.0.0", "rename") 
+du.check_min_api_version("7.0.0", "rename_images") 
 
 local gettext = dt.gettext
 
@@ -52,7 +52,7 @@ local gettext = dt.gettext
 gettext.bindtextdomain("rename",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("rename", msgid)
+    return gettext.dgettext("rename_images", msgid)
 end
 
 -- namespace variable
@@ -81,7 +81,7 @@ script_data.restart = nil -- how to restart the (lib) script after it's been hid
 -- C O N S T A N T S
 -- - - - - - - - - - - - - - - - - - - - - - - -
 
-local MODULE_NAME = "rename"
+local MODULE_NAME = "rename_images"
 local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 local USER = os.getenv("USERNAME")
 local HOME = os.getenv(dt.configuration.running_os == "windows" and "HOMEPATH" or "HOME")
@@ -139,8 +139,8 @@ end
 local function install_module()
   if not rename.module_installed then
     dt.register_lib(
-      _("rename"),
-      ("rename"),
+      _("rename images"),
+      ("rename_images"),
       true,
       true,
       {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER",700}},
@@ -157,11 +157,11 @@ local function install_module()
 end
 
 local function destroy()
-  dt.gui.libs["rename"].visible = false
+  dt.gui.libs["rename_images"].visible = false
 end
 
 local function restart()
-  dt.gui.libs["rename"].visible = true
+  dt.gui.libs["rename_images"].visible = true
 end  
 
 -- - - - - - - - - - - - - - - - - - - - - - - -
@@ -296,7 +296,7 @@ if dt.gui.current_view().id == "lighttable" then
 else
   if not rename.event_registered then
     dt.register_event(
-      "rename", "view-changed",
+      "rename_images", "view-changed",
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()
