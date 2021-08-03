@@ -49,7 +49,7 @@ du.check_min_api_version("7.0.0", "rename_images")
 local gettext = dt.gettext
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("rename",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("rename_images",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
     return gettext.dgettext("rename_images", msgid)
@@ -139,8 +139,8 @@ end
 local function install_module()
   if not rename.module_installed then
     dt.register_lib(
+      MODULE_NAME,
       _("rename images"),
-      ("rename_images"),
       true,
       true,
       {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER",700}},
@@ -157,11 +157,11 @@ local function install_module()
 end
 
 local function destroy()
-  dt.gui.libs["rename_images"].visible = false
+  dt.gui.libs[MODULE_NAME].visible = false
 end
 
 local function restart()
-  dt.gui.libs["rename_images"].visible = true
+  dt.gui.libs[MODULE_NAME].visible = true
 end  
 
 -- - - - - - - - - - - - - - - - - - - - - - - -
