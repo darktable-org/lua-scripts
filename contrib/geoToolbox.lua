@@ -430,7 +430,7 @@ local function get_distance(lat1, lon1, ele1, lat2, lon2, ele2)
       math.cos(math.rad(lat1)) * math.cos(math.rad(lat2)) *
       math.sin(dLon/2) * math.sin(dLon/2)
       ;
-    local angle = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a));
+    local angle = 2 * math.atan(math.sqrt(a), math.sqrt(1-a));
     local distance = earthRadius * angle; -- Distance in km
 
     -- Add the elevation to the calculation
