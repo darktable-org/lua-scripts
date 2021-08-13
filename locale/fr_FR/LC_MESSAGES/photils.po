@@ -1,0 +1,117 @@
+# French messages for photils.lua
+# Christophe Agathon <christophe.agathon@gmail.com>, 2021
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2021-08-13 09:04+0200\n"
+"PO-Revision-Date: 2021-08-13 09:49+0200\n"
+"Last-Translator: Christophe Agathon <christophe.agathon@gmail.com>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.1\n"
+"X-Poedit-Basepath: ../../../contrib\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-SearchPath-0: photils.lua\n"
+
+#: photils.lua:117
+msgid "get tags"
+msgstr "trouver des mots-clés"
+
+#: photils.lua:148
+msgid "requires a restart to be applied"
+msgstr "nécessite un redémarrage pour être pris en compte"
+
+#: photils.lua:163
+msgid "min confidence value"
+msgstr "niveau de confiance minimum"
+
+#: photils.lua:180
+msgid ""
+"The suggested tags were not generated\n"
+" for the currently selected image!"
+msgstr ""
+"La proposition de mots-clés n'a pas été générée\n"
+" pour l'image sélectionnée actuellement !"
+
+#: photils.lua:186
+#, lua-format
+msgid "  page %s of %s  "
+msgstr "  page %s de %s  "
+
+#: photils.lua:237
+msgid "Apply tag to image"
+msgstr "Appliquer les mots-clés à l'image"
+
+#: photils.lua:249
+msgid "Tags successfully attached to image"
+msgstr "Les mots-clés ont bien été ajoutés à l'image"
+
+#: photils.lua:299
+#, lua-format
+msgid "%s found %d tags for your image"
+msgstr "%s a trouvé %d mots-clés pour votre image"
+
+#: photils.lua:315
+msgid "No image selected."
+msgstr "Pas d'image sélectionnée."
+
+#: photils.lua:319
+msgid "This plugin can only handle a single image."
+msgstr "Ce plugin ne peut gérer qu'une seule image."
+
+#: photils.lua:326
+#, lua-format
+msgid "%s failed, see terminal output for details"
+msgstr ""
+"%s a échoué, consultez les messages sur le terminal pour plus de détails"
+
+#: photils.lua:334
+#, lua-format
+msgid "no tags where found"
+msgstr "aucun mot-clé n'a été trouvé"
+
+#: photils.lua:365
+#, lua-format
+msgid "attach %d tags"
+msgstr "ajouter %d mots-clés"
+
+#: photils.lua:429 photils.lua:430
+msgid "photils-cli not found"
+msgstr "photils-cli non trouvé"
+
+#: photils.lua:432
+msgid ""
+"Select an image, click \"get tags\" and get \n"
+"suggestions for tags."
+msgstr ""
+"Sélectionnez une image, cliquez sur « trouver des mots-clés » \n"
+"pour obtenir une proposition de mots-clés."
+
+#: photils.lua:467
+msgid "photils: show confidence value"
+msgstr "photils: afficher le niveau de confiance"
+
+# Original message should begin with capital I
+#: photils.lua:468
+msgid "if enabled, the confidence value for each tag is displayed"
+msgstr "Si activé, le niveau de confiance de chaque mot-clé est affiché"
+
+#: photils.lua:474
+msgid "photils: use exported image for tag request"
+msgstr "photils: utiliser l'image exportée pour la recherche de mots-clés"
+
+#: photils.lua:475
+msgid ""
+"If enabled, the image passed to photils for tag suggestion is based on the "
+"exported, already edited image. Otherwise, the embedded thumbnail of the RAW "
+"file will be used for tag suggestion.The embedded thumbnail could speedup "
+"the tag suggestion but can fail if the RAW file is not supported."
+msgstr ""
+"Si activé, l'image passée à photils pour la proposition de mots-clés est "
+"basée sur l'export de l'image déjà éditée. Sinon, c'est la vignette "
+"encapsulée dans le fichier RAW qui sera utilisée. La vignette encapsulée "
+"pourra accélérer la proposition des mots-clés mais la recherche échouera si "
+"le fichier RAW n'est pas supporté."
