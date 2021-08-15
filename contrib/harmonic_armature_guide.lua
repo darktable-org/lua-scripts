@@ -22,9 +22,9 @@ HARMONIC ARMATURE GUIDE
 Harmonic Armature (also known as 14 line armature)
 
 INSTALLATION
-* copy this file in $CONFIGDIR/lua/ where CONFIGDIR is your darktable configuration directory
+* copy this file in $CONFIGDIR/lua/contrib where CONFIGDIR is your darktable configuration directory
 * add the following line in the file $CONFIGDIR/luarc
-  require "harmonic_armature_guide"
+  require "contrib/harmonic_armature_guide"
 
 USAGE
 * when using guides, select "harmonic armature" as guide
@@ -68,12 +68,6 @@ function(cairo, x, y, width, height, zoom_scale)
   cairo:line_to(0.5, 0)
   cairo:line_to(1, 0.5)
   cairo:line_to(0, 1)
-
-  -- middle lines - not needed for harmonic armature
-  -- cairo:move_to(0,0.5)
-  -- cairo:line_to(1,0.5)
-  -- cairo:move_to(0.5,0)
-  -- cairo:line_to(0.5,1)
 
   cairo:restore()
 end,
