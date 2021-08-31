@@ -41,9 +41,6 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("7.0.0", "AutoGrouper")
 
-dt.print_log("hiding styles")
-dt.gui.libs["styles"].visible = false
-           
 local MOD = 'autogrouper'
 
 -- return data structure for script_manager
