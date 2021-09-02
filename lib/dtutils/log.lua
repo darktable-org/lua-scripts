@@ -17,11 +17,11 @@ dtutils_log.libdoc = {
 
   print out warning, error and success messages as code is running
 
-  log.log_level(debug)
+  log.log_level(log.debug)
 
   print out debugging messages too because this isnt working
 
-  log.log_level(info)
+  log.log_level(log.info)
 
   I want to make sure this is working ok
 
