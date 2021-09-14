@@ -20,7 +20,7 @@
 --[[
 PASSPORT CROPPING GUIDE
 guides for cropping passport photos based on documents from the Finnish police
-(https://www.poliisi.fi/instancedata/prime_product_julkaisu/intermin/embeds/poliisiwwwstructure/38462_Passikuvaohje_EN.pdf) describing passport photo dimensions of 47x36 mm and 500x653 px for digital biometric data stored in passports. They use ISO 19794-5 standard based on ICAO 9303 regulations which should also be compliant for all of Europe.
+(https://poliisi.fi/documents/25235045/31329600/Passport-photograph-instructions-by-the-police-2020-EN-fixed.pdf/1eec2f4c-aed7-68e0-c112-0a8f25e0328d/Passport-photograph-instructions-by-the-police-2020-EN-fixed.pdf) describing passport photo dimensions of 47x36 mm and 500x653 px for digital biometric data stored in passports. They use ISO 19794-5 standard based on ICAO 9303 regulations which should also be compliant for all of Europe.
 
 INSTALLATION
 * copy this file in $CONFIGDIR/lua/ where CONFIGDIR is your darktable configuration directory
