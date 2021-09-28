@@ -1,0 +1,86 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-09-28 19:52-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/copy_attach_detach_tags.lua:101
+msgid "Image tags copied ..."
+msgstr "Etiquetas de imagem copiadas ..."
+
+#: ../contrib/copy_attach_detach_tags.lua:123
+msgid "No tag to attach, please copy tags first."
+msgstr "Nenhuma etiqueta anexada, por favor copie as etiquetas primeiro."
+
+#: ../contrib/copy_attach_detach_tags.lua:147
+msgid "Tags attached ..."
+msgstr "Etiquetas anexadas ..."
+
+#: ../contrib/copy_attach_detach_tags.lua:163
+msgid "Tags removed from image(s)."
+msgstr "Etiquetas removidas da(s) imagem(ns) "
+
+#: ../contrib/copy_attach_detach_tags.lua:169
+msgid "Tags replaced"
+msgstr "Etiquetas substituídas"
+
+#: ../contrib/copy_attach_detach_tags.lua:174
+msgid "tagging addon"
+msgstr "addon de etiquetas"
+
+#: ../contrib/copy_attach_detach_tags.lua:204
+#: ../contrib/copy_attach_detach_tags.lua:241
+#: ../contrib/copy_attach_detach_tags.lua:294
+msgid "copy tags from selected image(s)"
+msgstr "copiar etiquetas da(s) imagem(ns) selecionada(s)"
+
+#: ../contrib/copy_attach_detach_tags.lua:209
+#: ../contrib/copy_attach_detach_tags.lua:244
+#: ../contrib/copy_attach_detach_tags.lua:299
+msgid "paste tags to selected image(s)"
+msgstr "colar etiquetas para a(s) imagem(ns) selecionada(s)"
+
+#: ../contrib/copy_attach_detach_tags.lua:214
+#: ../contrib/copy_attach_detach_tags.lua:257
+#: ../contrib/copy_attach_detach_tags.lua:304
+msgid "remove tags from selected image(s)"
+msgstr "remover etiquetas da(s) imagem(ns) selecionada(s)"
+
+#: ../contrib/copy_attach_detach_tags.lua:219
+#: ../contrib/copy_attach_detach_tags.lua:253
+#: ../contrib/copy_attach_detach_tags.lua:309
+msgid "replace tags from selected image(s)"
+msgstr "substituir etiquetas a partir da(s) imagem(ns) selecionada(s)"
+
+#: ../contrib/copy_attach_detach_tags.lua:232
+msgid "tag clipboard"
+msgstr "área de transferência de etiqueta"
+
+#: ../contrib/copy_attach_detach_tags.lua:240
+msgid "multi copy tags"
+msgstr "copiar etiquetas múltiplas"
+
+#: ../contrib/copy_attach_detach_tags.lua:245
+msgid "paste tags"
+msgstr "colar etiquetas"
+
+#: ../contrib/copy_attach_detach_tags.lua:252
+msgid "replace tags"
+msgstr "substituir etiquetas"
+
+#: ../contrib/copy_attach_detach_tags.lua:256
+msgid "remove all tags"
+msgstr "remover todas as etiquetas"
