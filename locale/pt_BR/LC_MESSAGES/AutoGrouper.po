@@ -1,0 +1,46 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-09-28 19:54-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/AutoGrouper.lua:144
+msgid "auto group"
+msgstr "grupo automático"
+
+#: ../contrib/AutoGrouper.lua:173
+msgid "group gap [sec.]"
+msgstr "intervalo de agrupamento [seg]"
+
+#: ../contrib/AutoGrouper.lua:174
+msgid "minimum gap, in seconds, between groups"
+msgstr "intervalo mínimo, em segundos, entre os grupos"
+
+#: ../contrib/AutoGrouper.lua:187
+msgid "auto group: selected"
+msgstr "grupo automático: selecionado"
+
+#: ../contrib/AutoGrouper.lua:188
+msgid "auto group selected images"
+msgstr "agrupa automaticamente as imagens selecionadas"
+
+#: ../contrib/AutoGrouper.lua:192
+msgid "auto group: collection"
+msgstr "grupo automático: coleção"
+
+#: ../contrib/AutoGrouper.lua:193
+msgid "auto group the entire collection"
+msgstr "agrupa automaticamente toda a coleção"

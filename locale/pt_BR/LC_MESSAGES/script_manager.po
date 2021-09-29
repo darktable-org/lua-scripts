@@ -1,0 +1,199 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 11:49-0300\n"
+"PO-Revision-Date: 2021-09-28 19:41-0300\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"X-Generator: Lokalize 21.08.1\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: script_manager.lua:314
+msgid "Cant read from "
+msgstr "Não foi possível ler de "
+
+#: script_manager.lua:332
+msgid "Loaded "
+msgstr "Carregado "
+
+#: script_manager.lua:344
+msgid " failed to load"
+msgstr " falhou ao carregar"
+
+#: script_manager.lua:379 script_manager.lua:634 script_manager.lua:657
+msgid " stopped"
+msgstr " parado"
+
+#: script_manager.lua:383
+msgid " will not start when darktable is restarted"
+msgstr " não iniciará quando o darktable for reiniciado"
+
+#: script_manager.lua:443 script_manager.lua:507
+msgid "find command is "
+msgstr "encontrar comando é "
+
+#: script_manager.lua:469 script_manager.lua:553
+msgid ""
+"ERROR: git not found.  Install or specify the location of the git executable."
+msgstr ""
+"ERRO: git não encontrado. Instale ou defina a localização do executável do"
+" git."
+
+#: script_manager.lua:483
+msgid "lua scripts successfully updated"
+msgstr "scripts lua atualizados com sucesso"
+
+#: script_manager.lua:543
+msgid "category "
+msgstr "categoria "
+
+#: script_manager.lua:543
+msgid " is already in use. Please specify a different category name."
+msgstr " já está em uso. Por favor, defina um nome de categoria diferente."
+
+#: script_manager.lua:572
+msgid "scripts successfully installed into category "
+msgstr "scripts instalados com sucesso na categoria "
+
+#: script_manager.lua:588
+msgid "No scripts found to install"
+msgstr "Nenhum script para instalação encontrado"
+
+#: script_manager.lua:592
+msgid "failed to download scripts"
+msgstr "falha ao baixar scripts"
+
+#: script_manager.lua:627
+msgid " started"
+msgstr " iniciado"
+
+#: script_manager.lua:732
+msgid "Page "
+msgstr "Página "
+
+#: script_manager.lua:732
+msgid " of "
+msgstr " de "
+
+#: script_manager.lua:934
+msgid "scripts to update"
+msgstr "scripts a atualizar"
+
+#: script_manager.lua:935
+msgid "select the scripts installation to update"
+msgstr "selecione as instalações de scripts a atualizar"
+
+#: script_manager.lua:944 script_manager.lua:1002
+msgid "update scripts"
+msgstr "atualizar scripts"
+
+#: script_manager.lua:945
+msgid "update the lua scripts from the repository"
+msgstr "atualizar os scripts lua a partir do repositório"
+
+#: script_manager.lua:956
+msgid ""
+"enter the URL of the git repository containing the scripts you wish to add"
+msgstr ""
+"insira a URL do repositório git contendo os scripts que deseja adicionar"
+
+#: script_manager.lua:961
+msgid "name of new category"
+msgstr "nome da nova categoria"
+
+#: script_manager.lua:962
+msgid "enter a category name for the additional scripts"
+msgstr "insira um nome de categoria para os scripts adicionais"
+
+#: script_manager.lua:967
+msgid "URL to download additional scripts from"
+msgstr "URL da qual baixar os scripts adicionais"
+
+#: script_manager.lua:969
+msgid "new category to place scripts in"
+msgstr "nova categoria para colocar os scripts"
+
+#: script_manager.lua:972
+msgid "install additional scripts"
+msgstr "instalar scripts adicionais"
+
+#: script_manager.lua:980
+msgid "Enable \"Disable Scripts\" button"
+msgstr "Ativar botão \"Desabilitar Scripts\""
+
+#: script_manager.lua:990
+msgid "Disable Scripts"
+msgstr "Desabilitar Scripts"
+
+#: script_manager.lua:996
+msgid "lua scripts will not run the next time darktable is started"
+msgstr "scripts lua não rodarão na próxima vez que o darktable for iniciado"
+
+#: script_manager.lua:1005
+msgid "add more scripts"
+msgstr "adicionar mais scripts"
+
+#: script_manager.lua:1007
+msgid "disable scripts"
+msgstr "desabilitar scripts"
+
+#: script_manager.lua:1015
+msgid "category"
+msgstr "categoria"
+
+#: script_manager.lua:1016
+msgid "select the script category"
+msgstr "selecione a categoria do script"
+
+#: script_manager.lua:1036
+msgid "Page:"
+msgstr "Página:"
+
+#: script_manager.lua:1064
+msgid "Scripts"
+msgstr "Scripts"
+
+#: script_manager.lua:1073
+msgid "scripts per page"
+msgstr "scripts por página"
+
+#: script_manager.lua:1074
+msgid "select number of start/stop buttons to display"
+msgstr "selecione o número de botões de iniciar/parar a exibir"
+
+#: script_manager.lua:1085
+msgid "change number of buttons"
+msgstr "mudar o número de botões"
+
+#: script_manager.lua:1093
+msgid "Configuration"
+msgstr "Configuração"
+
+#: script_manager.lua:1099
+msgid "use color interface?"
+msgstr "usar interface colorida?"
+
+#: script_manager.lua:1122
+msgid "action"
+msgstr "ação"
+
+#: script_manager.lua:1128
+msgid "install/update scripts"
+msgstr "instalar/atualizar scripts"
+
+#: script_manager.lua:1128
+msgid "configure"
+msgstr "configurar"
+
+#: script_manager.lua:1128
+msgid "start/stop scripts"
+msgstr "iniciar/parar scripts"

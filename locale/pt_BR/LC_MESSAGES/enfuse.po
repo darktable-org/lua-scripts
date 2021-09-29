@@ -1,0 +1,61 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 15:19-0300\n"
+"PO-Revision-Date: 2021-09-28 19:39-0300\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"X-Generator: Lokalize 21.08.1\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: enfuse.lua:187
+#, lua-format
+msgid "Error writing to `%s`"
+msgstr "Erro ao salvar `%s`"
+
+#: enfuse.lua:210
+#, lua-format
+msgid "Converting raw file '%s' to tiff..."
+msgstr "Converter arquivo raw `%s` para tiff..."
+
+#: enfuse.lua:220
+#, lua-format
+msgid "Skipping %s..."
+msgstr "Pulando %s..."
+
+#: enfuse.lua:227
+msgid "No suitable images selected, nothing to do for enfuse"
+msgstr "Nenhuma imagem adequada selecionado, nada a fazer para o script"
+
+#: enfuse.lua:233
+#, lua-format
+msgid "%d image(s) skipped"
+msgstr "%d imagem(ns) pulada(s)"
+
+#: enfuse.lua:253
+msgid "Enfuse failed, see terminal output for details"
+msgstr "Script falhou, veja a saída do terminal para detalhes"
+
+#: enfuse.lua:265
+msgid "enfuse was successful, resulting image has been imported"
+msgstr "script foi bem sucedido, imagem resultante foi importada"
+
+#: enfuse.lua:267
+#, lua-format
+msgid "enfuse: done, resulting image '%s' has been imported with id %d"
+msgstr "enfuse: feito, imagem '%s' resultante foi importada com o id %d"
+
+#: enfuse.lua:301
+msgid "Could not find enfuse executable. Not loading enfuse exporter..."
+msgstr ""
+"Não foi possível encontrar o executável do enfuse. Exportador do enfuse não"
+" carregado..."

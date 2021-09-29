@@ -1,0 +1,58 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 11:50-0300\n"
+"PO-Revision-Date: 2021-09-28 19:39-0300\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"X-Generator: Lokalize 21.08.1\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: executable_manager.lua:144
+msgid "No executable paths found, exiting..."
+msgstr "Caminho do executável não encontrado, saindo..."
+
+#: executable_manager.lua:160
+msgid "select an executable"
+msgstr "selecione um executável"
+
+#: executable_manager.lua:160
+msgid "search path for executable"
+msgstr "caminho de pesquisa por executável"
+
+#: executable_manager.lua:169
+msgid "select "
+msgstr "selecionar "
+
+#: executable_manager.lua:169
+msgid " executable"
+msgstr " executável"
+
+#: executable_manager.lua:190
+msgid "select executable to modify"
+msgstr "selecione executável a modificar"
+
+#: executable_manager.lua:205
+msgid "current"
+msgstr "atual"
+
+#: executable_manager.lua:207
+msgid "select"
+msgstr "selecionar"
+
+#: executable_manager.lua:209
+msgid "reset"
+msgstr "reiniciar"
+
+#: executable_manager.lua:212
+msgid "Clear path for "
+msgstr "Limpar caminho para "

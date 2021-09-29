@@ -1,0 +1,97 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-09-28 20:02-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/CollectHelper.lua:74
+msgid "Please select a single image"
+msgstr "Por favor, selecione uma única imagem"
+
+#: ../contrib/CollectHelper.lua:124
+msgid "select an image with an active color label"
+msgstr "selecione uma imagem com uma etiqueta de cor ativa"
+
+#: ../contrib/CollectHelper.lua:205
+msgid "collect: previous"
+msgstr "colecionar: anterior"
+
+#: ../contrib/CollectHelper.lua:207
+msgid "Sets the Collect parameters to be the previously active parameters"
+msgstr "Define os parâmetros da coleção para os ativos anteriormente"
+
+#: ../contrib/CollectHelper.lua:211
+msgid "collect: folder"
+msgstr "colecionar: pasta"
+
+#: ../contrib/CollectHelper.lua:213
+msgid "Sets the Collect parameters to be the selected images's folder"
+msgstr "Define os parâmetros da coleção para a pasta de imagens selecionada"
+
+#: ../contrib/CollectHelper.lua:218
+msgid "collect: color label(s)"
+msgstr "colecionar: etiqueta(s) de cor"
+
+#: ../contrib/CollectHelper.lua:220
+msgid "Sets the Collect parameters to be the selected images's color label(s)"
+msgstr ""
+"Define os parâmetros da coleção para a(s) etiqueta(s) de cor das imagens"
+" selecionadas"
+
+#: ../contrib/CollectHelper.lua:225
+msgid "collect: all (AND)"
+msgstr "colecionar: tudo (E)"
+
+#: ../contrib/CollectHelper.lua:227
+msgid ""
+"Sets the Collect parameters based on all activated CollectHelper options"
+msgstr "Define os parâmetros da coleção baseado em todas as opções do script"
+
+#: ../contrib/CollectHelper.lua:234
+msgid "CollectHelper: All"
+msgstr "CollectHelper: Tudo"
+
+#: ../contrib/CollectHelper.lua:235
+msgid ""
+"Will create a collect parameter set that utilizes all enabled CollectHelper "
+"types (AND)"
+msgstr ""
+"Criará um conjunto de parâmetros de coleção que utilizará todos os tipos "
+"habilitados do CollectHelper (E)"
+
+#: ../contrib/CollectHelper.lua:240
+msgid "CollectHelper: Color Label(s)"
+msgstr "CollectHelper: Etiqueta(s) de Cor"
+
+#: ../contrib/CollectHelper.lua:241
+msgid ""
+"Enable the button that allows you to swap to a collection based on selected "
+"image's COLOR LABEL(S)"
+msgstr ""
+"Habilita o botão que permite que você alterna para uma coleção baseada na "
+"ETIQUETA(S) DE COR da imagem selecionada"
+
+#: ../contrib/CollectHelper.lua:246
+msgid "CollectHelper: Folder"
+msgstr "CollectHelper: Pasta"
+
+#: ../contrib/CollectHelper.lua:247
+msgid ""
+"Enable the button that allows you to swap to a collection based on selected "
+"image's FOLDER location"
+msgstr ""
+"Habilita o botão que permite que você alterne para uma coleção baseada na "
+"PASTA da imagem selecionada"

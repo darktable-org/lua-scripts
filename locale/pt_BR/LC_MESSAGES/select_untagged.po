@@ -1,0 +1,32 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-09-28 19:47-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/select_untagged.lua:47
+msgid "select untagged images"
+msgstr "selecionar imagens sem etiqueta"
+
+#: ../contrib/select_untagged.lua:79
+msgid "select untagged"
+msgstr "selecionar sem etiqueta"
+
+#: ../contrib/select_untagged.lua:81
+msgid "select all images containing no tags or only tags added by darktable"
+msgstr ""
+"seleciona todas as imagens que não possuam etiqueta ou somente etiquetas"
+" adicionadas pelo darktable"
