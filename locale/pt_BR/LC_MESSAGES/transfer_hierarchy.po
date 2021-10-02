@@ -1,0 +1,75 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-10-02 05:28-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/transfer_hierarchy.lua:153
+msgid "Lowest directory containing all selected images"
+msgstr "Pasta de nível mais baixa contendo todas as imagens selecionadas"
+
+#: ../contrib/transfer_hierarchy.lua:256
+msgid ""
+"transfer hierarchy: ERROR: existing root is out of sync -- click 'calculate' "
+"to update"
+msgstr ""
+"transferir hierarquia: ERRO: raiz existente está fora de sincronia -- clique"
+" 'calcular' para atualizar"
+
+#: ../contrib/transfer_hierarchy.lua:260
+msgid "transfer hierarchy: ERROR: destination not specified"
+msgstr "transferir hierarquia: ERRO: destino não especificado"
+
+#: ../contrib/transfer_hierarchy.lua:270
+msgid "transfer hierarchy: ERROR: could not create directory: "
+msgstr "transferir hierarquia: ERRO: não foi possível criar a pasta: "
+
+#: ../contrib/transfer_hierarchy.lua:275
+msgid "transfer hierarchy: ERROR: not a directory: "
+msgstr "transferir hierarquia: ERRO: não é uma pasta: "
+
+#: ../contrib/transfer_hierarchy.lua:280
+msgid "transfer hierarchy: ERROR: could not create film: "
+msgstr "transferir hierarquia: ERRO: não foi possível criar um filme: "
+
+#: ../contrib/transfer_hierarchy.lua:289
+#, lua-format
+msgid "transfer hierarchy"
+msgstr "transferir hierarquia"
+
+#: ../contrib/transfer_hierarchy.lua:327
+msgid "calculate"
+msgstr "calcular"
+
+#: ../contrib/transfer_hierarchy.lua:331
+msgid "existing root"
+msgstr "raiz existente"
+
+#: ../contrib/transfer_hierarchy.lua:336
+msgid "root of destination"
+msgstr "raiz do destino"
+
+#: ../contrib/transfer_hierarchy.lua:341
+msgid "move"
+msgstr "mover"
+
+#: ../contrib/transfer_hierarchy.lua:346
+msgid "copy"
+msgstr "copiar"
+
+#: ../contrib/transfer_hierarchy.lua:347
+msgid "Copy all selected images"
+msgstr "Copia todas as imagens selecionadas"

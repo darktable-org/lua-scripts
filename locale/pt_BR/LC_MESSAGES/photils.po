@@ -1,0 +1,118 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-10-02 05:22-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/photils.lua:117
+msgid "get tags"
+msgstr "obter etiquetas"
+
+#: ../contrib/photils.lua:148
+msgid "requires a restart to be applied"
+msgstr "precisa reiniciar para ser aplicado"
+
+#: ../contrib/photils.lua:163
+msgid "min confidence value"
+msgstr "valor mín de confiança"
+
+#: ../contrib/photils.lua:180
+msgid ""
+"The suggested tags were not generated\n"
+" for the currently selected image!"
+msgstr ""
+"As etiquetas sugeridas não serão geradas\n"
+"para a imagem atualmente selecionada!"
+
+#: ../contrib/photils.lua:186
+#, lua-format
+msgid "  page %s of %s  "
+msgstr "  página %s de %s  "
+
+#: ../contrib/photils.lua:237
+msgid "Apply tag to image"
+msgstr "Aplicar etiqueta à imagem"
+
+#: ../contrib/photils.lua:249
+msgid "Tags successfully attached to image"
+msgstr "Etiquetas anexadas com sucesso à imagem"
+
+#: ../contrib/photils.lua:299
+#, lua-format
+msgid "%s found %d tags for your image"
+msgstr "%s encontrado %d etiquetas para sua imagem"
+
+#: ../contrib/photils.lua:315
+msgid "No image selected."
+msgstr "Nenhuma imagem selecionada."
+
+#: ../contrib/photils.lua:319
+msgid "This plugin can only handle a single image."
+msgstr "Este plugin pode manipular somente uma imagem por vez."
+
+#: ../contrib/photils.lua:326
+#, lua-format
+msgid "%s failed, see terminal output for details"
+msgstr "%s falhou, veja a saída do terminal para detalhes"
+
+#: ../contrib/photils.lua:334
+#, lua-format
+msgid "no tags where found"
+msgstr "nenhuma etiqueta encontrada"
+
+#: ../contrib/photils.lua:365
+#, lua-format
+msgid "attach %d tags"
+msgstr "anexar %d etiquetas"
+
+#: ../contrib/photils.lua:429 ../contrib/photils.lua:430
+msgid "photils-cli not found"
+msgstr "photils-cli não encontrado"
+
+#: ../contrib/photils.lua:432
+msgid ""
+"Select an image, click \"get tags\" and get \n"
+"suggestions for tags."
+msgstr ""
+"Selecione uma imagem, clique em \"obter etiquetas\"\n"
+"e obtenha sugestões para etiquetas."
+
+#: ../contrib/photils.lua:467
+msgid "photils: show confidence value"
+msgstr "photils: mostrar valor de confiança"
+
+#: ../contrib/photils.lua:468
+msgid "if enabled, the confidence value for each tag is displayed"
+msgstr "se ativo, o valor de confiança para cada etiqueta é exibido"
+
+#: ../contrib/photils.lua:474
+msgid "photils: use exported image for tag request"
+msgstr "photils: usar imagem exportada para pedido de etiqueta"
+
+#: ../contrib/photils.lua:475
+msgid ""
+"If enabled, the image passed to photils for tag suggestion is based on the "
+"exported, already edited image. Otherwise, the embedded thumbnail of the RAW "
+"file will be used for tag suggestion.The embedded thumbnail could speedup "
+"the tag suggestion but can fail if the RAW file is not supported."
+msgstr ""
+"Se ativo, a imagem passada para o photils para a sugestão de etiquetas é"
+" baseada na "
+"exportada, a imagem já editada. Caso contrário, a miniatura embutida no"
+" arquivo RAW "
+"será usada para sugestão de etiquetas. A miniatura embutida pode acelerar a"
+" sugestão "
+"de etiqueta mas pode falhar se o arquivo RAW não for suportado."

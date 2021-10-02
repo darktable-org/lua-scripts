@@ -1,0 +1,273 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-10-01 23:35-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/image_stack.lua:96
+msgid "image align options"
+msgstr "opções de alinhamento da imagem"
+
+#: ../contrib/image_stack.lua:100
+msgid "image stack options"
+msgstr "opções de empilhamento da imagem"
+
+#: ../contrib/image_stack.lua:104
+msgid "executable locations"
+msgstr "localizações dos executáveis"
+
+#: ../contrib/image_stack.lua:129
+msgid "perform image alignment"
+msgstr "realizar o alinhamento da imagem"
+
+#: ../contrib/image_stack.lua:131
+msgid "align the image stack before processing"
+msgstr "alinha a pilha de imagem antes de processar"
+
+#: ../contrib/image_stack.lua:135
+msgid "optimize radial distortion for all images"
+msgstr "otimizar a distorção radial para todas as imagens"
+
+#: ../contrib/image_stack.lua:137
+msgid ""
+"optimize radial distortion for all images, \n"
+"except for first"
+msgstr ""
+"otimiza a distorção radial para todas as imagens,\n"
+"exceto para a primeira"
+
+#: ../contrib/image_stack.lua:141
+msgid "optimize field of view for all images"
+msgstr "otimizar campo de visão para todas as imagens"
+
+#: ../contrib/image_stack.lua:143
+msgid ""
+"optimize field of view for all images, except for first. \n"
+"Useful for aligning focus stacks (DFF) with slightly \n"
+"different magnification."
+msgstr ""
+"otimiza o campo de visão para todas as imagens, exceto para a primeira.\n"
+"Útil para alinhar o empilhamento de foco (DFF) com uma ampliação \n"
+"levemente diferente."
+
+#: ../contrib/image_stack.lua:147
+msgid "optimize image center shift for all images"
+msgstr "otimizar o deslocamento do centro da imagem para todas as imagens"
+
+#: ../contrib/image_stack.lua:149
+msgid ""
+"optimize image center shift for all images, \n"
+"except for first."
+msgstr ""
+"otimiza o deslocamento do centro da imagem para todas as imagens, \n"
+"exceto para a primeira."
+
+#: ../contrib/image_stack.lua:153
+msgid "auto crop the image"
+msgstr "cortar automaticamente a imagem"
+
+#: ../contrib/image_stack.lua:155
+msgid "auto crop the image to the area covered by all images."
+msgstr ""
+"corta automaticamente a imagem para a área coberta por todas as imagens."
+
+#: ../contrib/image_stack.lua:159
+msgid "load distortion from lens database"
+msgstr "carregar a distorção a partir da base de dados de lentes"
+
+#: ../contrib/image_stack.lua:161
+msgid "try to load distortion information from lens database"
+msgstr "tenta carregar as informações de distorção da base de dados de lentes"
+
+#: ../contrib/image_stack.lua:165
+msgid "image grid size"
+msgstr "tamanho da grade da imagem"
+
+#: ../contrib/image_stack.lua:166
+msgid ""
+"break image into a rectangular grid \n"
+"and attempt to find num control points in each section.\n"
+"default: (5x5)"
+msgstr ""
+"quebra a imagem em uma grade retangular \n"
+"e tenta encontrar o número de pontos de controle\n"
+"em cada seção.\n"
+"padrão: (5x5)"
+
+#: ../contrib/image_stack.lua:175
+msgid "control points/grid"
+msgstr "grade/pontos de controle"
+
+#: ../contrib/image_stack.lua:176
+msgid ""
+"number of control points (per grid, see option -g) \n"
+"to create between adjacent images \n"
+"default: (8)."
+msgstr ""
+"número de pontos de controle (por grade, veja a opção -g) \n"
+"a criar entre imagens adjacentes\n"
+"padrão: (8)"
+
+#: ../contrib/image_stack.lua:185
+msgid "remove control points with error"
+msgstr "remover pontos de controle com erro"
+
+#: ../contrib/image_stack.lua:186
+msgid ""
+"remove all control points with an error higher \n"
+"than num pixels \n"
+"default: (3)"
+msgstr ""
+"remove todos os pontos de controle com um erro maior \n"
+"que um número de pixels \n"
+"padrão: (3)"
+
+#: ../contrib/image_stack.lua:195
+msgid "correlation threshold for control points"
+msgstr "limiar de correlação para pontos de controle"
+
+#: ../contrib/image_stack.lua:196
+msgid ""
+"correlation threshold for identifying \n"
+"control points \n"
+"default: (0.9)."
+msgstr ""
+"limiar de correlação para identificar pontos\n"
+"de controle\n"
+"padrão: (0,9)"
+
+#: ../contrib/image_stack.lua:205
+msgid "select stack function"
+msgstr "função de seleção de pilha"
+
+#: ../contrib/image_stack.lua:206
+msgid ""
+"select function to be \n"
+"applied to image stack"
+msgstr ""
+"função de seleção a ser aplicada\n"
+"à pilha de imagens"
+
+#: ../contrib/image_stack.lua:215
+msgid "select output format"
+msgstr "selecionar formato de saída"
+
+#: ../contrib/image_stack.lua:216
+msgid "choose the format for the resulting image"
+msgstr "seleciona o formato para a imagem resultante"
+
+#: ../contrib/image_stack.lua:224
+msgid "tag source images used?"
+msgstr "etiquetas das imagens fonte usadas?"
+
+#: ../contrib/image_stack.lua:226
+msgid "tag the source images used to create the output file?"
+msgstr "etiquetas das imagens fonte usadas para criar o arquivo de saída?"
+
+#: ../contrib/image_stack.lua:261
+#, lua-format
+msgid "Export Image %i/%i"
+msgstr "Exportar Imagem %i/%i"
+
+#: ../contrib/image_stack.lua:454
+msgid "Unrecognized option to copy_image_attributes: "
+msgstr "Opção não reconhecida para copy_image_attributes: "
+
+#: ../contrib/image_stack.lua:497
+msgid "ERROR: at least 2 images required for image stacking, exiting..."
+msgstr ""
+"ERRO: pelo menos 2 imagens são necessárias para empilhamento de imagens,"
+" saindo..."
+
+#: ../contrib/image_stack.lua:498
+msgid " image(s) selected, at least 2 required"
+msgstr " imagem(ns) selecionada(s), pelo menos 2 necessárias"
+
+#: ../contrib/image_stack.lua:512
+msgid "aligning images..."
+msgstr "alinhar imagens..."
+
+#: ../contrib/image_stack.lua:515
+msgid "images aligned"
+msgstr "imagens alinhadas"
+
+#: ../contrib/image_stack.lua:521
+msgid "ERROR: image alignment failed"
+msgstr "ERRO: alinhamento de imagem falhou"
+
+#: ../contrib/image_stack.lua:522
+msgid "image alignment failed"
+msgstr "alinhamento de imagem falhou"
+
+#: ../contrib/image_stack.lua:527
+msgid "ERROR: align_image_stack not found"
+msgstr "ERRO: align_image_stack não encontrado"
+
+#: ../contrib/image_stack.lua:528
+msgid "align_image_stack not found"
+msgstr "align_image_stack não encontrado"
+
+#: ../contrib/image_stack.lua:542
+msgid "convert command is "
+msgstr "comando convert é "
+
+#: ../contrib/image_stack.lua:543
+msgid "processing image stack"
+msgstr "processar empilhamento de imagem"
+
+#: ../contrib/image_stack.lua:546
+msgid "image stack processed"
+msgstr "empilhamento de imagem processado"
+
+#: ../contrib/image_stack.lua:551
+msgid "importing result"
+msgstr "importar resultado"
+
+#: ../contrib/image_stack.lua:556
+msgid "Created with|image_stack"
+msgstr "Criado com|image_stack"
+
+#: ../contrib/image_stack.lua:569
+msgid "tagging source images"
+msgstr "etiquetando imagens fonte"
+
+#: ../contrib/image_stack.lua:570
+msgid "Source file|"
+msgstr "Arquivo fonte |"
+
+#: ../contrib/image_stack.lua:577
+msgid "ERROR: image stack processing failed"
+msgstr "ERRO: processamento de empilhamento de imagem falhou"
+
+#: ../contrib/image_stack.lua:581
+msgid "ERROR: convert executable not found"
+msgstr "ERRO: executável do convert não encontrado"
+
+#: ../contrib/image_stack.lua:582
+msgid "convert executable not found"
+msgstr "executável do convert não encontrado"
+
+#: ../contrib/image_stack.lua:594
+msgid "align image stack: use GPU for remaping"
+msgstr "alinhar pilha de imagens: usar GPU para remapear"
+
+#: ../contrib/image_stack.lua:595
+msgid "set the GPU remapping for image align"
+msgstr "definir o remapeamento de GPU para alinhamento de imagem"
+
+#: ../contrib/image_stack.lua:598
+msgid "image stack"
+msgstr "empilhamento de imagem"

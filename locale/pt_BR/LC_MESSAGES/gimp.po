@@ -1,0 +1,43 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-10-01 19:18-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/gimp.lua:111
+#, lua-format
+msgid "Export Image %i/%i"
+msgstr "Exportar Imagem %i/%i"
+
+#: ../contrib/gimp.lua:121
+msgid "GIMP not found"
+msgstr "GIMP não encontrado"
+
+#: ../contrib/gimp.lua:144
+msgid "Launching GIMP..."
+msgstr "Iniciando GIMP..."
+
+#: ../contrib/gimp.lua:207
+msgid "run detached"
+msgstr "executar desassociado"
+
+#: ../contrib/gimp.lua:208
+msgid "don't import resulting image back into darktable"
+msgstr "não importar a imagem resultante de volta para o darktable"
+
+#: ../contrib/gimp.lua:215
+msgid "Edit with GIMP"
+msgstr "Editar com o GIMP"

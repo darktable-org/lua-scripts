@@ -1,0 +1,135 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-10-02 05:38-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/video_ffmpeg.lua:243
+msgid "framerate"
+msgstr "taxa de quadros"
+
+#: ../contrib/video_ffmpeg.lua:244
+msgid "select framerate of output video"
+msgstr "seleciona a taxa de quadros da saída de vídeo"
+
+#: ../contrib/video_ffmpeg.lua:251
+msgid "resolution"
+msgstr "resolução"
+
+#: ../contrib/video_ffmpeg.lua:252
+msgid "select resolution of output video"
+msgstr "seleciona a resolução da saída de vídeo"
+
+#: ../contrib/video_ffmpeg.lua:259
+msgid "codec"
+msgstr "codec"
+
+#: ../contrib/video_ffmpeg.lua:260
+msgid "select codec"
+msgstr "seleciona o codec"
+
+#: ../contrib/video_ffmpeg.lua:267
+msgid "format container"
+msgstr "formato"
+
+#: ../contrib/video_ffmpeg.lua:268
+msgid "select format of output video"
+msgstr "seleciona o formato da saída de vídeo"
+
+#: ../contrib/video_ffmpeg.lua:280
+msgid "output file destination"
+msgstr "destino do arquivo de saída"
+
+#: ../contrib/video_ffmpeg.lua:281
+msgid "settings of output file destination and name"
+msgstr "configurações do destino e nome do arquivo de saída"
+
+#: ../contrib/video_ffmpeg.lua:296
+msgid "Select export path"
+msgstr "Selecionar caminho de exportação"
+
+#: ../contrib/video_ffmpeg.lua:298
+msgid ""
+"select the target directory for the timelapse. \n"
+"the filename is created automatically."
+msgstr ""
+"selecione a pasta alvo para o timelapse.\n"
+"o nome do arquivo é criado automaticamente."
+
+#: ../contrib/video_ffmpeg.lua:305
+msgid ""
+"if selected, output video will be placed in the same directory as first of "
+"selected images"
+msgstr ""
+"se selecionado, o vídeo de saída será colocado na mesma pasta da primeira das"
+" imagens "
+"selecionadas"
+
+#: ../contrib/video_ffmpeg.lua:320
+msgid "override output file on conflict"
+msgstr "sobrescrever arquivo de saída em caso de conflito"
+
+#: ../contrib/video_ffmpeg.lua:321
+msgid "if checked, in case of file name conflict, the file will be overwritten"
+msgstr "se ativo, em caso de conflito de nome, o arquivo será sobrescrito"
+
+#: ../contrib/video_ffmpeg.lua:329
+msgid ""
+"enter output file name without extension.\n"
+"\n"
+"You can use some placeholders:\n"
+"- {time} - time in format HH-mm-ss\n"
+"- {date} - date in foramt YYYY-mm-dd\n"
+"- {first_file} - name of first input file\n"
+"- {last_file} - name of last last_file"
+msgstr ""
+"insira o nome do arquivo de saída sem extensão.\n"
+"\n"
+"Você pode usar alguns coringas:\n"
+"- {time} - tempo no formato HH-mm-ss\n"
+"- {date} - data no formato AAAA-mm-dd\n"
+"- {first_file} - nome do primeiro arquivo de entrada\n"
+"- {last_file} - nome do último last_file"
+
+#: ../contrib/video_ffmpeg.lua:349
+msgid " open after export"
+msgstr " abrir após exportar"
+
+#: ../contrib/video_ffmpeg.lua:350
+msgid "open video file after successful export"
+msgstr "abre o arquivo de vídeo após ser exportado com sucesso"
+
+#: ../contrib/video_ffmpeg.lua:377
+msgid "export "
+msgstr "exportar "
+
+#: ../contrib/video_ffmpeg.lua:433
+msgid "prepare merge process"
+msgstr "preparar o processo de mesclagem"
+
+#: ../contrib/video_ffmpeg.lua:436
+msgid "ERROR: cannot create temp directory"
+msgstr "ERRO: não foi possível criar a pasta temporária"
+
+#: ../contrib/video_ffmpeg.lua:448
+msgid "ERROR: cannot build image, see console for more info"
+msgstr ""
+"ERRO: não foi possível construir a imagem, veja o console para mais"
+" informações"
+
+#: ../contrib/video_ffmpeg.lua:450
+msgid "SUCCESS"
+msgstr "SUCESSO"

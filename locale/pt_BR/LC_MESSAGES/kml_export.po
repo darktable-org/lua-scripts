@@ -1,0 +1,90 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-10-02 05:14-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/kml_export.lua:64
+#, lua-format
+msgid "Export Image %i/%i"
+msgstr "Exportar Imagem %i/%i"
+
+#: ../contrib/kml_export.lua:91
+msgid "magick not found"
+msgstr "magick não encontrado"
+
+#: ../contrib/kml_export.lua:96
+msgid "xdg-user-dir not found"
+msgstr "xdg-user-dir não encontrado"
+
+#: ../contrib/kml_export.lua:106
+msgid "zip not found"
+msgstr "zip não encontrado"
+
+#: ../contrib/kml_export.lua:321
+msgid "KML export: Open KML file after export"
+msgstr "exportar KML: Abrir arquivo Open KML após a exportação"
+
+#: ../contrib/kml_export.lua:322 ../contrib/kml_export.lua:329
+msgid ""
+"Opens the KML file after the export with the standard program for KML files"
+msgstr ""
+"Abre o arquivo KML após a exportação com o programa padrão para arquivos KML"
+
+#: ../contrib/kml_export.lua:328
+msgid "KML export: Open KML/KMZ file after export"
+msgstr "exportar KML: Abre arquivo KML/KMZ após a exportação"
+
+#: ../contrib/kml_export.lua:348
+msgid "KML export: Export directory"
+msgstr "exportar KML: Pasta de exportação"
+
+#: ../contrib/kml_export.lua:349
+msgid "A directory that will be used to export the KML/KMZ files"
+msgstr "Uma pasta que será usada para exportar os arquivos KML/KMZ"
+
+#: ../contrib/kml_export.lua:356
+msgid "KML export: ImageMagick binary Location"
+msgstr "exportar KML: Localização do binário do ImageMagick"
+
+#: ../contrib/kml_export.lua:357
+msgid "Install location of magick[.exe]. Requires restart to take effect."
+msgstr ""
+"Localização de instalação do magick[.exe]. Precisa reiniciar para ter efeito."
+
+#: ../contrib/kml_export.lua:364
+msgid "KML export: Connect images with path"
+msgstr "exportar KML: Conectar imagens com caminho"
+
+#: ../contrib/kml_export.lua:365
+msgid "connect all images with a path"
+msgstr "conecta todas as imagens com um caminho"
+
+#: ../contrib/kml_export.lua:372
+msgid "KML export: Create KMZ file"
+msgstr "exportar KML: Criar arquivo KMZ"
+
+#: ../contrib/kml_export.lua:373
+msgid "Compress all imeges to one KMZ file"
+msgstr "Comprime todas as imagens para um arquivo KMZ"
+
+#: ../contrib/kml_export.lua:379
+msgid "KML Export"
+msgstr "Exportar KML"
+
+#: ../contrib/kml_export.lua:381
+msgid "KML/KMZ Export"
+msgstr "Exportar KML/KMZ"

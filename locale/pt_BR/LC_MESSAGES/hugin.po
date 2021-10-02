@@ -1,0 +1,67 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-10-01 19:26-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/hugin.lua:109
+msgid "hugin is not found, did you set the path?"
+msgstr "hugin não encontrado, você configurou o caminho?"
+
+#: ../contrib/hugin.lua:165
+msgid "will try to stitch now"
+msgstr "tentará pregar agora"
+
+#: ../contrib/hugin.lua:170
+msgid "creating pto file"
+msgstr "criar arquivo pto"
+
+#: ../contrib/hugin.lua:174
+msgid "running assistant"
+msgstr "rodar assistente"
+
+#: ../contrib/hugin.lua:182
+msgid "launching hugin"
+msgstr "iniciar o hugin"
+
+#: ../contrib/hugin.lua:184
+msgid "unable to find command line tools, launching hugin"
+msgstr ""
+"não foi possível encontrar as ferramentas de linha de comando, iniciar o hugin"
+
+#: ../contrib/hugin.lua:192
+msgid "hugin isn't available."
+msgstr "hugin não está disponível."
+
+#: ../contrib/hugin.lua:197
+msgid "hugin failed ..."
+msgstr "hugin falhou..."
+
+#: ../contrib/hugin.lua:203
+msgid "importing file "
+msgstr "importar arquivo "
+
+#: ../contrib/hugin.lua:229
+msgid "  launch hugin gui"
+msgstr "  iniciar interface gráfica do hugin"
+
+#: ../contrib/hugin.lua:231
+msgid "launch hugin in gui mode"
+msgstr "inicia o hugin no modo de interface gráfica"
+
+#: ../contrib/hugin.lua:237
+msgid "hugin panorama"
+msgstr "hugin panorama"

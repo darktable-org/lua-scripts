@@ -1,0 +1,74 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-10-02 05:31-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/RL_out_sharp.lua:119
+msgid "GMic executable not configured"
+msgstr "executável GMic não configurado"
+
+#: ../contrib/RL_out_sharp.lua:139
+msgid "sharpening image "
+msgstr "melhorar nitidez da imagem "
+
+#: ../contrib/RL_out_sharp.lua:154
+msgid "sharpening error"
+msgstr "erro ao melhorar nitidez"
+
+#: ../contrib/RL_out_sharp.lua:163
+msgid "finished exporting"
+msgstr "exportação finalizada"
+
+#: ../contrib/RL_out_sharp.lua:175 ../contrib/RL_out_sharp.lua:176
+msgid "select output folder"
+msgstr "selecionar pasta de saída"
+
+#: ../contrib/RL_out_sharp.lua:185
+msgid "sigma"
+msgstr "sigma"
+
+#: ../contrib/RL_out_sharp.lua:186
+msgid "controls the width of the blur that's applied"
+msgstr "controla a largura do desfoque que é aplicada"
+
+#: ../contrib/RL_out_sharp.lua:197
+msgid "iterations"
+msgstr "iterações"
+
+#: ../contrib/RL_out_sharp.lua:198
+msgid "increase for better sharpening, but slower"
+msgstr "aumente para melhor efeito, mas diminui velocidade"
+
+#: ../contrib/RL_out_sharp.lua:209
+msgid "output jpg quality"
+msgstr "qualidade do jpg de saída"
+
+#: ../contrib/RL_out_sharp.lua:210
+msgid "quality of the output jpg file"
+msgstr "qualidade do arquivo jpg de saída"
+
+#: ../contrib/RL_out_sharp.lua:229
+msgid "RL output sharpen"
+msgstr "melhoria de nitidez na saída RL"
+
+#: ../contrib/RL_out_sharp.lua:233
+msgid "executable for GMic CLI"
+msgstr "executável para o GMic CLI"
+
+#: ../contrib/RL_out_sharp.lua:234
+msgid "select executable for GMic command line version"
+msgstr "selecione o executável para a versão de linha de comando do GMic"

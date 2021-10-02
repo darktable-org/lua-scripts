@@ -1,0 +1,86 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-10-01 23:40-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/OpenInExplorer.lua:79
+msgid ""
+"OpenInExplorer plug-in only supports Linux, macOS, and Windows at this time"
+msgstr ""
+"Atualmente, o plugin OpenInExplorer somente suporta Linux, macOS e Windows"
+
+#: ../contrib/OpenInExplorer.lua:95
+msgid ""
+"No links directory selected.\n"
+"Please check the dt preferences (lua options)"
+msgstr ""
+"Nenhum link para pasta selecionado.\n"
+"Verifique as preferências do darktable (opções lua)"
+
+#: ../contrib/OpenInExplorer.lua:99
+#, lua-format
+msgid ""
+"Links directory '%s' not found.\n"
+"Please check the dt preferences (lua options)"
+msgstr ""
+"Links para pasta '%s' não encontrados.\n"
+"Verifique as preferências do darktable (opções lua)"
+
+#: ../contrib/OpenInExplorer.lua:156
+msgid "Failed to create links. Missing rights?"
+msgstr "Falha ao criar links. Possui permissões adequadas?"
+
+#: ../contrib/OpenInExplorer.lua:172
+msgid "Please select an image"
+msgstr "Por favor, selecione uma imagem"
+
+#: ../contrib/OpenInExplorer.lua:178
+msgid "Please select fewer images (max. 15)"
+msgstr "Por favor, selecione menos imagens (máx 15)"
+
+#: ../contrib/OpenInExplorer.lua:203
+msgid "show in file explorer"
+msgstr "mostrar no navegador de arquivos"
+
+#: ../contrib/OpenInExplorer.lua:205
+msgid "Open the file manager at the selected image's location"
+msgstr "Abre o gerenciador de arquivos na localização das imagens selecionadas"
+
+#: ../contrib/OpenInExplorer.lua:212
+msgid "OpenInExplorer: linked files directory"
+msgstr "OpenInExplorer: pasta de arquivos linkada"
+
+#: ../contrib/OpenInExplorer.lua:213
+msgid ""
+"Directory to store the links to the file names. Requires restart to take "
+"effect"
+msgstr ""
+"Pasta para armazenar os links para os nomes de arquivo. Precisa reiniciar"
+" para ter efeito"
+
+#: ../contrib/OpenInExplorer.lua:216
+msgid "Select directory"
+msgstr "Selecione a pasta"
+
+#: ../contrib/OpenInExplorer.lua:222
+msgid "OpenInExplorer: use links"
+msgstr "OpenInExplorer: usar links"
+
+#: ../contrib/OpenInExplorer.lua:223
+msgid "Use links instead of multiple windows. Requires restart to take effect"
+msgstr ""
+"Usa links ao invés de janelas múltiplas. Precisa reiniciar para ter efeito"

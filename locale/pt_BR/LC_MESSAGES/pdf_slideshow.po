@@ -1,0 +1,70 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-10-02 05:16-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/pdf_slideshow.lua:55
+msgid "pdflatex not found"
+msgstr "pdflatex não encontrado"
+
+#: ../contrib/pdf_slideshow.lua:71
+msgid "a pdf viewer"
+msgstr "um visualizador de pdf"
+
+#: ../contrib/pdf_slideshow.lua:72
+msgid "can be an absolute pathname or the tool may be in the PATH"
+msgstr "pode ser um caminho absoluto ou a ferramenta pode estar no PATH"
+
+#: ../contrib/pdf_slideshow.lua:76 ../contrib/pdf_slideshow.lua:103
+msgid "slideshow title"
+msgstr "título da apresentação"
+
+#: ../contrib/pdf_slideshow.lua:80
+msgid "transition delay (s)"
+msgstr "atraso da transição (s)"
+
+#: ../contrib/pdf_slideshow.lua:91
+msgid "include image title"
+msgstr "incluir título da imagem"
+
+#: ../contrib/pdf_slideshow.lua:93
+msgid "whether to include the image title (if defined) into the slide"
+msgstr "se deve ser incluído o título da imagem (se definido) no slide"
+
+#: ../contrib/pdf_slideshow.lua:97
+msgid "include image author"
+msgstr "incluir autor da imagem"
+
+#: ../contrib/pdf_slideshow.lua:99
+msgid "whether to include the image author (if defined) into the slide"
+msgstr "se deve ser incluído o autor da imagem (se definido) no slide"
+
+#: ../contrib/pdf_slideshow.lua:179
+msgid "pdf slideshow"
+msgstr "apresentação do pdf"
+
+#: ../contrib/pdf_slideshow.lua:232
+msgid "problem running pdflatex"
+msgstr "problema ao executar o pdflatex"
+
+#: ../contrib/pdf_slideshow.lua:233 ../contrib/pdf_slideshow.lua:243
+msgid "problem running "
+msgstr "problema ao executar "
+
+#: ../contrib/pdf_slideshow.lua:242
+msgid "problem running pdf viewer"
+msgstr "problema ao executar o visualizador de pdf"

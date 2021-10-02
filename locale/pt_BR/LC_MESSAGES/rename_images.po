@@ -1,0 +1,234 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-10-02 05:45-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/rename_images.lua:123
+msgid "unrecognized variable "
+msgstr "variável não reconhecida "
+
+#: ../contrib/rename_images.lua:124
+msgid "unknown variable "
+msgstr "variável desconhecida "
+
+#: ../contrib/rename_images.lua:143
+msgid "rename images"
+msgstr "renomear imagens"
+
+#: ../contrib/rename_images.lua:175
+msgid "pattern is "
+msgstr "padrão é "
+
+#: ../contrib/rename_images.lua:179
+msgid "renaming images"
+msgstr "renomeando images"
+
+#: ../contrib/rename_images.lua:186
+msgid "unable to do variable substitution, exiting..."
+msgstr "não foi possível a substituição de variável, saindo..."
+
+#: ../contrib/rename_images.lua:215
+msgid "renamed "
+msgstr "renomeado "
+
+#: ../contrib/rename_images.lua:218
+msgid "please enter the new name or pattern"
+msgstr "por favor, insira o novo nome ou padrão"
+
+#: ../contrib/rename_images.lua:222
+msgid "please select some images and try again"
+msgstr "por favor, selecione algumas imagens e tente novamente"
+
+#: ../contrib/rename_images.lua:235
+msgid "$(ROLL_NAME) - film roll name\n"
+msgstr "$(ROLL_NAME) - nome do rolo de filme\n"
+
+#: ../contrib/rename_images.lua:236
+msgid "$(FILE_FOLDER) - image file folder\n"
+msgstr "$(FILE_FOLDER) - pasta do arquivo de imagem\n"
+
+#: ../contrib/rename_images.lua:237
+msgid "$(FILE_NAME) - image file name\n"
+msgstr "$(FILE_NAME) - nome do arquivo de imagem\n"
+
+#: ../contrib/rename_images.lua:238
+msgid "$(FILE_EXTENSION) - image file extension\n"
+msgstr "$(FILE_EXTENSION) - extensão do arquivo de imagem\n"
+
+#: ../contrib/rename_images.lua:239
+msgid "$(ID) - image id\n"
+msgstr "$(ID) - id da imagem\n"
+
+#: ../contrib/rename_images.lua:240
+msgid "$(VERSION) - version number\n"
+msgstr "$(VERSION) - número de versão\n"
+
+#: ../contrib/rename_images.lua:241
+msgid "$(SEQUENCE) - sequence number of selection\n"
+msgstr "$(SEQUENCE) - número de sequência da seleção\n"
+
+#: ../contrib/rename_images.lua:242
+msgid "$(YEAR) - current year\n"
+msgstr "$(YEAR) - ano atual\n"
+
+#: ../contrib/rename_images.lua:243
+msgid "$(MONTH) - current month\n"
+msgstr "$(MONTH) - mês atual\n"
+
+#: ../contrib/rename_images.lua:244
+msgid "$(DAY) - current day\n"
+msgstr "$(DAY) - dia atual\n"
+
+#: ../contrib/rename_images.lua:245
+msgid "$(HOUR) - current hour\n"
+msgstr "$(HOUR) - hora atual\n"
+
+#: ../contrib/rename_images.lua:246
+msgid "$(MINUTE) - current minute\n"
+msgstr "$(MINUTE) - minuto atual\n"
+
+#: ../contrib/rename_images.lua:247
+msgid "$(SECOND) - current second\n"
+msgstr "$(SECOND) - segundo atual\n"
+
+#: ../contrib/rename_images.lua:248
+msgid "$(EXIF_YEAR) - EXIF year\n"
+msgstr "$(EXIF_YEAR) - ano EXIF\n"
+
+#: ../contrib/rename_images.lua:249
+msgid "$(EXIF_MONTH) - EXIF month\n"
+msgstr "$(EXIF_MONTH) - mês EXIF\n"
+
+#: ../contrib/rename_images.lua:250
+msgid "$(EXIF_DAY) - EXIF day\n"
+msgstr "$(EXIF_DAY) - dia EXIF\n"
+
+#: ../contrib/rename_images.lua:251
+msgid "$(EXIF_HOUR) - EXIF hour\n"
+msgstr "$(EXIF_HOUR) - hora EXIF\n"
+
+#: ../contrib/rename_images.lua:252
+msgid "$(EXIF_MINUTE) - EXIF minute\n"
+msgstr "$(EXIF_MINUTE) - minuto EXIF\n"
+
+#: ../contrib/rename_images.lua:253
+msgid "$(EXIF_SECOND) - EXIF seconds\n"
+msgstr "$(EXIF_SECOND) - segundo EXIF\n"
+
+#: ../contrib/rename_images.lua:254
+msgid "$(EXIF_ISO) - EXIF ISO\n"
+msgstr "$(EXIF_ISO) - ISO EXIF\n"
+
+#: ../contrib/rename_images.lua:255
+msgid "$(EXIF_EXPOSURE) - EXIF exposure\n"
+msgstr "$(EXIF_EXPOSURE) - exposição EXIF\n"
+
+#: ../contrib/rename_images.lua:256
+msgid "$(EXIF_EXPOSURE_BIAS) - EXIF exposure bias\n"
+msgstr "$(EXIF_EXPOSURE_BIAS) - viés de exposição EXIF\n"
+
+#: ../contrib/rename_images.lua:257
+msgid "$(EXIF_APERTURE) - EXIF aperture\n"
+msgstr "$(EXIF_APERTURE) - abertura EXIF\n"
+
+#: ../contrib/rename_images.lua:258
+msgid "$(EXIF_FOCAL_LENGTH) - EXIF focal length\n"
+msgstr "$(EXIF_FOCAL_LENGTH) - distância focal EXIF\n"
+
+#: ../contrib/rename_images.lua:259
+msgid "$(EXIF_FOCUS_DISTANCE) - EXIF focus distance\n"
+msgstr "$(EXIF_FOCUS_DISTANCE) - distância do foco EXIF\n"
+
+#: ../contrib/rename_images.lua:260
+msgid "$(EXIF_CROP) - EXIF crop\n"
+msgstr "$(EXIF_CROP) - corte EXIF\n"
+
+#: ../contrib/rename_images.lua:261
+msgid "$(LONGITUDE) - longitude\n"
+msgstr "$(LONGITUDE) - longitude\n"
+
+#: ../contrib/rename_images.lua:262
+msgid "$(LATITUDE) - latitude\n"
+msgstr "$(LATITUDE) - latitude\n"
+
+#: ../contrib/rename_images.lua:263
+msgid "$(ELEVATION) - elevation\n"
+msgstr "$(ELEVATION) - elevação\n"
+
+#: ../contrib/rename_images.lua:264
+msgid "$(STARS) - star rating\n"
+msgstr "$(STARS) - classificação de estrelas\n"
+
+#: ../contrib/rename_images.lua:265
+msgid "$(LABELS) - color labels\n"
+msgstr "$(LABELS) - etiquetas de cor\n"
+
+#: ../contrib/rename_images.lua:266
+msgid "$(MAKER) - camera maker\n"
+msgstr "$(MAKER) - fabricante da câmera\n"
+
+#: ../contrib/rename_images.lua:267
+msgid "$(MODEL) - camera model\n"
+msgstr "$(MODEL) - modelo da câmera\n"
+
+#: ../contrib/rename_images.lua:268
+msgid "$(LENS) - lens\n"
+msgstr "$(LENS) - lente\n"
+
+#: ../contrib/rename_images.lua:269
+msgid "$(TITLE) - title from metadata\n"
+msgstr "$(TITLE) - título a partir dos metadados\n"
+
+#: ../contrib/rename_images.lua:270
+msgid "$(DESCRIPTION) - description from metadata\n"
+msgstr "$(DESCRIPTION) - descrição a partir dos metadados\n"
+
+#: ../contrib/rename_images.lua:271
+msgid "$(CREATOR) - creator from metadata\n"
+msgstr "$(CREATOR) - autor a partir dos metadados\n"
+
+#: ../contrib/rename_images.lua:272
+msgid "$(PUBLISHER) - publisher from metadata\n"
+msgstr "$(PUBLISHER) - editor a partir dos metadados\n"
+
+#: ../contrib/rename_images.lua:273
+msgid "$(RIGHTS) - rights from metadata\n"
+msgstr "$(RIGHTS) - direitos autorais a partir dos metadados\n"
+
+#: ../contrib/rename_images.lua:274
+msgid "$(USERNAME) - username\n"
+msgstr "$(USERNAME) - nome do usuário\n"
+
+#: ../contrib/rename_images.lua:275
+msgid "$(PICTURES_FOLDER) - pictures folder\n"
+msgstr "$(PICTURES_FOLDER) - pasta de imagens\n"
+
+#: ../contrib/rename_images.lua:276
+msgid "$(HOME) - user's home directory\n"
+msgstr "$(HOME) - pasta pessoal do usuário\n"
+
+#: ../contrib/rename_images.lua:277
+msgid "$(DESKTOP) - desktop directory"
+msgstr "$(DESKTOP) - pasta da área de trabalho"
+
+#: ../contrib/rename_images.lua:278
+msgid "enter pattern $(FILE_FOLDER)/$(FILE_NAME)"
+msgstr "insira o padrão $(FILE_FOLDER)/$(FILE_NAME)"
+
+#: ../contrib/rename_images.lua:288
+msgid "rename"
+msgstr "renomear"
