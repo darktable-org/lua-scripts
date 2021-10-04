@@ -1,0 +1,555 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-10-01 19:03-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/enfuseAdvanced.lua:250
+msgid "please update your binary locations"
+msgstr "por favor, atualiza suas localizações de binários"
+
+#: ../contrib/enfuseAdvanced.lua:262
+msgid "issue with "
+msgstr "problema com "
+
+#: ../contrib/enfuseAdvanced.lua:262
+msgid " executable"
+msgstr " executável"
+
+#: ../contrib/enfuseAdvanced.lua:271
+msgid "update successful"
+msgstr "atualização bem sucedida"
+
+#: ../contrib/enfuseAdvanced.lua:273
+msgid "update unsuccessful, please try again"
+msgstr "atualização mau sucedida, tente novamente"
+
+#: ../contrib/enfuseAdvanced.lua:379
+msgid "saved to "
+msgstr "salvar para "
+
+#: ../contrib/enfuseAdvanced.lua:395
+msgid "loaded from "
+msgstr "carregado de "
+
+#: ../contrib/enfuseAdvanced.lua:430
+msgid "export for image fusion "
+msgstr "exportar para fusão de imagem "
+
+#: ../contrib/enfuseAdvanced.lua:435
+msgid "too few images selected, please select at least 2 images"
+msgstr "muito poucas imagens selecionadas, selecione pelo menos 2 imagens"
+
+#: ../contrib/enfuseAdvanced.lua:438
+msgid "installation error, please verify binary paths are proper"
+msgstr ""
+"erro de instalação, verifique se as localizações dos binários estão corretas"
+
+#: ../contrib/enfuseAdvanced.lua:458 ../contrib/enfuseAdvanced.lua:459
+#: ../contrib/enfuseAdvanced.lua:485 ../contrib/enfuseAdvanced.lua:486
+msgid " failed"
+msgstr " falhou"
+
+#: ../contrib/enfuseAdvanced.lua:534
+msgid "image align options"
+msgstr "opções de alinhamento de imagem"
+
+#: ../contrib/enfuseAdvanced.lua:537
+msgid "align images"
+msgstr "alinhar imagens"
+
+#: ../contrib/enfuseAdvanced.lua:539
+msgid "automatically align images prior to enfuse"
+msgstr "alinha automaticamente as imagens antes de fundir"
+
+#: ../contrib/enfuseAdvanced.lua:549
+msgid "optimize radial distortion"
+msgstr "otimizar distorção radial"
+
+#: ../contrib/enfuseAdvanced.lua:551
+msgid ""
+"optimize radial distortion for all images, \n"
+"except for first"
+msgstr ""
+"otimiza a distorção radial para todas as imagens, \n"
+"exceto para a primeira"
+
+#: ../contrib/enfuseAdvanced.lua:556
+msgid "optimize field of view"
+msgstr "otimizar o campo de visão"
+
+#: ../contrib/enfuseAdvanced.lua:558
+msgid ""
+"optimize field of view for all images, except for first. \n"
+"Useful for aligning focus stacks (DFF) with slightly \n"
+"different magnification."
+msgstr ""
+"otimizar o campo de visão para todas as imagens, exceto para a primeira. \n"
+"Útil para alinhar foco empilhado (DFF, sigla em inglês) com ampliação \n"
+"ligeiramente diferente."
+
+#: ../contrib/enfuseAdvanced.lua:563
+msgid "optimize image center shift"
+msgstr "otimizar deslocamento do centro da imagem"
+
+#: ../contrib/enfuseAdvanced.lua:565
+msgid ""
+"optimize image center shift for all images, \n"
+"except for first."
+msgstr ""
+"otimiza o deslocamento do centro da imagem para\n"
+"todas as imagens, exceto a primeira."
+
+#: ../contrib/enfuseAdvanced.lua:570
+msgid "auto crop"
+msgstr "recorte automático"
+
+#: ../contrib/enfuseAdvanced.lua:572
+msgid "auto crop the image to the area covered by all images."
+msgstr ""
+"recorta automaticamente a imagem para a área coberta por todas\n"
+"as imagens."
+
+#: ../contrib/enfuseAdvanced.lua:577
+msgid "load distortion from lens database"
+msgstr "carregar distorção a partir da base de dados de lentes"
+
+#: ../contrib/enfuseAdvanced.lua:579
+msgid "try to load distortion information from lens database"
+msgstr "tenta carregar informações de distorção da base de dados de lentes"
+
+#: ../contrib/enfuseAdvanced.lua:584
+msgid "use gpu"
+msgstr "usar gpu"
+
+#: ../contrib/enfuseAdvanced.lua:586
+msgid "use gpu during alignment"
+msgstr "usa a gpu durante o alinhamento"
+
+#: ../contrib/enfuseAdvanced.lua:593
+msgid "image grid size"
+msgstr "tamanho da grade de imagem"
+
+#: ../contrib/enfuseAdvanced.lua:594
+msgid ""
+"break image into a rectangular grid \n"
+"and attempt to find num control points in each section.\n"
+"default: (5x5)"
+msgstr ""
+"quebra a imagem em uma grade retangular e \n"
+"tenta encontrar um número de pontos de controle\n"
+"em cada seção.\n"
+"padrão: (5x5)"
+
+#: ../contrib/enfuseAdvanced.lua:610
+msgid "control points/grid"
+msgstr "pontos de controle/grade"
+
+#: ../contrib/enfuseAdvanced.lua:611
+msgid ""
+"number of control points (per grid, see option -g) \n"
+"to create between adjacent images \n"
+"default: (8)."
+msgstr ""
+"número de pontos de controle (por grade, veja a opção -g)\n"
+"para criar entre imagens adjacentes \n"
+"padrão: (8)"
+
+#: ../contrib/enfuseAdvanced.lua:627
+msgid "remove control points with error"
+msgstr "remover pontos de controle com erro"
+
+#: ../contrib/enfuseAdvanced.lua:628
+msgid ""
+"remove all control points with an error higher \n"
+"than num pixels \n"
+"default: (3)"
+msgstr ""
+"remove todos os pontos de controle com um erro superior\n"
+"que um número de pixels\n"
+"padrão: (3)"
+
+#: ../contrib/enfuseAdvanced.lua:644
+msgid "correlation threshold for control points"
+msgstr "limiar de correlação para pontos de controle"
+
+#: ../contrib/enfuseAdvanced.lua:645
+msgid ""
+"correlation threshold for identifying \n"
+"control points \n"
+"default: (0.9)."
+msgstr ""
+"limiar de correlação para identificar pontos\n"
+"de controle\n"
+"padrão: (0,9)"
+
+#: ../contrib/enfuseAdvanced.lua:659
+msgid "image fusion options"
+msgstr "opções de fusão de imagem"
+
+#: ../contrib/enfuseAdvanced.lua:664
+msgid "exposure weight"
+msgstr "peso da exposição"
+
+#: ../contrib/enfuseAdvanced.lua:665
+msgid ""
+"set the relative weight of the well-exposedness criterion \n"
+"as defined by the chosen exposure weight function. \n"
+"increasing this weight relative to the others will\n"
+" make well-exposed pixels contribute more to\n"
+" the final output. \n"
+"default: (1.0)"
+msgstr ""
+"configura o peso relativo do critério de boa exposição como\n"
+"definido pela função de peso de exposição.\n"
+"aumentar este peso relativo para outros fará com que\n"
+"os pixels bem expostos contribuam mais para a saída\n"
+"final.\n"
+"padrão: (1,0)"
+
+#: ../contrib/enfuseAdvanced.lua:676
+msgid "saturation weight"
+msgstr "peso da saturação"
+
+#: ../contrib/enfuseAdvanced.lua:677
+msgid ""
+"set the relative weight of high-saturation pixels. \n"
+"increasing this weight makes pixels with high \n"
+"saturation contribute more to the final output. \n"
+"default: (0.2)"
+msgstr ""
+"configura o peso relativo dos pixels altamente saturados.\n"
+"aumentar este peso fará com que os pixels com alta saturação\n"
+"contribuam mais para a saída final. "
+"padrão: (0,2)"
+
+#: ../contrib/enfuseAdvanced.lua:688
+msgid "contrast weight"
+msgstr "peso do contraste"
+
+#: ../contrib/enfuseAdvanced.lua:689
+msgid ""
+"sets the relative weight of high local-contrast pixels. \n"
+"default: (0.0)."
+msgstr ""
+"configura o peso relativo dos pixels com alto contraste local.\n"
+"padrão: (0,0)"
+
+#: ../contrib/enfuseAdvanced.lua:700
+msgid "exposure optimum"
+msgstr "exposição ótima"
+
+#: ../contrib/enfuseAdvanced.lua:701
+msgid ""
+"determine at what normalized exposure value\n"
+" the optimum exposure of the input images\n"
+" is. this is, set the position of the maximum\n"
+" of the exposure weight curve. use this \n"
+"option to fine-tune exposure weighting. \n"
+"default: (0.5)"
+msgstr ""
+"determina qual valor de exposição normalizado\n"
+"é a exposição ótima da imagem de entrada.\n"
+"isto é, define a posição do máximo de exposição\n"
+"da curva de peso. use esta opção para ajustar o\n"
+"peso da exposição.\n"
+"padrão: (0,5)"
+
+#: ../contrib/enfuseAdvanced.lua:712
+msgid "exposure width"
+msgstr "largura da exposição"
+
+#: ../contrib/enfuseAdvanced.lua:713
+msgid ""
+"set the characteristic width (FWHM) of the exposure \n"
+"weight function. low numbers give less weight to \n"
+"pixels that are far from the user-defined \n"
+"optimum and vice versa. use this option to \n"
+"fine-tune exposure weighting. \n"
+"default: (0.2)"
+msgstr ""
+"configura a largura característica (FWHM) da função de peso\n"
+"da exposição. números baixos atribuem menos peso para os\n"
+"pixels que estão longe do ótimo definido pelo usuário e vice-\n"
+"versa. use esta opção para ajustar o peso da exposição.\n"
+"padrão: (0,2)"
+
+#: ../contrib/enfuseAdvanced.lua:722
+msgid "hard mask"
+msgstr "máscara dura"
+
+#: ../contrib/enfuseAdvanced.lua:724
+msgid ""
+"force hard blend masks on the finest scale. this avoids \n"
+"averaging of fine details (only), at the expense \n"
+"of increasing the noise. this improves the \n"
+"sharpness of focus stacks considerably.\n"
+"default (soft mask)"
+msgstr ""
+"força máscaras de mesclagem duras na escala mais fina. isto\n"
+"previne aproximação dos detalhes mais finos (somente), ao\n"
+"custo de aumentar o ruído. isto melhora a nitidez do empilha-\n"
+"mento de foco consideravelmente.\n"
+"padrão (máscara suave)"
+
+#: ../contrib/enfuseAdvanced.lua:729
+msgid "save masks"
+msgstr "salvar máscaras"
+
+#: ../contrib/enfuseAdvanced.lua:731
+msgid ""
+"Save the generated weight masks to your home directory,\n"
+"enblend saves masks as 8 bit grayscale, \n"
+"i.e. single channel images. \n"
+"for accuracy we recommend to choose a lossless format."
+msgstr ""
+"Salva as máscaras de peso geradas para sua pasta pessoal,\n"
+"mescla máscaras salvas como tons de cinza de 8 bits, isto é,\n"
+"imagens de canal simples.\n"
+"para maior precisão, nós recomendamos escolher um formato\n"
+"sem perdas."
+
+#: ../contrib/enfuseAdvanced.lua:738
+msgid "contrast window size"
+msgstr "tamanho da janela de contraste"
+
+#: ../contrib/enfuseAdvanced.lua:739
+msgid ""
+"set the window size for local contrast analysis. \n"
+"the window will be a square of size × size pixels. \n"
+"if given an even size, Enfuse will \n"
+"automatically use the next odd number.\n"
+"for contrast analysis size values larger \n"
+"than 5 pixels might result in a \n"
+"blurry composite image. values of 3 and \n"
+"5 pixels have given good results on \n"
+"focus stacks. \n"
+"default: (5) pixels"
+msgstr ""
+"configura o tamanho da janela para a análise de contraste local.\n"
+"a janela será um quadrado de tamanho x tamanho em pixels.\n"
+"se fornecido um tamanho par, o script usará automaticamente\n"
+"o próximo número ímpar.\n"
+"valores de tamanho para análise de contraste maiores que\n"
+"5 pixels podem resultar em uma imagem composta borrada.\n"
+"valores de 3 e 5 pixels produzem bons resultados para empi-\n"
+"lhamento de foco.\n"
+"padrão: (5) pixels"
+
+#: ../contrib/enfuseAdvanced.lua:755
+msgid "contrast edge scale"
+msgstr "escala de borda de contraste"
+
+#: ../contrib/enfuseAdvanced.lua:756
+msgid ""
+"a non-zero value for EDGE-SCALE switches on the \n"
+"Laplacian-of-Gaussian (LoG) edge detection algorithm.\n"
+" edage-scale is the radius of the Gaussian used \n"
+"in the search for edges. a positive LCE-SCALE \n"
+"turns on local contrast enhancement (LCE) \n"
+"before the LoG edge detection. \n"
+"Default: (0.0) pixels."
+msgstr ""
+"um valor diferente de zero para a ESCALA DE BORDA alterna\n"
+"o algoritmo de detecção de borda Laplaciano-de-Gaussiano (LoG).\n"
+"a escala de borda é o raio do Gaussiano usado na busca por bordas.\n"
+"uma escala LCE positiva ativa o melhoramento de contraste local (LCE)\n"
+"antes da detecção de borda LoG.\n"
+"Padrão: (0,0) pixels"
+
+#: ../contrib/enfuseAdvanced.lua:772
+msgid "contrast min curvature [%]"
+msgstr "curvatura mín de contraste [%]"
+
+#: ../contrib/enfuseAdvanced.lua:773
+msgid ""
+"define the minimum curvature for the LoG edge detection. Append a ‘%’ to "
+"specify the minimum curvature relative to maximum pixel value in the source "
+"image. Default: (0.0%)"
+msgstr ""
+"configura a curvatura mínima para a detecção de borda LoG. Adicionar um '%'"
+" para "
+"definir a curvatura mínima em relação ao valor máximo de pixel na imagem"
+" fonte. "
+"Padrão: (0,0%)"
+
+#: ../contrib/enfuseAdvanced.lua:787
+msgid "target file"
+msgstr "arquivo alvo"
+
+#: ../contrib/enfuseAdvanced.lua:792
+msgid "tiff compression"
+msgstr "compressão tiff"
+
+#: ../contrib/enfuseAdvanced.lua:793
+msgid "compression method for tiff files"
+msgstr "método de compressão para arquivos tiff"
+
+#: ../contrib/enfuseAdvanced.lua:809
+msgid "jpeg compression"
+msgstr "compressão jpeg"
+
+#: ../contrib/enfuseAdvanced.lua:810
+msgid "jpeg compression level"
+msgstr "nível de compressão jpeg"
+
+#: ../contrib/enfuseAdvanced.lua:832
+msgid "file format"
+msgstr "formato de arquivo"
+
+#: ../contrib/enfuseAdvanced.lua:833
+msgid "file format of the enfused final image"
+msgstr "formato de arquivo da imagem final fundida"
+
+#: ../contrib/enfuseAdvanced.lua:853
+msgid "bit depth"
+msgstr "profundidade de bits"
+
+#: ../contrib/enfuseAdvanced.lua:854
+msgid "bit depth of the enfused file"
+msgstr "profundidade de bits do arquivo fundido"
+
+#: ../contrib/enfuseAdvanced.lua:868
+msgid "directory"
+msgstr "pasta"
+
+#: ../contrib/enfuseAdvanced.lua:877
+msgid ""
+"select the target directory for the fused image. \n"
+"the filename is created automatically."
+msgstr ""
+"seleciona a pasta alvo para a imagem fundida.\n"
+"o nome do arquivo é criado automaticamente."
+
+#: ../contrib/enfuseAdvanced.lua:882
+msgid "save to source image location"
+msgstr "salvar para a localização da imagem fonte"
+
+#: ../contrib/enfuseAdvanced.lua:884
+msgid ""
+"If checked ignores the location above and saves output image(s) to the same "
+"location as the source images."
+msgstr ""
+"Se selecionado, ignora a localização acima e salva a(s) imagem(ns) de saída"
+" na mesma "
+"localização das imagens fonte."
+
+#: ../contrib/enfuseAdvanced.lua:891
+msgid "on conflict"
+msgstr "no caso de conflito"
+
+#: ../contrib/enfuseAdvanced.lua:905
+msgid "auto import"
+msgstr "importar automaticamente"
+
+#: ../contrib/enfuseAdvanced.lua:907
+msgid "import the image into darktable database when enfuse completes"
+msgstr ""
+"importa a imagem para a base de dados do darktable quando a fusão for"
+" completada"
+
+#: ../contrib/enfuseAdvanced.lua:918
+msgid "Apply Style on Import"
+msgstr "Aplicar estilo ao importar"
+
+#: ../contrib/enfuseAdvanced.lua:919
+msgid "Apply selected style on auto-import to newly created blended image"
+msgstr ""
+"Aplica o estilo selecionado ao importar automaticamente para a nova imagem"
+" fundida criada"
+
+#: ../contrib/enfuseAdvanced.lua:938
+msgid "copy tags"
+msgstr "copiar etiquetas"
+
+#: ../contrib/enfuseAdvanced.lua:940
+msgid "Copy tags from first image."
+msgstr "Copia as etiquetas da primeira imagem."
+
+#: ../contrib/enfuseAdvanced.lua:947
+msgid ""
+"Additional tags to be added on import. Seperate with commas, all spaces will "
+"be removed"
+msgstr ""
+"Etiquetas adicionais a serem adicionadas ao importar. Separe-as com vírgulas,"
+" todos "
+"os espaços serão removidos"
+
+#: ../contrib/enfuseAdvanced.lua:955
+msgid "active preset"
+msgstr "predefinição ativa"
+
+#: ../contrib/enfuseAdvanced.lua:956
+msgid "preset to be loaded from or saved to"
+msgstr "predefinição a ser carregada de ou salvada para"
+
+#: ../contrib/enfuseAdvanced.lua:970
+msgid "load fusion preset"
+msgstr "carregar predefinição de fusão"
+
+#: ../contrib/enfuseAdvanced.lua:971
+msgid "load current fusion parameters from selected preset"
+msgstr ""
+"carrega parâmetros de fusão atuais a partir da predefinição selecionada"
+
+#: ../contrib/enfuseAdvanced.lua:975
+msgid "save to fusion preset"
+msgstr "salvar para predefinição de fusão"
+
+#: ../contrib/enfuseAdvanced.lua:976
+msgid "save current fusion parameters to selected preset"
+msgstr "salva os parâmetros de fusão atuais para a predefinição selecionada"
+
+#: ../contrib/enfuseAdvanced.lua:980
+msgid "create image variants from presets"
+msgstr "criar variantes da imagem a partir das predefinições"
+
+#: ../contrib/enfuseAdvanced.lua:982
+msgid ""
+"create multiple image variants based on the three different presets of the "
+"specified type"
+msgstr ""
+"cria múltiplas variantes da imagem baseadas nas três diferentes predefinições"
+" do tipo "
+"especificado"
+
+#: ../contrib/enfuseAdvanced.lua:999
+msgid "create variants type"
+msgstr "criar tipos de variantes"
+
+#: ../contrib/enfuseAdvanced.lua:1000
+msgid "preset type to be used when creating image variants"
+msgstr "tipo de predefinição a ser usado ao criar variantes de imagens"
+
+#: ../contrib/enfuseAdvanced.lua:1039
+msgid "update"
+msgstr "atualizar"
+
+#: ../contrib/enfuseAdvanced.lua:1040
+msgid "update the binary paths with current values"
+msgstr "atualiza os caminhos dos binários com os valores atuais"
+
+#: ../contrib/enfuseAdvanced.lua:1120
+msgid "show options"
+msgstr "mostrar opções"
+
+#: ../contrib/enfuseAdvanced.lua:1121
+msgid "show options for specified aspect of output"
+msgstr "mostra as opções para o aspecto de saída especificado"
+
+#: ../contrib/enfuseAdvanced.lua:1142
+msgid "DRI or DFF image"
+msgstr "imagem DRI ou DFF"

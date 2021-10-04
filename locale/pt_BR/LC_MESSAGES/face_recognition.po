@@ -1,0 +1,135 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-10-01 19:12-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/face_recognition.lua:131
+msgid "export images"
+msgstr "exportar imagens"
+
+#: ../contrib/face_recognition.lua:137
+#, lua-format
+msgid "Exporting image %i of %i images"
+msgstr "Exportando imagem %i de %i imagens"
+
+#: ../contrib/face_recognition.lua:207
+msgid "Face recognition not found"
+msgstr "Reconhecimento de rosto não encontrado"
+
+#: ../contrib/face_recognition.lua:259
+msgid "Starting face recognition..."
+msgstr "Iniciando reconhecimento de rosto..."
+
+#: ../contrib/face_recognition.lua:267
+msgid "Face recognition failed"
+msgstr "Reconhecimento de rosto falhou"
+
+#: ../contrib/face_recognition.lua:269
+msgid "Face recognition finished"
+msgstr "Reconhecimento de rosto terminado"
+
+#: ../contrib/face_recognition.lua:274
+msgid "processing results..."
+msgstr "processando resultados..."
+
+#: ../contrib/face_recognition.lua:338
+msgid "face recognition complete"
+msgstr "reconhecimento de rosto completo"
+
+#: ../contrib/face_recognition.lua:340
+msgid "image export failed"
+msgstr "exportação da imagem falhou"
+
+#: ../contrib/face_recognition.lua:344
+msgid "no images selected"
+msgstr "nenhuma imagem selecionada"
+
+#: ../contrib/face_recognition.lua:353
+msgid "face recognition"
+msgstr "reconhecimento de rosto"
+
+#: ../contrib/face_recognition.lua:377
+msgid "tag to be used for unknown person"
+msgstr "etiqueta a ser usada para pessoa desconhecida"
+
+#: ../contrib/face_recognition.lua:383
+msgid "tag to be used when no persons are found"
+msgstr "etiqueta a ser usada quando nenhuma pessoa for encontrada"
+
+#: ../contrib/face_recognition.lua:389 ../contrib/face_recognition.lua:467
+msgid "tags of images to ignore"
+msgstr "etiquetas de imagens para ignorar"
+
+#: ../contrib/face_recognition.lua:395 ../contrib/face_recognition.lua:469
+msgid "tag category"
+msgstr "categoria da etiqueta"
+
+#: ../contrib/face_recognition.lua:400
+msgid "tolerance"
+msgstr "tolerância"
+
+#: ../contrib/face_recognition.lua:412
+msgid "processor cores"
+msgstr "núcleos de processador"
+
+#: ../contrib/face_recognition.lua:413
+msgid "number of processor cores to use, 0 for all"
+msgstr "número de núcleos de processador a usar, 0 para todos"
+
+#: ../contrib/face_recognition.lua:424
+msgid "known image directory"
+msgstr "pasta de imagem conhecida"
+
+#: ../contrib/face_recognition.lua:425 ../contrib/face_recognition.lua:471
+msgid "face data directory"
+msgstr "pasta de dados de rosto"
+
+#: ../contrib/face_recognition.lua:434
+msgid "export image format"
+msgstr "formato de exportação da imagem"
+
+#: ../contrib/face_recognition.lua:435
+msgid "format for exported images"
+msgstr "formato para as imagens exportadas"
+
+#: ../contrib/face_recognition.lua:445
+msgid "maximum exported image width"
+msgstr "largura máxima das imagens exportadas"
+
+#: ../contrib/face_recognition.lua:451
+msgid "maximum exported image height"
+msgstr "altura máxima das imagens exportada"
+
+#: ../contrib/face_recognition.lua:463
+msgid "unknown person tag"
+msgstr "etiqueta de pessoa desconhecida"
+
+#: ../contrib/face_recognition.lua:465
+msgid "no persons found tag"
+msgstr "etiqueta de nenhuma pessoa encontrada"
+
+#: ../contrib/face_recognition.lua:478
+msgid "processing options"
+msgstr "opções de processamento"
+
+#: ../contrib/face_recognition.lua:484
+msgid "width  "
+msgstr "largura "
+
+#: ../contrib/face_recognition.lua:489
+msgid "height "
+msgstr "altura "

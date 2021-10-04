@@ -1,0 +1,77 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-10-01 19:16-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/geoJSON_export.lua:82
+#, lua-format
+msgid "Export Image %i/%i"
+msgstr "Exportar Imagem %i/%i"
+
+#: ../contrib/geoJSON_export.lua:87
+msgid "mkdir not found"
+msgstr "mkdir não encontrado"
+
+#: ../contrib/geoJSON_export.lua:91
+msgid "convert not found"
+msgstr "convert não encontrado"
+
+#: ../contrib/geoJSON_export.lua:95
+msgid "xdg-open not found"
+msgstr "xdg-open não encontrado"
+
+#: ../contrib/geoJSON_export.lua:99
+msgid "xdg-user-dir not found"
+msgstr "xdg-user-dir não encontrado"
+
+#: ../contrib/geoJSON_export.lua:310
+msgid "geoJSON export: Create an additional HTML file"
+msgstr "exportar geoJSON: Criar um arquivo HTML adicional"
+
+#: ../contrib/geoJSON_export.lua:311
+msgid "Creates a HTML file, that loads the geoJASON file. (Needs a MapBox key"
+msgstr ""
+"Cria um arquivo HTML que carrega o arquivo geoJSON. (Precisa de uma chave"
+" MapBox)"
+
+#: ../contrib/geoJSON_export.lua:316
+msgid "geoJSON export: MapBox Key"
+msgstr "exportar geoJSON : chave MapBox"
+
+#: ../contrib/geoJSON_export.lua:317
+msgid "https://www.mapbox.com/studio/account/tokens"
+msgstr "https://www.mapbox.com/studio/account/tokens"
+
+#: ../contrib/geoJSON_export.lua:322
+msgid "geoJSON export: Open geoJSON file after export"
+msgstr "exportar geoJSON: Abrir o arquivo geoJSON após exportar"
+
+#: ../contrib/geoJSON_export.lua:323
+msgid ""
+"Opens the geoJSON file after the export with the standard program for "
+"geoJSON files"
+msgstr ""
+"Abre o arquivo geoJSON após a exportação com o programa padrão para arquivos"
+" geoJSON"
+
+#: ../contrib/geoJSON_export.lua:335
+msgid "geoJSON export: Export directory"
+msgstr "exportar geoJSON: Pasta de exportação"
+
+#: ../contrib/geoJSON_export.lua:336
+msgid "A directory that will be used to export the geoJSON files"
+msgstr "Uma pasta que será usada para exportar os arquivos geoJSON"

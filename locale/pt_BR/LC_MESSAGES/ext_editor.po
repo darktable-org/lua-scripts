@@ -1,0 +1,129 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-10-01 19:07-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/ext_editor.lua:158
+msgid " editors configured"
+msgstr " editores configurados"
+
+#: ../contrib/ext_editor.lua:167
+msgid "not a valid choice"
+msgstr "não é uma escolha válida"
+
+#: ../contrib/ext_editor.lua:173
+msgid "please select one image"
+msgstr "por favor, selecione uma imagem"
+
+#: ../contrib/ext_editor.lua:197
+msgid "file type not allowed"
+msgstr "tipo de arquivo não permitido"
+
+#: ../contrib/ext_editor.lua:225
+msgid "error copying file "
+msgstr "erro ao copiar arquivo "
+
+#: ../contrib/ext_editor.lua:232
+msgid "launching "
+msgstr "iniciando "
+
+#: ../contrib/ext_editor.lua:235
+msgid "error launching "
+msgstr "erro ao lançar "
+
+#: ../contrib/ext_editor.lua:328
+msgid "error moving file "
+msgstr "erro ao mover arquivo "
+
+#: ../contrib/ext_editor.lua:337
+msgid "finished exporting"
+msgstr "exportação terminada"
+
+#: ../contrib/ext_editor.lua:354
+msgid "external editors"
+msgstr "editores externos"
+
+#: ../contrib/ext_editor.lua:380 ../contrib/ext_editor.lua:493
+msgid "edit with program "
+msgstr "editar com programa "
+
+#: ../contrib/ext_editor.lua:382 ../contrib/ext_editor.lua:472
+msgid "collection"
+msgstr "coleção"
+
+#: ../contrib/ext_editor.lua:393
+msgid "choose program"
+msgstr "selecionar programa"
+
+#: ../contrib/ext_editor.lua:394
+msgid "select the external editor from the list"
+msgstr "selecione o editor externo a partir da lista"
+
+#: ../contrib/ext_editor.lua:404
+msgid "edit"
+msgstr "editar"
+
+#: ../contrib/ext_editor.lua:405
+msgid "open the selected image in external editor"
+msgstr "abre a imagem selecionada no editor externo"
+
+#: ../contrib/ext_editor.lua:415
+msgid "edit a copy"
+msgstr "editar uma cópia"
+
+#: ../contrib/ext_editor.lua:416
+msgid "create a copy of the selected image and open it in external editor"
+msgstr "cria uma cópia da imagem selecionada e abre-a no editor externo"
+
+#: ../contrib/ext_editor.lua:425
+msgid "update list"
+msgstr "atualizar lista"
+
+#: ../contrib/ext_editor.lua:426
+msgid "update list of programs if lua preferences are changed"
+msgstr "atualiza lista de programas se as preferências do lua forem alteradas"
+
+#: ../contrib/ext_editor.lua:478
+msgid "executable for external editor "
+msgstr "executável para o editor externo "
+
+#: ../contrib/ext_editor.lua:479
+msgid "select executable for external editor"
+msgstr "seleciona o executável para o editor externo"
+
+#: ../contrib/ext_editor.lua:479
+msgid "(None)"
+msgstr "(Nenhum)"
+
+#: ../contrib/ext_editor.lua:482
+msgid "name of external editor "
+msgstr "nome do editor externo "
+
+#: ../contrib/ext_editor.lua:483
+msgid "friendly name of external editor"
+msgstr "nome amigável do editor externo"
+
+#: ../contrib/ext_editor.lua:486
+msgid "show external editors in darkroom"
+msgstr "mostrar editores externos na sala escura"
+
+#: ../contrib/ext_editor.lua:487
+msgid ""
+"check to show external editors module also in darkroom (requires restart)"
+msgstr ""
+"ative para mostrar o módulo de editores externos também na sala escura"
+" (precisa reiniciar)"

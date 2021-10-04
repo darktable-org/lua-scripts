@@ -1,0 +1,90 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-09-30 19:05-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/color_profile_manager.lua:122
+msgid "added color profile "
+msgstr "perfil de cor adicionado "
+
+#: ../contrib/color_profile_manager.lua:128
+msgid "removed color profile "
+msgstr "perfil de cor removido "
+
+#: ../contrib/color_profile_manager.lua:146
+msgid "ERROR: color profile must be an icc or icm file"
+msgstr "ERRO: perfil de cor deve ser um arquivo icm ou icc"
+
+#: ../contrib/color_profile_manager.lua:229
+msgid "color profile manager"
+msgstr "gerenciador de perfil de cor"
+
+#: ../contrib/color_profile_manager.lua:270
+msgid "initialize color profiles"
+msgstr "inicializar perfis de cor"
+
+#: ../contrib/color_profile_manager.lua:271
+msgid "create the directory structure to contain the color profiles"
+msgstr "cria a estrutura de pasta para conter os perfis de cor"
+
+#: ../contrib/color_profile_manager.lua:286
+msgid "select profile set"
+msgstr "selecionar definição de perfil"
+
+#: ../contrib/color_profile_manager.lua:287
+msgid "select input or output profiles"
+msgstr "selecionar perfis de entrada ou saída"
+
+#: ../contrib/color_profile_manager.lua:294
+msgid "input"
+msgstr "entrada"
+
+#: ../contrib/color_profile_manager.lua:294
+msgid "output"
+msgstr "saída"
+
+#: ../contrib/color_profile_manager.lua:298
+msgid "select color profile to add"
+msgstr "selecionar perfil de cor a adicionar"
+
+#: ../contrib/color_profile_manager.lua:299
+msgid "select the .icc or .icm file to add"
+msgstr "selecionar arquivo icc ou icm a adicionar"
+
+#: ../contrib/color_profile_manager.lua:306
+msgid "add profile"
+msgstr "adicionar perfil"
+
+#: ../contrib/color_profile_manager.lua:309
+msgid "add selected color profile"
+msgstr "adicionar perfil de cor selecionado"
+
+#: ../contrib/color_profile_manager.lua:310
+msgid "add selected file to profiles"
+msgstr "adicionar arquivo selecionado aos perfis"
+
+#: ../contrib/color_profile_manager.lua:320
+msgid "remove profile"
+msgstr "remover perfil"
+
+#: ../contrib/color_profile_manager.lua:323
+msgid "remove selected profile(s)"
+msgstr "remover perfil(s) selecionado(s)"
+
+#: ../contrib/color_profile_manager.lua:324
+msgid "remove the checked profile(s)"
+msgstr "remover o(s) perfil(s) marcado(s)"

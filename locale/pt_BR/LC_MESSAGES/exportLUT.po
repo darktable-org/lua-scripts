@@ -1,0 +1,62 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-09-30 19:25-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/exportLUT.lua:66
+msgid "Identity_file_chooser"
+msgstr "Selecionar_arquiv_identidade"
+
+#: ../contrib/exportLUT.lua:72
+msgid "Export_location_chooser"
+msgstr "Selecionar_localização_exportação"
+
+#: ../contrib/exportLUT.lua:78
+msgid "choose the identity haldclut file"
+msgstr "selecione o arquivo halclut de identidade"
+
+#: ../contrib/exportLUT.lua:82
+msgid "choose the output location"
+msgstr "selecione a localização de saída"
+
+#: ../contrib/exportLUT.lua:86
+msgid "WARNING: files may be silently overwritten"
+msgstr "AVISO: os arquivos podem ser sobrescritos sem confirmação"
+
+#: ../contrib/exportLUT.lua:108
+msgid "Invalid identity lut file"
+msgstr "Arquivo lut de identidade inválido"
+
+#: ../contrib/exportLUT.lua:110
+msgid "Exporting styles as haldCLUTs"
+msgstr "Exportar estilos como haldCLUTs"
+
+#: ../contrib/exportLUT.lua:129
+msgid "Exported: "
+msgstr "Exportado: "
+
+#: ../contrib/exportLUT.lua:131
+msgid "Done exporting haldCLUTs"
+msgstr "Exportação de haldCLUTs feita"
+
+#: ../contrib/exportLUT.lua:141
+msgid "export haldclut"
+msgstr "exportar haldclut"
+
+#: ../contrib/exportLUT.lua:166
+msgid "export"
+msgstr "exportar"

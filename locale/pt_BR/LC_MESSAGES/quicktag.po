@@ -1,0 +1,82 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-10-02 05:25-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/quicktag.lua:78
+msgid "max. length of button labels"
+msgstr "comprimento máximo dos rótulos de botão"
+
+#: ../contrib/quicktag.lua:79
+msgid "may range from 15 to 60 - needs a restart"
+msgstr "pode ir de 16 à 60 - precisa reiniciar"
+
+#: ../contrib/quicktag.lua:92
+msgid "number of quicktag fields"
+msgstr "número de campos de quicktag"
+
+#: ../contrib/quicktag.lua:93
+msgid "may range from 2 to 20 - needs a restart"
+msgstr "pode ir de 2 à 20 - precisa reiniciar"
+
+#: ../contrib/quicktag.lua:133
+#, lua-format
+msgid "quicktag %i is empty, please set a tag"
+msgstr "quicktag %i está vazio, por favor defina uma etiqueta"
+
+#: ../contrib/quicktag.lua:148
+msgid "no images selected"
+msgstr "nenhuma imagem selecionada"
+
+#: ../contrib/quicktag.lua:158
+#, lua-format
+msgid "tag \"%s\" attached to %i image(s)"
+msgstr "etiqueta \"%s\" anexada a %i imagem(ns)"
+
+#: ../contrib/quicktag.lua:179
+msgid "old tag"
+msgstr "etiqueta antiga"
+
+#: ../contrib/quicktag.lua:180
+msgid "select the quicktag to replace"
+msgstr "selecione a quicktag para substituir"
+
+#: ../contrib/quicktag.lua:225 ../contrib/quicktag.lua:303
+#, lua-format
+msgid "quicktag %i"
+msgstr "quicktag %i"
+
+#: ../contrib/quicktag.lua:240 ../contrib/quicktag.lua:264
+msgid "new tag"
+msgstr "nova etiqueta"
+
+#: ../contrib/quicktag.lua:243
+msgid "enter your tag here"
+msgstr "insira sua etiqueta aqui"
+
+#: ../contrib/quicktag.lua:247
+msgid "set tag"
+msgstr "definir etiqueta"
+
+#: ../contrib/quicktag.lua:251
+msgid "new quicktag is empty!"
+msgstr "nova quicktag está vazia!"
+
+#: ../contrib/quicktag.lua:255
+#, lua-format
+msgid "quicktag \"%s\" replaced by \"%s\""
+msgstr "quicktag \"%s\" substituída por \"%s\""

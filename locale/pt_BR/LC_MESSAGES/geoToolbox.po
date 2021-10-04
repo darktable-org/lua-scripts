@@ -1,0 +1,166 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-10-01 19:23-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/geoToolbox.lua:58
+msgid "Distance:"
+msgstr "Distância:"
+
+#: ../contrib/geoToolbox.lua:62
+msgid "latitude:"
+msgstr "latitude:"
+
+#: ../contrib/geoToolbox.lua:67
+msgid "longitude:"
+msgstr "longitude:"
+
+#: ../contrib/geoToolbox.lua:72
+msgid "elevation:"
+msgstr "elevação:"
+
+#: ../contrib/geoToolbox.lua:79 ../contrib/geoToolbox.lua:99
+msgid "GPS selection"
+msgstr "seleção do GPS"
+
+#: ../contrib/geoToolbox.lua:302
+msgid "latitude: "
+msgstr "latitude: "
+
+#: ../contrib/geoToolbox.lua:303
+msgid "longitude: "
+msgstr "longitude: "
+
+#: ../contrib/geoToolbox.lua:304
+msgid "elevation: "
+msgstr "elevação: "
+
+#: ../contrib/geoToolbox.lua:329
+msgid "gnome-maps not found"
+msgstr "gnome-maps não encontrado"
+
+#: ../contrib/geoToolbox.lua:367
+msgid "curl not found"
+msgstr "curl não encontrado"
+
+#: ../contrib/geoToolbox.lua:372
+msgid "jq not found"
+msgstr "jq não encontrado"
+
+#: ../contrib/geoToolbox.lua:490
+msgid "m"
+msgstr "m"
+
+#: ../contrib/geoToolbox.lua:492
+msgid "km"
+msgstr "km"
+
+#: ../contrib/geoToolbox.lua:495
+#, lua-format
+msgid "Distance: %.2f %s"
+msgstr "Distância: %.2f %s"
+
+#: ../contrib/geoToolbox.lua:508
+msgid "export altitude CSV"
+msgstr "exportar altitude para CSV"
+
+#: ../contrib/geoToolbox.lua:518
+msgid "Name of the exported file"
+msgstr "Nome do arquivo exportado"
+
+#: ../contrib/geoToolbox.lua:523
+msgid "Start export"
+msgstr "Iniciar exportação"
+
+#: ../contrib/geoToolbox.lua:584
+msgid "File created in "
+msgstr "Arquivo criado em "
+
+#: ../contrib/geoToolbox.lua:614 ../contrib/geoToolbox.lua:746
+msgid "Calculate the distance from latitude and longitude in km"
+msgstr "Calcula a distância da latitude e longitude em km"
+
+#: ../contrib/geoToolbox.lua:619 ../contrib/geoToolbox.lua:644
+#: ../contrib/geoToolbox.lua:751
+msgid "Select all images with GPS information"
+msgstr "Selecionar todas as imagens com informação de GPS"
+
+#: ../contrib/geoToolbox.lua:621 ../contrib/geoToolbox.lua:650
+#: ../contrib/geoToolbox.lua:753
+msgid "Select all images without GPS information"
+msgstr "Selecionar todas as imagens sem informação de GPS"
+
+#: ../contrib/geoToolbox.lua:643
+msgid "select geo images"
+msgstr "selecionar imagens geoetiquetadas"
+
+#: ../contrib/geoToolbox.lua:649
+msgid "select non-geo images"
+msgstr "selecionar imagens sem geoetiquetas"
+
+#: ../contrib/geoToolbox.lua:656
+msgid "copy GPS data"
+msgstr "copiar dados do GPS"
+
+#: ../contrib/geoToolbox.lua:657
+msgid "Copy GPS data"
+msgstr "Copiar dados do GPS"
+
+#: ../contrib/geoToolbox.lua:665
+msgid "paste GPS data"
+msgstr "colar dados do GPS"
+
+#: ../contrib/geoToolbox.lua:666
+msgid "Paste GPS data"
+msgstr "Colar dados do GPS"
+
+#: ../contrib/geoToolbox.lua:695
+msgid "open in Gnome Maps"
+msgstr "abrir no Gnome Maps"
+
+#: ../contrib/geoToolbox.lua:696
+msgid "Open location in Gnome Maps"
+msgstr "Abrir localização no Gnome Maps"
+
+#: ../contrib/geoToolbox.lua:702
+msgid "reverse geocode"
+msgstr "geocódigo reverso"
+
+#: ../contrib/geoToolbox.lua:703
+msgid "This just shows the name of the location, but doesn't add it as tag"
+msgstr ""
+"Isto apenas mostra o nome da localização, mas não adiciona-a como uma etiqueta"
+
+#: ../contrib/geoToolbox.lua:707
+msgid "altitude CSV export"
+msgstr "exportar altitude em CSV"
+
+#: ../contrib/geoToolbox.lua:712
+msgid "export altitude CSV file"
+msgstr "exporta o arquivo CSV de altitude"
+
+#: ../contrib/geoToolbox.lua:713
+msgid "Create an altitude profile using the GPS data in the metadata"
+msgstr "Cria um perfil de altitude usando os dados GPS nos metadados"
+
+#: ../contrib/geoToolbox.lua:740
+msgid "geoToolbox export: MapBox Key"
+msgstr "exportar geoToolbox: chave MapBox"
+
+#: ../contrib/geoToolbox.lua:741
+msgid "https://www.mapbox.com/studio/account/tokens"
+msgstr "https://www.mapbox.com/studio/account/tokens"

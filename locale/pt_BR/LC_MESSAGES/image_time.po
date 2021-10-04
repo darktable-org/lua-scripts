@@ -1,0 +1,244 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Marcus Gama <marcus.gama@gmail.com>, 2021.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-09-28 19:37-0300\n"
+"PO-Revision-Date: 2021-10-02 05:09-0300\n"
+"Last-Translator: Marcus Gama <marcus.gama@gmail.com>\n"
+"Language-Team: Portuguese <darktable-dev@lists.darktable.org>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Lokalize 21.08.1\n"
+
+#: ../contrib/image_time.lua:177
+msgid "Error: 2 images must be selected"
+msgstr "Erro: 2 imagens devem ser selecionadas"
+
+#: ../contrib/image_time.lua:230
+msgid "unable to detect exiv2"
+msgstr "não foi possível detectar exiv2"
+
+#: ../contrib/image_time.lua:251 ../contrib/image_time.lua:268
+msgid "unable to get information for  "
+msgstr "não foi possível obter informações para "
+
+#: ../contrib/image_time.lua:316
+msgid "reset time: no images selected"
+msgstr "reiniciar tempo: nenhuma imagem selecionada"
+
+#: ../contrib/image_time.lua:317
+msgid "please select the images that need their time reset"
+msgstr ""
+"por favor, selecione as imagens que precisam que seu tempo seja reiniciado"
+
+#: ../contrib/image_time.lua:330 ../contrib/image_time.lua:355
+msgid "please select some images and try again"
+msgstr "por favor, selecione algumas imagens e tente novamente"
+
+#: ../contrib/image_time.lua:334 ../contrib/image_time.lua:437
+#: ../contrib/image_time.lua:444
+msgid "subtract"
+msgstr "subtrair"
+
+#: ../contrib/image_time.lua:407
+msgid "image time"
+msgstr "tempo da imagem"
+
+#: ../contrib/image_time.lua:431
+msgid "years"
+msgstr "anos"
+
+#: ../contrib/image_time.lua:431
+msgid "years to adjust by, 0 - ?"
+msgstr "anos a ajustar, 0 - ?"
+
+#: ../contrib/image_time.lua:432
+msgid "months"
+msgstr "meses"
+
+#: ../contrib/image_time.lua:433
+msgid "days"
+msgstr "dias"
+
+#: ../contrib/image_time.lua:434
+msgid "hours"
+msgstr "horas"
+
+#: ../contrib/image_time.lua:434
+msgid "hours to adjust by, 0-23"
+msgstr "horas a ajustar, 0-23"
+
+#: ../contrib/image_time.lua:435
+msgid "minutes"
+msgstr "minutos"
+
+#: ../contrib/image_time.lua:435
+msgid "minutes to adjust by, 0-59"
+msgstr "minutos a ajustar, 0-59"
+
+#: ../contrib/image_time.lua:436 ../contrib/image_time.lua:443
+msgid "seconds"
+msgstr "segundos"
+
+#: ../contrib/image_time.lua:436
+msgid "seconds to adjust by, 0-59"
+msgstr "segundos a ajustar, 0-59"
+
+#: ../contrib/image_time.lua:437 ../contrib/image_time.lua:444
+msgid "add/subtract"
+msgstr "adicionar/subtrair"
+
+#: ../contrib/image_time.lua:437 ../contrib/image_time.lua:444
+msgid "add or subtract time"
+msgstr "adicionar ou subtrair tempo"
+
+#: ../contrib/image_time.lua:437 ../contrib/image_time.lua:444
+msgid "add"
+msgstr "adicionar"
+
+#: ../contrib/image_time.lua:438
+msgid "year"
+msgstr "ano"
+
+#: ../contrib/image_time.lua:438
+msgid "year to set,  1900 - now"
+msgstr "ano a definir, 1900 - agora"
+
+#: ../contrib/image_time.lua:439
+msgid "month"
+msgstr "mês"
+
+#: ../contrib/image_time.lua:439
+msgid "month to set, 1-12"
+msgstr "mês a definir, 1-12"
+
+#: ../contrib/image_time.lua:440
+msgid "day"
+msgstr "dia"
+
+#: ../contrib/image_time.lua:440
+msgid "day to set, 1-31"
+msgstr "dia a definir, 1-31"
+
+#: ../contrib/image_time.lua:441
+msgid "hour"
+msgstr "hora"
+
+#: ../contrib/image_time.lua:441
+msgid "hour to set, 0-23"
+msgstr "hora a definir, 0-23"
+
+#: ../contrib/image_time.lua:442
+msgid "minute"
+msgstr "minuto"
+
+#: ../contrib/image_time.lua:442
+msgid "minutes to set, 0-59"
+msgstr "minuto a definir, 0-59"
+
+#: ../contrib/image_time.lua:443
+msgid "seconds to set, 0-59"
+msgstr "segundos a definir, 0-59"
+
+#: ../contrib/image_time.lua:459
+msgid "Time difference between images in seconds"
+msgstr "Diferença de tempo entre as imagens em segundos"
+
+#: ../contrib/image_time.lua:460
+msgid "Select 2 images and use the calculate button"
+msgstr "Selecione 2 imagens e use o botão para calcular"
+
+#: ../contrib/image_time.lua:465
+msgid "Calculate"
+msgstr "Calcular"
+
+#: ../contrib/image_time.lua:466
+msgid "calculate time difference between 2 images"
+msgstr "calcula a diferença de tempo entre 2 imagens"
+
+#: ../contrib/image_time.lua:473
+msgid "synchronize image times"
+msgstr "sincronizar tempos da imagem"
+
+#: ../contrib/image_time.lua:474
+msgid "apply the time difference from selected images"
+msgstr "aplica a diferença de tempo a partir das imagens selecionadas"
+
+#: ../contrib/image_time.lua:484 ../contrib/image_time.lua:550
+msgid "adjust time"
+msgstr "ajustar tempo"
+
+#: ../contrib/image_time.lua:485
+msgid "days, months, years"
+msgstr "dias, meses, anos"
+
+#: ../contrib/image_time.lua:489
+msgid "hours, minutes, seconds"
+msgstr "horas, minutos, segundos"
+
+#: ../contrib/image_time.lua:493
+msgid "adjustment direction"
+msgstr "direção de ajuste"
+
+#: ../contrib/image_time.lua:496
+msgid "adjust"
+msgstr "ajustar"
+
+#: ../contrib/image_time.lua:504 ../contrib/image_time.lua:551
+msgid "set time"
+msgstr "definir tempo"
+
+#: ../contrib/image_time.lua:505
+msgid "date: "
+msgstr "data: "
+
+#: ../contrib/image_time.lua:509
+msgid "time:"
+msgstr "tempo: "
+
+#: ../contrib/image_time.lua:514
+msgid "set"
+msgstr "definir"
+
+#: ../contrib/image_time.lua:522
+msgid "synchronize image time"
+msgstr "sincronizar tempo da imagem"
+
+#: ../contrib/image_time.lua:523
+msgid "calculate difference between images"
+msgstr "calcular a diferença entre imagens"
+
+#: ../contrib/image_time.lua:526
+msgid "apply difference"
+msgstr "aplicar diferença"
+
+#: ../contrib/image_time.lua:532
+msgid "reset to original time"
+msgstr "reiniciar para o tempo original"
+
+#: ../contrib/image_time.lua:535
+msgid "reset"
+msgstr "reiniciar"
+
+#: ../contrib/image_time.lua:544
+msgid "mode"
+msgstr "modo"
+
+#: ../contrib/image_time.lua:545
+msgid "select mode"
+msgstr "selecionar modo"
+
+#: ../contrib/image_time.lua:552
+msgid "synchronize time"
+msgstr "sincronizar tempo"
+
+#: ../contrib/image_time.lua:553
+msgid "reset time"
+msgstr "reiniciar tempo"
