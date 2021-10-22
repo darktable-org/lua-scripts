@@ -1,4 +1,5 @@
 ## Changes from most recent to oldest
+**22 Oct 2021 - wpferguson for Volker Bödker - make sure sequence is 4 digits in rename_images.lua**
 **31 Aug 2021 - wpferguson - remove styles hiding from AutoGrouper.lua**
 **02 Jul 2021 - wpferguson - merged API-7.0.0-dev branch to master**
 * API-7.0.0 is darktable 3.6
