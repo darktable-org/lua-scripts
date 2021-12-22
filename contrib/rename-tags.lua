@@ -16,16 +16,17 @@ is your darktable configuration directory
 
 USAGE
 * In lighttable there is a new entry: 'rename tag'
-* Enter old tag (this one gets deleted!)
+* Enter old tag name
 * Enter new tag name
 
 LICENSE
 GPLv2
 
 Changes
-* 20180912 - Did an RTFM and read a bug (12277, thanks Christian G) that showed 
-  a way to get the images containing the old tag one by one instead of searching 
+* 20180912 - Did an RTFM and read a bug (12277, thanks Christian G) that showed
+  a way to get the images containing the old tag one by one instead of searching
   the entire database.  Changed rename_tags() function to use this method.
+* 20211222 - Avoids to delete the tag while renaming it.
 ]]
 
 local darktable = require "darktable"
@@ -33,7 +34,7 @@ local du = require "lib/dtutils"
 local debug = require "darktable.debug"
 
 -- check API version
-du.check_min_api_version("7.0.0", "rename-tags") 
+du.check_min_api_version("7.0.0", "rename-tags")
 
 -- return data structure for script_manager
 
@@ -67,42 +68,25 @@ local function rename_tags()
     darktable.print ("New tag can't be empty")
     return
   end
-  
-  local count = 0
 
   -- Check if old tag exists
   local ot = darktable.tags.find (old_tag.text)
-  
+
   if not ot then
     darktable.print ("Old tag does not exist")
     return
   end
 
-  -- Show job
-  local job = darktable.gui.create_job ("Renaming tag", true)
-  
   old_tag.editable = false
   new_tag.editable = false
 
-  -- Create if it does not exists
-  local nt = darktable.tags.create (new_tag.text)
+  darktable.tags.rename (ot, new_tag.text);
 
   -- Get number of images for old tag
   local dbcount = #ot
 
-  -- loop through the images containing the old tag, and attach the new tag
-  for i=1, #ot do
-    -- Update progress bar
-    job.percent = i / dbcount
-    ot[i]:attach_tag(nt)
-    count = count + 1
-  end
-
-  -- Delete old tag, this removes it from all images
-  darktable.tags.delete (ot)
-
   job.valid = false
-  darktable.print ("Renamed tags for " .. count .. " images")
+  darktable.print ("Renamed tags for " .. dbcount .. " images")
   old_tag.editable = true
   new_tag.editable = true
 
@@ -169,5 +153,3 @@ script_data.destroy_method = "hide"
 script_data.show = restart
 
 return script_data
-
-
