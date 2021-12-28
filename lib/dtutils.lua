@@ -330,4 +330,29 @@ function dtutils.find_image_by_id(imgid)
     end
 end
 
+dtutils.libdoc.functions["deprecated"] = {
+  Name = [[deprecated]],
+  Synopsis = [[print deprecation warning]],
+  Usage = [[local du = require "lib/dtutils"
+
+    du.deprecated(script_name, removal_string)
+      script_name - name of the script being deprecated
+      removal_strubg - a string explaining when the script will be removed]],
+  Description = [[deprecated prints an error message saying the script is deprecated and when it will be removed]],
+  Return_Value = [[]],
+  Limitations = [[]],
+  Example = [[local du = require "lib/dtutils"
+              du.deprecated("contrib/rename-tags.lua", "darktable release 4.0")]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils.deprecated(script_name, removal_string)
+  dt.print_toast("WARNING: " .. script_name .. " is deprecated and will be removed in " .. removal_string)
+  dt.print_error("WARNING: " .. script_name .. " is deprecated and will be removed in " .. removal_string)
+end
+
+
 return dtutils
