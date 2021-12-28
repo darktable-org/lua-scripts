@@ -34,6 +34,7 @@ local debug = require "darktable.debug"
 
 -- check API version
 du.check_min_api_version("7.0.0", "rename-tags") 
+du.deprecated("contrib/rename-tags.lua","darktable release 4.0")
 
 -- return data structure for script_manager
 
