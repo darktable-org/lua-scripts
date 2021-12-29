@@ -191,7 +191,7 @@ end
 
 local function _search_for_bin_nix(bin)
   local result = false
-  local p = io.popen("which " .. bin)
+  local p = io.popen("command -v " .. bin)
   local output = p:read("*a")
   p:close()
   if string.len(output) > 0 then
