@@ -150,6 +150,7 @@ local function save_preferences()
   dt.preferences.write(MODULE, "ignore_tags", "string", fc.ignore_tags.text)
   dt.preferences.write(MODULE, "category_tags", "string", fc.category_tags.text)
   dt.preferences.write(MODULE, "known_image_path", "directory", fc.known_image_path.value)
+  dt.preferences.write(MODULE, "program_source", "integer", fc.program_source.selected)
   local val = fc.tolerance.value
   val = string.gsub(tostring(val), ",", ".")
   dt.preferences.write(MODULE, "tolerance", "float", tonumber(val))
@@ -165,6 +166,7 @@ local function reset_preferences()
   fc.ignore_tags.text = ""
   fc.category_tags.text = ""
   fc.known_image_path.value = dt.configuration.config_dir .. "/face_recognition"
+  fc.program_source.selected = 1
   fc.tolerance.value = 0.6
   fc.num_cores.value = -1
   fc.export_format.selected = 1
@@ -200,18 +202,24 @@ local function cleanup(img_list)
 end
 
 local function face_recognition ()
+  local program_source = fc.program_source.value
 
-  local bin_path = df.check_if_bin_exists("face_recognition")
+  if string.match(program_source, "python") then
+    dt.print_log(string.match(program_source, "python"))
+    local bin_path = df.check_if_bin_exists("face_recognition")
 
-  if not bin_path then
-    dt.print(_("Face recognition not found"))
-    return
+    if not bin_path then
+      dt.print(_("Face recognition for python not found"))
+      return
+    end
   end
 
   save_preferences()
 
   -- Get preferences
-  local knownPath = dt.preferences.read(MODULE, "known_image_path", "directory")
+  local containerKnownPath = "/known"
+  local containerUnknownPath = "/unknown/"
+  local hostKnownPath = dt.preferences.read(MODULE, "known_image_path", "directory")
   local nrCores = dt.preferences.read(MODULE, "num_cores", "integer")
   local ignoreTagString = dt.preferences.read(MODULE, "ignore_tags", "string")
   local categoryTagString = dt.preferences.read(MODULE, "category_tags", "string")
@@ -245,15 +253,24 @@ local function face_recognition ()
       end
 
       -- Get path of exported images
-      local path = df.get_path (img_list[1])
-      dt.print_log ("Face recognition: Path to known faces: " .. knownPath)
-      dt.print_log ("Face recognition: Path to unknown images: " .. path)
+      local hostUnknownPath = df.get_path (img_list[1])
+      dt.print_log ("Face recognition: Path to known faces: " .. hostKnownPath)
+      dt.print_log ("Face recognition: Path to unknown images: " .. hostUnknownPath)
       dt.print_log ("Face recognition: Tag used for unknown faces: " .. unknownTag)
       dt.print_log ("Face recognition: Tag used if non person is found: " .. nonpersonsfoundTag)
       os.setlocale("C")
       local tolerance = dt.preferences.read(MODULE, "tolerance", "float")
 
-      local command = bin_path ..  " --cpus " .. nrCores .. " --tolerance " .. tolerance .. " " .. knownPath .. " " .. path .. " > " .. OUTPUT
+      local hostCommand = "docker run --rm -v " .. hostKnownPath .. ":" ..containerKnownPath .. " -v " .. hostUnknownPath .. ":" .. containerUnknownPath
+      local contianerCommand = "face_recognition" ..  " --cpus " .. nrCores .. " --tolerance " .. tolerance .. " " .. containerKnownPath .. " " .. containerUnknownPath .. " > " .. OUTPUT
+      local command = ""
+      if fc.program_source.value == "python" then
+        command = bin_path ..  " --cpus " .. nrCores .. " --tolerance " .. tolerance .. " " .. hostKnownPath .. " " .. hostUnknownPath .. " > " .. OUTPUT
+      elseif fc.program_source.value == "docker-cpu" then
+        command = hostCommand  .. " animcogn/face_recognition:cpu " .. contianerCommand
+      elseif fc.program_source.value == "docker-gpu" then
+        command = hostCommand  .. " animcogn/face_recognition:gpu " .. contianerCommand
+      end
       os.setlocale()
       dt.print_log("Face recognition: Running command: " .. command)
       dt.print(_("Starting face recognition..."))
@@ -278,6 +295,9 @@ local function face_recognition ()
       for line in io.lines(OUTPUT) do
         if not string.match(line, "^WARNING:") and line ~= "" and line ~= nil then
           local file, tag = string.match (line, "(.*),(.*)$")
+          if fc.program_source.value == "docker-cpu" or fc.program_source.value == "docker-gpu" then
+            file = string.gsub(file, containerUnknownPath, hostUnknownPath)
+          end
           tag = string.gsub (tag, "%d*$", "")
           dt.print_log ("File:"..file .." Tag:".. tag)
           tag_object = {}
@@ -430,6 +450,25 @@ fc.known_image_path = dt.new_widget("file_chooser_button"){
   end
 }
 
+fc.program_source = dt.new_widget("combobox"){
+  label = _("program_source"),
+  tooltip = _("source of the face_recognition program"),
+  selected = dt.preferences.read(MODULE, "program_source", "integer"),
+  changed_callback = function(this)
+    dt.preferences.write(MODULE, "program_source", "integer", this.selected)
+    if this.selected == 2 or this.selected == 3 then
+      fc.executable.visible = false
+    else
+      fc.executable.visible = true
+    end
+  end,
+  "python", "docker-cpu", "docker-gpu",
+}
+
+if dt.configuration.running_os == "windows" or dt.configuration.running_os == "macos" then
+  fc.executable = df.executable_path_widget({"face_recognition"})
+end
+
 fc.export_format = dt.new_widget("combobox"){
   label = _("export image format"),
   tooltip = _("format for exported images"),
@@ -470,26 +509,25 @@ local widgets = {
   fc.category_tags,
   dt.new_widget("label"){ label = _("face data directory")},
   fc.known_image_path,
+  dt.new_widget("section_label"){ label = _("source options")},
+  fc.program_source,
+  fc.executable,
+  dt.new_widget("section_label"){ label = _("processing options")},
+  fc.tolerance,
+  fc.num_cores,
+  fc.export_format,
+  dt.new_widget("box"){
+    orientation = "horizontal",
+    dt.new_widget("label"){ label = _("width  ")},
+    fc.width,
+  },
+  dt.new_widget("box"){
+    orientation = "horizontal",
+    dt.new_widget("label"){ label = _("height ")},
+    fc.height,
+  },
+  fc.execute
 }
-
-if dt.configuration.running_os == "windows" or dt.configuration.running_os == "macos" then
-  table.insert(widgets, df.executable_path_widget({"face_recognition"}))
-end
-table.insert(widgets, dt.new_widget("section_label"){ label = _("processing options")})
-table.insert(widgets, fc.tolerance)
-table.insert(widgets, fc.num_cores)
-table.insert(widgets, fc.export_format)
-table.insert(widgets, dt.new_widget("box"){
-  orientation = "horizontal",
-  dt.new_widget("label"){ label = _("width  ")},
-  fc.width,
-})
-table.insert(widgets, dt.new_widget("box"){
-  orientation = "horizontal",
-  dt.new_widget("label"){ label = _("height ")},
-  fc.height,
-})
-table.insert(widgets, fc.execute)
 
 fc.widget = dt.new_widget("box"){
   orientation = vertical,
@@ -513,6 +551,10 @@ else
     )
     fc.event_registered = true
   end
+end
+
+if fc.program_source.selected == 2 or fc.program_source.selected == 3 then
+  fc.executable.visible = false
 end
 
 fc.tolerance.value = dt.preferences.read(MODULE, "tolerance", "float")
