@@ -108,7 +108,7 @@ local n_entries
 
 
 -- allowed file extensions for external editors
-local allowed_file_types = {"JPG", "jpg", "JPEG", "jpeg", "TIF", "tif", "TIFF", "tiff", "EXR", "exr", "PNG", "png"}
+local allowed_file_types = {"JPG", "jpg", "JPEG", "jpeg", "TIF", "tif", "TIFF", "tiff", "EXR", "exr", "PNG", "png", "DNG", "dng"}
 
 
 -- last used editor initialization
