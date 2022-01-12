@@ -1,4 +1,9 @@
 ## Changes from most recent to oldest
+**12 Jan 2022 - wpferguson - Documented contrib/rename_images.lua**
+**28 Dec 2021 - wpferguson - Replaced deprecated _which_ command with _command -v_ in lib/dtutils/file.lua**
+**12 Dec 2021 - wpferguson**
+* Added deprecated function to library
+* Added deprecation warning to contrib/rename-tags.lua
 **22 Oct 2021 - wpferguson for Volker Bödker - make sure sequence is 4 digits in rename_images.lua**
 **31 Aug 2021 - wpferguson - remove styles hiding from AutoGrouper.lua**
 **02 Jul 2021 - wpferguson - merged API-7.0.0-dev branch to master**

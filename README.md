@@ -62,6 +62,7 @@ Name|Standalone|OS   |Purpose
 [photils](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/photils)|No|LM|Automatic tag suggestions for your images
 [quicktag](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/quicktag)|Yes|LMW|Create shortcuts for quickly applying tags
 [rate_group](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/rate_group)|Yes|LMW|Apply or remove a star rating from grouped images
+[rename_images](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/rename_images)|Yes|LMW|Rename single or multiple images
 [rename-tags](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/rename-tags)|Yes|LMW|Change a tag name
 [RL_out_sharp](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/RL_out_sharp)|No|LW|Output sharpening using GMic (Richardson-Lucy algorithm)
 [select_untagged](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/select_untagged)|Yes|LMW|Enable selection of untagged images
