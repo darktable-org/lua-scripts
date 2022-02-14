@@ -2,7 +2,7 @@
 
 Compensate for Fujifilm raw files made using "dynamic range".
 
-Copyright (C) 2021 Dan Torop <dant@pnym.net>
+Copyright (C) 2021, 2022 Dan Torop <dant@pnym.net>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -114,6 +114,11 @@ end
 
 local function destroy()
 	dt.destroy_event("fujifilm_dr", "post-import-image")
+end
+
+if not df.check_if_bin_exists("exiftool") then
+	dt.print_log("Please install exiftool to use fujifilm_dynamic_range")
+	error "[fujifilm_dynamic_range] exiftool not found"
 end
 
 dt.register_event("fujifilm_dr", "post-import-image", 
