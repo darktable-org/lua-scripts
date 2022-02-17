@@ -16,11 +16,11 @@ Create thumbnails plugin for darktable
 ]]
 
 --[[About this Plugin
-This plugin adds the button 'create thumbnails' to 'selected iamge[s]' module of darktable's lighttable view
+This plugin adds the button 'create thumbnails' to 'selected image[s]' module of darktable's lighttable view.
 
 
 ----USAGE----
-Click the 'create thumbnails' button to let the script create full sized previews of all selected images.
+Click the 'create thumbnails' button in the 'selected image[s]' module to let the script create full sized previews of all selected images.
 
 To create previews of all images of a collection:
 Use CTRL+A to select all images of current collection and then press the button.
