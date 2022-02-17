@@ -48,7 +48,8 @@ dt.gui.libs.image.register_action(
 
         for i, image in pairs(images) do
             -- generate all thumbnails, a max value of 8 means that also a full size preview image is created
-            image:generate_cache(true, 0, 8)
+            -- check if the mipmap cache directories exist only once
+            image:generate_cache(i == 1, 0, 8)
             
             -- update progress_bar
             job.percent = i / #images
