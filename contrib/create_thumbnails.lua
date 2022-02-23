@@ -16,14 +16,15 @@ Create thumbnails plugin for darktable
 ]]
 
 --[[About this Plugin
-This plugin adds the button 'create thumbnails' to 'selected image[s]' module of darktable's lighttable view.
+This plugin adds the buttons 'create thumbnails' and 'delete thumbnails' to 'selected image[s]' module of darktable's lighttable view.
 
 
 ----USAGE----
 Click the 'create thumbnails' button in the 'selected image[s]' module to let the script create full sized previews of all selected images.
+Click the 'delete thumbnails' button in the 'selected image[s]' module to let the script delete all previews/thumbnails of all selected images.
 
-To create previews of all images of a collection:
-Use CTRL+A to select all images of current collection and then press the button.
+To create (or delete) previews of all images of a collection:
+Use CTRL+A to select all images of current collection and then press the corresponding button.
 ]]
 
 local dt = require "darktable"
@@ -86,9 +87,49 @@ dt.gui.libs.image.register_action(
     "create full sized previews of all selected images"
 )
 
+
+-- add button to 'selected images' module
+dt.gui.libs.image.register_action(
+    "delete_thumbnails_button",
+    "delete thumbnails",
+    function(event, images)
+        print_and_log("deleting thumbnails of " .. image_count_to_text(#images) .. " ...")
+
+        -- create a new progress_bar displayed in darktable.gui.libs.backgroundjobs
+        job = dt.gui.create_job("deleting thumbnails...", true, stop_job)
+
+        for i, image in pairs(images) do
+            -- delete all thumbnails
+            image:drop_cache()
+            
+            -- update progress_bar
+            job.percent = i / #images
+
+            -- sleep for a short moment to give stop_job callback function a chance to run
+            dt.control.sleep(10)
+
+            -- stop early if darktable is shutdown or the cancle button of the progress bar is pressed
+            if dt.control.ending or not job.valid then
+                print_and_log("deleting thumbnails canceled after processing " .. i .. "/" .. image_count_to_text(#images) .. "!")
+                break
+            end
+        end
+
+        -- if job was not canceled
+        if(job.valid) then
+            -- stop job and remove progress_bar from ui
+            job.valid = false
+
+            print_and_log("deleting thumbnails of " ..  image_count_to_text(#images) .. " done!")
+        end
+    end,
+    "delete all thumbnails of all selected images"
+)
+
 -- clean up function that is called when this module is getting disabled
 local function destroy()
     dt.gui.libs.image.destroy_action("create_thumbnails_button")
+    dt.gui.libs.image.destroy_action("delete_thumbnails_button")
 end
 
 
