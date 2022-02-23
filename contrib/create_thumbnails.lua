@@ -36,19 +36,30 @@ local function stop_job(job)
     job.valid = false
 end
 
+-- return "1 image" if amount_of_images is 1 else "<amount_of_images> images"
+local function image_count_to_text(amount_of_images)
+    return amount_of_images .. " image" .. (amount_of_images == 1 and "" or "s")
+end
+
+-- print the given message to the user and log the given message
+local function print_and_log(message)
+    dt.print(message)
+    dt.print_log(message)
+end
+
 -- add button to 'selected images' module
 dt.gui.libs.image.register_action(
     "create_thumbnails_button",
     "create thumbnails",
     function(event, images)
-        dt.print_log("creating thumbnails for " .. #images .. " images...")
+        print_and_log("creating thumbnails for " .. image_count_to_text(#images) .. " ...")
 
         -- create a new progress_bar displayed in darktable.gui.libs.backgroundjobs
         job = dt.gui.create_job("creating thumbnails...", true, stop_job)
 
         for i, image in pairs(images) do
             -- generate all thumbnails, a max value of 8 means that also a full size preview image is created
-            -- check if the mipmap cache directories exist only once
+            -- check only once if the mipmap cache directories exist 
             image:generate_cache(i == 1, 0, 8)
             
             -- update progress_bar
@@ -59,16 +70,17 @@ dt.gui.libs.image.register_action(
 
             -- stop early if darktable is shutdown or the cancle button of the progress bar is pressed
             if dt.control.ending or not job.valid then
-                dt.print_log("creating thumbnails canceled!")
+                print_and_log("creating thumbnails canceled after processing " .. i .. "/" .. image_count_to_text(#images) .. "!")
                 break
             end
         end
 
-        dt.print_log("create thumbnails done!")
-
-        -- stop job and remove progress_bar from ui, but only if not alreay canceled
+        -- if job was not canceled
         if(job.valid) then
+            -- stop job and remove progress_bar from ui
             job.valid = false
+
+            print_and_log("creating thumbnails for " ..  image_count_to_text(#images) .. " done!")
         end
     end,
     "create full sized previews of all selected images"
