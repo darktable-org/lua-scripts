@@ -105,11 +105,47 @@ local RL_out_sharp = {
 }
 
 -- setup export ---------------------------------------------------------------
-local function setup_export(storage, img_format, image_table, high_quality, extra_data)
-  -- set 16bpp if format is tif
-  if img_format.extension == "tif" then
-    img_format.bpp = 16
+local function initialize(storage, img_format, image_table, high_quality, extra)
+  local tmp_rl_name, new_name, run_cmd, result
+  local input_file, output_file, options
+
+  -- read parameters
+  extra.gmic = dt.preferences.read(MODULE_NAME, "gmic_exe", "string")
+  if extra.gmic == "" then
+    dt.print(_("ERROR: GMic executable not configured"))
+    -- not returning {} here as that can crash darktable if user clicks the export button repeatedly
   end
+  extra.gmic = df.sanitize_filename(extra.gmic)
+
+  extra.exiftool = dt.preferences.read(MODULE_NAME, "exiftool_exe", "string")
+  if extra.exiftool == "" then
+    dt.print(_("exiftool executable not configured"))
+  else
+    extra.exiftool = df.sanitize_filename(extra.exiftool)
+  end
+
+  -- since we cannot change the bpp, inform user
+  if img_format.extension == "tif" and img_format.bpp ~= 16 and img_format.bpp ~= 8 then
+    dt.print_log(_("ERROR: Please set TIFF bit depth to 8 or 16"))
+    dt.print(_("ERROR: Please set TIFF bit depth to 8 or 16"))
+    -- not returning {} here as that can crash darktable if user clicks the export button repeatedly
+  end
+
+  -- determine output path
+  extra.output_folder = output_folder_selector.value
+  extra.output_path = output_folder_path.text
+
+  extra.sigma_str = string.gsub(string.format("%.2f", sigma_slider.value), ",", ".")
+  extra.iterations_str = string.format("%.0f", iterations_slider.value)
+  extra.jpg_quality_str = string.format("%.0f", jpg_quality_slider.value)
+
+  -- save preferences
+  dt.preferences.write(MODULE_NAME, "output_path", "string", extra.output_path)
+  dt.preferences.write(MODULE_NAME, "sigma", "string", extra.sigma_str)
+  dt.preferences.write(MODULE_NAME, "iterations", "string", extra.iterations_str)
+  dt.preferences.write(MODULE_NAME, "jpg_quality", "string", extra.jpg_quality_str)
+
+  extra.gmic_operation = " -deblur_richardsonlucy "..extra.sigma_str..","..extra.iterations_str..",1"
 end
 
 
@@ -202,107 +238,90 @@ end
 
 
 
--- export and sharpen images --------------------------------------------------
-local function export2RL(storage, image_table, extra_data)
+-- perform GMIC RL-decon on a single exported image ----------------------------------
 
-  local temp_name, new_name, run_cmd, result
-  local input_file, output_file, options
-
-  -- read parameters
-  local gmic = dt.preferences.read(MODULE_NAME, "gmic_exe", "string")
-  if gmic == "" then
-    dt.print(_("GMic executable not configured"))
+local function store(storage, image, img_format, temp_name, img_num, total, hq, extra)
+  if extra.gmic == "" then
+    dt.print(_("ERROR: GMic executable not configured"))
     return
   end
-  gmic = df.sanitize_filename(gmic)
 
-  local exiftool = dt.preferences.read(MODULE_NAME, "exiftool_exe", "string")
-  if exiftool == "" then
-    dt.print(_("exiftool executable not configured"))
-  end
+  local tmp_rl_name, new_name, run_cmd, result
+  local input_file, output_file, options
 
-  -- determine output path
-  local output_folder = output_folder_selector.value
-  local output_path = output_folder_path.text
+  new_name = extra.output_folder..PS..df.get_basename(temp_name)..".jpg"
 
-  local sigma_str = string.gsub(string.format("%.2f", sigma_slider.value), ",", ".")
-  local iterations_str = string.format("%.0f", iterations_slider.value)
-  local jpg_quality_str = string.format("%.0f", jpg_quality_slider.value)
+  -- override output path/filename as needed
+  if extra.output_path ~= "" then
+    local output_path = extra.output_path
+    local datetime = os.date("*t")
 
-  -- save preferences
-  dt.preferences.write(MODULE_NAME, "output_path", "string", output_path)
-  dt.preferences.write(MODULE_NAME, "sigma", "string", sigma_str)
-  dt.preferences.write(MODULE_NAME, "iterations", "string", iterations_str)
-  dt.preferences.write(MODULE_NAME, "jpg_quality", "string", jpg_quality_str)
-
-  local gmic_operation = " -deblur_richardsonlucy "..sigma_str..","..iterations_str..",1"
-
-  local i = 0
-  for image, temp_name in pairs(image_table) do
-
-    i = i + 1
-    dt.print(_("Applying RL deconvolution to image ")..i.." ...")
-
-    -- work around GMIC's long/space filename problem by renaming/moving file later
-    local tmp_rl_name = df.create_unique_filename(df.get_path(temp_name)..PS..df.get_basename(temp_name).."_rl.jpg")
-
-    -- build the GMic command string
-    input_file = df.sanitize_filename(temp_name)
-    output_file = df.sanitize_filename(tmp_rl_name)
-    options = " cut 0,255 round "
-    if df.get_filetype(temp_name) == "tif" then options = " -/ 256"..options end
-
-    run_cmd = gmic.." "..input_file..gmic_operation..options.."o "..output_file..","..jpg_quality_str
-
-    dt.print_log(run_cmd)
-
-    result = dtsys.external_command(run_cmd)
-    if result ~= 0 then
-      dt.print(_("sharpening error"))
-      return
-    end
-
-    -- copy exif
-    if exiftool ~= "" then
-      exiftool = df.sanitize_filename(exiftool)
-      dt.print(_("copying EXIF to image ")..i.." ...")
-      run_cmd = exiftool.." -writeMode cg -TagsFromFile "..input_file.." -all:all -overwrite_original "..output_file
-
-      result = dtsys.external_command(run_cmd)
-      if result ~= 0 then
-        dt.print(_("error copying exif"))
-        return
-      end
-    end
-
-    -- move the tmp file to final destination
-    local new_name = output_folder..PS..df.get_basename(temp_name)..".jpg"
-
-	if output_path ~= "" then
-	  -- override output folder if needed
-	  local datetime = os.date("*t")
-	  build_substitution_list(image, i, datetime, USER, PICTURES, HOME, DESKTOP)
+    build_substitution_list(image, img_num, datetime, USER, PICTURES, HOME, DESKTOP)
 	  output_path = substitute_list(output_path)
 
 	  if output_path == -1 then
-	    dt.print(_("unable to do variable substitution, exiting..."))
+	    dt.print(_("ERROR: unable to do variable substitution"))
 	    return
 	  end
-	  clear_substitute_list()
 
-	  new_name = df.get_path(output_path)..df.get_basename(output_path)..".jpg"
-    end
-
-    new_name = df.create_unique_filename(new_name)
-    df.file_move(tmp_rl_name, new_name)
-
-    -- delete temp image
-    os.remove(temp_name)
-
+    clear_substitute_list()
+    new_name = df.get_path(output_path)..df.get_basename(output_path)..".jpg"
   end
 
-  dt.print(_("finished exporting"))
+
+  dt.print(_("Applying RL deconvolution to image ")..temp_name.." ...")
+
+  -- work around GMIC's long/space filename problem by renaming/moving file later
+  local tmp_rl_name = df.create_unique_filename(df.get_path(temp_name)..PS..df.get_basename(temp_name).."_rl.jpg")
+
+  -- build the GMic command string
+  input_file = df.sanitize_filename(temp_name)
+  output_file = df.sanitize_filename(tmp_rl_name)
+  options = " cut 0,255 round "
+
+  if img_format.extension == "tif" then
+    if img_format.bpp == 16 then
+      options = " -/ 256"..options
+    end
+
+    if img_format.bpp == 32 then
+      dt.print(_("ERROR: please set TIFF bit depth to 8 or 16"))
+      return
+    end
+  end
+
+  run_cmd = extra.gmic.." "..input_file..extra.gmic_operation..options.." -o "..output_file..","..extra.jpg_quality_str
+
+  dt.print_log(run_cmd)
+
+  result = dtsys.external_command(run_cmd)
+  if result ~= 0 then
+    dt.print(_("Error applying RL-deconvolution"))
+    return
+  end
+
+  -- copy exif
+  if extra.exiftool ~= "" then
+    dt.print(_("copying EXIF to image: ")..temp_name.." ...")
+    run_cmd = extra.exiftool.." -writeMode cg -TagsFromFile "..input_file.." -all:all -overwrite_original "..output_file
+
+    result = dtsys.external_command(run_cmd)
+    if result ~= 0 then
+      dt.print(_("error copying exif"))
+      return
+    end
+  end
+
+  -- move the tmp file to final destination
+  new_name = df.create_unique_filename(new_name)
+  df.file_move(tmp_rl_name, new_name)
+
+  -- delete temp image
+  os.remove(temp_name)
+
+  dt.print(_("finished exporting image ")..new_name)
 end
+
 
 -- script_manager integration
 
@@ -422,7 +441,7 @@ local storage_widget = dt.new_widget("box"){
 }
 
 -- register new storage -------------------------------------------------------
-dt.register_storage("exp2RL", _("RL output sharpen"), nil, export2RL, supported, save_preferences, storage_widget)
+dt.register_storage("exp2RL", _("RL output sharpen"), store, nil, supported, initialize, storage_widget)
 
 -- register the new preferences -----------------------------------------------
 dt.preferences.register(MODULE_NAME, "gmic_exe", "file",
