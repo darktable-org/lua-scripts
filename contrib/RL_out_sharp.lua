@@ -314,6 +314,7 @@ local function store(storage, image, img_format, temp_name, img_num, total, hq, 
 
   -- move the tmp file to final destination
   new_name = df.create_unique_filename(new_name)
+  df.mkdir(df.sanitize_filename(df.get_path(new_name)))
   df.file_move(tmp_rl_name, new_name)
 
   -- delete temp image
