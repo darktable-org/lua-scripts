@@ -34,29 +34,29 @@ These scripts are contributed by users. They are meant to have an "owner", i.e. 
 
 Name|Standalone|OS   |Purpose
 ----|:--------:|:---:|-------
-[AutoGrouper](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/AutoGrouper)|Yes|LMW|Group images together by time
+[AutoGrouper](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/autogrouper)|Yes|LMW|Group images together by time
 [autostyle](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/autostyle)|Yes|LMW|Automatically apply styles on import
-[clear_GPS](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/clear_GPS)|Yes|LMW|Reset GPS information for selected images
-[CollectHelper](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/CollectHelper)|Yes|LMW|Add buttons to selected images module to manipulate the collection
+[clear_GPS](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/clear_gps)|Yes|LMW|Reset GPS information for selected images
+[CollectHelper](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/collecthelper)|Yes|LMW|Add buttons to selected images module to manipulate the collection
 [copy_attach_detach_tags](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/copy_attach_detach_tags)|Yes|LMW|Copy and paste tags from/to images
 [cr2hdr](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/cr2hdr)|Yes|L|Process image created with Magic Lantern Dual ISO
-[enfuseAdvanced](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/enfuseAdvanced)|No|LMW|Merge multiple images into Dynamic Range Increase (DRI) or Depth From Focus (DFF) images
-[exportLUT](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/exportLUT)|Yes|LMW|Create a LUT from a style and export it
+[enfuseAdvanced](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/enfuseadvanced)|No|LMW|Merge multiple images into Dynamic Range Increase (DRI) or Depth From Focus (DFF) images
+[exportLUT](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/exportlut)|Yes|LMW|Create a LUT from a style and export it
 [ext_editor](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/ext_editor)|No|LW|Export pictures to collection and edit them with up to nine user-defined external editors
 [face_recognition](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/face_recognition)|No|LM|Identify and tag images using facial recognition
 [fujifilm_dynamic_range](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/fujifilm_dynamic_range)|No|LMW|Correct fujifilm exposure based on exposure bias camera setting
 [fujifilm_ratings](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/fujifilm_ratings)|No|LM|Support importing Fujifilm ratings
-[geoJSON_export](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/geoJSON_export)|No|L|Create a geo JSON script with thumbnails for use in ...
-[geoToolbox](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/geoToolbox)|No|LMW|A toolbox of geo functions
+[geoJSON_export](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/geojson_export)|No|L|Create a geo JSON script with thumbnails for use in ...
+[geoToolbox](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/geotoolbox)|No|LMW|A toolbox of geo functions
 [gimp](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/gimp)|No|LMW|Open an image in GIMP for editing and return the result
 [gpx_export](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/gpx_export)|No|LMW|Export a GPX track file from selected images GPS data
-[HDRMerge](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/HDRMerge)|No|LMW|Combine the selected images into an HDR DNG and return the result
+[HDRMerge](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/hdrmerge)|No|LMW|Combine the selected images into an HDR DNG and return the result
 [hugin](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/hugin)|No|LMW|Combine selected images into a panorama and return the result
 [image_stack](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/image_stack)|No|LMW|Combine a stack of images to remove noise or transient objects
 [image_time](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/image_time)|Yes|LMW|Adjust the EXIF image time
 [kml_export](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/kml_export)|No|L|Export photos with a KML file for usage in Google Earth
-[LabelsToTags](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/LabelsToTags)|Yes|LMW|Apply tags based on color labels and ratings
-[OpenInExplorer](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/OpenInExplorer)|No|LMW|Open the selected images in the system file manager
+[LabelsToTags](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/labelstotags)|Yes|LMW|Apply tags based on color labels and ratings
+[OpenInExplorer](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/openinexplorer)|No|LMW|Open the selected images in the system file manager
 [passport_guide](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/passport_guide)|Yes|LMW|Add passport cropping guide to darkroom crop tool
 [pdf_slideshow](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/pdf_slideshow)|No|LM|Export images to a PDF slideshow
 [photils](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/photils)|No|LM|Automatic tag suggestions for your images
@@ -64,7 +64,7 @@ Name|Standalone|OS   |Purpose
 [rate_group](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/rate_group)|Yes|LMW|Apply or remove a star rating from grouped images
 [rename_images](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/rename_images)|Yes|LMW|Rename single or multiple images
 [rename-tags](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/rename-tags)|Yes|LMW|Change a tag name
-[RL_out_sharp](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/RL_out_sharp)|No|LW|Output sharpening using GMic (Richardson-Lucy algorithm)
+[RL_out_sharp](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/rl_out_sharp)|No|LW|Output sharpening using GMic (Richardson-Lucy algorithm)
 [select_untagged](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/select_untagged)|Yes|LMW|Enable selection of untagged images
 [slideshowMusic](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/slideshowMusic)|No|L|Play music during a slideshow
 [transfer_hierarchy](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/transfer_hierarchy)|Yes|LMW|Image move/copy preserving directory hierarchy
@@ -78,14 +78,14 @@ Name|Standalone|OS   |Purpose
 ----|:--------:|:---:|-------
 [api_version](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/examples/api_version)|Yes|LMW|Print the current API version
 [darkroom_demo](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/examples/darkroom_demo)|Yes|LMW|Demonstrate changing images in darkoom 
-[gettextExample](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/examples/gettextExample)|Yes|LM|How to use translation
+[gettextExample](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/examples/gettextexample)|Yes|LM|How to use translation
 [hello_world](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/examples/hello_world)|Yes|LMW|Prints hello world when darktable starts
 [lighttable_demo](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/examples/lighttable_demo)|Yes|LMW|Demonstrate controlling lighttable mode, zoom, sorting and filtering
-[moduleExample](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/examples/moduleExample)|Yes|LMW|How to create a lighttable module
+[moduleExample](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/examples/moduleexample)|Yes|LMW|How to create a lighttable module
 [multi_os](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/examples/multi_os)|No|LMW|How to create a cross platform script that calls an external executable
 [panels_demo](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/examples/panels_demo)|Yes|LMW|Demonstrate hiding and showing darktable panels
-[preferenceExamples](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/examples/preferenceExamples)|Yes|LMW|How to use preferences in a script
-[printExamples](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/examples/printExamples)|Yes|LMW|How to use various print functions from a script
+[preferenceExamples](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/examples/preferenceexamples)|Yes|LMW|How to use preferences in a script
+[printExamples](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/examples/printexamples)|Yes|LMW|How to use various print functions from a script
 [running_os](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/examples/running_os)|Yes|LMW|Print out the running operating system
 
 ### Tools
