@@ -50,7 +50,7 @@ local du = require "lib/dtutils"
 local df = require 'lib/dtutils.file'
 local dsys = require 'lib/dtutils.system'
 
-du.check_min_api_version("7.0.0", "HeliconFocus") 
+du.check_min_api_version("7.0.0", "HeliconFocus")
 
 local script_data = {}
 local temp
@@ -70,7 +70,7 @@ local GUI = { --GUI Elements Table
     add_tags_label       = {},
     add_tags             = {},
   },
-  options = {},  
+  options = {},
   run = {},
 }
 
@@ -103,7 +103,7 @@ local function create_temp_directory()
 end
 
 
---[[ export the given single image to tiff and write the file path of the tiff file to the 
+--[[ export the given single image to tiff and write the file path of the tiff file to the
       file that is given in inputfilelist
       param:  image - source image to export
               tempdirname - path to the temporary directory where to write the exported files to
@@ -115,14 +115,14 @@ local function export_image( image, tempdirname, inputfilelist )
 
   local exporter = dt.new_format("tiff")
   exporter.bpp = 16
-  
+
   local export_file = tempdirname..os_path_seperator..image.filename..".tif"
   exporter:write_image(image, export_file)
   dt.print_log( "exported file: "..export_file )
   inputfilelist:write( export_file..'\n' )
 end
 
---[[ this is the companion function for export_image that does not export the 
+--[[ this is the companion function for export_image that does not export the
     given image but just writes the path of the original to the list of files
     param:  image - source image to use
             tempdirname - path to the temporary directory, not used here
@@ -190,7 +190,7 @@ local function add_additional_tags( image )
     for tag in string.gmatch(set_tag, '[^,]+') do
       tag = clean_spaces(tag)
       tag = dt.tags.create(tag)
-      dt.tags.attach(tag, image) 
+      dt.tags.attach(tag, image)
     end
   end
 end
@@ -211,7 +211,7 @@ local function load_preferences()
   --   temp = nil
   -- end
   GUI.optionwidgets.add_tags.text = dt.preferences.read(mod, 'add_tags', 'string') -- temp
-  
+
 end
 
 -- stop running export
@@ -276,9 +276,9 @@ local function start_stacking()
     job.percent = i / #images
 
     -- sleep for a short moment to give stop_job callback function a chance to run
-    dt.control.sleep(10)    
+    dt.control.sleep(10)
   end
-  
+
   -- stop job and remove progress_bar from ui, but only if not alreay canceled
   if(job.valid) then
     job.valid = false
@@ -350,7 +350,7 @@ end
 GUI.optionwidgets.use_original = dt.new_widget('check_button' ) {
   label = _('use original RAW'),
   value = false,
-  tooltip = _('stack original RAW images instead of exported'),
+  tooltip = _('stack original RAW images instead of exported TIFF'),
   clicked_callback = function(self)
     dt.print_log( "use_original: "..tostring( self.value ) )
   end,
@@ -362,19 +362,19 @@ GUI.optionwidgets.use_original = dt.new_widget('check_button' ) {
 GUI.optionwidgets.group = dt.new_widget('check_button') {
   label = _('group'),
   value = false,
-  tooltip = _('group stacked images'),
+  tooltip = _('group selected source images and imported result image(s) together'),
   clicked_callback = function(self)
     dt.print_log( "group: "..tostring( self.value ) )
-  end,  
-  reset_callback = function(self) 
-    self.value = false 
-  end  
-}  
+  end,
+  reset_callback = function(self)
+    self.value = false
+  end
+}
 
 GUI.optionwidgets.copy_tags = dt.new_widget('check_button') {
   label = _('copy tags'),
   value = false,
-  tooltip = _('copy tags'),
+  tooltip = _('copy all tags from all source images to the imported result image(s)'),
   clicked_callback = function(self)
     dt.print_log( "copy tags: "..tostring( self.value ) )
   end,
@@ -451,7 +451,7 @@ local function install_module()
       },
 
       nil,-- view_enter
-      nil -- view_leave      
+      nil -- view_leave
     )
   end
 end
