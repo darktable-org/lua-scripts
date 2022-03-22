@@ -262,7 +262,7 @@ local function start_stacking()
       firstimagepath = df.sanitize_filename( image.path )
     else
       -- remember image to group later:
-      images_to_group[ #images_to_group ] = image
+      images_to_group[ #images_to_group + 1 ] = image
     end
 
     if dt.control.ending or not job.valid then
