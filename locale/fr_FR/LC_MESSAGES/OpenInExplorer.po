@@ -1,0 +1,85 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2022-06-27 17:22+0200\n"
+"PO-Revision-Date: 2022-06-27 17:36+0200\n"
+"Last-Translator: Manuel PINTOR <manu@lepassepartout.fr>\n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.3\n"
+"X-Poedit-Basepath: ../../../contrib\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-SearchPath-0: OpenInExplorer.lua\n"
+
+#: OpenInExplorer.lua:79
+msgid ""
+"OpenInExplorer plug-in only supports Linux, macOS, and Windows at this time"
+msgstr ""
+"Le script OpenInExplorer ne fonctionne que sur Linux, macOS et Windows pour "
+"le moment"
+
+#: OpenInExplorer.lua:95
+msgid ""
+"No links directory selected.\n"
+"Please check the dt preferences (lua options)"
+msgstr ""
+"Aucun répertoire de liens sélectionné.\n"
+"Voir dans les préférences dt > options lua"
+
+#: OpenInExplorer.lua:99
+#, lua-format
+msgid ""
+"Links directory '%s' not found.\n"
+"Please check the dt preferences (lua options)"
+msgstr ""
+"Répertoire de liens '%s' inexistant.\n"
+"Voir dans les préférences dt > options lua"
+
+#: OpenInExplorer.lua:156
+msgid "Failed to create links. Missing rights?"
+msgstr "Erreur de création de liens. Droits insuffisants ?"
+
+#: OpenInExplorer.lua:172
+msgid "Please select an image"
+msgstr "Sélectionner une image SVP"
+
+#: OpenInExplorer.lua:178
+msgid "Please select fewer images (max. 15)"
+msgstr "Sélectionner moins d'images SVP (max. 15)"
+
+#: OpenInExplorer.lua:203
+msgid "show in file explorer"
+msgstr "afficher dans le gestionnaire de fichiers"
+
+#: OpenInExplorer.lua:205
+msgid "Open the file manager at the selected image's location"
+msgstr "Ouvre le gestionnaire de fichiers à l'endroit de l'image sélectionnée"
+
+#: OpenInExplorer.lua:212
+msgid "OpenInExplorer: linked files directory"
+msgstr "OpenInExplorer : répertoire des fichiers liés"
+
+#: OpenInExplorer.lua:213
+msgid ""
+"Directory to store the links to the file names. Requires restart to take "
+"effect"
+msgstr ""
+"Répertoire dans lequel enregistrer les liens sur les fichiers. Nécessite un "
+"redémarrage de dt"
+
+#: OpenInExplorer.lua:216
+msgid "Select directory"
+msgstr "Sélectionner un répertoire"
+
+#: OpenInExplorer.lua:222
+msgid "OpenInExplorer: use links"
+msgstr "OpenInExplorer : utiliser des liens"
+
+#: OpenInExplorer.lua:223
+msgid "Use links instead of multiple windows. Requires restart to take effect"
+msgstr ""
+"Utiliser des liens plutôt que de multiples fenêtres. Nécessite un "
+"redémarrage de dt"
