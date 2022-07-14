@@ -208,7 +208,7 @@ for i,exec in ipairs(exec_table) do
     executable_path_widgets[exec],
     dt.new_widget("section_label"){label = _("reset")},
     dt.new_widget("button"){
-      label = "clear",
+      label = _("clear"),
       tooltip = _("Clear path for ") .. exec,
       clicked_callback = function()
         df.set_executable_path_preference(exec, "")
