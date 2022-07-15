@@ -1,0 +1,190 @@
+# French messages for script_manager.lua
+# Christophe Agathon <christophe.agathon@gmail.com>, 2020.
+# Maurizio Paglia <mpaglia0@gmail.com>, 2021, 2022.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2020-12-28 10:22+0100\n"
+"PO-Revision-Date: 2022-07-11 22:03+0200\n"
+"Last-Translator: Maurizio Paglia <mpaglia0@gmail.com>\n"
+"Language-Team: Italian <>\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Lokalize 21.12.3\n"
+"X-Poedit-Basepath: ../../../tools\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-KeywordsList: _\n"
+"X-Poedit-SearchPath-0: script_manager.lua\n"
+
+#: script_manager.lua:190
+msgid "Cant read from "
+msgstr "Non posso leggere da "
+
+#: script_manager.lua:204
+msgid "Loaded "
+msgstr "Script caricato "
+
+#: script_manager.lua:207
+msgid " failed to load"
+msgstr "Non riesco a caricare lo script"
+
+#: script_manager.lua:223
+msgid " will not start when darktable is restarted"
+msgstr " non verrà avviato al riavvio di darktable"
+
+#: script_manager.lua:281 script_manager.lua:345
+msgid "find command is "
+msgstr "Il comando find è "
+
+#: script_manager.lua:321
+msgid "lua scripts successfully updated"
+msgstr "Gli script lua sono stati correttamente aggiornati"
+
+#: script_manager.lua:381
+msgid "category "
+msgstr "Categoria"
+
+#: script_manager.lua:381
+msgid " is already in use. Please specify a different category name."
+msgstr " è già utilizzato. Prego specificare un nome differente."
+
+#: script_manager.lua:410
+msgid "scripts successfully installed into category "
+msgstr "Gli script sono stati installati correttamente nella categoria "
+
+#: script_manager.lua:426
+msgid "No scripts found to install"
+msgstr "Non trovo script da installare"
+
+#: script_manager.lua:430
+msgid "failed to download scripts"
+msgstr "Non riesco a scaricare gli script"
+
+# Peut-être que « activé » serait mieux, mais ce n'est pas la traduction de « started »
+#: script_manager.lua:458
+msgid " started"
+msgstr " avviato"
+
+# Peut-être que « désactivé » serait mieux, mais ce n'est pas la traduction de « stopped »
+#: script_manager.lua:460
+msgid " stopped"
+msgstr " bloccato"
+
+#: script_manager.lua:545
+msgid "Page "
+msgstr "Pag."
+
+#: script_manager.lua:545
+msgid " of "
+msgstr " di "
+
+#: script_manager.lua:674
+msgid "scripts to update"
+msgstr "Script da aggiornare"
+
+#: script_manager.lua:675
+msgid "select the scripts installation to update"
+msgstr "Selezionare l'installazione di script da aggiornare"
+
+#: script_manager.lua:684 script_manager.lua:742
+msgid "update scripts"
+msgstr "Aggiornare gli script"
+
+#: script_manager.lua:685
+msgid "update the lua scripts from the repository"
+msgstr "Aggiornare gli script lua del repo"
+
+#: script_manager.lua:696
+msgid ""
+"enter the URL of the git repository containing the scripts you wish to add"
+msgstr "Immettere l'URL del repo git che contiene gli script da aggiungere"
+
+#: script_manager.lua:701
+msgid "name of new category"
+msgstr "Nome della nuova categoria"
+
+#: script_manager.lua:702
+msgid "enter a category name for the additional scripts"
+msgstr "Immettere il nome della categoria per altri script"
+
+#: script_manager.lua:707
+msgid "URL to download additional scripts from"
+msgstr "URL dal quale scaricare ulteriori script"
+
+#: script_manager.lua:709
+msgid "new category to place scripts in"
+msgstr "Nuova categoria che dovrà contenere gli script"
+
+#: script_manager.lua:712
+msgid "install additional scripts"
+msgstr "Installare gli script aggiuntivi"
+
+#: script_manager.lua:720
+msgid "Enable \"Disable Scripts\" button"
+msgstr "Abilita il pulsante \"Disabilita Script\""
+
+#: script_manager.lua:730
+msgid "Disable Scripts"
+msgstr "Disabilita Script"
+
+#: script_manager.lua:736
+msgid "lua scripts will not run the next time darktable is started"
+msgstr "Gli script lua non verranno avviati al prossimo riavvio di darktable"
+
+#: script_manager.lua:745
+msgid "add more scripts"
+msgstr "Aggiungi altri script"
+
+#: script_manager.lua:747
+msgid "disable scripts"
+msgstr "Disabilita script"
+
+#: script_manager.lua:755
+msgid "category"
+msgstr "categoria"
+
+#: script_manager.lua:756
+msgid "select the script category"
+msgstr "Seleziona la categoria"
+
+#: script_manager.lua:780
+msgid "Page:"
+msgstr "Pag.:"
+
+#: script_manager.lua:808
+msgid "Scripts"
+msgstr "Scripts"
+
+#: script_manager.lua:817
+msgid "scripts per page"
+msgstr "Script per pagina"
+
+#: script_manager.lua:818
+msgid "select number of start/stop buttons to display"
+msgstr "Selezionare il numero di pulsanti da visualizzare"
+
+#: script_manager.lua:829
+msgid "change number of buttons"
+msgstr "Modifica la quantità di pulsanti"
+
+#: script_manager.lua:837
+msgid "Configuration"
+msgstr "Configurazione"
+
+#: script_manager.lua:858
+msgid "action"
+msgstr "Azione"
+
+#: script_manager.lua:864
+msgid "install/update scripts"
+msgstr "Installa/aggiorna script"
+
+#: script_manager.lua:864
+msgid "configure"
+msgstr "Configura"
+
+#: script_manager.lua:864
+msgid "start/stop scripts"
+msgstr "Avvia/blocca script"
