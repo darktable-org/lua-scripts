@@ -1,0 +1,130 @@
+local dt = require "darktable"
+local du = require "lib/dtutils"
+local debug = require "darktable.debug"
+
+local MODULE = "change_group_leader"
+
+du.check_min_api_version("3.0.0", MODULE)
+
+-- create a namespace to contain persistent data and widgets
+chg_grp_ldr = {}
+
+local cgl = chg_grp_ldr
+
+cgl.widgets = {}
+
+cgl.event_registered = false
+cgl.module_installed = false
+
+-- - - - - - - - - - - - - - - - - - - - - - - - 
+-- F U N C T I O N S
+-- - - - - - - - - - - - - - - - - - - - - - - - 
+
+local function install_module()
+  if not cgl.module_installed then
+    dt.register_lib(
+      MODULE,     -- Module name
+      "change_group_leader",     -- Visible name
+      true,                -- expandable
+      false,               -- resetable
+      {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 700}},   -- containers
+      cgl.widgets.box,
+      nil,-- view_enter
+      nil -- view_leave
+    )
+    cgl.module_installed = true
+  end
+end
+
+local function find_group_leader(images, mode)
+  for _, img in ipairs(images) do
+    dt.print_log("checking image " .. img.id .. " named "  .. img.filename)
+    local found = false
+    if mode == "jpg" then
+      if string.match(string.lower(img.filename), "jpg$") then
+        dt.print_log("jpg matched image " .. img.filename)
+        found = true
+      end
+    elseif mode == "raw" then
+      if img.is_raw and img.duplicate_index == 0 then
+        dt.print_log("found raw " .. img.filename)
+        found = true
+      end
+    elseif mode == "non-raw" then
+      if img.is_ldr then
+        dt.print_log("found ldr " .. img.filename)
+        found = true
+      end
+    else
+      dt.print_error(MODULE .. ": unrecognized mode " .. mode)
+      return
+    end
+    if found then
+      dt.print_log("making " .. img.filename .. " group leader")
+      img:make_group_leader()
+      return
+    end
+  end
+end
+
+local function process_image_groups(images)
+  if #images < 1 then
+    dt.print("No images selected.")
+    dt.print_log(MODULE .. "no images seletected, returning...")
+  else
+    local mode = cgl.widgets.mode.value
+    for _,img in ipairs(images) do
+      dt.print_log("checking image " .. img.id)
+      local group_images = img:get_group_members()
+      if group_images == 1 then
+        dt.print_log("only one image in group for image " .. image.id)
+      else
+        find_group_leader(group_images, mode)
+      end
+    end
+  end
+end
+
+-- - - - - - - - - - - - - - - - - - - - - - - - 
+-- W I D G E T S
+-- - - - - - - - - - - - - - - - - - - - - - - - 
+
+cgl.widgets.mode = dt.new_widget("combobox"){
+  label = "select new group leader",
+  tooltip = "select type of image to be group leader",
+  selected = 1,
+  "jpg", "raw", "non-raw",
+}
+
+cgl.widgets.execute = dt.new_widget("button"){
+  label = "Execute",
+  clicked_callback = function()
+    process_image_groups(dt.gui.action_images)
+  end
+}
+
+cgl.widgets.box = dt.new_widget("box"){
+  orientation = "vertical",
+  cgl.widgets.mode,
+  cgl.widgets.execute,
+}
+
+-- - - - - - - - - - - - - - - - - - - - - - - - 
+-- D A R K T A B L E  I N T E G R A T I O N 
+-- - - - - - - - - - - - - - - - - - - - - - - - 
+
+if dt.gui.current_view().id == "lighttable" then
+  install_module()
+else
+  if not cgl.event_registered then
+    dt.register_event(
+      "view-changed",
+      function(event, old_view, new_view)
+        if new_view.name == "lighttable" and old_view.name == "darkroom" then
+          install_module()
+         end
+      end
+    )
+    cgl.event_registered = true
+  end
+end
