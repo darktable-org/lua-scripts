@@ -1,3 +1,41 @@
+--[[
+  Passport cropping guide for darktable
+
+  copyright (c) 2021 Angel Angelov
+
+  darktable is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  darktable is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with darktable.  If not, see <http://www.gnu.org/licenses/>.
+]]
+
+--[[
+  Original author: github.com/wpferguson
+]]
+
+--[[
+CHANGE GROUP LEADER
+automatically change the leader of raw+jpg paired image groups
+
+INSTALLATION
+* copy this file in $CONFIGDIR/lua/ where CONFIGDIR is your darktable configuration directory
+* add the following line in the file $CONFIGDIR/luarc
+  require "change_group_leader"
+
+USAGE
+* in lighttable mode, select the image groups you wish to process,
+  select whether you want to set the leader to "jpg" or "raw",
+  and click "Execute"
+]]
+
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local debug = require "darktable.debug"
@@ -16,9 +54,9 @@ cgl.widgets = {}
 cgl.event_registered = false
 cgl.module_installed = false
 
--- - - - - - - - - - - - - - - - - - - - - - - - 
+-- - - - - - - - - - - - - - - - - - - - - - - -
 -- F U N C T I O N S
--- - - - - - - - - - - - - - - - - - - - - - - - 
+-- - - - - - - - - - - - - - - - - - - - - - - -
 
 local function install_module()
   if not cgl.module_installed then
@@ -85,9 +123,9 @@ local function process_image_groups(images)
   end
 end
 
--- - - - - - - - - - - - - - - - - - - - - - - - 
+-- - - - - - - - - - - - - - - - - - - - - - - -
 -- W I D G E T S
--- - - - - - - - - - - - - - - - - - - - - - - - 
+-- - - - - - - - - - - - - - - - - - - - - - - -
 
 cgl.widgets.mode = dt.new_widget("combobox"){
   label = "select new group leader",
@@ -109,9 +147,9 @@ cgl.widgets.box = dt.new_widget("box"){
   cgl.widgets.execute,
 }
 
--- - - - - - - - - - - - - - - - - - - - - - - - 
--- D A R K T A B L E  I N T E G R A T I O N 
--- - - - - - - - - - - - - - - - - - - - - - - - 
+-- - - - - - - - - - - - - - - - - - - - - - - -
+-- D A R K T A B L E  I N T E G R A T I O N
+-- - - - - - - - - - - - - - - - - - - - - - - -
 
 if dt.gui.current_view().id == "lighttable" then
   install_module()
