@@ -1,5 +1,5 @@
 --[[
-  Passport cropping guide for darktable
+  change group leader
 
   copyright (c) 2022 Bill Ferguson <wpferguson@gmail.com>
 
