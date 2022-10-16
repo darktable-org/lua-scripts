@@ -36,6 +36,7 @@ Name|Standalone|OS   |Purpose
 ----|:--------:|:---:|-------
 [AutoGrouper](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/autogrouper)|Yes|LMW|Group images together by time
 [autostyle](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/autostyle)|Yes|LMW|Automatically apply styles on import
+change_group_leader|Yes|LMW|Change which image leads group
 [clear_GPS](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/clear_gps)|Yes|LMW|Reset GPS information for selected images
 [CollectHelper](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/collecthelper)|Yes|LMW|Add buttons to selected images module to manipulate the collection
 [copy_attach_detach_tags](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/copy_attach_detach_tags)|Yes|LMW|Copy and paste tags from/to images

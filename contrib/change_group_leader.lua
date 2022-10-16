@@ -1,7 +1,8 @@
 --[[
   change group leader
 
-  copyright (c) 2022 Bill Ferguson <wpferguson@gmail.com>
+  copyright (c) 2020, 2022 Bill Ferguson <wpferguson@gmail.com>
+  copyright (c) 2021 Angel Angelov
 
   darktable is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,11 +35,27 @@ USAGE
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
-local debug = require "darktable.debug"
+
+local gettext = dt.gettext
 
 local MODULE = "change_group_leader"
 
 du.check_min_api_version("3.0.0", MODULE)
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
+
+-- Tell gettext where to find the .mo file translating messages for a particular domain
+gettext.bindtextdomain(MODULE, dt.configuration.config_dir.."/lua/locale/")
+
+local function _(msgid)
+    return gettext.dgettext(MODULE, msgid)
+end
 
 -- create a namespace to contain persistent data and widgets
 chg_grp_ldr = {}
@@ -58,7 +75,7 @@ local function install_module()
   if not cgl.module_installed then
     dt.register_lib(
       MODULE,     -- Module name
-      "change_group_leader",     -- Visible name
+      _("change_group_leader"),     -- Visible name
       true,                -- expandable
       false,               -- resetable
       {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 700}},   -- containers
@@ -103,7 +120,7 @@ end
 
 local function process_image_groups(images)
   if #images < 1 then
-    dt.print("No images selected.")
+    dt.print(_("No images selected."))
     dt.print_log(MODULE .. "no images seletected, returning...")
   else
     local mode = cgl.widgets.mode.value
@@ -120,18 +137,30 @@ local function process_image_groups(images)
 end
 
 -- - - - - - - - - - - - - - - - - - - - - - - -
+-- S C R I P T  M A N A G E R  I N T E G R A T I O N
+-- - - - - - - - - - - - - - - - - - - - - - - -
+
+local function destroy()
+  dt.gui.libs[MODULE].visible = false
+end
+
+local function restart()
+  dt.gui.libs[MODULE].visible = true
+end
+
+-- - - - - - - - - - - - - - - - - - - - - - - -
 -- W I D G E T S
 -- - - - - - - - - - - - - - - - - - - - - - - -
 
 cgl.widgets.mode = dt.new_widget("combobox"){
-  label = "select new group leader",
-  tooltip = "select type of image to be group leader",
+  label = _("select new group leader"),
+  tooltip = _("select type of image to be group leader"),
   selected = 1,
   "jpg", "raw", "non-raw",
 }
 
 cgl.widgets.execute = dt.new_widget("button"){
-  label = "Execute",
+  label = _("Execute"),
   clicked_callback = function()
     process_image_groups(dt.gui.action_images)
   end
@@ -162,3 +191,10 @@ else
     cgl.event_registered = true
   end
 end
+
+script_data.destroy = destroy
+script_data.restart = restart
+script_data.destroy_method = "hide"
+script_data.show = restart
+
+return script_data
