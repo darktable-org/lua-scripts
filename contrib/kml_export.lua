@@ -334,7 +334,7 @@ local defaultDir = ''
 if dt.configuration.running_os == "windows" then
   defaultDir = os.getenv("USERPROFILE")
 elseif dt.configuration.running_os == "macos" then
-  defaultDir =  os.getenv("home")
+  defaultDir =  os.getenv("HOME")
 else
   local handle = io.popen("xdg-user-dir DESKTOP")
   defaultDir = handle:read()
