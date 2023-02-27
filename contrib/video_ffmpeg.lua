@@ -285,7 +285,7 @@ local defaultVideoDir = ''
 if dt.configuration.running_os == "windows" then
   defaultVideoDir = os.getenv("USERPROFILE")..PS .."videos"
 elseif dt.configuration.running_os == "macos" then
-  defaultVideoDir =  os.getenv("home")..PS.."Videos"
+  defaultVideoDir =  os.getenv("HOME")..PS.."Videos"
 else
   local handle = io.popen("xdg-user-dir VIDEOS")
   defaultVideoDir = handle:read()
