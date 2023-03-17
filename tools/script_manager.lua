@@ -325,8 +325,10 @@ local function activate(script)
   local err = nil    -- error message returned if module doesn't start
   log.msg(log.info, "activating " .. script.name)
   if script.running == false then
+    script_manager_running_script = script.name
     status, err = du.prequire(script.path)
     log.msg(log.debug, "prequire returned " .. tostring(status) .. " and for err " .. tostring(err))
+    script_manager_running_script = nil
     if status then
       pref_write(script.script_name, "bool", true)
       log.msg(log.screen, _("Loaded ") .. script.script_name)
