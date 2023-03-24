@@ -294,6 +294,127 @@ function dtutils_string.sanitize_lua(str)
   return str
 end
 
+dtutils_string.libdoc.functions["split_filepath"] = {
+  Name = [[split_filepath]],
+  Synopsis = [[split a filepath into parts]],
+  Usage = [[local ds = require "lib/dtutils.string"
+
+    local result = ds.split_filepath(filepath)
+      filepath - string - path and filename]],
+  Description = [[split_filepath splits a filepath into the path, filename, basename and filetype and puts
+    that in a table]],
+  Return_Value = [[result - table - a table containing the path, filename, basename, and filetype]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_string.split_filepath(str)
+  -- strip out single quotes from quoted pathnames
+  str = string.gsub(str, "'", "")
+  str = string.gsub(str, '"', '')
+  local result = {}
+  -- Thank you Tobias Jakobs for the awesome regular expression, which I tweaked a little
+  result["path"], result["filename"], result["basename"], result["filetype"] = string.match(str, "(.-)(([^\\/]-)%.?([^%.\\/]*))$")
+  if result["basename"] == "" and result["filetype"]:len() > 1 then
+    result["basename"] = result["filetype"]
+    result["filetype"] = ""
+  end
+  return result
+end
+
+dtutils_string.libdoc.functions["get_path"] = {
+  Name = [[get_path]],
+  Synopsis = [[get the path from a file path]],
+  Usage = [[local ds = require "lib/dtutils.string"
+
+    local result = ds.get_path(filepath)
+      filepath - string - path and filename]],
+  Description = [[get_path strips the filename and filetype from a path and returns the path]],
+  Return_Value = [[result - string - the path]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_string.get_path(str)
+  local parts = dtutils_string.split_filepath(str)
+  return parts["path"]
+end
+
+dtutils_string.libdoc.functions["get_filename"] = {
+  Name = [[get_filename]],
+  Synopsis = [[get the filename and extension from a file path]],
+  Usage = [[local ds = require "lib/dtutils.string"
+
+    local result = ds.get_filename(filepath)
+      filepath - string - path and filename]],
+  Description = [[get_filename strips the path from a filepath and returns the filename]],
+  Return_Value = [[result - string - the file name and type]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_string.get_filename(str)
+  local parts = dtutils_string.split_filepath(str)
+  return parts["filename"]
+end
+
+dtutils_string.libdoc.functions["get_basename"] = {
+  Name = [[get_basename]],
+  Synopsis = [[get the filename without the path or extension]],
+  Usage = [[local ds = require "lib/dtutils.string"
+
+    local result = ds.get_basename(filepath)
+      filepath - string - path and filename]],
+  Description = [[get_basename returns the name of the file without the path or filetype
+]],
+  Return_Value = [[result - string - the basename of the file]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_string.get_basename(str)
+  local parts = dtutils_string.split_filepath(str)
+  return parts["basename"]
+end
+
+dtutils_string.libdoc.functions["get_filetype"] = {
+  Name = [[get_filetype]],
+  Synopsis = [[get the filetype from a filename]],
+  Usage = [[local ds = require "lib/dtutils.string"
+
+    local result = ds.get_filetype(filepath)
+      filepath - string - path and filename]],
+  Description = [[get_filetype returns the filetype from the supplied filepath]],
+  Return_Value = [[result - string - the filetype]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_string.get_filetype(str)
+  local parts = dtutils_string.split_filepath(str)
+  return parts["filetype"]
+end
+
 
 
 return dtutils_string
