@@ -331,9 +331,11 @@ dtutils_string.libdoc.functions["sanitize_lua"] = {
 function dtutils_string.sanitize_lua(str)
   local old_log_level = log.log_level()
   log.log_level(dtutils_string.log_level)
+  str = string.gsub(str, "%%", "%%%%")
   str = string.gsub(str, "%-", "%%-")
   str = string.gsub(str, "%(", "%%(")
   str = string.gsub(str, "%)", "%%)")
+  str = string.gsub(str, "+", "%%+")
   log.log_level(old_log_level)
   return str
 end
