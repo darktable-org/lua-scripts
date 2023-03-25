@@ -1,3 +1,55 @@
+--[[
+    This file is part of darktable,
+    copyright (c) 2023 Diederik ter Rahe
+
+    darktable is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    darktable is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with darktable.  If not, see <http://www.gnu.org/licenses/>.
+]]
+--[[
+X-Touch Mini flexible encoder shortcuts
+
+This script will create virtual sliders that are mapped dynamically to 
+the most relevant sliders for the currently focused processing module.
+Tailored modules are color zones, tone equalizer, color calibration and
+mask manager properties. The script can easily be amended for other
+devices or personal preferences. Virtual "toggle" buttons can be created
+as well, that dynamically change meaning depending on current status.
+
+USAGE
+* require this script from your main lua file
+* restart darktable
+* create shortcuts for each of the encoders on the x-touch mini 
+  to a virtual slider under lua/x-touch 
+  or import the following shortcutsrc file in the shortcuts dialog/preferences tab:
+
+None;midi:CC1=lua/x-touch/knob 1
+None;midi:CC2=lua/x-touch/knob 2
+None;midi:CC3=lua/x-touch/knob 3
+None;midi:CC4=lua/x-touch/knob 4
+None;midi:CC5=lua/x-touch/knob 5
+None;midi:CC6=lua/x-touch/knob 6
+None;midi:CC7=lua/x-touch/knob 7
+None;midi:CC8=lua/x-touch/knob 8
+midi:E0=global/modifiers
+midi:F0=global/modifiers;ctrl
+midi:F#0=global/modifiers;alt
+midi:G#-1=iop/blend/tools/show and edit mask elements
+midi:A-1=iop/colorzones;focus
+midi:A#-1=iop/toneequal;focus
+midi:B-1=iop/colorbalancergb;focus
+midi:C0=iop/channelmixerrgb;focus
+]]
+
 local dt = require "darktable"
 local du = require "lib/dtutils"
 
