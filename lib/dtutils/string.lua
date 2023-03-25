@@ -1,6 +1,12 @@
 local dtutils_string = {}
 
 local dt = require "darktable"
+local du = require "lib/dtutils"
+local log = require "lib/dtutils.log"
+
+local DEFAULT_LOG_LEVEL = log.error
+
+dtutils_string.log_level = DEFAULT_LOG_LEVEL
 
 dtutils_string.libdoc = {
   Name = [[dtutils.string]],
@@ -48,6 +54,8 @@ dtutils_string.libdoc.functions["strip_accents"] = {
 }
 
 function dtutils_string.strip_accents( str )
+  local old_log_level = log.log_level()
+  log.log_level(dtutils_string.log_level)
   local tableAccents = {}
     tableAccents["à"] = "a"
     tableAccents["á"] = "a"
@@ -111,6 +119,7 @@ function dtutils_string.strip_accents( str )
     end
   end
         
+  log.log_level(old_log_level)
   return normalizedString
  
 end
@@ -136,6 +145,8 @@ dtutils_string.libdoc.functions["escape_xml_characters"] = {
 
 -- Keep &amp; first, otherwise it will double escape other characters
 function dtutils_string.escape_xml_characters( str )
+  local old_log_level = log.log_level()
+  log.log_level(dtutils_string.log_level)
 
   str = string.gsub(str,"&", "&amp;")
   str = string.gsub(str,"\"", "&quot;")
@@ -143,6 +154,7 @@ function dtutils_string.escape_xml_characters( str )
   str = string.gsub(str,"<", "&lt;")
   str = string.gsub(str,">", "&gt;")
 
+  log.log_level(old_log_level)
   return str
 end
 
@@ -165,11 +177,14 @@ dtutils_string.libdoc.functions["urlencode"] = {
 }
 
 function dtutils_string.urlencode(str)
+  local old_log_level = log.log_level()
+  log.log_level(dtutils_string.log_level)
   if (str) then
     str = string.gsub (str, "\n", "\r\n")
     str = string.gsub (str, "([^%w ])", function (c) return string.format ("%%%02X", string.byte(c)) end)
     str = string.gsub (str, " ", "+")
   end
+  log.log_level(old_log_level)
   return str
 end
 
@@ -192,38 +207,52 @@ dtutils_string.libdoc.functions["is_not_sanitized"] = {
 }
 
 local function _is_not_sanitized_posix(str)
-   -- A sanitized string must be quoted.
-   if not string.match(str, "^'.*'$") then
-       return true
+  local old_log_level = log.log_level()
+  log.log_level(dtutils_string.log_level)
+  -- A sanitized string must be quoted.
+  if not string.match(str, "^'.*'$") then
+    log.log_level(old_log_level)
+    return true
    -- A quoted string containing no quote characters within is sanitized.
-   elseif string.match(str, "^'[^']*'$") then
-       return false
-   end
+  elseif string.match(str, "^'[^']*'$") then
+    log.log_level(old_log_level)
+    return false
+  end
    
-   -- Any quote characters within a sanitized string must be properly
-   -- escaped.
-   local quotesStripped = string.sub(str, 2, -2)
-   local escapedQuotesRemoved = string.gsub(quotesStripped, "'\\''", "")
-   if string.find(escapedQuotesRemoved, "'") then
-       return true
-   else
-       return false
-   end
+  -- Any quote characters within a sanitized string must be properly
+  -- escaped.
+  local quotesStripped = string.sub(str, 2, -2)
+  local escapedQuotesRemoved = string.gsub(quotesStripped, "'\\''", "")
+  if string.find(escapedQuotesRemoved, "'") then
+    log.log_level(old_log_level)
+    return true
+  else
+    log.log_level(old_log_level)
+    return false
+  end
 end
 
 local function _is_not_sanitized_windows(str)
-   if not string.match(str, "^\".*\"$") then
-      return true
-   else
-      return false
-   end
+  local old_log_level = log.log_level()
+  log.log_level(dtutils_string.log_level)
+  if not string.match(str, "^\".*\"$") then
+    log.log_level(old_log_level)
+    return true
+  else
+    log.log_level(old_log_level)
+    return false
+  end
 end
 
 function dtutils_string.is_not_sanitized(str)
+  local old_log_level = log.log_level()
+  log.log_level(dtutils_string.log_level)
   if dt.configuration.running_os == "windows" then
-      return _is_not_sanitized_windows(str)
+    log.log_level(old_log_level)
+    return _is_not_sanitized_windows(str)
   else
-      return _is_not_sanitized_posix(str)
+    log.log_level(old_log_level)
+    return _is_not_sanitized_posix(str)
   end
 end
 
@@ -246,26 +275,38 @@ dtutils_string.libdoc.functions["sanitize"] = {
 }
 
 local function _sanitize_posix(str)
+  local old_log_level = log.log_level()
+  log.log_level(dtutils_string.log_level)
   if _is_not_sanitized_posix(str) then
-      return "'" .. string.gsub(str, "'", "'\\''") .. "'"
+    log.log_level(old_log_level)
+    return "'" .. string.gsub(str, "'", "'\\''") .. "'"
   else
-       return str
+    log.log_level(old_log_level)
+    return str
   end
 end
 
 local function _sanitize_windows(str)
+  local old_log_level = log.log_level()
+  log.log_level(dtutils_string.log_level)
   if _is_not_sanitized_windows(str) then
-      return "\"" .. string.gsub(str, "\"", "\"^\"\"") .. "\""
+    log.log_level(old_log_level)
+    return "\"" .. string.gsub(str, "\"", "\"^\"\"") .. "\""
   else
-      return str
+    log.log_level(old_log_level)
+    return str
   end
 end
 
 function dtutils_string.sanitize(str)
+  local old_log_level = log.log_level()
+  log.log_level(dtutils_string.log_level)
   if dt.configuration.running_os == "windows" then
-      return _sanitize_windows(str)
+    log.log_level(old_log_level)
+    return _sanitize_windows(str)
   else
-      return _sanitize_posix(str)
+    log.log_level(old_log_level)
+    return _sanitize_posix(str)
   end
 end
 
@@ -288,9 +329,12 @@ dtutils_string.libdoc.functions["sanitize_lua"] = {
 }
 
 function dtutils_string.sanitize_lua(str)
+  local old_log_level = log.log_level()
+  log.log_level(dtutils_string.log_level)
   str = string.gsub(str, "%-", "%%-")
   str = string.gsub(str, "%(", "%%(")
   str = string.gsub(str, "%)", "%%)")
+  log.log_level(old_log_level)
   return str
 end
 
@@ -313,7 +357,9 @@ dtutils_string.libdoc.functions["split_filepath"] = {
 }
 
 function dtutils_string.split_filepath(str)
-  -- strip out single quotes from quoted pathnames
+  local old_log_level = log.log_level()
+  log.log_level(dtutils_string.log_level)
+ -- strip out single quotes from quoted pathnames
   str = string.gsub(str, "'", "")
   str = string.gsub(str, '"', '')
   local result = {}
@@ -323,6 +369,7 @@ function dtutils_string.split_filepath(str)
     result["basename"] = result["filetype"]
     result["filetype"] = ""
   end
+  log.log_level(old_log_level)
   return result
 end
 
@@ -344,7 +391,10 @@ dtutils_string.libdoc.functions["get_path"] = {
 }
 
 function dtutils_string.get_path(str)
+  local old_log_level = log.log_level()
+  log.log_level(dtutils_string.log_level)
   local parts = dtutils_string.split_filepath(str)
+  log.log_level(old_log_level)
   return parts["path"]
 end
 
@@ -366,7 +416,10 @@ dtutils_string.libdoc.functions["get_filename"] = {
 }
 
 function dtutils_string.get_filename(str)
+  local old_log_level = log.log_level()
+  log.log_level(dtutils_string.log_level)
   local parts = dtutils_string.split_filepath(str)
+  log.log_level(old_log_level)
   return parts["filename"]
 end
 
@@ -389,7 +442,10 @@ dtutils_string.libdoc.functions["get_basename"] = {
 }
 
 function dtutils_string.get_basename(str)
+  local old_log_level = log.log_level()
+  log.log_level(dtutils_string.log_level)
   local parts = dtutils_string.split_filepath(str)
+  log.log_level(old_log_level)
   return parts["basename"]
 end
 
@@ -411,7 +467,10 @@ dtutils_string.libdoc.functions["get_filetype"] = {
 }
 
 function dtutils_string.get_filetype(str)
+  local old_log_level = log.log_level()
+  log.log_level(dtutils_string.log_level)
   local parts = dtutils_string.split_filepath(str)
+  log.log_level(old_log_level)
   return parts["filetype"]
 end
 
