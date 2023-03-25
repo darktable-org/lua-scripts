@@ -865,6 +865,10 @@ local current_branch = get_current_repo_branch(LUA_DIR)
 local clean = is_repo_clean(repo_data)
 local repo = LUA_DIR
 
+-- ensure shortcuts module knows widgets belong to script_manager
+
+script_manager_running_script = "script_manager"
+
 if current_branch then
   if sm.executables.git and clean and 
     (current_branch == "master" or string.match(current_branch, "^API%-")) then -- only make changes to clean branches
@@ -1137,7 +1141,7 @@ sm.widgets.main_box = dt.new_widget("box"){
   sm.widgets.main_stack
 }
 
-
+script_manager_running_script = nil
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- D A R K T A B L E  I N T E G R A T I O N 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
