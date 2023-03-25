@@ -105,6 +105,17 @@ dt.preferences.register(MODULE, "check_update", "bool",
 local check_for_updates = dt.preferences.read(MODULE, "check_update", "bool")
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
+-- P R E F E R E N C E S
+-- - - - - - - - - - - - - - - - - - - - - - - - 
+
+dt.preferences.register(MODULE, "check_update", "bool",
+  "check for updated scripts on start up", 
+  "automatically update scripts to correct version", 
+  true)
+
+local check_for_updates = dt.preferences.read(MODULE, "check_update", "bool")
+
+-- - - - - - - - - - - - - - - - - - - - - - - - 
 -- L O G  L E V E L
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
@@ -334,8 +345,10 @@ local function activate(script)
   local err = nil    -- error message returned if module doesn't start
   log.msg(log.info, "activating " .. script.name)
   if script.running == false then
+    script_manager_running_script = script.name
     status, err = du.prequire(script.path)
     log.msg(log.debug, "prequire returned " .. tostring(status) .. " and for err " .. tostring(err))
+    script_manager_running_script = nil
     if status then
       pref_write(script.script_name, "bool", true)
       log.msg(log.screen, _("Loaded ") .. script.script_name)
@@ -868,6 +881,10 @@ end
 -- M A I N  P R O G R A M
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
+-- ensure shortcuts module knows widgets belong to script_manager
+
+script_manager_running_script = "script_manager"
+
 if check_for_updates then
   local repo_data = get_repo_status(LUA_DIR)
   local current_branch = get_current_repo_branch(LUA_DIR)
@@ -933,7 +950,6 @@ end
 
 scan_scripts(LUA_DIR)
 log.msg(log.debug, "finished processing scripts")
-
 
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
@@ -1147,7 +1163,7 @@ sm.widgets.main_box = dt.new_widget("box"){
   sm.widgets.main_stack
 }
 
-
+script_manager_running_script = nil
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- D A R K T A B L E  I N T E G R A T I O N 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
