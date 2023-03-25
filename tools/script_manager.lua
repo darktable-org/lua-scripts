@@ -70,7 +70,6 @@ end
 
 du.check_min_api_version("5.0.0", "script_manager")
 
-
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- C O N S T A N T S
 -- - - - - - - - - - - - - - - - - - - - - - - - 
@@ -94,6 +93,16 @@ local LUA_SCRIPT_REPO = "https://github.com/darktable-org/lua-scripts.git"
 
 local LUA_API_VER = "API-" .. dt.configuration.api_version_string
 
+-- - - - - - - - - - - - - - - - - - - - - - - - 
+-- P R E F E R E N C E S
+-- - - - - - - - - - - - - - - - - - - - - - - - 
+
+dt.preferences.register(MODULE, "check_update", "bool",
+  "check for updated scripts on start up", 
+  "automatically update scripts to correct version", 
+  true)
+
+local check_for_updates = dt.preferences.read(MODULE, "check_update", "bool")
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- P R E F E R E N C E S
