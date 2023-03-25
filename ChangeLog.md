@@ -1,5 +1,11 @@
 ## Changes from most recent to oldest
 
+**25 Mar 2023 - wpferguson**
+* Added script_manager darktable shortcut integration
+* Moved filename/path/extension string functions to string library
+
+**06 Mar 2023 - wpferguson - Added option to disable script_manager update check**
+
 **12 Jan 2022 - wpferguson - Documented contrib/rename_images.lua**
 
 **28 Dec 2021 - wpferguson - Replaced deprecated _which_ command with _command -v_ in lib/dtutils/file.lua**
