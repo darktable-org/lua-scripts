@@ -18,7 +18,7 @@
 --[[
 X-Touch Mini flexible encoder shortcuts
 
-This script will create virtual sliders that are mapped dynamically to 
+This script will create virtual sliders that are mapped dynamically to
 the most relevant sliders for the currently focused processing module.
 Tailored modules are color zones, tone equalizer, color calibration and
 mask manager properties. The script can easily be amended for other
@@ -28,8 +28,8 @@ as well, that dynamically change meaning depending on current status.
 USAGE
 * require this script from your main lua file
 * restart darktable
-* create shortcuts for each of the encoders on the x-touch mini 
-  to a virtual slider under lua/x-touch 
+* create shortcuts for each of the encoders on the x-touch mini
+  to a virtual slider under lua/x-touch
   or import the following shortcutsrc file in the shortcuts dialog/preferences tab:
 
 None;midi:CC1=lua/x-touch/knob 1
@@ -55,53 +55,93 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("9.1.0", "x-touch")
 
-function knob(action, element, effect, size)
-  k = tonumber(action:sub(-1))
-
-  if dt.gui.action("iop/blend/tools/show and edit mask elements") ~= 0 then
-    local s = { "opacity", "size", "feather", "hardness","rotation","curvature","compression" }
-    which = "lib/masks/properties/" .. s[k]
-
-  elseif dt.gui.action("iop/colorzones", "focus") ~= 0 then
-    which = "iop/colorzones/graph"
-    local e = { "red", "orange", "yellow", "green", "aqua", "blue", "purple", "magenta" }
-    element = e[k]
-
-  elseif dt.gui.action("iop/toneequal", "focus") ~= 0 then
-    which ="iop/toneequal/simple/"..(k-9).." EV"
-
-  elseif dt.gui.action("iop/colorbalancergb", "focus") ~= 0 and k == 4 then
-    which = "iop/colorbalancergb/contrast"
-
-  elseif dt.gui.action("iop/channelmixerrgb", "focus") ~= 0 and k >= 5 then
-    if k == 5 then
-      which = "iop/channelmixerrgb/page"
-      element = "CAT"
-      if     effect == "up"   then effect = "next"
-      elseif effect == "down" then effect = "previous"
-      else                         effect = "activate"
-      end
-    else
-      which = "iop/focus/sliders"
-      local e = { "1st", "2nd", "3rd" }
-      element = e[k - 5]
-    end
-
-  else
-    local s = { "iop/exposure/exposure",
-                "iop/filmicrgb/white relative exposure",
-                "iop/filmicrgb/black relative exposure",
-                "iop/filmicrgb/contrast",
-                "iop/crop/left",
-                "iop/crop/right",
-                "iop/crop/top",
-                "iop/crop/bottom" }
-    which = s[k]
-  end
-
-  return dt.gui.action(which, element, effect, size)
-end
-
+-- set up 8 mimic sliders with the same function
 for k = 1,8 do
-  dt.gui.mimic("slider", "knob ".. k, knob)
+  dt.gui.mimic("slider", "knob ".. k,
+    function(action, element, effect, size)
+      -- take the number from the mimic name
+      local k = tonumber(action:sub(-1))
+
+      -- only operate in darkroom; return NAN otherwise
+      if dt.gui.current_view() ~= dt.gui.views.darkroom then
+        return 0/0
+      end
+
+      -- first try if the mask slider at that position is active
+      local s = { "opacity",
+                  "size",
+                  "feather",
+                  "hardness",
+                  "rotation",
+                  "curvature",
+                  "compression" }
+      local maskval = dt.gui.action("lib/masks/properties/" .. s[k], 
+                                    element, effect, size)
+      -- if a value different from NAN is returned, the slider was active
+      if maskval == maskval then
+        return maskval
+
+      -- try if colorzones module is focused; if so select element of graph
+      elseif dt.gui.action("iop/colorzones", "focus") ~= 0 then
+        which = "iop/colorzones/graph"
+        local e = { "red",
+                    "orange",
+                    "yellow",
+                    "green",
+                    "aqua",
+                    "blue",
+                    "purple",
+                    "magenta" }
+        element = e[k]
+
+      -- if the tone equalizer is focused, 
+      -- select one of the sliders in the "simple" tab
+      elseif dt.gui.action("iop/toneequal", "focus") ~= 0 then
+        which ="iop/toneequal/simple/"..(k-9).." EV"
+
+      -- if color calibration is focused, 
+      -- the last 4 knobs are sent there
+      elseif dt.gui.action("iop/channelmixerrgb", "focus") ~= 0 
+             and k >= 5 then
+        -- knob 5 selects the active tab; pressing it resets to CAT
+        if k == 5 then
+          which = "iop/channelmixerrgb/page"
+          element = "CAT"
+          -- since the tab action is not a slider, 
+          -- the effects need to be translated
+          if     effect == "up"   then effect = "next"
+          elseif effect == "down" then effect = "previous"
+          else                         effect = "activate"
+          end
+        else
+          -- knobs 6, 7 and 8 are for the three color sliders on each tab
+          which = "iop/focus/sliders"
+          local e = { "1st",
+                      "2nd",
+                      "3rd" }
+          element = e[k - 5]
+        end
+
+      -- the 4th knob is contrast; 
+      -- either colorbalance if it is focused, or filmic
+      elseif dt.gui.action("iop/colorbalancergb", "focus") ~= 0 
+             and k == 4 then
+        which = "iop/colorbalancergb/contrast"
+
+      -- in all other cases use a default selection
+      else
+        local s = { "iop/exposure/exposure",
+                    "iop/filmicrgb/white relative exposure",
+                    "iop/filmicrgb/black relative exposure",
+                    "iop/filmicrgb/contrast",
+                    "iop/crop/left",
+                    "iop/crop/right",
+                    "iop/crop/top",
+                    "iop/crop/bottom" }
+        which = s[k]
+      end
+
+      -- now pass the element/effect/size to the selected slider
+      return dt.gui.action(which, element, effect, size)
+    end)
 end
