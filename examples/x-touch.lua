@@ -67,16 +67,19 @@ for k = 1,8 do
         return 0/0
       end
 
-      -- first try if the mask slider at that position is active
-      local s = { "opacity",
-                  "size",
-                  "feather",
-                  "hardness",
-                  "rotation",
-                  "curvature",
-                  "compression" }
-      local maskval = dt.gui.action("lib/masks/properties/" .. s[k], 
-                                    element, effect, size)
+      local maskval = 0/0
+      if k < 8 then
+        -- first try if the mask slider at that position is active
+        local s = { "opacity",
+                    "size",
+                    "feather",
+                    "hardness",
+                    "rotation",
+                    "curvature",
+                    "compression" }
+        maskval = dt.gui.action("lib/masks/properties/" .. s[k], 
+                                element, effect, size)
+      end
       -- if a value different from NAN is returned, the slider was active
       if maskval == maskval then
         return maskval
