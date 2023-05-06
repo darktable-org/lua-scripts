@@ -65,7 +65,7 @@ function dtutils.check_min_api_version(min_api, script_name)
     dt.print_error("This application is written for lua api version " .. min_api .. " or later.")
     dt.print_error("The current lua api version is " .. current_api)
     dt.print("ERROR: " .. script_name .. " failed to load. Lua API version " .. min_api .. " or later required.")
-    dt.control.sleep(2000) -- aqllow time for the error to display before script_manager writes it's error message
+    dt.control.sleep(2000) -- allow time for the error to display before script_manager writes it's error message
     error("Minimum API " .. min_api .. " not met for " .. script_name .. ".", 0)
   end
 end
@@ -101,8 +101,8 @@ function dtutils.check_max_api_version(max_api, script_name)
     dt.print_error("This application is written for lua api version " .. max_api .. " or earlier.")
     dt.print_error("The current lua api version is " .. current_api)
     dt.print("ERROR: " .. script_name .. " failed to load. Lua API version " .. max_api .. " or earlier required.")
-    dt.control.sleep(2000) -- aqllow time for the error to display before script_manager writes it's error message
-    error("Mzximum API " .. max_api .. " not met for " .. script_name .. ".", 0)
+    dt.control.sleep(2000) -- allow time for the error to display before script_manager writes it's error message
+    error("Maximum API " .. max_api .. " not met for " .. script_name .. ".", 0)
   end
 end
 
