@@ -105,17 +105,6 @@ dt.preferences.register(MODULE, "check_update", "bool",
 local check_for_updates = dt.preferences.read(MODULE, "check_update", "bool")
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
--- P R E F E R E N C E S
--- - - - - - - - - - - - - - - - - - - - - - - - 
-
-dt.preferences.register(MODULE, "check_update", "bool",
-  "check for updated scripts on start up", 
-  "automatically update scripts to correct version", 
-  true)
-
-local check_for_updates = dt.preferences.read(MODULE, "check_update", "bool")
-
--- - - - - - - - - - - - - - - - - - - - - - - - 
 -- L O G  L E V E L
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
@@ -170,6 +159,8 @@ sm.categories = {}
   storage_name  name of the exporter (in the exporter storage menu)
   has_action    true if it creates an action
   action_name   name on the button
+  has_select    true if it creates a select
+  select_name   name on the button
   has_event     true if it creates an event handler
   event_type    type of event, shortcut, post-xxx, pre-xxx
   callback      name of the callback routine
