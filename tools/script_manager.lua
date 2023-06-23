@@ -368,10 +368,12 @@ local function activate(script)
 end
 
 local function deactivate(script)
-  -- presently the lua api doesn't support unloading gui elements however, we
- -- can hide libs, so we just mark those as hidden and hide the gui
- -- can delete storage
-  --therefore we just mark then inactive for the next time darktable starts
+  -- presently the lua api doesn't support unloading lib elements however, we
+  --   can hide libs, so we just mark those as hidden and hide the gui
+  --   can delete storages
+  --   can delete actions
+  --   can delete selects
+  --   and mark them inactive for the next time darktable starts
 
   -- deactivate it....
   pref_write(script.script_name, "bool", false)
