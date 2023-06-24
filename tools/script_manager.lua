@@ -130,6 +130,10 @@ sm.event_registered = false
 sm.widgets = {}
 sm.categories = {}
 
+-- set log level for functions
+
+sm.log_level = DEFAULT_LOG_LEVEL
+
 --[[
 
   sm.scripts is a table of tables for containing the scripts
@@ -192,22 +196,42 @@ sm.run = false
 -- F U N C T I O N S
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
+-------------------
+-- helper functions
+-------------------
+
+local function set_log_level(level)
+  local old_log_level = log.log_level()
+  log.log_level(level)
+  return old_log_level
+end
+
+local function restore_log_level(level)
+  log.log_level(level)
+end
+
 local function pref_read(name, pref_type)
+  local old_log_level = set_log_level(sm.log_level)
   log.msg(log.debug, "name is " .. name .. " and type is " .. pref_type)
   local val = dt.preferences.read(MODULE, name, pref_type)
-  if not string.match(pref_type, "bool") then
-    log.msg(log.debug, "read value " .. tostring(val))
-  end
+  log.msg(log.debug, "read value " .. tostring(val))
+  restore_log_level(old_log_level)
   return val
 end
 
 local function pref_write(name, pref_type, value)
-   dt.preferences.write(MODULE, name, pref_type, value)
+  local old_log_level = set_log_level(sm.log_level)
+  log.msg(log.debug, "writing value " .. tostring(value) .. " for name " .. name)
+  dt.preferences.write(MODULE, name, pref_type, value)
+  restore_log_level(old_log_level)
 end
 
+----------------
 -- git interface
+----------------
 
 local function get_repo_status(repo)
+  local old_log_level = set_log_level(sm.log_level)
   local p = io.popen("cd " .. repo .. CS .. "git status")
   if p then
     local data = p:read("*a")
@@ -215,10 +239,12 @@ local function get_repo_status(repo)
     return data
   end
   log.msg(log.error, "unable to get status of " .. repo)
+  restore_log_level(old_log_level)
   return nil
 end
 
 local function get_current_repo_branch(repo)
+  local old_log_level = set_log_level(sm.log_level)
   local branch = nil
   local p = io.popen("cd " .. repo .. CS .. "git branch --all")
   if p then
@@ -237,10 +263,12 @@ local function get_current_repo_branch(repo)
   if not branch then
     log.msg(log.error, "no current branch detected in repo_data")
   end
+  restore_log_level(old_log_level)
   return nil
 end
 
 local function get_repo_branches(repo)
+  local old_log_level = set_log_level(sm.log_level)
   local branches = {}
   local p = io.popen("cd " .. repo .. CS .. "git pull --all" .. CS .. "git branch --all")
   if p then
@@ -257,11 +285,13 @@ local function get_repo_branches(repo)
       end
     end
   end
+  restore_log_level(old_log_level)
   return branches 
 end
 
 
 local function is_repo_clean(repo_data)
+  local old_log_level = set_log_level(sm.log_level)
   if string.match(repo_data, "\n%s-%a.-%a:%s-%a%g-\n") then
     log.msg(log.info, "repo is dirty")
     return false
@@ -269,14 +299,18 @@ local function is_repo_clean(repo_data)
     log.msg(log.info, "repo is clean")
     return true
   end
+  restore_log_level(old_log_level)
 end
 
 local function checkout_repo_branch(repo, branch)
+  local old_log_level = set_log_level(sm.log_level)
   log.msg(log.info, "checkout out branch " .. branch .. " from repository " .. repo)
   os.execute("cd " .. repo .. CS .. "git checkout " .. branch)
+  restore_log_level(old_log_level)
 end
 
 local function update_combobox_choices(combobox, choice_table, selected)
+  local old_log_level = set_log_level(sm.log_level)
   local items = #combobox
   local choices = #choice_table
   for i, name in ipairs(choice_table) do 
@@ -292,11 +326,14 @@ local function update_combobox_choices(combobox, choice_table, selected)
   end
 
   combobox.value = selected
+  restore_log_level(old_log_level)
 end
 
 local function string_trim(str)
+  local old_log_level = set_log_level(sm.log_level)
   local result = string.gsub(str, "^%s+", "")
   result = string.gsub(result, "%s+$", "")
+  restore_log_level(old_log_level)
   return result
 end
 
@@ -305,14 +342,17 @@ local function string_dequote(str)
 end
 
 local function add_script_category(category)
+  local old_log_level = set_log_level(sm.log_level)
   if #sm.categories == 0 or not string.match(du.join(sm.categories, " "), ds.sanitize_lua(category)) then
     table.insert(sm.categories, category)
     sm.scripts[category] = {}
     log.msg(log.debug, "created category " .. category)
   end
+  restore_log_level(old_log_level)
 end
 
 local function get_script_doc(script)
+  local old_log_level = set_log_level(sm.log_level)
   local description = nil
   f = io.open(LUA_DIR .. PS .. script .. ".lua")
   if f then
@@ -325,13 +365,16 @@ local function get_script_doc(script)
     log.msg(log.error, _("Cant read from " .. script))
   end
   if description then
+    restore_log_level(old_log_level)
     return description
   else
+    restore_log_level(old_log_level)
     return "No documentation available"
   end
 end
 
 local function activate(script)
+  local old_log_level = set_log_level(sm.log_level)
   local status = nil -- status of start function
   local err = nil    -- error message returned if module doesn't start
   log.msg(log.info, "activating " .. script.name)
@@ -364,6 +407,7 @@ local function activate(script)
     status = true
     pref_write(script.script_name, "bool", true)
   end
+  restore_log_level(old_log_level)
   return status
 end
 
@@ -376,6 +420,7 @@ local function deactivate(script)
   --   and mark them inactive for the next time darktable starts
 
   -- deactivate it....
+  local old_log_level = set_log_level(sm.log_level)
   pref_write(script.script_name, "bool", false)
   if script.data then
     script.data.destroy()
@@ -397,9 +442,11 @@ local function deactivate(script)
     log.msg(log.info, "setting " .. script.script_name .. " to not start")
     log.msg(log.screen, script.name .. _(" will not start when darktable is restarted"))
   end
+  restore_log_level(old_log_level)
 end
 
 local function add_script_name(name, path, category)
+  local old_log_level = set_log_level(sm.log_level)
   log.msg(log.debug, "category is " .. category)
   log.msg(log.debug, "name is " .. name)
   local script = { 
@@ -414,9 +461,11 @@ local function add_script_name(name, path, category)
   if pref_read(script.script_name, "bool") then
     activate(script)
   end
+  restore_log_level(old_log_level)
 end
 
 local function process_script_data(script_file)
+  local old_log_level = set_log_level(sm.log_level)
 
   -- the script file supplied is category/filename.filetype
   -- the following pattern splits the string into category, path, name, fileename, and filetype
@@ -447,9 +496,11 @@ local function process_script_data(script_file)
   if name then
     add_script_name(name, path, category)
   end
+  restore_log_level(old_log_level)
 end
 
 local function scan_scripts(script_dir)
+  local old_log_level = set_log_level(sm.log_level)
   local script_count = 0
   local find_cmd = "find -L " .. script_dir .. " -name \\*.lua -print | sort"
   if dt.configuration.running_os == "windows" then
@@ -472,10 +523,12 @@ local function scan_scripts(script_dir)
       end
     end
   end
+  restore_log_level(old_log_level)
   return script_count
 end
 
 local function update_scripts()
+  local old_log_level = set_log_level(sm.log_level)
   local result = false
 
   local git = sm.executables.git
@@ -498,10 +551,12 @@ local function update_scripts()
     dt.print(_("lua scripts successfully updated"))
   end
 
+  restore_log_level(old_log_level)
   return result
 end
 
 local function update_script_update_choices()
+  local old_log_level = set_log_level(sm.log_level)
   local installs = {}
   local pref_string = ""
   for i, repo in ipairs(sm.installed_repositories) do
@@ -511,9 +566,11 @@ local function update_script_update_choices()
   update_combobox_choices(sm.widgets.update_script_choices, installs, 1)
   log.msg(log.debug, "repo pref string is " .. pref_string)
   pref_write("installed_repos", "string", pref_string)
+  restore_log_level(old_log_level)
 end
 
 local function scan_repositories()
+  local old_log_level = set_log_level(sm.log_level)
   local script_count = 0
   local find_cmd = "find -L " .. LUA_DIR .. " -name \\*.git -print | sort"
   if dt.configuration.running_os == "windows" then
@@ -548,15 +605,18 @@ local function scan_repositories()
     end
   end
   update_script_update_choices()
+  restore_log_level(old_log_level)
 end
 
 local function install_scripts()
+  local old_log_level = set_log_level(sm.log_level)
   local url = sm.widgets.script_url.text
   local category = sm.widgets.new_category.text
 
   if string.match(du.join(sm.categories, " "), ds.sanitize_lua(category)) then
     log.msg(log.screen, _("category ") .. category .. _(" is already in use. Please specify a different category name."))
     log.msg(log.error, "category " .. category .. " already exists, returning...")
+    restore_log_level(old_log_level)
     return
   end
 
@@ -566,6 +626,7 @@ local function install_scripts()
 
   if not git then
     dt.print(_("ERROR: git not found.  Install or specify the location of the git executable."))
+    restore_log_level(old_log_level)
     return
   end
 
@@ -607,28 +668,34 @@ local function install_scripts()
     dt.print(_("failed to download scripts"))
   end
 
+  restore_log_level(old_log_level)
   return result
 end
 
 local function clear_button(number)
+  local old_log_level = set_log_level(sm.log_level)
   local button = sm.widgets.buttons[number]
   button.label = ""
   button.tooltip = ""
   button.sensitive = false
 --button.name = ""
+  restore_log_level(old_log_level)
 end
 
 local function find_script(category, name)
+  local old_log_level = set_log_level(sm.log_level)
   log.msg(log.debug, "looking for script " .. name .. " in category " .. category)
   for _, script in ipairs(sm.scripts[category]) do
     if string.match(script.name, "^" .. ds.sanitize_lua(name) .. "$") then
       return script
     end
   end
+  restore_log_level(old_log_level)
   return nil
 end
 
 local function populate_buttons(category, first, last)
+  local old_log_level = set_log_level(sm.log_level)
   log.msg(log.debug, "category is " .. category .. " and first is " .. first .. " and last is " .. last)
   local button_num = 1
   for i = first, last do
@@ -693,9 +760,11 @@ local function populate_buttons(category, first, last)
       clear_button(i)
     end
   end
+  restore_log_level(old_log_level)
 end
 
 local function paginate(direction)
+  local old_log_level = set_log_level(sm.log_level)
   local category = sm.page_status.category
   log.msg(log.debug, "category is " .. category)
   local num_scripts = #sm.scripts[category]
@@ -747,9 +816,11 @@ local function paginate(direction)
   sm.widgets.page_status.label = _("Page ") .. cur_page .. _(" of ") .. max_pages
 
   populate_buttons(category, first, last)
+  restore_log_level(old_log_level)
 end
 
 local function change_category(category)
+  local old_log_level = set_log_level(sm.log_level)
   if not category then
     log.msg(log.debug "setting category to selector value " ..  sm.widgets.category_selector.value)
     sm.page_status.category = sm.widgets.category_selector.value
@@ -759,9 +830,11 @@ local function change_category(category)
   end
 
   paginate(2)
+  restore_log_level(old_log_level)
 end
 
 local function change_num_buttons()
+  local old_log_level = set_log_level(sm.log_level)
   cur_buttons = sm.page_status.num_buttons
   new_buttons = sm.widgets.num_buttons.value
   pref_write("num_buttons", "integer", new_buttons)
@@ -792,9 +865,11 @@ local function change_num_buttons()
   log.msg(log.debug, "num_buttons set to " .. sm.page_status.num_buttons)
   paginate(2) -- force the buttons to repopulate
   sm.widgets.main_menu.selected = 3 -- jump back to start/stop scripts
+  restore_log_level(old_log_level)
 end
 
 local function load_preferences()
+  local old_log_level = set_log_level(sm.log_level)
   -- load the prefs and update settings
   -- update_script_choices
   local pref_string = pref_read("installed_repos", "string")
@@ -836,9 +911,11 @@ local function load_preferences()
   log.msg(log.debug, "set main menu to val " .. val .. " which is " .. sm.widgets.main_menu.value)
 
   log.msg(log.debug, "set main menu to " .. sm.widgets.main_menu.value)
+  restore_log_level(old_log_level)
 end
 
 local function install_module()
+  local old_log_level = set_log_level(sm.log_level)
   if not sm.module_installed then
     dt.register_lib(
       "script_manager",     -- Module name
@@ -868,6 +945,7 @@ local function install_module()
   dt.control.sleep(5000)
   dt.print_log("setting sm expanded true")
   dt.gui.libs["script_manager"].expanded = true]]
+  restore_log_level(old_log_level)
 end
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
