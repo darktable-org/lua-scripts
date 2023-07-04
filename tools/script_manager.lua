@@ -1,6 +1,6 @@
 --[[
   This file is part of darktable,
-  copyright (c) 2018, 2020 Bill Ferguson <wpferguson@gmail.com>
+  copyright (c) 2018, 2020, 2023 Bill Ferguson <wpferguson@gmail.com>
   
   darktable is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -289,7 +289,6 @@ local function get_repo_branches(repo)
   return branches 
 end
 
-
 local function is_repo_clean(repo_data)
   local old_log_level = set_log_level(sm.log_level)
   if string.match(repo_data, "\n%s-%a.-%a:%s-%a%g-\n") then
@@ -308,6 +307,10 @@ local function checkout_repo_branch(repo, branch)
   os.execute("cd " .. repo .. CS .. "git checkout " .. branch)
   restore_log_level(old_log_level)
 end
+
+--------------------
+-- utility functions
+--------------------
 
 local function update_combobox_choices(combobox, choice_table, selected)
   local old_log_level = set_log_level(sm.log_level)
@@ -340,6 +343,10 @@ end
 local function string_dequote(str)
   return string.gsub(str, "['\"]", "")
 end
+
+------------------
+-- script handling
+------------------
 
 local function add_script_category(category)
   local old_log_level = set_log_level(sm.log_level)
@@ -555,6 +562,10 @@ local function update_scripts()
   return result
 end
 
+--------------
+-- UI handling
+--------------
+
 local function update_script_update_choices()
   local old_log_level = set_log_level(sm.log_level)
   local installs = {}
@@ -678,7 +689,7 @@ local function clear_button(number)
   button.label = ""
   button.tooltip = ""
   button.sensitive = false
---button.name = ""
+  --button.name = ""
   restore_log_level(old_log_level)
 end
 
@@ -1235,6 +1246,7 @@ sm.widgets.main_box = dt.new_widget("box"){
 }
 
 script_manager_running_script = nil
+
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- D A R K T A B L E  I N T E G R A T I O N 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
