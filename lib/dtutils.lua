@@ -180,7 +180,7 @@ dtutils.libdoc.functions["prequire"] = {
 }
 
 function dtutils.prequire(req_name)
-  local status, lib = pcall(require, san_req_name)
+  local status, lib = pcall(require, req_name)
   if status then
     log.msg(log.info, "Loaded " .. req_name)
   else
