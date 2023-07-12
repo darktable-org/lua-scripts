@@ -98,8 +98,8 @@ local LUA_API_VER = "API-" .. dt.configuration.api_version_string
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
 dt.preferences.register(MODULE, "check_update", "bool",
-  "check for updated scripts on start up", 
-  "automatically update scripts to correct version", 
+  _("check for updated scripts on start up"), 
+  _("automatically update scripts to correct version"), 
   true)
 
 local check_for_updates = dt.preferences.read(MODULE, "check_update", "bool")
