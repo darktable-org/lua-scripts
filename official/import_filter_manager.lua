@@ -45,6 +45,7 @@ local filter_dropdown = dt.new_widget("combobox")
 {
   label = "import filter",
   editable = false,
+  tooltip = "import filters are applied after completion of the import dialog",
 
   changed_callback = function(widget)
     dt.preferences.write("import_filter_manager", "active_filter", "string", widget.value)
