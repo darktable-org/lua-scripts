@@ -97,7 +97,7 @@ dtutils.libdoc.functions["check_max_api_version"] = {
 
 function dtutils.check_max_api_version(max_api, script_name)
   local current_api = dt.configuration.api_version_string
-  if max_api < current_api then
+  if current_api > max_api then
     dt.print_error("This application is written for lua api version " .. max_api .. " or earlier.")
     dt.print_error("The current lua api version is " .. current_api)
     dt.print("ERROR: " .. script_name .. " failed to load. Lua API version " .. max_api .. " or earlier required.")
