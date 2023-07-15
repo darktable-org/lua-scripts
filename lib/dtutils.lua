@@ -65,7 +65,44 @@ function dtutils.check_min_api_version(min_api, script_name)
     dt.print_error("This application is written for lua api version " .. min_api .. " or later.")
     dt.print_error("The current lua api version is " .. current_api)
     dt.print("ERROR: " .. script_name .. " failed to load. Lua API version " .. min_api .. " or later required.")
+    dt.control.sleep(2000) -- allow time for the error to display before script_manager writes it's error message
     error("Minimum API " .. min_api .. " not met for " .. script_name .. ".", 0)
+  end
+end
+
+dtutils.libdoc.functions["check_max_api_version"] = {
+  Name = [[check_max_api_version]],
+  Synopsis = [[check the maximum required api version against the current api version]],
+  Usage = [[local du = require "lib/dtutils"
+
+    local result = du.check_max_api_version(max_api, script_name)
+      max_api - string - the api version that the application was written for (example: "5.0.0")
+      script_name - string - the name of the script]],
+  Description = [[check_max_api_version compares the maximum api required for the appllication to
+    run against the current api version. This function is used when a part of the Lua API that 
+    the script relies on is removed.  If the maximum api version is not met, then an 
+    error message is printed saying the script_name failed to load, then an error is thrown causing the
+    program to stop executing. 
+
+  Return_Value = [[result - true if the maximum api version is available, false if not.]],
+  Limitations = [[When using the default handler on a script being executed from the luarc file, the error thrown
+    will stop the luarc file from executing any remaining statements. This limitation does not apply to script_manger.]],
+  Example = [[check_max_api_version("9.0.0") does nothing if the api is less than or equal to 9.0.0 otherwise an
+    error message is printed and an error is thrown stopping execution of the script.]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils.check_max_api_version(max_api, script_name)
+  local current_api = dt.configuration.api_version_string
+  if current_api > max_api then
+    dt.print_error("This application is written for lua api version " .. max_api .. " or earlier.")
+    dt.print_error("The current lua api version is " .. current_api)
+    dt.print("ERROR: " .. script_name .. " failed to load. Lua API version " .. max_api .. " or earlier required.")
+    dt.control.sleep(2000) -- allow time for the error to display before script_manager writes it's error message
+    error("Maximum API " .. max_api .. " not met for " .. script_name .. ".", 0)
   end
 end
 
