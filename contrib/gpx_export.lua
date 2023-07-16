@@ -203,5 +203,6 @@ end
 script_data.destroy = destroy
 script_data.restart = restart
 script_data.destroy_method = "hide"
+script_data.show = restart
 
 return script_data
