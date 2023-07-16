@@ -174,7 +174,7 @@ The recommended way to enable and disable specific scripts is using the script m
 
 ### Windows
 
-    echo "require 'tools/script_manager'" > %LOCALAPPDATA%\darktable\luarc
+    echo require "tools/script_manager" > %LOCALAPPDATA%\darktable\luarc
 
 ### Snap
 
@@ -182,7 +182,7 @@ The recommended way to enable and disable specific scripts is using the script m
 
 ### Flatpak
 
-    echo require "tools/script_manager"' > ~/.var/app/org.darktable.Darktable/config/darktable/luarc
+    echo 'require "tools/script_manager"' > ~/.var/app/org.darktable.Darktable/config/darktable/luarc
 
 You can also create or add lines to the luarc file from the command line:
 
