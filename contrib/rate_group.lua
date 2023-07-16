@@ -51,6 +51,7 @@ local script_data = {}
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
+script_data.show = nil -- only required for libs since the destroy_method only hides them
 
 local function apply_rating(rating)
   local images = dt.gui.action_images

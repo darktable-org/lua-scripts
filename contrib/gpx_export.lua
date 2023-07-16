@@ -36,6 +36,7 @@ local script_data = {}
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
+script_data.show = nil -- only required for libs since the destroy_method only hides them
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 gettext.bindtextdomain("gpx_export",dt.configuration.config_dir.."/lua/locale/")
@@ -203,5 +204,6 @@ end
 script_data.destroy = destroy
 script_data.restart = restart
 script_data.destroy_method = "hide"
+script_data.show = restart
 
 return script_data
