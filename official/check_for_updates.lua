@@ -41,6 +41,7 @@ local script_data = {}
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
+script_data.show = nil -- only required for libs since the destroy_method only hides them
 
 -- compare two version strings of the form "major.minor.patch"
 -- returns -1, 0, 1 if the first version is smaller, equal, greater than the second version,
