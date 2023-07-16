@@ -221,7 +221,8 @@ function dtutils.prequire(req_name)
   if status then
     log.msg(log.info, "Loaded " .. req_name)
   else
-    log.msg(log.info, "Error loading " .. req_name)
+    log.msg(log.error, "Error loading " .. req_name)
+    log.msg(log.error, "Error returned is " .. lib)
   end
   return status, lib
 end
