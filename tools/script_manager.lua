@@ -933,7 +933,7 @@ local function install_module()
       "script manager",     -- Visible name
       true,                -- expandable
       false,               -- resetable
-      {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_BOTTOM", 600}},   -- containers
+      {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_BOTTOM", 100}},   -- containers
       sm.widgets.main_box,
       nil,-- view_enter
       nil -- view_leave
