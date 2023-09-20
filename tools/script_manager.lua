@@ -467,6 +467,8 @@ local function add_script_name(name, path, category)
   table.insert(sm.scripts[category], script)
   if pref_read(script.script_name, "bool") then
     activate(script)
+  else
+    pref_write(script.script_name, "bool", false)
   end
   restore_log_level(old_log_level)
 end
