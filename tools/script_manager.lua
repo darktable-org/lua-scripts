@@ -513,7 +513,7 @@ local function scan_scripts(script_dir)
   local script_count = 0
   local find_cmd = "find -L " .. script_dir .. " -name \\*.lua -print | sort"
   if dt.configuration.running_os == "windows" then
-    find_cmd = "dir /b/s " .. script_dir .. "\\*.lua | sort"
+    find_cmd = "dir /b/s \s" .. script_dir .. "\\*.lua\" | sort"
   end
   log.msg(log.debug, _("find command is ") .. find_cmd)
   -- scan the scripts
