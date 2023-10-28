@@ -66,6 +66,7 @@ change_group_leader|Yes|LMW|Change which image leads group
 [rename_images](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/rename_images)|Yes|LMW|Rename single or multiple images
 [rename-tags](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/rename-tags)|Yes|LMW|Change a tag name
 [RL_out_sharp](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/rl_out_sharp)|No|LW|Output sharpening using GMic (Richardson-Lucy algorithm)
+[select_non_existing](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/select_non_existing)|Yes|LMW|Enable selection of non-existing images in the the currently worked on images
 [select_untagged](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/select_untagged)|Yes|LMW|Enable selection of untagged images
 [slideshowMusic](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/slideshowMusic)|No|L|Play music during a slideshow
 [transfer_hierarchy](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/transfer_hierarchy)|Yes|LMW|Image move/copy preserving directory hierarchy
