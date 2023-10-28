@@ -14,20 +14,26 @@
     along with darktable.  If not, see <http://www.gnu.org/licenses/>.
 ]]
 --[[
-Enable selection of non existing images in the the currently worked on images, e.g. the ones selected by the collection module.
+Enable selection of non-existing images in the the currently worked on images, e.g. the ones selected by the collection module.
 ]]
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 
-du.check_min_api_version("9.1.0", "select_non_existing") 
+-- module name
+local MODULE = "select_non_existing"
+
+du.check_min_api_version("9.1.0", MODULE)
+
+-- figure out the path separator
+local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 
 local gettext = dt.gettext
-gettext.bindtextdomain("select_non_existing", dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain(MODULE, dt.configuration.config_dir..PS.."lua"..PS.."locale"..PS)
 
 local function _(msgid)
-    return gettext.dgettext("select_non_existing", msgid)
+    return gettext.dgettext(MODULE, msgid)
 end
 
 local function stop_job(job)
@@ -41,8 +47,9 @@ local function select_nonexisting_images(event, images)
     for key,image in ipairs(images) do
         if(job.valid) then
             job.percent = (key - 1)/#images
-            local filepath = image.path.."/"..image.filename
+            local filepath = image.path..PS..image.filename
             local file_exists = df.test_file(filepath, "e")
+            dt.print_log(filepath.." exists? => "..tostring(file_exists))
             if (not file_exists) then
                 table.insert(selection, image)
             end
@@ -56,14 +63,14 @@ local function select_nonexisting_images(event, images)
 end
 
 local function destroy()
-    dt.gui.libs.select.destroy_selection("select_non_existing")
+    dt.gui.libs.select.destroy_selection(MODULE)
 end
   
 dt.gui.libs.select.register_selection(
-    "select_non_existing",
+    MODULE,
     _("select non existing"),
     select_nonexisting_images,
-    _("select all non existing images in the the currently worked on images"))
+    _("select all non-existing images in the current images"))
 
 local script_data = {}
 script_data.destroy = destroy
