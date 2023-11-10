@@ -1,0 +1,12 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "select non existing images"
+msgstr "nicht vorhandene Bilder auswählen"
+
+msgid "select non existing"
+msgstr "nicht vorhandene auswählen"
+
+msgid "select all non-existing images in the current images"
+msgstr "alle nicht vorhandenen Bilder in den aktuellen Bildern auswählen"
