@@ -262,7 +262,7 @@ local function create_kml_file(storage, image_table, extra_data)
   kml_file = kml_file.."</Document>\n"
   kml_file = kml_file.."</kml>"
 
-  local file = io.open(exportDirectory..PS..exportKMLFilename, "w")
+  local file = dsys.io_open(exportDirectory..PS..exportKMLFilename, "w")
 
   file:write(kml_file)
   file:close()
