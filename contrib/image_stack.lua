@@ -342,7 +342,7 @@ local function list_files(search_string)
     search_string = string.gsub(search_string, "/", "\\\\")
   end
 
-  local f = io.popen(ls .. search_string)
+  local f = dtsys.io_popen(ls .. search_string)
   if f then
     local found_file = f:read()
     while found_file do 
