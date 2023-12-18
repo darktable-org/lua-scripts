@@ -31,6 +31,7 @@
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+local dsys = require "lib/dtutils.system"
 
 du.check_min_api_version("7.0.0", "executable_manager")
 
@@ -68,7 +69,7 @@ local function grep(file, pattern)
   if dt.configuration.running_os == "windows" then
     -- use find to get the matches
     local command = "\\windows\\system32\\find.exe " .. "\"" .. pattern .. "\"" .. " " .. file
-    local f = io.popen(command)
+    local f = dsys.io_popen(command)
     local output = f:read("all")
     f:close()
     -- strip out the first line
@@ -77,7 +78,7 @@ local function grep(file, pattern)
   else
     -- use grep and just return the answers
     local command = "grep " .. pattern .. " " .. file
-    local f = io.popen(command)
+    local f = dsys.io_popen(command)
     local output = f:read("all")
     f:close()
     result = du.split(output, "\n")
