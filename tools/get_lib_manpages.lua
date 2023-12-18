@@ -7,6 +7,7 @@
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+local dsys = require "lib/dtutils.system"
 local log = require "lib/dtutils.log"
 local libname = nil
 
@@ -25,7 +26,7 @@ local function output_man(d)
     libname = name
   end
   local fname = "/tmp/" .. name .. ".3"
-  local mf = io.open(fname, "w")
+  local mf = dsys.io_open(fname, "w")
   if mf then
     mf:write(".TH " .. string.upper(name) .. " 3 \"\" \"\" \"Darktable " .. libname .. " functions\"\n")
     for _,section in ipairs(keys) do
@@ -37,7 +38,7 @@ local function output_man(d)
     mf:close()
     if df.check_if_bin_exists("groff") then
       if df.check_if_bin_exists("ps2pdf") then
-        os.execute("groff -man " .. fname .. " | ps2pdf - " .. fname .. ".pdf")
+        dsys.os_execute("groff -man " .. fname .. " | ps2pdf - " .. fname .. ".pdf")
       else
         log.msg(log.error, "Missing ps2pdf.  Can't generate pdf man pages.")
       end
@@ -51,7 +52,7 @@ end
 
 -- find the libraries
 
-local output = io.popen("cd "..dt.configuration.config_dir.."/lua/lib ;find . -name \\*.lua -print | sort")
+local output = dsys.io_popen("cd "..dt.configuration.config_dir.."/lua/lib ;find . -name \\*.lua -print | sort")
 
 -- loop through the libraries
 
