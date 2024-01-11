@@ -96,7 +96,20 @@ for k = 1,8 do
                     "purple",
                     "magenta" }
         element = e[k]
+                
+                
+      -- if the sigmoid rgb primaries is focused, 
+      -- check sliders
+      elseif dt.gui.action("iop/sigmoid", "focus") ~= 0 and k <8 then
+        local e = { "red attenuation", "red rotation", "green attenuation", "green rotation", "blue attenuation", "blue rotation", "recover purity" }
+        which = "iop/sigmoid/primaries/"..e[k]
 
+      -- if the rgb primaries is focused, 
+      -- check sliders
+      elseif dt.gui.action("iop/primaries", "focus") ~= 0 and k >=1 then
+        local e = { "red hue", "red purity", "green hue", "green purity", "blue hue", "blue purity", "tint hue", "tint purity" }
+        which = "iop/primaries/" ..e[k]
+      
       -- if the tone equalizer is focused, 
       -- select one of the sliders in the "simple" tab
       elseif dt.gui.action("iop/toneequal", "focus") ~= 0 then
