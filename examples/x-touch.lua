@@ -53,7 +53,7 @@ midi:C0=iop/channelmixerrgb;focus
 local dt = require "darktable"
 local du = require "lib/dtutils"
 
-du.check_min_api_version("9.1.0", "x-touch")
+du.check_min_api_version("9.2.0", "x-touch")
 
 -- set up 8 mimic sliders with the same function
 for k = 1,8 do
