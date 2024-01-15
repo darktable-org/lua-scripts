@@ -1,158 +1,201 @@
 --[[
+  change group leader
 
-    change_group_leader.lua - change image grouip leader
+  copyright (c) 2020, 2022 Bill Ferguson <wpferguson@gmail.com>
+  copyright (c) 2021 Angel Angelov
 
-    Copyright (C) 2024 Bill Ferguson <wpferguson@gmail.com>
+  darktable is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
+  darktable is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with darktable.  If not, see <http://www.gnu.org/licenses/>.
 ]]
+
 --[[
-    change_group_leader - change image grouip leader
+CHANGE GROUP LEADER
+automatically change the leader of raw+jpg paired image groups
 
-    change_group_leader changes the group leader to the next
-    image in the group.  If the end of the group is reached
-    then the next image is wrapped around to the first image.
+INSTALLATION
+* copy this file in $CONFIGDIR/lua/ where CONFIGDIR is your darktable configuration directory
+* add the following line in the file $CONFIGDIR/luarc
+  require "change_group_leader"
 
-    ADDITIONAL SOFTWARE NEEDED FOR THIS SCRIPT
-    None
-
-    USAGE
-    * enable with script_manager
-    * assign a key to the shortcut
-
-    BUGS, COMMENTS, SUGGESTIONS
-    Bill Ferguson <wpferguson@gmail.com>
-
-    CHANGES
+USAGE
+* in lighttable mode, select the image groups you wish to process,
+  select whether you want to set the leader to "jpg" or "raw",
+  and click "Execute"
 ]]
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
-local df = require "lib/dtutils.file"
 
--- - - - - - - - - - - - - - - - - - - - - - - - 
--- C O N S T A N T S
--- - - - - - - - - - - - - - - - - - - - - - - - 
+local gettext = dt.gettext
 
 local MODULE = "change_group_leader"
 
--- - - - - - - - - - - - - - - - - - - - - - - - 
--- A P I  C H E C K
--- - - - - - - - - - - - - - - - - - - - - - - - 
+du.check_min_api_version("3.0.0", MODULE)
 
-du.check_min_api_version("7.0.0", MODULE) 
-
-
--- - - - - - - - - - - - - - - - - - - - - - - - - -
--- S C R I P T  M A N A G E R  I N T E G R A T I O N
--- - - - - - - - - - - - - - - - - - - - - - - - - -
+-- return data structure for script_manager
 
 local script_data = {}
 
 script_data.destroy = nil -- function to destory the script
-script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
--- - - - - - - - - - - - - - - - - - - - - - - - - -
--- I 1 8 N
--- - - - - - - - - - - - - - - - - - - - - - - - - -
-
-local gettext = dt.gettext
-
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain(MODULE, dt.configuration.config_dir .. "/lua/locale/")
+gettext.bindtextdomain(MODULE, dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
     return gettext.dgettext(MODULE, msgid)
 end
 
--- - - - - - - - - - - - - - - - - - - - - - - - 
+-- create a namespace to contain persistent data and widgets
+chg_grp_ldr = {}
+
+local cgl = chg_grp_ldr
+
+cgl.widgets = {}
+
+cgl.event_registered = false
+cgl.module_installed = false
+
+-- - - - - - - - - - - - - - - - - - - - - - - -
 -- F U N C T I O N S
--- - - - - - - - - - - - - - - - - - - - - - - - 
+-- - - - - - - - - - - - - - - - - - - - - - - -
 
-local function toggle_global_toolbox_grouping()
-  dt.gui.libs.global_toolbox.grouping = false
-  dt.gui.libs.global_toolbox.grouping = true
+local function install_module()
+  if not cgl.module_installed then
+    dt.register_lib(
+      MODULE,     -- Module name
+      _("change_group_leader"),     -- Visible name
+      true,                -- expandable
+      false,               -- resetable
+      {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 700}},   -- containers
+      cgl.widgets.box,
+      nil,-- view_enter
+      nil -- view_leave
+    )
+    cgl.module_installed = true
+  end
 end
 
-local function hinter_msg(msg)
-  dt.print_hinter(msg)
-  dt.control.sleep(1500)
-  dt.print_hinter(" ")
-end
-
--- - - - - - - - - - - - - - - - - - - - - - - - 
--- M A I N  P R O G R A M
--- - - - - - - - - - - - - - - - - - - - - - - - 
-
-local function change_group_leader(image)
-  local group_images = image:get_group_members()
-  if #group_images < 2 then
-    hinter_msg(_("No images to change to in group"))
-    return
-  else
-    local position = nil
-    for i, img in ipairs(group_images) do
-      if image == img then
-        position = i
+local function find_group_leader(images, mode)
+  for _, img in ipairs(images) do
+    dt.print_log("checking image " .. img.id .. " named "  .. img.filename)
+    local found = false
+    if mode == "jpg" then
+      if string.match(string.lower(img.filename), "jpg$") then
+        dt.print_log("jpg matched image " .. img.filename)
+        found = true
       end
-    end
-
-    if position == #group_images then
-      position = 1
+    elseif mode == "raw" then
+      if img.is_raw and img.duplicate_index == 0 then
+        dt.print_log("found raw " .. img.filename)
+        found = true
+      end
+    elseif mode == "non-raw" then
+      if img.is_ldr then
+        dt.print_log("found ldr " .. img.filename)
+        found = true
+      end
     else
-      position = position + 1
+      dt.print_error(MODULE .. ": unrecognized mode " .. mode)
+      return
     end
-
-    new_leader = group_images[position]
-    new_leader:make_group_leader()
-    dt.gui.selection({new_leader})
-
-    if dt.gui.libs.global_toolbox.grouping then
-      -- toggle the grouping to make the new leader show
-      toggle_global_toolbox_grouping()
+    if found then
+      dt.print_log("making " .. img.filename .. " group leader")
+      img:make_group_leader()
+      return
     end
   end
 end
 
--- - - - - - - - - - - - - - - - - - - - - - - - 
--- D A R K T A B L E  I N T E G R A T I O N 
--- - - - - - - - - - - - - - - - - - - - - - - - 
+local function process_image_groups(images)
+  if #images < 1 then
+    dt.print(_("No images selected."))
+    dt.print_log(MODULE .. "no images seletected, returning...")
+  else
+    local mode = cgl.widgets.mode.value
+    for _,img in ipairs(images) do
+      dt.print_log("checking image " .. img.id)
+      local group_images = img:get_group_members()
+      if group_images == 1 then
+        dt.print_log("only one image in group for image " .. image.id)
+      else
+        find_group_leader(group_images, mode)
+      end
+    end
+  end
+end
+
+-- - - - - - - - - - - - - - - - - - - - - - - -
+-- S C R I P T  M A N A G E R  I N T E G R A T I O N
+-- - - - - - - - - - - - - - - - - - - - - - - -
 
 local function destroy()
-  -- put things to destroy (events, storages, etc) here
-  dt.destroy_event(MODULE, "shortcut")
+  dt.gui.libs[MODULE].visible = false
+end
+
+local function restart()
+  dt.gui.libs[MODULE].visible = true
+end
+
+-- - - - - - - - - - - - - - - - - - - - - - - -
+-- W I D G E T S
+-- - - - - - - - - - - - - - - - - - - - - - - -
+
+cgl.widgets.mode = dt.new_widget("combobox"){
+  label = _("select new group leader"),
+  tooltip = _("select type of image to be group leader"),
+  selected = 1,
+  "jpg", "raw", "non-raw",
+}
+
+cgl.widgets.execute = dt.new_widget("button"){
+  label = _("Execute"),
+  clicked_callback = function()
+    process_image_groups(dt.gui.action_images)
+  end
+}
+
+cgl.widgets.box = dt.new_widget("box"){
+  orientation = "vertical",
+  cgl.widgets.mode,
+  cgl.widgets.execute,
+}
+
+-- - - - - - - - - - - - - - - - - - - - - - - -
+-- D A R K T A B L E  I N T E G R A T I O N
+-- - - - - - - - - - - - - - - - - - - - - - - -
+
+if dt.gui.current_view().id == "lighttable" then
+  install_module()
+else
+  if not cgl.event_registered then
+    dt.register_event(
+      "view-changed",
+      function(event, old_view, new_view)
+        if new_view.name == "lighttable" and old_view.name == "darkroom" then
+          install_module()
+         end
+      end
+    )
+    cgl.event_registered = true
+  end
 end
 
 script_data.destroy = destroy
-
--- - - - - - - - - - - - - - - - - - - - - - - - 
--- E V E N T S
--- - - - - - - - - - - - - - - - - - - - - - - - 
-
-dt.register_event(MODULE, "shortcut",
-  function(event, shortcut)
-    -- ignore the film roll, it contains all the images, not just the imported
-    local images = dt.gui.selection()
-    if #images < 1 then
-      dt.print(_("No image selected.  Please select an image and try again"))
-    else
-      change_group_leader(images[1])
-    end
-  end,
-  _("Change group leader")
-)
+script_data.restart = restart
+script_data.destroy_method = "hide"
+script_data.show = restart
 
 return script_data
