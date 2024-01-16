@@ -60,6 +60,7 @@ cameras may behave in other ways.
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+local dsys = require "lib/dtutils.system"
 
 du.check_min_api_version("7.0.0", "fujifilm_dynamic_range") 
 
@@ -91,7 +92,7 @@ local function detect_dynamic_range(event, image)
 	-- without -n flag, exiftool will round to the nearest tenth
 	command = command .. " -RawExposureBias -n -t " .. RAF_filename
 	dt.print_log(command)
-	output = io.popen(command)
+	output = dsys.io_popen(command)
 	local raf_result = output:read("*all")
 	output:close()
 	if #raf_result == 0 then

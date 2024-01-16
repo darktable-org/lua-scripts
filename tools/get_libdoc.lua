@@ -6,6 +6,7 @@
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
+local dsys = require "lib/dtutils.system"
 
 du.check_min_api_version("3.0.0", "get_libdoc") 
 
@@ -28,7 +29,7 @@ end
 
 -- find the libraries
 
-local output = io.popen("cd "..dt.configuration.config_dir.."/lua/lib ;find . -name \\*.lua -print | sort")
+local output = dsys.io_popen("cd "..dt.configuration.config_dir.."/lua/lib ;find . -name \\*.lua -print | sort")
 
 -- loop through the libraries
 

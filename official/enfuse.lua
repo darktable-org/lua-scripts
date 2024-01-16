@@ -110,7 +110,7 @@ if enfuse_installed then
 
   local version = nil
 
-  local p = io.popen(enfuse_installed .. " --version")
+  local p = dtsys.io_popen(enfuse_installed .. " --version")
   local f = p:read("all")
   p:close()
   version = string.match(f, "enfuse (%d.%d)")

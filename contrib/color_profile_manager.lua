@@ -45,6 +45,7 @@
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+local dsys = require "lib/dtutils.system"
 
 du.check_min_api_version("7.0.0", "color_profile_manager")
 
@@ -107,7 +108,7 @@ end
 
 local function list_profiles(dir)
   local files = {}
-  local p = io.popen(DIR_CMD .. " " .. dir)
+  local p = dsys.io_popen(DIR_CMD .. " " .. dir)
   if p then
     for line in p:lines() do
       table.insert(files, line)

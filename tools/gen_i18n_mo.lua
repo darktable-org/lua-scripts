@@ -56,7 +56,7 @@ if msgfmt_executable then
     find_cmd = "dir /b/s " .. LUA_DIR .. "\\*.po"
   end
 
-  local output = io.popen(find_cmd)
+  local output = dtsys.io_popen(find_cmd)
 
   -- for each .po file....
 
@@ -78,14 +78,14 @@ if msgfmt_executable then
 
     if not df.check_if_file_exists(LOCALE_DIR .. lang .. PS .. "LC_MESSAGES") then
       log.msg(log.info, "Creating locale", lang)
-      os.execute(mkdir_cmd .. LOCALE_DIR .. lang .. PS .. "LC_MESSAGES")
+      dtsys.os_execute(mkdir_cmd .. LOCALE_DIR .. lang .. PS .. "LC_MESSAGES")
     end
 
     -- generate the mo file
 
     fname = string.gsub(fname, ".po$", ".mo")
     log.msg(log.info, "Compiling translation to", fname)
-    local result = os.execute(msgfmt_executable .. " -o " .. LOCALE_DIR .. lang .. PS .. "LC_MESSAGES" .. PS .. fname .. " " .. line)
+    local result = dtsys.os_execute(msgfmt_executable .. " -o " .. LOCALE_DIR .. lang .. PS .. "LC_MESSAGES" .. PS .. fname .. " " .. line)
   end
 else
   log.msg(log.screen, "ERROR: msgfmt executable not found.  Please install or specifiy location in preferences.")

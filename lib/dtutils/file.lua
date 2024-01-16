@@ -42,7 +42,7 @@ end
 
 local function _win_os_execute(cmd)
   local result = nil
-  local p = io.popen(cmd)
+  local p = dsys.io_popen(cmd)
   local output = p:read("*a")
   p:close()
   if string.match(output, "true") then 
@@ -167,7 +167,7 @@ local function _search_for_bin_windows(bin)
 
   for _,arg in ipairs(args) do
     local cmd = "where " .. arg .. " " .. ds.sanitize(bin)
-    local p = io.popen(cmd)
+    local p = dsys.io_popen(cmd)
     local output = p:read("*a")
     p:close()
     local lines = du.split(output, "\n")
@@ -445,7 +445,7 @@ function dtutils_file.check_if_file_exists(filepath)
   local result = false
   if (dt.configuration.running_os == 'windows') then
     filepath = string.gsub(filepath, '[\\/]+', '\\')
-    local p = io.popen("if exist " .. dtutils_file.sanitize_filename(filepath) .. " (echo 'yes') else (echo 'no')")
+    local p = dsys.io_popen("if exist " .. dtutils_file.sanitize_filename(filepath) .. " (echo 'yes') else (echo 'no')")
     local ans = p:read("*all")
     p:close()
     if string.match(ans, "yes") then
@@ -522,7 +522,7 @@ function dtutils_file.file_copy(fromFile, toFile)
   local result = nil
   -- if cp exists, use it
   if dt.configuration.running_os == "windows" then
-    result = os.execute('copy "' .. fromFile .. '" "' .. toFile .. '"')
+    result = dsys.os_execute('copy "' .. fromFile .. '" "' .. toFile .. '"')
   elseif dtutils_file.check_if_bin_exists("cp") then
     result = os.execute("cp '" .. fromFile .. "' '" .. toFile .. "'")
   end

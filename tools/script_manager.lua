@@ -232,7 +232,7 @@ end
 
 local function get_repo_status(repo)
   local old_log_level = set_log_level(sm.log_level)
-  local p = io.popen("cd " .. repo .. CS .. "git status")
+  local p = dtsys.io_popen("cd " .. repo .. CS .. "git status")
   if p then
     local data = p:read("*a")
     p:close()
@@ -246,7 +246,7 @@ end
 local function get_current_repo_branch(repo)
   local old_log_level = set_log_level(sm.log_level)
   local branch = nil
-  local p = io.popen("cd " .. repo .. CS .. "git branch --all")
+  local p = dtsys.io_popen("cd " .. repo .. CS .. "git branch --all")
   if p then
     local data = p:read("*a")
     p:close()
@@ -270,7 +270,7 @@ end
 local function get_repo_branches(repo)
   local old_log_level = set_log_level(sm.log_level)
   local branches = {}
-  local p = io.popen("cd " .. repo .. CS .. "git pull --all" .. CS .. "git branch --all")
+  local p = dtsys.io_popen("cd " .. repo .. CS .. "git pull --all" .. CS .. "git branch --all")
   if p then
     local data = p:read("*a")
     p:close()
@@ -304,7 +304,7 @@ end
 local function checkout_repo_branch(repo, branch)
   local old_log_level = set_log_level(sm.log_level)
   log.msg(log.info, "checkout out branch " .. branch .. " from repository " .. repo)
-  os.execute("cd " .. repo .. CS .. "git checkout " .. branch)
+  dtsys.os_execute("cd " .. repo .. CS .. "git checkout " .. branch)
   restore_log_level(old_log_level)
 end
 
@@ -517,7 +517,7 @@ local function scan_scripts(script_dir)
   end
   log.msg(log.debug, _("find command is ") .. find_cmd)
   -- scan the scripts
-  local output = io.popen(find_cmd)
+  local output = dtsys.io_popen(find_cmd)
   for line in output:lines() do
     local l = string.gsub(line, ds.sanitize_lua(LUA_DIR) .. PS, "")   -- strip the lua dir off
     local script_file = l:sub(1,-5)                                   -- strip off .lua\n
@@ -553,7 +553,7 @@ local function update_scripts()
   if dt.configuration.running_os == "windows" then
     result = dtsys.windows_command(git_command)
   else
-    result = os.execute(git_command)
+    result = dtsys.os_execute(git_command)
   end
 
   if result == 0 then
@@ -590,7 +590,7 @@ local function scan_repositories()
     find_cmd = "dir /b/s /a:d " .. LUA_DIR .. PS .. "*.git | sort"
   end
   log.msg(log.debug, _("find command is ") .. find_cmd)
-  local output = io.popen(find_cmd)
+  local output = dtsys.io_popen(find_cmd)
   for line in output:lines() do
     local l = string.gsub(line, ds.sanitize_lua(LUA_DIR) .. PS, "")   -- strip the lua dir off
     local category = string.match(l, "(.-)" .. PS)                        -- get everything to teh first /

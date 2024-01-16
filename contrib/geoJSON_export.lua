@@ -35,6 +35,7 @@ USAGE
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+local dsys = require "lib/dtutils.system"
 local gettext = dt.gettext
 
 du.check_min_api_version("7.0.0", "geoJSON_export") 
@@ -279,12 +280,12 @@ local function create_geoJSON_file(storage, image_table, extra_data)
 </html>
 ]]
 
-        local file = io.open(exportDirectory.."/"..exportMapBoxHTMLFilename, "w")
+        local file = dsys.io_open(exportDirectory.."/"..exportMapBoxHTMLFilename, "w")
         file:write(mapBoxHTML_file)
         file:close()
     end
 
-    local file = io.open(exportDirectory.."/"..exportgeoJSONFilename, "w")
+    local file = dsys.io_open(exportDirectory.."/"..exportgeoJSONFilename, "w")
     file:write(geoJSON_file)
     file:close()
 
