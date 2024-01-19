@@ -59,11 +59,10 @@ local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 -- - - - - - - - - - - - - - - - - - - - - - - -
 -- T R A N S L A T I O N S
 -- - - - - - - - - - - - - - - - - - - - - - - -
-local gettext = dt.gettext
-gettext.bindtextdomain(MODULE_NAME, dt.configuration.config_dir..PS.."lua"..PS.."locale"..PS)
+local gettext = dt.gettext.gettext
 
 local function _(msgid)
-  return gettext.dgettext(MODULE_NAME, msgid)
+  return gettext(msgid)
 end
 
 -- - - - - - - - - - - - - - - - - - - - - - - -

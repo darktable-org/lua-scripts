@@ -24,28 +24,36 @@ USAGE
 local dt = require "darktable"
 local du = require "lib/dtutils"
 
+-- translation facilities
+
+local gettext = dt.gettext.gettext
+
+local function _(msg)
+  return gettext(msg)
+end
+
 du.check_min_api_version("2.0.1", "preferenceExamples") 
 
 
 dt.preferences.register("preferenceExamples",        -- script: This is a string used to avoid name collision in preferences (i.e namespace). Set it to something unique, usually the name of the script handling the preference.
                         "preferenceExamplesString",  -- name
                         "string",                     -- type
-                        "Example String",            -- label
-                        "Example String Tooltip",    -- tooltip
+                        _("Example String"),            -- label
+                        _("Example String Tooltip"),    -- tooltip
                         "String")                     -- default
 
 dt.preferences.register("preferenceExamples",        -- script: This is a string used to avoid name collision in preferences (i.e namespace). Set it to something unique, usually the name of the script handling the preference. 
                         "preferenceExamplesBool",  -- name
                         "bool",                       -- type
-                        "Example Boolean",           -- label
-                        "Example Boolean Tooltip",   -- tooltip
+                        _("Example Boolean"),           -- label
+                        _("Example Boolean Tooltip"),   -- tooltip
                         true)                         -- default
 
 dt.preferences.register("preferenceExamples",        -- script: This is a string used to avoid name collision in preferences (i.e namespace). Set it to something unique, usually the name of the script handling the preference. 
                         "preferenceExamplesInteger",  -- name
                         "integer",                    -- type
-                        "Example Integer",           -- label
-                        "Example Integer Tooltip",   -- tooltip
+                        _("Example Integer"),           -- label
+                        _("Example Integer Tooltip"),   -- tooltip
                         2,                            -- default
                         1,                            -- min
                         99)                           -- max
@@ -53,8 +61,8 @@ dt.preferences.register("preferenceExamples",        -- script: This is a string
 dt.preferences.register("preferenceExamples",        -- script: This is a string used to avoid name collision in preferences (i.e namespace). Set it to something unique, usually the name of the script handling the preference. 
                         "preferenceExamplesFloat",  -- name
                         "float",                      -- type
-                        "Example Float",             -- label
-                        "Example Float Tooltip",     -- tooltip
+                        _("Example Float"),             -- label
+                        _("Example Float Tooltip"),     -- tooltip
                         1.3,                          -- default
                         1,                            -- min
                         99,                           -- max
@@ -63,22 +71,22 @@ dt.preferences.register("preferenceExamples",        -- script: This is a string
 dt.preferences.register("preferenceExamples",        -- script: This is a string used to avoid name collision in preferences (i.e namespace). Set it to something unique, usually the name of the script handling the preference. 
                         "preferenceExamplesFile",  -- name
                         "file",                       -- type
-                        "Example File",              -- label
-                        "Example File Tooltip",      -- tooltip
+                        _("Example File"),              -- label
+                        _("Example File Tooltip"),      -- tooltip
                         "")                           -- default
 
 dt.preferences.register("preferenceExamples",        -- script: This is a string used to avoid name collision in preferences (i.e namespace). Set it to something unique, usually the name of the script handling the preference.
                         "preferenceExamplesDirectory",  -- name
                         "directory",                  -- type
-                        "Example Directory",         -- label
-                        "Example Directory Tooltip", -- tooltip
+                        _("Example Directory"),         -- label
+                        _("Example Directory Tooltip"), -- tooltip
                         "")                           -- default
 
 dt.preferences.register("preferenceExamples",        -- script: This is a string used to avoid name collision in preferences (i.e namespace). Set it to something unique, usually the name of the script handling the preference.
                         "preferenceExamplesEnum",  -- name
                         "enum",                       -- type
-                        "Example Enum",              -- label
-                        "Example Enum Tooltip",      -- tooltip
+                        _("Example Enum"),              -- label
+                        _("Example Enum Tooltip"),      -- tooltip
                         "Enum 1",                     -- default
                         "Enum 1", "Enum 2")           -- values
 

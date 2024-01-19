@@ -29,7 +29,15 @@ USAGE
 local dt = require "darktable"
 local du = require "lib/dtutils"
 
+-- translation facilities
+
 du.check_min_api_version("2.0.0", "hello_world") 
+
+local gettext = dt.gettext.gettext
+
+local function _(msg)
+  return gettext(msg)
+end
 
 -- script_manager integration to allow a script to be removed
 -- without restarting darktable
@@ -37,7 +45,7 @@ local function destroy()
     -- nothing to destroy
 end
 
-dt.print("hello, world")
+dt.print(_("hello, world"))
 
 -- set the destroy routine so that script_manager can call it when
 -- it's time to destroy the script and then return the data to 
