@@ -32,20 +32,26 @@ USAGE
 
 local dt = require "darktable"
 
+local gettext = dt.gettext.gettext 
+
+local function _(msg)
+  return gettext(msg)
+end
+
 local import_filter_list = {}
 local n_import_filters = 1
 
 -- allow changing the filter from the preferences
 dt.preferences.register("import_filter_manager", "active_filter", "string",
-  "import filter", "the name of the filter used for importing images", "")
+  _("import filter"), _("the name of the filter used for importing images"), "")
 
 
 -- the dropdown to select the active filter from the import dialog
 local filter_dropdown = dt.new_widget("combobox")
 {
-  label = "import filter",
+  label = _("import filter"),
   editable = false,
-  tooltip = "import filters are applied after completion of the import dialog",
+  tooltip = _("import filters are applied after completion of the import dialog"),
 
   changed_callback = function(widget)
     dt.preferences.write("import_filter_manager", "active_filter", "string", widget.value)

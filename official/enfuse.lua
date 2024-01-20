@@ -39,7 +39,7 @@ local dtsys = require "lib/dtutils.system"
 
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "enfuse")
 
@@ -52,16 +52,13 @@ script_data.destroy_method = nil -- set to hide for libs since we can't destroy 
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("enfuse",dt.configuration.config_dir..PS .. "lua" .. PS .. "locale" .. PS)
-
 local enf = {}
 enf.event_registered = false
 enf.module_installed = false
 enf.lib_widgets = {}
 
 local function _(msgid)
-    return gettext.dgettext("enfuse", msgid)
+    return gettext(msgid)
 end
 
 local function install_module()
@@ -132,7 +129,7 @@ if enfuse_installed then
     exposure_mu = dt.new_widget("slider")
     {
       label = "exposure mu",
-      tooltip = "center also known as MEAN of Gaussian weighting function (0 <= MEAN <= 1); default: 0.5",
+      tooltip = _("center also known as MEAN of Gaussian weighting function (0 <= MEAN <= 1); default: 0.5"),
       hard_min = 0,
       hard_max = 1,
       value = dt.preferences.read("enfuse", "exposure_mu", "float")
@@ -141,7 +138,7 @@ if enfuse_installed then
     exposure_mu = dt.new_widget("slider")
     {
       label = "exposure optimum",
-      tooltip = "optimum exposure value, usually the maximum of the weighting function (0 <= OPTIMUM <=1); default 0.5",
+      tooltip = _("optimum exposure value, usually the maximum of the weighting function (0 <= OPTIMUM <=1); default 0.5"),
       hard_min = 0,
       hard_max = 1,
       value = dt.preferences.read("enfuse", "exposure_optimum", "float")
@@ -151,7 +148,7 @@ if enfuse_installed then
   local depth = dt.new_widget("combobox")
   {
     label = "depth",
-    tooltip = "the number of bits per channel of the output image",
+    tooltip = _("the number of bits per channel of the output image"),
     value = dt.preferences.read("enfuse", "depth", "integer"),
     changed_callback = function(w) dt.preferences.write("enfuse", "depth", "integer", w.selected) end,
     "8", "16", "32"
@@ -160,14 +157,14 @@ if enfuse_installed then
   local blend_colorspace = dt.new_widget("combobox")
   {
     label = "blend colorspace",
-    tooltip = "Force blending in selected colorspace",
+    tooltip = _("force blending in selected colorspace"),
     changed_callback = function(w) dt.preferences.write("enfuse", "blend_colorspace", "string", w.selected) end,
     "", "identity", "ciecam"
   }
 
   local enfuse_button = dt.new_widget("button")
   {
-    label = enfuse_installed and "run enfuse" or "enfuse not installed",
+    label = enfuse_installed and _("run enfuse") or _("enfuse not installed"),
     clicked_callback = function ()
       -- remember exposure_mu
       -- TODO: find a way to save it whenever the value changes
@@ -185,7 +182,7 @@ if enfuse_installed then
       end
       local f = io.open(response_file, "w")
       if not f then
-        dt.print(string.format(_("Error writing to `%s`"), response_file))
+        dt.print(string.format(_("Error writing to '%s'"), response_file))
         os.remove(response_file)
         return
       end
@@ -251,7 +248,7 @@ if enfuse_installed then
                       ..blend_colorspace_option
                       .." -o \""..output_image.."\" \"@"..response_file.."\""
       if dtsys.external_command( command) > 0 then
-        dt.print(_("Enfuse failed, see terminal output for details"))
+        dt.print(_("enfuse failed, see terminal output for details"))
         os.remove(response_file)
         return
       end

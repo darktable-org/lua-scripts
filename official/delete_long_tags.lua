@@ -59,7 +59,7 @@ local long_tags = {}
 for _,t in ipairs(dt.tags) do
   local len = #t.name
   if len > max_length then
-    print("deleting tag `"..t.name.."' (length: "..len..")")
+    dt.print_log("deleting tag `"..t.name.."' (length: "..len..")")
     table.insert(long_tags, t.name)
   end
 end

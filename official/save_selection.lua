@@ -38,6 +38,12 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("7.0.0", "save_selection") 
 
+local gettext = dt.gettext.gettext 
+
+local function _(msg)
+  return gettext(msg)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
@@ -61,16 +67,16 @@ for i = 1, buffer_count do
   local saved_selection
   dt.register_event("save_selection save " .. i, "shortcut", function()
     saved_selection = dt.gui.selection()
-  end, "save to buffer " .. i)
+  end, string.format(_("save to buffer %d"), i))
   dt.register_event("save_selection restore " .. i, "shortcut", function()
     dt.gui.selection(saved_selection)
-  end, "restore from buffer " .. i)
+  end, string.format(_("restore from buffer %d"), i))
 end
 
 local bounce_buffer = {}
 dt.register_event("save_selection switch", "shortcut", function()
   bounce_buffer = dt.gui.selection(bounce_buffer)
-end, "switch selection with temporary buffer")
+end, _("switch selection with temporary buffer"))
 
 script_data.destroy = destroy
 
