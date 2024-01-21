@@ -55,9 +55,7 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 
 
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"
-local gettext = dt.gettext
-gettext.bindtextdomain(MODULE_NAME,
-    dt.configuration.config_dir .. PS .. "lua" .. PS .. "locale" .. PS)
+local gettext = dt.gettext.gettext
 
 local exporter = dt.new_format("jpeg")
 exporter.quality = 80
@@ -67,7 +65,7 @@ exporter.max_width = 224
 -- helper functions
 
 local function _(msgid)
-    return gettext.dgettext(MODULE_NAME, msgid)
+    return gettext(msgid)
 end
 
 local function num_keys(tbl)
@@ -428,7 +426,7 @@ end
 
 if not photils_installed then
     GUI.warning_label.label = _("photils-cli not found")
-    dt.print_log(_("photils-cli not found"))
+    dt.print_log("photils-cli not found")
 else
     GUI.warning_label.label = _("Select an image, click \"get tags\" and get \nsuggestions for tags.")
 end

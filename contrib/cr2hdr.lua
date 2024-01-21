@@ -37,6 +37,12 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("7.0.0", "cr2hdr") 
 
+local gettext = dt.gettext.gettext
+
+local function _(msgid)
+    return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
@@ -87,7 +93,7 @@ end
 local function convert_images()
     if next(queue) == nil then return end
 
-    job = darktable.gui.create_job("Dual ISO conversion", true, stop_conversion)
+    job = darktable.gui.create_job(_("Dual ISO conversion"), true, stop_conversion)
     for key,image in pairs(queue) do
         if job.valid then
             job.percent = (key-1)/#queue
@@ -98,7 +104,7 @@ local function convert_images()
     end
     local success_count = 0
     for _ in pairs(processed_files) do success_count = success_count + 1 end
-    darktable.print("Dual ISO conversion successful on " .. success_count .. "/" .. #queue .. " images.")
+    darktable.print(string.format(_("Dual ISO conversion successful on %d/%d images."), success_count, #queue))
     job.valid = false
     processed_files = {}
     queue = {}
@@ -122,13 +128,13 @@ local function destroy()
 end
 
 darktable.register_event("cr2hdr", "shortcut", 
-    convert_action_images, "Run cr2hdr (Magic Lantern DualISO converter) on selected images")
+    convert_action_images, _("Run cr2hdr (Magic Lantern DualISO converter) on selected images"))
 darktable.register_event("cr2hdr", "post-import-image", 
     file_imported)
 darktable.register_event("cr2hdr", "post-import-film", 
     film_imported)
 
-darktable.preferences.register("cr2hdr", "onimport", "bool", "Invoke on import", "If true then cr2hdr will try to proccess every file during importing. Warning: cr2hdr is quite slow even in figuring out on whether the file is Dual ISO or not.", false)
+darktable.preferences.register("cr2hdr", "onimport", "bool", _("Invoke on import"), _("If true then cr2hdr will try to proccess every file during importing. Warning: cr2hdr is quite slow even in figuring out on whether the file is Dual ISO or not."), false)
 
 script_data.destroy = destroy 
 

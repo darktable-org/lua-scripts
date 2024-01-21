@@ -39,7 +39,7 @@ local df = require "lib/dtutils.file"
 local ds = require "lib/dtutils.string"
 local dsys = require "lib/dtutils.system"
 
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 
@@ -54,11 +54,8 @@ script_data.destroy_method = nil -- set to hide for libs since we can't destroy 
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("kml_export",dt.configuration.config_dir.."/lua/locale/")
-
 local function _(msgid)
-  return gettext.dgettext("kml_export", msgid)
+  return gettext(msgid)
 end
 
 local function show_status(storage, image, format, filename, number, total, high_quality, extra_data)

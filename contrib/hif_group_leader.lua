@@ -73,13 +73,10 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 -- I 1 8 N
 -- - - - - - - - - - - - - - - - - - - - - - - - - -
 
-local gettext = dt.gettext
-
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain(MODULE, dt.configuration.config_dir .. "/lua/locale/")
+local gettext = dt.gettext.gettext
 
 local function _(msgid)
-    return gettext.dgettext(MODULE, msgid)
+    return gettext(msgid)
 end
 
 

@@ -46,13 +46,10 @@ local df = require "lib/dtutils.file"
 
 du.check_min_api_version("7.0.0", "rename_images") 
 
-local gettext = dt.gettext
-
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("rename_images",dt.configuration.config_dir.."/lua/locale/")
+local gettext = dt.gettext.gettext
 
 local function _(msgid)
-    return gettext.dgettext("rename_images", msgid)
+    return gettext(msgid)
 end
 
 -- namespace variable
@@ -86,7 +83,7 @@ local MODULE_NAME = "rename_images"
 local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 local USER = os.getenv("USERNAME")
 local HOME = os.getenv(dt.configuration.running_os == "windows" and "HOMEPATH" or "HOME")
-local PICTURES = HOME .. PS .. dt.configuration.running_os == "windows" and "My Pictures" or "Pictures"
+local PICTURES = HOME .. PS .. dt.configuration.running_os == "windows" and _("My Pictures") or _("Pictures")
 local DESKTOP = HOME .. PS .. "Desktop"
 
 -- - - - - - - - - - - - - - - - - - - - - - - -
@@ -158,8 +155,8 @@ local function substitute_list(str)
     if rename.substitutes[var] then
       str = string.gsub(str, "%$%("..var.."%)", rename.substitutes[var])
     else
-      dt.print_error(_("unrecognized variable " .. var))
-      dt.print(_("unknown variable " .. var .. ", aborting..."))
+      dt.print_error("unrecognized variable " .. var)
+      dt.print(string.format(_("unknown variable %s, aborting..."), var))
       return -1
     end
   end
@@ -210,7 +207,7 @@ local function do_rename(images)
   if #images > 0 then
     local pattern = rename.widgets.pattern.text
     dt.preferences.write(MODULE_NAME, "pattern", "string", pattern)
-    dt.print_log(_("pattern is " .. pattern))
+    dt.print_log("pattern is " .. pattern)
     if string.len(pattern) > 0 then
       local datetime = os.date("*t")
 
@@ -250,7 +247,7 @@ local function do_rename(images)
       stop_job(job)
       local collect_rules = dt.gui.libs.collect.filter()
       dt.gui.libs.collect.filter(collect_rules)
-      dt.print(_("renamed " .. #images .. " images"))
+      dt.print(string.format(_("renamed %d images"), #images))
     else -- pattern length
       dt.print_error("no pattern supplied, returning...")
       dt.print(_("please enter the new name or pattern"))

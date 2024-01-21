@@ -27,7 +27,7 @@ USAGE
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "slideshowMusic") 
 
@@ -40,11 +40,8 @@ script_data.destroy_method = nil -- set to hide for libs since we can't destroy 
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("slideshowMusic",dt.configuration.config_dir.."/lua/locale/")
-
 local function _(msgid)
-    return gettext.dgettext("slideshowMusic", msgid)
+    return gettext(msgid)
 end
 
 local function playSlideshowMusic(_, old_view, new_view)
@@ -54,7 +51,7 @@ local function playSlideshowMusic(_, old_view, new_view)
   playMusic = dt.preferences.read("slideshowMusic","PlaySlideshowMusic","bool")
 
   if not df.check_if_bin_exists("rhythmbox-client") then
-    dt.print_error(_("rhythmbox-client not found"))
+    dt.print_error("rhythmbox-client not found")
     return
   end
 
@@ -70,7 +67,7 @@ local function playSlideshowMusic(_, old_view, new_view)
       if (old_view and old_view.id == "slideshow") then
         stopCommand = "rhythmbox-client --pause"
         --dt.print_error(stopCommand)
-        dt.control.execute( stopCommand)
+        dt.control.execute(stopCommand)
       end
     end
   end

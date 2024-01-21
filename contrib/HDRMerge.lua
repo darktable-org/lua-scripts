@@ -67,10 +67,10 @@ if dt.configuration.running_os == 'windows' then os_path_seperator = '\\' end
 local CURR_API_STRING = dt.configuration.api_version_string
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-local gettext = dt.gettext
-gettext.bindtextdomain('HDRMerge', dt.configuration.config_dir..'/lua/locale/')
+local gettext = dt.gettext.gettext
+
 local function _(msgid)
-    return gettext.dgettext('HDRMerge', msgid)
+    return gettext(msgid)
 end
 
 local temp
@@ -208,7 +208,7 @@ end
 local function main()
   PreCall({HDRM}) --check if furst run then check if install OK
   if HDRM.install_error then
-    dt.print_error(_('HDRMerge install issue'))
+    dt.print_error('HDRMerge install issue')
     dt.print(_('HDRMerge install issue, please ensure the binary path is proper'))
     return
   end
@@ -277,7 +277,7 @@ local function main()
     end
     dt.print(_('HDRMerge completed successfully'))
   else
-    dt.print_error(_('HDRMerge failed'))
+    dt.print_error('HDRMerge failed')
     dt.print(_('HDRMerge failed'))
   end
 

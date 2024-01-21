@@ -28,7 +28,7 @@ require "geoToolbox"
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "geoToolbox") 
 
@@ -41,11 +41,8 @@ script_data.destroy_method = nil -- set to hide for libs since we can't destroy 
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("geoToolbox",dt.configuration.config_dir.."/lua/locale/")
-
 local function _(msgid)
-    return gettext.dgettext("geoToolbox", msgid)
+    return gettext(msgid)
 end
 
 
@@ -300,9 +297,9 @@ local function copy_gps()
       end
     end
 
-    label_copy_gps_lat.label = _("latitude: ") .. copy_gps_latitude
-    label_copy_gps_lon.label = _("longitude: ") ..copy_gps_longitude
-    label_copy_gps_ele.label = _("elevation: ") .. copy_gps_elevation
+    label_copy_gps_lat.label = string.format(_("latitude: "), copy_gps_latitude)
+    label_copy_gps_lon.label = string.format(_("longitude: "),copy_gps_longitude)
+    label_copy_gps_ele.label = string.format(_("elevation: "), copy_gps_elevation)
 
     return
   end
@@ -582,7 +579,7 @@ local function altitude_profile()
     file = io.open(exportDirectory.."/"..exportFilename, "w")
     file:write(csv_file)
     file:close()
-    dt.print(_("File created in ")..exportDirectory)
+    dt.print(string.format(_("File created in %s"), exportDirectory))
 
 end
 
