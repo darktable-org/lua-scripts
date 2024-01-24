@@ -397,7 +397,7 @@ local function activate(script)
       if err ~= true then
         log.msg(log.debug, "got lib data")
         script.data = err
-        if script.data.destroy_method and script.data.destroy_method == "hide" and script.data.show then
+        if script.data.destroy_method and script.data.destroy_method == "hide" and script.data.show and dt.gui.current_view().id == "lighttable" then
           script.data.show()
         end
       else
