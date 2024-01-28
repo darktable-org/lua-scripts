@@ -497,14 +497,15 @@ local function process_script_data(script_file)
 
   -- add the script data
   local category,path,name,filename,filetype = string.match(script_file, pattern)
-  log.msg(log.debug, "category is " .. category)
-  log.msg(log.debug, "name is " .. name)
 
-  add_script_category(category)
+  if category and name and path then
+    log.msg(log.debug, "category is " .. category)
+    log.msg(log.debug, "name is " .. name)
 
-  if name then
+    add_script_category(category)
     add_script_name(name, path, category)
   end
+
   restore_log_level(old_log_level)
 end
 
