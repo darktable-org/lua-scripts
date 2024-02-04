@@ -37,7 +37,7 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 local dsys = require "lib/dtutils.system"
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "video_ffmpeg") 
 
@@ -53,10 +53,9 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 local MODULE_NAME = "video_ffmpeg"
 
 local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
-gettext.bindtextdomain(MODULE_NAME, dt.configuration.config_dir..PS.."lua"..PS.."locale"..PS)
 
 local function _(msgid)
-  return gettext.dgettext(MODULE_NAME, msgid)
+  return gettext(msgid)
 end
 
 
@@ -375,7 +374,7 @@ local module_widget = dt.new_widget("box") {
 ---- EXPORT & REGISTRATION
 
 local function show_status(enf_storage, image, format, filename, number, total, high_quality, extra_data)
-  dt.print(_("export ")..tostring(number).." / "..tostring(total))   
+  dt.print(string.format(_("export %d / %d"), number), total))   
 end
 
 local function init_export(storage, img_format, images, high_quality, extra_data)
@@ -465,7 +464,7 @@ end
 
 dt.register_storage(
   "module_video_ffmpeg", 
-  _(MODULE_NAME), 
+  _("video ffmpeg"), 
   show_status, 
   finalize_export,
   nil, 

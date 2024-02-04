@@ -40,7 +40,7 @@ local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 local log = require "lib/dtutils.log"
 local dtsys = require "lib/dtutils.system"
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 local namespace = 'module_hugin'
 local user_pref_str = 'prefer_gui'
@@ -65,11 +65,8 @@ script_data.destroy_method = nil -- set to hide for libs since we can't destroy 
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("hugin",dt.configuration.config_dir.."/lua/locale/")
-
 local function _(msgid)
-  return gettext.dgettext("hugin", msgid)
+  return gettext(msgid)
 end
 
 local function user_preference_changed(widget)
@@ -201,7 +198,7 @@ local function create_panorama(storage, image_table, extra_data) --finalize
       if df.check_if_file_exists(src_path) then
         log.msg(log.debug, "found ", src_path, " importing to ", dst_path)
         df.file_move(src_path, dst_path)
-        dt.print(_("importing file "..dst_path))
+        dt.print(string.format(_("importing file %s"), dst_path))
         dt.database.import(dst_path)
       end
     end
@@ -227,7 +224,7 @@ hugin_widget = dt.new_widget("box") {
   orientation = "vertical",
   dt.new_widget("check_button")
   {
-    label = _("  launch hugin gui"),
+    label = _("launch hugin gui"),
     value = user_prefer_gui,
     tooltip = _('launch hugin in gui mode'),
     clicked_callback = user_preference_changed

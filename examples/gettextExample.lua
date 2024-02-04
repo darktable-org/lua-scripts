@@ -67,22 +67,18 @@ end
 -- Not translated Text
 dt.print_error("Hello World!")
 
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext 
+
 -- Translate a string using the darktable textdomain
-dt.print_error(gettext.gettext("image"))
-
--- Tell gettext where to find the .mo file translating messages for a particular domain
-
-gettext.bindtextdomain("gettextExample",dt.configuration.config_dir.."/lua/locale/")
--- Translate a string using the specified textdomain
-dt.print_error(gettext.dgettext("gettextExample", 'Hello World!'))
+dt.print_error(gettext("image"))
 
 -- Define a local function called _ to make the code more readable and have it call dgettext 
 -- with the proper domain.
 local function _(msgid)
-    return gettext.dgettext("gettextExample", msgid)
+    return gettext(msgid)
 end
-dt.print_error(_('Hello World!'))
+
+dt.print_error(_("Hello World!"))
 
 -- set the destroy routine so that script_manager can call it when
 -- it's time to destroy the script and then return the data to 

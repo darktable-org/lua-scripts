@@ -38,6 +38,12 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("7.0.0", "selection_to_pdf")
 
+local gettext = dt.gettext.gettext 
+
+local function _(msg)
+  return gettext(msg)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
@@ -49,16 +55,16 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 
 dt.preferences.register
    ("selection_to_pdf","Open with","string",
-    "a pdf viewer",
-    "Can be an absolute pathname or the tool may be in the PATH",
+    _("a pdf viewer"),
+    _("Can be an absolute pathname or the tool may be in the PATH"),
     "xdg-open")
 
 local title_widget = dt.new_widget("entry") {
-    placeholder="Title"
+    placeholder = _("Title")
 }
 local no_of_thumbs_widget = dt.new_widget("slider")
 {
-    label = "Thumbs per Line", 
+    label = _("Thumbs per Line"), 
     soft_min = 1,     -- The soft minimum value for the slider, the slider can't go beyond this point
     soft_max = 10,    -- The soft maximum value for the slider, the slider can't go beyond this point
     hard_min = 1,     -- The hard minimum value for the slider, the user can't manually enter a value beyond this point
@@ -66,10 +72,10 @@ local no_of_thumbs_widget = dt.new_widget("slider")
     value = 4         -- The current value of the slider
 }
 local widget = dt.new_widget("box") {
-    orientation=horizontal,
-    dt.new_widget("label"){label = "Title:"},
+    orientation = horizontal,
+    dt.new_widget("label"){label = _("Title:")},
     title_widget,
-    dt.new_widget("label"){label = "Thumbnails per row:"},
+    dt.new_widget("label"){label = _("Thumbnails per row:")},
     no_of_thumbs_widget
 }
 
@@ -116,7 +122,7 @@ local function destroy()
   dt.print_log("done destroying")
 end
 
-dt.register_storage("export_pdf","Export thumbnails to pdf",
+dt.register_storage(_("export_pdf"),_("Export thumbnails to pdf"),
     nil,
     function(storage,image_table)
       local my_title = title_widget.text
@@ -163,7 +169,7 @@ dt.register_storage("export_pdf","Export thumbnails to pdf",
       local command = "pdflatex -halt-on-error -output-directory "..dir.." "..locfile
       local result = dt.control.execute(command)
       if result ~= 0 then
-        dt.print("Problem running pdflatex") -- this one is probably usefull to the user
+        dt.print(_("Problem running pdflatex")) -- this one is probably usefull to the user
         error("Problem running "..command)
       end
 
@@ -173,7 +179,7 @@ dt.register_storage("export_pdf","Export thumbnails to pdf",
       command = command.." "..pdffile
       local result = dt.control.execute(command)
       if result ~= 0 then
-        dt.print("Problem running pdf viewer") -- this one is probably usefull to the user
+        dt.print(_("Problem running pdf viewer")) -- this one is probably usefull to the user
         error("Problem running "..command)
       end
 

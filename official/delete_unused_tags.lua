@@ -56,7 +56,7 @@ for _, t in ipairs(dt.tags) do
 end
 
 for _,name in pairs(unused_tags) do
-  print("deleting tag `" .. name .. "'")
+  dt.print_log("deleting tag `" .. name .. "'")
   tag = dt.tags.find(name)
   tag:delete()
 end

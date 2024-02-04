@@ -42,6 +42,12 @@ local filelib = require "lib/dtutils.file"
 
 du.check_min_api_version("7.0.0", "autostyle") 
 
+local gettext = darktable.gettext.gettext
+
+local function _(msgid)
+  return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
@@ -92,19 +98,19 @@ local function autostyle_apply_one_image (image)
 
   -- check they all exist (correct syntax)
   if (not tag) then
-	  darktable.print("EXIF TAG not found in " .. pref)
+	  darktable.print(string.format(_("EXIF TAG not found in %s"), pref))
 	  return 0
   end
   if (not value) then
-	  darktable.print("value to match not found in " .. pref)
+	  darktable.print(string.format(_("value to match not found in %s"), pref))
 	  return 0
   end
   if (not style_name) then
-	  darktable.print("style name not found in " .. pref)
+	  darktable.print(string.format(_("style name not found in %s"), pref))
 	  return 0
   end
   if not filelib.check_if_bin_exists("exiftool") then
-	  darktable.print("Can't find exiftool")
+	  darktable.print(_("Can't find exiftool"))
     return 0
   end
 	
@@ -118,7 +124,7 @@ local function autostyle_apply_one_image (image)
 	  end
   end
   if (not style) then
-	  darktable.print("style not found for autostyle: " .. style_name)
+	  darktable.print(string.format(_("style not found for autostyle: %s"), style_name))
     return 0
   end
 
@@ -127,7 +133,7 @@ local function autostyle_apply_one_image (image)
   --darktable.print_error("dr_attr:" .. auto_dr_attr)
   -- If the lookup fails, stop here
   if (not ok) then
-    darktable.print("Couldn't get attribute " .. auto_dr_attr .. " from exiftool's output")
+    darktable.print(string.format(_("Couldn't get attribute %s from exiftool's output"), auto_dr_attr))
     return 0
   end
   if auto_dr_attr == value then
@@ -154,7 +160,7 @@ local function autostyle_apply(shortcut)
     images_submitted = images_submitted + 1
     images_processed = images_processed + autostyle_apply_one_image(image)
   end
-  darktable.print("Applied auto style to " .. images_processed .. " out of " .. images_submitted .. " image(s)")
+  darktable.print(string.format(_("Applied auto style to %d out of %d image(s)"), images_processed, images_submitted))
 end
 
 local function destroy()
@@ -164,9 +170,9 @@ end
 
 -- Registering events
 darktable.register_event("autostyle", "shortcut", autostyle_apply,
-       "Apply your chosen style from exiftool tags")
+       _("Apply your chosen style from exiftool tags"))
 
-darktable.preferences.register("autostyle", "exif_tag", "string", "Autostyle: EXIF_tag=value=>style", "apply a style automatically if an EXIF_tag matches value. Find the tag with exiftool", "")
+darktable.preferences.register("autostyle", "exif_tag", "string", "Autostyle: EXIF_tag=value=>style", _("apply a style automatically if an EXIF_tag matches value. Find the tag with exiftool"), "")
 
 darktable.register_event("autostyle", "post-import-image",
   autostyle_apply_one_image_event)

@@ -77,10 +77,10 @@ script_data.restart = nil -- how to restart the (lib) script after it's been hid
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-local gettext = dt.gettext
-gettext.bindtextdomain('enfuseAdvanced',dt.configuration.config_dir..'/lua/locale/')
+local gettext = dt.gettext.gettext
+
 local function _(msgid)
-    return gettext.dgettext('enfuseAdvanced', msgid)
+    return gettext(msgid)
 end
 
 -- INITS --
@@ -260,7 +260,7 @@ local function ExeUpdate(prog_tbl) --updates executable paths and verifies them
         if not prog.bin then 
             prog.install_error = true
             dt.preferences.write(mod, 'bin_exists', 'bool', false)
-            dt.print(_('issue with ')..prog.name.._(' executable'))
+            dt.print(string.format(_("issue with %s executable"), prog.name))
         else
             prog.bin = CleanSpaces(prog.bin)
         end
@@ -377,7 +377,7 @@ local function SaveToPreference(preset) --save the present values of enfuse GUI 
             dt.preferences.write(mod, preset..argument, arg_data.style, temp)
         end
     end
-    dt.print(_('saved to ')..preset)
+    dt.print(string.format(_("saved to %s"), preset))
 end
 
 local function LoadFromPreference(preset) --load values from the specified 'preset' into the GUI elements
@@ -393,7 +393,7 @@ local function LoadFromPreference(preset) --load values from the specified 'pres
             dt.preferences.write(mod, 'active_'..argument, arg_data.style, temp)
         end     
     end
-    dt.print(_('loaded from ')..preset)
+    dt.print(string.format(_("loaded from %s"), preset))
 end
 
 local function remove_temp_files(images_to_remove) --deletes all files specified by the input string
@@ -428,7 +428,7 @@ local function support_format(storage, format) --tells dt we only support TIFF e
 end
 
 local function show_status(storage, image, format, filename, number, total, high_quality, extra_data) --outputs message to user showing script export status
-    dt.print(_('export for image fusion ')..tostring(math.floor(number))..' / '..tostring(math.floor(total)))
+    dt.print(string.format(_("export for image fusion %d / %d"), math.floor(number), math.floor(total)))
 end
 
 local function main(storage, image_table, extra_data)
@@ -456,8 +456,8 @@ local function main(storage, image_table, extra_data)
         job.valid = false
         if resp ~= 0 then
             remove_temp_files(images_to_remove)
-            dt.print_error(AIS.name.._(' failed'))
-            dt.print(AIS.name.._(' failed'))
+            dt.print(string.format(_("%s failed"), AIS.name))
+            dt.print_error(AIS.name .. ' failed')
             return
         end
     end
@@ -483,8 +483,8 @@ local function main(storage, image_table, extra_data)
         local resp = dsys.external_command(run_cmd)
         if resp ~= 0 then
             remove_temp_files(images_to_remove)
-            dt.print_error(ENF.name.._(' failed'))
-            dt.print(ENF.name.._(' failed'))
+            dt.print_error(ENF.name..' failed')
+            dt.print(string.format(_("%s failed"), ENF.name))
             return
         end
         

@@ -58,11 +58,10 @@ local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 -- - - - - - - - - - - - - - - - - - - - - - - -
 -- T R A N S L A T I O N S
 -- - - - - - - - - - - - - - - - - - - - - - - -
-local gettext = dt.gettext
-gettext.bindtextdomain(MODULE_NAME, dt.configuration.config_dir..PS.."lua"..PS.."locale"..PS)
+local gettext = dt.gettext.gettext
 
 local function _(msgid)
-  return gettext.dgettext(MODULE_NAME, msgid)
+  return gettext(msgid)
 end
 
 -- - - - - - - - - - - - - - - - - - - - - - - -
@@ -98,7 +97,7 @@ sleep(1500)
 -- display first 10 images of collection pausing for a second between each
 
 for i, img in ipairs(dt.collection) do 
-  dt.print(_("Displaying image " .. i))
+  dt.print(string.format(_("Displaying image "), i))
   dt.gui.views.darkroom.display_image(img)
   sleep(1500)
   if i == max_images then

@@ -34,7 +34,7 @@ local dt = require "darktable"
 
 -- ignore jpeg
 dt.register_import_filter("ignore jpegs", function(event, images)
-  dt.print_error("ignoring all jpegs")
+  dt.print_log("ignoring all jpegs")
   for i, img in ipairs(images) do
     local extension = img:match("[^.]*$"):upper()
     if (extension == "JPG") or (extension == "JPEG") then

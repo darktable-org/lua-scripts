@@ -47,12 +47,9 @@ In the "Selected Images" module click on "Collect on this Image"
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 local previous = nil
 local all_active = false
-
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("CollectHelper",dt.configuration.config_dir.."/lua/locale/")
 
 du.check_min_api_version("7.0.0", "CollectHelper") 
 
@@ -66,7 +63,7 @@ script_data.restart = nil -- how to restart the (lib) script after it's been hid
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
 local function _(msgid)
-    return gettext.dgettext("CollectHelper", msgid)
+    return gettext(msgid)
 end
 
 -- FUNCTION --

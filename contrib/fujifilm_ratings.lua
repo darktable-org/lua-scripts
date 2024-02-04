@@ -26,7 +26,7 @@ Dependencies:
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "fujifilm_ratings") 
 
@@ -39,10 +39,8 @@ script_data.destroy_method = nil -- set to hide for libs since we can't destroy 
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
-gettext.bindtextdomain("fujifilm_ratings", dt.configuration.config_dir.."/lua/locale/")
-
 local function _(msgid)
-	return gettext.dgettext("fujifilm_ratings", msgid)
+	return gettext(msgid)
 end
 
 local function detect_rating(event, image)
@@ -60,7 +58,7 @@ local function detect_rating(event, image)
 	if string.len(jpeg_result) > 0 then
 		jpeg_result = string.gsub(jpeg_result, "^Rating.*(%d)", "%1")
 		image.rating = tonumber(jpeg_result)
-		dt.print_error(_("Using JPEG Rating: ") .. tostring(jpeg_result))
+		dt.print_error(string.format(_("Using JPEG Rating: %d"), jpeg_result))
 		return
 	end
 	command = "exiftool -Rating " .. RAF_filename
@@ -71,7 +69,7 @@ local function detect_rating(event, image)
 	if string.len(raf_result) > 0 then
 		raf_result = string.gsub(raf_result, "^Rating.*(%d)", "%1")
 		image.rating = tonumber(raf_result)
-		dt.print_error(_("Using RAF Rating: ") .. tostring(raf_result))
+		dt.print_error(string.format(_("Using RAF Rating: %d"), raf_result))
 	end
 end
 

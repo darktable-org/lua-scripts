@@ -38,6 +38,12 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 require "darktable.debug"
 
+local gettext = dt.gettext.gettext
+
+local function _(msg)
+  return gettext(msg)
+end
+
 du.check_min_api_version("7.0.0", "generate_image_txt") 
 
 -- return data structure for script_manager
@@ -52,21 +58,21 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 dt.preferences.register("generate_image_txt",
                         "enabled",
                         "bool",
-                        "create txt sidecars to display with images",
-                        "the txt files created get shown when the lighttable is zoomed in to one image. also enable the txt overlay setting in the gui tab",
+                        _("create txt sidecars to display with images"),
+                        _("the txt files created get shown when the lighttable is zoomed in to one image. also enable the txt overlay setting in the gui tab"),
                         false)
 
 dt.preferences.register("generate_image_txt",
                         "command",
                         "string",
-                        "command to generate the txt sidecar",
-                        "the output of this command gets written to the txt file. use $(FILE_NAME) for the image file",
+                        _("command to generate the txt sidecar"),
+                        _("the output of this command gets written to the txt file. use $(FILE_NAME) for the image file"),
                         "exiv2 $(FILE_NAME)")
 
 
 local check_command = function(command)
   if not command:find("$(FILE_NAME)", 1, true) then
-    dt.print("the command for txt sidecars looks bad. better check the preferences")
+    dt.print(_("the command for txt sidecars looks bad. better check the preferences"))
   end
 end
 

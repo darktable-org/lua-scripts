@@ -42,12 +42,10 @@ script_data.destroy_method = nil -- set to hide for libs since we can't destroy 
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
-local gettext = dt.gettext
-
-gettext.bindtextdomain("exportLUT",dt.configuration.config_dir.."/lua/locale/")
+local gettext = dt.gettext.gettext
 
 local function _(msgid)
-    return gettext.dgettext("exportLUT", msgid)
+    return gettext(msgid)
 end
 
 du.check_min_api_version("5.0.0", "exportLUT") 
@@ -127,7 +125,7 @@ local function export_luts()
       io_lut:write_image(identity, output_path(style.name, job))
       count = count + 1
       job.percent = count / size
-      dt.print(_("Exported: ") .. output_path(style.name, job))
+      dt.print(string.format(_("Exported: %s"), output_path(style.name, job)))
     end
     dt.print(_("Done exporting haldCLUTs"))
     job.valid = false

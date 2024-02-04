@@ -29,11 +29,10 @@ du.check_min_api_version("9.1.0", MODULE)
 -- figure out the path separator
 local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 
-local gettext = dt.gettext
-gettext.bindtextdomain(MODULE, dt.configuration.config_dir..PS.."lua"..PS.."locale"..PS)
+local gettext = dt.gettext.gettext
 
 local function _(msgid)
-    return gettext.dgettext(MODULE, msgid)
+    return gettext(msgid)
 end
 
 local function stop_job(job)

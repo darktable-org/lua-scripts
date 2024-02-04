@@ -48,18 +48,16 @@ script_data.destroy_method = nil -- set to hide for libs since we can't destroy 
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext 
 
 -- not a number
 local NaN = 0/0
 
 du.check_min_api_version("7.0.0", "clear_GPS") 
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("clear_GPS",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("clear_GPS", msgid)
+    return gettext(msgid)
 end
 
 local function clear_GPS(images)
