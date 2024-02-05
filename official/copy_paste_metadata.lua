@@ -58,11 +58,8 @@ local publisher = ""
 local rights = ""
 local tags = {}
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("copy_paste_metadata",dt.configuration.config_dir.."/lua/locale/")
-
 local function _(msgid)
-    return gettext.dgettext("copy_paste_metadata", msgid)
+    return gettext.gettext(msgid)
 end
 
 local function copy(image)
