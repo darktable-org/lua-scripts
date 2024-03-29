@@ -140,7 +140,7 @@ local matches = grep(DARKTABLERC, "executable_paths")
 -- check if we have something to manage and exit if not
 
 if #matches == 0 then
-  dt.print(_("No executable paths found, exiting..."))
+  dt.print(_("no executable paths found, exiting..."))
   return
 end
 
@@ -208,7 +208,7 @@ for i,exec in ipairs(exec_table) do
     dt.new_widget("section_label"){label = _("reset")},
     dt.new_widget("button"){
       label = _("clear"),
-      tooltip = _(string.format("Clear path for %s", exec)),
+      tooltip = string.format(_("clear path for %s"), exec),
       clicked_callback = function()
         df.set_executable_path_preference(exec, "")
         executable_path_widgets[exec].value = ""

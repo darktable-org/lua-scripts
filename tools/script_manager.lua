@@ -390,7 +390,7 @@ local function activate(script)
     script_manager_running_script = nil
     if status then
       pref_write(script.script_name, "bool", true)
-      log.msg(log.screen, string.format(_("Loaded %s"), script.script_name))
+      log.msg(log.screen, string.format(_("loaded %s"), script.script_name))
       script.running = true
       if err ~= true then
         log.msg(log.debug, "got lib data")
@@ -541,7 +541,7 @@ local function update_scripts()
   local git = sm.executables.git
 
   if not git then
-    dt.print(_("ERROR: git not found.  Install or specify the location of the git executable."))
+    dt.print(_("ERROR: git not found, install or specify the location of the git executable."))
     return
   end
 
@@ -625,7 +625,7 @@ local function install_scripts()
   local category = sm.widgets.new_category.text
 
   if string.match(du.join(sm.categories, " "), ds.sanitize_lua(category)) then
-    log.msg(log.screen, string.format(_("category %s is already in use. Please specify a different category name."), category))
+    log.msg(log.screen, string.format(_("category %s is already in use, please specify a different category name."), category))
     log.msg(log.error, "category " .. category .. " already exists, returning...")
     restore_log_level(old_log_level)
     return
@@ -636,7 +636,7 @@ local function install_scripts()
   local git = sm.executables.git
 
   if not git then
-    dt.print(_("ERROR: git not found.  Install or specify the location of the git executable."))
+    dt.print(_("ERROR: git not found, install or specify the location of the git executable."))
     restore_log_level(old_log_level)
     return
   end
@@ -672,7 +672,7 @@ local function install_scripts()
       sm.widgets.new_category.text = ""
       sm.widgets.main_menu.selected = 3
     else
-      dt.print(_("No scripts found to install"))
+      dt.print(_("no scripts found to install"))
       log.msg(log.error, "scan_scripts returned " .. count .. " scripts found.  Not adding to category_selector")
     end
   else
@@ -824,7 +824,7 @@ local function paginate(direction)
   else
     last = first + sm.page_status.num_buttons - 1
   end
-  sm.widgets.page_status.label = string.format(_("Page %d of %d"), cur_page, max_pages)
+  sm.widgets.page_status.label = string.format(_("page %d of %d"), cur_page, max_pages)
 
   populate_buttons(category, first, last)
   restore_log_level(old_log_level)
@@ -1087,7 +1087,7 @@ sm.widgets.add_scripts = dt.new_widget("box"){
 }
 
 sm.widgets.allow_disable = dt.new_widget("check_button"){
-  label = _('Enable "Disable Scripts" button'),
+  label = _('enable "disable scripts" button'),
   value = false,
   clicked_callback = function(this)
     if this.value == true then
@@ -1097,7 +1097,7 @@ sm.widgets.allow_disable = dt.new_widget("check_button"){
 }
 
 sm.widgets.disable_scripts = dt.new_widget("button"){
-  label = _("Disable Scripts"),
+  label = _("disable scripts"),
   sensitive = false,
   clicked_callback = function(this)
     local LUARC = dt.configuration.config_dir .. PS .. "luarc"
@@ -1143,7 +1143,7 @@ end
 local page_back = "<"
 local page_forward = ">"
 
-sm.widgets.page_status = dt.new_widget("label"){label = _("Page:")}
+sm.widgets.page_status = dt.new_widget("label"){label = _("page:")}
 sm.widgets.page_back = dt.new_widget("button"){
   label = page_back,
   clicked_callback = function(this)
@@ -1171,7 +1171,7 @@ sm.widgets.page_control = dt.new_widget("box"){
 
 sm.widgets.scripts = dt.new_widget("box"){
   orientation = vertical,
-  dt.new_widget("label"){label = _("Scripts")},
+  dt.new_widget("label"){label = _("scripts")},
   sm.widgets.category_selector,
   sm.widgets.page_control,
   table.unpack(sm.widgets.buttons)
@@ -1200,7 +1200,7 @@ sm.widgets.change_buttons = dt.new_widget("button"){
 
 sm.widgets.configure = dt.new_widget("box"){
   orientation = "vertical",
-  dt.new_widget("label"){label = _("Configuration")},
+  dt.new_widget("label"){label = _("configuration")},
   sm.widgets.num_buttons,
   sm.widgets.change_buttons,
 }
