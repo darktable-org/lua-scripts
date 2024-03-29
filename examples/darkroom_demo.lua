@@ -91,13 +91,13 @@ dt.gui.current_view(dt.gui.views.darkroom)
 
 local max_images = 10
 
-dt.print(_("Showing images, with a pause in between each"))
+dt.print(_("showing images, with a pause in between each"))
 sleep(1500)
 
 -- display first 10 images of collection pausing for a second between each
 
 for i, img in ipairs(dt.collection) do 
-  dt.print(string.format(_("Displaying image "), i))
+  dt.print(string.format(_("displaying image "), i))
   dt.gui.views.darkroom.display_image(img)
   sleep(1500)
   if i == max_images then
@@ -107,7 +107,7 @@ end
 
 -- return to lighttable view
 
-dt.print(_("Restoring view"))
+dt.print(_("restoring view"))
 sleep(1500)
 dt.gui.current_view(current_view)
 

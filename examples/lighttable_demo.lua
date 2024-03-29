@@ -149,12 +149,12 @@ for n, layout in ipairs(layouts) do
   sleep(1500)
   for i = 1, 10 do
     dt.gui.libs.lighttable_mode.zoom_level(i)
-    dt.print(string.format(_("Set zoom level to %d"), i))
+    dt.print(string.format(_("set zoom level to %d"), i))
     sleep(1500)
   end
   for i = 9, 1, -1 do
     dt.gui.libs.lighttable_mode.zoom_level(i)
-    dt.print(string.format(_("Set zoom level to %d"), i))
+    dt.print(string.format(_("set zoom level to %d"), i))
     sleep(1500)
   end
 end

@@ -184,12 +184,12 @@ local function extract_embedded_jpeg(images)
         end
       else
         dt.print_error(image.filename .. " is not a raw file.  No image can be extracted") -- print debugging error message
-        dt.print(string.format(_("%s is not a raw file.  No image can be extracted"), image.filename)) -- print the error to the screen
+        dt.print(string.format(_("%s is not a raw file, no image can be extracted"), image.filename)) -- print the error to the screen
       end
     end
   else
     dt.print_error("ufraw-batch not found.  Exiting...") -- print debugging error message
-    dt.print("ufraw-batch not found.  Exiting...") -- print the error to the screen
+    dt.print("ufraw-batch not found, exiting...") -- print the error to the screen
   end
 end
 
@@ -213,7 +213,7 @@ end
 if dt.configuration.running_os ~= "linux" then
   local executable = "ufraw-batch"
   local ufraw_batch_path_widget = dt.new_widget("file_chooser_button"){
-    title = _("Select ufraw-batch[.exe] executable"),
+    title = _("select ufraw-batch[.exe] executable"),
     value = df.get_executable_path_preference(executable),
     is_directory = false,
     changed_callback = function(self)
@@ -225,7 +225,7 @@ if dt.configuration.running_os ~= "linux" then
   dt.preferences.register("executable_paths", "ufraw-batch", -- name
     "file", -- type
     _('multi_os: ufraw-batch location'),  -- label
-    _('Installed location of ufraw-batch. Requires restart to take effect.'), -- tooltip
+    _('Installed location of ufraw-batch, requires restart to take effect.'), -- tooltip
     "ufraw-batch", -- default
     ufraw_batch_path_widget
   )

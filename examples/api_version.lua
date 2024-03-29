@@ -39,7 +39,7 @@ end
 
 local result = dt.configuration.api_version_string
 dt.print_log("API Version: " .. result)
-dt.print(string.format(_("API Version: %s"), result))
+dt.print(string.format(_("API version: %s"), result))
 
 -- set the destroy routine so that script_manager can call it when
 -- it's time to destroy the script and then return the data to 

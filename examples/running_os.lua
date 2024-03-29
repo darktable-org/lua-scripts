@@ -44,7 +44,7 @@ local function destroy()
   -- nothing to destroy
 end
 
-dt.print(string.format(_("You are running: %s"), dt.configuration.running_os))
+dt.print(string.format(_("you are running: %s"), dt.configuration.running_os))
 
 -- set the destroy routine so that script_manager can call it when
 -- it's time to destroy the script and then return the data to 

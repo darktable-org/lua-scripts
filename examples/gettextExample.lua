@@ -78,7 +78,7 @@ local function _(msgid)
     return gettext(msgid)
 end
 
-dt.print_error(_("Hello World!"))
+dt.print_error(_("hello world!"))
 
 -- set the destroy routine so that script_manager can call it when
 -- it's time to destroy the script and then return the data to 
