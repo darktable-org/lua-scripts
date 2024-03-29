@@ -56,15 +56,15 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 dt.preferences.register
    ("selection_to_pdf","Open with","string",
     _("a pdf viewer"),
-    _("Can be an absolute pathname or the tool may be in the PATH"),
+    _("can be an absolute pathname or the tool may be in the PATH"),
     "xdg-open")
 
 local title_widget = dt.new_widget("entry") {
-    placeholder = _("Title")
+    placeholder = _("title")
 }
 local no_of_thumbs_widget = dt.new_widget("slider")
 {
-    label = _("Thumbs per Line"), 
+    label = _("thumbs per line"), 
     soft_min = 1,     -- The soft minimum value for the slider, the slider can't go beyond this point
     soft_max = 10,    -- The soft maximum value for the slider, the slider can't go beyond this point
     hard_min = 1,     -- The hard minimum value for the slider, the user can't manually enter a value beyond this point
@@ -73,9 +73,9 @@ local no_of_thumbs_widget = dt.new_widget("slider")
 }
 local widget = dt.new_widget("box") {
     orientation = horizontal,
-    dt.new_widget("label"){label = _("Title:")},
+    dt.new_widget("label"){label = _("title:")},
     title_widget,
-    dt.new_widget("label"){label = _("Thumbnails per row:")},
+    dt.new_widget("label"){label = _("thumbnails per row:")},
     no_of_thumbs_widget
 }
 
@@ -122,7 +122,7 @@ local function destroy()
   dt.print_log("done destroying")
 end
 
-dt.register_storage(_("export_pdf"),_("Export thumbnails to pdf"),
+dt.register_storage(_("export_pdf"),_("export thumbnails to pdf"),
     nil,
     function(storage,image_table)
       local my_title = title_widget.text
@@ -169,7 +169,7 @@ dt.register_storage(_("export_pdf"),_("Export thumbnails to pdf"),
       local command = "pdflatex -halt-on-error -output-directory "..dir.." "..locfile
       local result = dt.control.execute(command)
       if result ~= 0 then
-        dt.print(_("Problem running pdflatex")) -- this one is probably usefull to the user
+        dt.print(_("problem running pdflatex")) -- this one is probably usefull to the user
         error("Problem running "..command)
       end
 
@@ -179,7 +179,7 @@ dt.register_storage(_("export_pdf"),_("Export thumbnails to pdf"),
       command = command.." "..pdffile
       local result = dt.control.execute(command)
       if result ~= 0 then
-        dt.print(_("Problem running pdf viewer")) -- this one is probably usefull to the user
+        dt.print(_("problem running pdf viewer")) -- this one is probably usefull to the user
         error("Problem running "..command)
       end
 

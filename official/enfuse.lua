@@ -129,7 +129,7 @@ if enfuse_installed then
     exposure_mu = dt.new_widget("slider")
     {
       label = "exposure mu",
-      tooltip = _("center also known as MEAN of Gaussian weighting function (0 <= MEAN <= 1); default: 0.5"),
+      tooltip = _("center also known as mean of gaussian weighting function (0 <= mean <= 1); default: 0.5"),
       hard_min = 0,
       hard_max = 1,
       value = dt.preferences.read("enfuse", "exposure_mu", "float")
@@ -138,7 +138,7 @@ if enfuse_installed then
     exposure_mu = dt.new_widget("slider")
     {
       label = "exposure optimum",
-      tooltip = _("optimum exposure value, usually the maximum of the weighting function (0 <= OPTIMUM <=1); default 0.5"),
+      tooltip = _("optimum exposure value, usually the maximum of the weighting function (0 <= optimum <=1); default 0.5"),
       hard_min = 0,
       hard_max = 1,
       value = dt.preferences.read("enfuse", "exposure_optimum", "float")
@@ -182,7 +182,7 @@ if enfuse_installed then
       end
       local f = io.open(response_file, "w")
       if not f then
-        dt.print(string.format(_("Error writing to '%s'"), response_file))
+        dt.print(string.format(_("error writing to '%s'"), response_file))
         os.remove(response_file)
         return
       end
@@ -205,9 +205,9 @@ if enfuse_installed then
           if dt.configuration.running_os == "windows" then
             tmp_exported = dt.configuration.tmp_dir .. tmp_exported -- windows os.tmpname() defaults to root directory
           end
-              dt.print(string.format(_("Converting raw file '%s' to tiff..."), i.filename)) 
+              dt.print(string.format(_("converting raw file '%s' to tiff..."), i.filename)) 
           tiff_exporter:write_image(i, tmp_exported, false)
-          dt.print_log(string.format("Raw file '%s' converted to '%s'", i.filename, tmp_exported))
+          dt.print_log(string.format("raw file '%s' converted to '%s'", i.filename, tmp_exported))
 
           cnt = cnt + 1
           f:write(tmp_exported.."\n")
@@ -215,14 +215,14 @@ if enfuse_installed then
           
         -- other images will be skipped
         else
-          dt.print(string.format(_("Skipping %s..."), i.filename))
+          dt.print(string.format(_("skipping %s..."), i.filename))
           n_skipped = n_skipped + 1
         end
       end
       f:close()
       -- bail out if there is nothing to do
       if cnt == 0 then
-        dt.print(_("No suitable images selected, nothing to do for enfuse"))
+        dt.print(_("no suitable images selected, nothing to do for enfuse"))
         os.remove(response_file)
         return
       end
@@ -296,7 +296,7 @@ if enfuse_installed then
 else
   dt.print_error("enfuse executable not found")
   error("enfuse executable not found")
-  dt.print(_("Could not find enfuse executable. Not loading enfuse exporter..."))
+  dt.print(_("could not find enfuse executable, not loading enfuse exporter..."))
 end
 
 script_data.destroy = destroy
