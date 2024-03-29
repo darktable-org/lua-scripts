@@ -90,7 +90,7 @@ dt.register_lib(
         label = "execute action",
         tooltip = "execute the action specified in the fields above",
         clicked_callback = function(_)
-          local sp = nan
+          local sp = NaN
           if wg.check.value then sp = wg.speed.text end
           wg.return_value.text = dt.gui.action(wg.action.text, wg.instance.value, wg.element.text, wg.effect.text, sp)
         end
