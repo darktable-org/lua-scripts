@@ -729,7 +729,7 @@ GUI.ENF.hard_masks = dt.new_widget('check_button'){
 GUI.ENF.save_masks = dt.new_widget('check_button'){
     label = _('save masks'), 
     value = dt.preferences.read(mod, 'active_save_masks', 'bool'),
-    tooltip = _('Save the generated weight masks to your home directory,\nenblend saves masks as 8 bit grayscale, \ni.e. single channel images. \nfor accuracy we recommend to choose a lossless format.'),  
+    tooltip = _('save the generated weight masks to your home directory,\nenblend saves masks as 8 bit grayscale, \ni.e. single channel images. \nfor accuracy we recommend to choose a lossless format.'),  
     clicked_callback = function(self) dt.preferences.write(mod, 'active_save_masks', 'bool', self.value) end,
     reset_callback = function(self) self.value = false end
 }
@@ -882,7 +882,7 @@ GUI.Target.output_directory = dt.new_widget('file_chooser_button'){
 GUI.Target.source_location = dt.new_widget('check_button'){
     label = _('save to source image location'), 
     value = dt.preferences.read(mod, 'active_source_location', 'bool'),
-    tooltip = _('If checked ignores the location above and saves output image(s) to the same location as the source images.'),  
+    tooltip = _('if checked ignores the location above and saves output image(s) to the same location as the source images.'),  
     clicked_callback = function(self) dt.preferences.write(mod, 'active_source_location', 'bool', self.value) end,
     reset_callback = function(self) self.value = true end
 }
@@ -916,8 +916,8 @@ GUI.Target.auto_import = dt.new_widget('check_button'){
 }
 temp = dt.preferences.read(mod, 'active_apply_style_ind', 'integer')
 GUI.Target.apply_style = dt.new_widget('combobox'){
-    label = _('Apply Style on Import'),
-    tooltip = _('Apply selected style on auto-import to newly created blended image'),
+    label = _('apply style on Import'),
+    tooltip = _('apply selected style on auto-import to newly created blended image'),
     selected = 1,
     'none',
     changed_callback = function(self)
@@ -938,16 +938,16 @@ GUI.Target.apply_style.selected = temp
 GUI.Target.copy_tags = dt.new_widget('check_button'){
     label = _('copy tags'), 
     value = dt.preferences.read(mod, 'active_copy_tags', 'bool'),
-    tooltip = _('Copy tags from first image.'), 
+    tooltip = _('copy tags from first image.'), 
     clicked_callback = function(self) dt.preferences.write(mod, 'active_copy_tags', 'bool', self.value) end,
     reset_callback = function(self) self.value = true end
 }
 temp = dt.preferences.read(mod, 'active_add_tags', 'string')
 if temp == '' then temp = nil end 
 GUI.Target.add_tags = dt.new_widget('entry'){
-    tooltip = _('Additional tags to be added on import. Seperate with commas, all spaces will be removed'),
+    tooltip = _('additional tags to be added on import, seperate with commas, all spaces will be removed'),
     text = temp,
-    placeholder = 'Enter tags, seperated by commas',
+    placeholder = _('enter tags, seperated by commas'),
     editable = true
 }
 temp = dt.preferences.read(mod, 'active_current_preset_ind', 'integer')

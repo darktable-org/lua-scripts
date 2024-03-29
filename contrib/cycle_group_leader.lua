@@ -97,7 +97,7 @@ end
 local function cycle_group_leader(image)
   local group_images = image:get_group_members()
   if #group_images < 2 then
-    hinter_msg(_("No images to cycle to in group"))
+    hinter_msg(_("no images to cycle to in group"))
     return
   else
     local position = nil
@@ -144,7 +144,7 @@ dt.register_event(MODULE, "shortcut",
     -- ignore the film roll, it contains all the images, not just the imported
     local images = dt.gui.selection()
     if #images < 1 then
-      dt.print(_("No image selected.  Please select an image and try again"))
+      dt.print(_("no image selected, please select an image and try again"))
     else
       cycle_group_leader(images[1])
     end

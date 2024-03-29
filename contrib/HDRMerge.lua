@@ -378,7 +378,7 @@ local lbl_import = dt.new_widget('section_label'){
 }
 GUI.Target.style = dt.new_widget('combobox'){
   label = _('apply style on import'),
-  tooltip = _('Apply selected style on auto-import to newly created image'),
+  tooltip = _('apply selected style on auto-import to newly created image'),
   selected = 1,
   _('none'),
   changed_callback = function(self)
@@ -407,9 +407,9 @@ GUI.Target.copy_tags = dt.new_widget('check_button'){
 temp = dt.preferences.read(mod, 'active_add_tags', 'string')
 if temp == '' then temp = nil end 
 GUI.Target.add_tags = dt.new_widget('entry'){
-  tooltip = _('Additional tags to be added on import. Seperate with commas, all spaces will be removed'),
+  tooltip = _('additional tags to be added on import, seperate with commas, all spaces will be removed'),
   text = temp,
-  placeholder = _('Enter tags, seperated by commas'),
+  placeholder = _('enter tags, seperated by commas'),
   editable = true
 }
 GUI.run = dt.new_widget('button'){
@@ -418,7 +418,7 @@ GUI.run = dt.new_widget('button'){
   clicked_callback = function() main() end
 }
 GUI.exes.HDRMerge = dt.new_widget('file_chooser_button'){
-  title = _('Select HDRmerge executable'),
+  title = _('select HDRmerge executable'),
   value = df.get_executable_path_preference(HDRM.name),
   is_directory = false
 }

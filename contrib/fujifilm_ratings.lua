@@ -58,7 +58,7 @@ local function detect_rating(event, image)
 	if string.len(jpeg_result) > 0 then
 		jpeg_result = string.gsub(jpeg_result, "^Rating.*(%d)", "%1")
 		image.rating = tonumber(jpeg_result)
-		dt.print_error(string.format(_("Using JPEG Rating: %d"), jpeg_result))
+		dt.print_error(string.format(_("using JPEG rating: %d"), jpeg_result))
 		return
 	end
 	command = "exiftool -Rating " .. RAF_filename
@@ -69,7 +69,7 @@ local function detect_rating(event, image)
 	if string.len(raf_result) > 0 then
 		raf_result = string.gsub(raf_result, "^Rating.*(%d)", "%1")
 		image.rating = tonumber(raf_result)
-		dt.print_error(string.format(_("Using RAF Rating: %d"), raf_result))
+		dt.print_error(string.format(_("using RAF rating: %d"), raf_result))
 	end
 end
 

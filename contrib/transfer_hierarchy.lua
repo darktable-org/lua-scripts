@@ -149,7 +149,7 @@ end
 -- Widgets and business logic: BEGIN
 
 local sourceTextBox = darktable.new_widget("entry") {
-   tooltip = _("Lowest directory containing all selected images"),
+   tooltip = _("lowest directory containing all selected images"),
    editable = false
 						    }
 sourceTextBox.reset_callback = function() sourceTextBox.text = "" end

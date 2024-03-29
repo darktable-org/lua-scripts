@@ -477,7 +477,7 @@ dt.register_storage("exp2coll", _("collection"), nil, export2collection)
 for i = MAX_EDITORS, 1, -1 do
   dt.preferences.register(MODULE_NAME, "program_path_"..i, "file", 
   string.format(_("executable for external editor %d"), i), 
-  _("select executable for external editor")  , _("(None)"))
+  _("select executable for external editor")  , _("(none)"))
   
   dt.preferences.register(MODULE_NAME, "program_name_"..i, "string", 
   string.format(_("name of external editor %d"), i), 

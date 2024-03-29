@@ -132,7 +132,7 @@ local function do_export(img_tbl, images)
   job.percent = 0.0
   for export,img in pairs(img_tbl) do
     exp_cnt = exp_cnt + 1
-    dt.print(string.format(_("Exporting image %i of %i images"), exp_cnt, images))
+    dt.print(string.format(_("exporting image %i of %i images"), exp_cnt, images))
     exporter:write_image(img, export, upsize)
     job.percent = job.percent + percent_step
   end
@@ -202,7 +202,7 @@ local function face_recognition ()
   local bin_path = df.check_if_bin_exists("face_recognition")
 
   if not bin_path then
-    dt.print(_("Face recognition not found"))
+    dt.print(_("face recognition not found"))
     return
   end
 
@@ -254,7 +254,7 @@ local function face_recognition ()
       local command = bin_path ..  " --cpus " .. nrCores .. " --tolerance " .. tolerance .. " " .. knownPath .. " " .. path .. " > " .. OUTPUT
       os.setlocale()
       dt.print_log("Face recognition: Running command: " .. command)
-      dt.print(_("Starting face recognition..."))
+      dt.print(_("starting face recognition..."))
 
       dtsys.external_command(command)
 
@@ -262,9 +262,9 @@ local function face_recognition ()
       local f = io.open(OUTPUT, "rb")
 
       if not f then
-        dt.print(_("Face recognition failed"))
+        dt.print(_("face recognition failed"))
       else
-        dt.print(_("Face recognition finished"))
+        dt.print(_("face recognition finished"))
         f:close ()
       end
 

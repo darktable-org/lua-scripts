@@ -62,13 +62,13 @@ local mkdir_command = 'mkdir -p '
 if dt.configuration.running_os == 'windows' then mkdir_command = 'mkdir ' end
 
 local file_chooser_button = dt.new_widget("file_chooser_button"){
-    title = _("Identity_file_chooser"),
+    title = _("identity_file_chooser"),
     value = "",
     is_directory = false
 }
 
 local export_chooser_button = dt.new_widget("file_chooser_button"){
-    title = _("Export_location_chooser"),
+    title = _("export_location_chooser"),
     value = "",
     is_directory = true
 }
@@ -104,9 +104,9 @@ end
 local function export_luts()
   local identity = dt.database.import(file_chooser_button.value)
   if(type(identity) ~= "userdata") then
-    dt.print(_("Invalid identity lut file"))
+    dt.print(_("invalid identity lut file"))
   else
-    local job = dt.gui.create_job(_('Exporting styles as haldCLUTs'), true, end_job)
+    local job = dt.gui.create_job(_('exporting styles as haldCLUTs'), true, end_job)
     
     local size = 1
 
@@ -125,9 +125,9 @@ local function export_luts()
       io_lut:write_image(identity, output_path(style.name, job))
       count = count + 1
       job.percent = count / size
-      dt.print(string.format(_("Exported: %s"), output_path(style.name, job)))
+      dt.print(string.format(_("exported: %s"), output_path(style.name, job)))
     end
-    dt.print(_("Done exporting haldCLUTs"))
+    dt.print(_("done exporting haldCLUTs"))
     job.valid = false
     identity:reset()
   end

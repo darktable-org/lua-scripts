@@ -79,13 +79,13 @@ script_data.destroy = destroy
 dt.gui.libs.image.register_action(
   "clear_GPS", _("clear GPS data"),
   function(event, images) clear_GPS(images) end,
-  _("Clear GPS data from selected images")
+  _("clear GPS data from selected images")
 )
 
 dt.register_event(
   "clear_GPS", "shortcut",
   function(event, shortcut) clear_GPS(dt.gui.action_images) end,
-  _("Clear GPS data")
+  _("clear GPS data")
 )
 
 return script_data

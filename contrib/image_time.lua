@@ -173,7 +173,7 @@ local function calculate_difference(images)
     img_time.diff_entry.text = calc_time_difference(images[1], images[2])
     img_time.btn.sensitive = true
   else
-    dt.print(_("Error: 2 images must be selected"))
+    dt.print(_("ERROR: 2 images must be selected"))
   end
 end
 
@@ -247,7 +247,7 @@ local function _get_windows_image_file_creation_time(image)
     end
     p:close()
   else
-    dt.print(string.format(_("unable to get information for  "), image.filename))
+    dt.print(string.format(_("unable to get information for $s"), image.filename))
     datetime = ERROR
   end
   return datetime
@@ -264,7 +264,7 @@ local function _get_nix_image_file_creation_time(image)
     end
     p:close()
   else
-    dt.print(string.format(_("unable to get information for  "), image.filename))
+    dt.print(string.format(_("unable to get information for %s"), image.filename))
     datetime = ERROR
   end
   return datetime
@@ -455,13 +455,13 @@ end
 img_time.syr.selected = #img_time.syr
 
 img_time.diff_entry = dt.new_widget("entry"){
-  tooltip = _("Time difference between images in seconds"),
-  placeholder = _("Select 2 images and use the calculate button"),
+  tooltip = _("time difference between images in seconds"),
+  placeholder = _("select 2 images and use the calculate button"),
   text = "",
 }
 
 img_time.calc_btn = dt.new_widget("button"){
-  label = _("Calculate"),
+  label = _("calculate"),
   tooltip = _("calculate time difference between 2 images"),
   clicked_callback = function()
     calculate_difference(dt.gui.action_images)

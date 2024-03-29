@@ -77,7 +77,7 @@ local function spairs(_table, order) -- Code copied from http://stackoverflow.co
 end
 
 local function show_status(storage, image, format, filename, number, total, high_quality, extra_data)
-    dt.print(string.format(_("Export Image %i/%i"), number, total))
+    dt.print(string.format(_("export image %i/%i"), number, total))
 end
 
 local function create_geoJSON_file(storage, image_table, extra_data)
@@ -306,19 +306,19 @@ dt.preferences.register("geoJSON_export",
 	"CreateMapBoxHTMLFile",
 	"bool",
 	_("geoJSON export: Create an additional HTML file"),
-	_("Creates a HTML file, that loads the geoJASON file. (Needs a MapBox key"),
+	_("creates an HTML file that loads the geoJSON file. (needs a MapBox key"),
 	false )
 dt.preferences.register("geoJSON_export",
 	"mapBoxKey",
 	"string",
-	_("geoJSON export: MapBox Key"),
+	_("geoJSON export: MapBox key"),
 	_("https://www.mapbox.com/studio/account/tokens"),
 	'' )
 dt.preferences.register("geoJSON_export",
 	"OpengeoJSONFile",
 	"bool",
-	_("geoJSON export: Open geoJSON file after export"),
-	_("Opens the geoJSON file after the export with the standard program for geoJSON files"),
+	_("geoJSON export: open geoJSON file after export"),
+	_("opens the geoJSON file after the export with the standard program for geoJSON files"),
 	false )
 
 local handle = io.popen("xdg-user-dir DESKTOP")
@@ -330,8 +330,8 @@ end
 dt.preferences.register("geoJSON_export",
 	"ExportDirectory",
 	"directory",
-	_("geoJSON export: Export directory"),
-	_("A directory that will be used to export the geoJSON files"),
+	_("geoJSON export: export directory"),
+	_("a directory that will be used to export the geoJSON files"),
 	result )
 
 -- Register

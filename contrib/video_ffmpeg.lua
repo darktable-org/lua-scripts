@@ -293,7 +293,7 @@ else
 end
 
 local output_directory_chooser = dt.new_widget("file_chooser_button"){
-  title = _("Select export path"),
+  title = _("select export path"),
   is_directory = true,
   tooltip =_("select the target directory for the timelapse. \nthe filename is created automatically."),
   value = string_pref_read("export_path", defaultVideoDir),

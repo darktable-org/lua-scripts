@@ -69,7 +69,7 @@ end
 -- FUNCTION --
 local function CheckSingleImage(selection)
 	if #selection ~= 1 then
-		dt.print(_("Please select a single image"))
+		dt.print(_("please select a single image"))
 		return true
 	end
 	return false
@@ -202,47 +202,47 @@ end
 dt.gui.libs.image.register_action(
 	"CollectHelper_prev", _("collect: previous"),
 	function() PreviousCollection() end,
-	_("Sets the Collect parameters to be the previously active parameters")
+	_("sets the collect parameters to be the previously active parameters")
 )
 if dt.preferences.read('module_CollectHelper','folder','bool') then
 		dt.gui.libs.image.register_action(
 		"CollectHelper_folder", _("collect: folder"),
 		function() CollectOnFolder(_ , false) end,
-		_("Sets the Collect parameters to be the selected images's folder")
+		_("sets the collect parameters to be the selected images's folder")
 	)
 end
 if dt.preferences.read('module_CollectHelper','colors','bool') then
 		dt.gui.libs.image.register_action(
 		"CollectHelper_labels", _("collect: color label(s)"),
 		function() CollectOnColors(_ , false) end,
-		_("Sets the Collect parameters to be the selected images's color label(s)")
+		_("sets the collect parameters to be the selected images's color label(s)")
 	)
 end
 if dt.preferences.read('module_CollectHelper','all_and','bool') then
 		dt.gui.libs.image.register_action(
 		"CollectHelper_and", _("collect: all (AND)"),
 		function() CollectOnAll_AND() end,
-		_("Sets the Collect parameters based on all activated CollectHelper options")
+		_("sets the collect parameters based on all activated CollectHelper options")
 	)
 end
 
 -- PREFERENCES --
 dt.preferences.register("module_CollectHelper", "all_and",	-- name
 	"bool",	-- type
-	_('CollectHelper: All'),	-- label
-	_('Will create a collect parameter set that utilizes all enabled CollectHelper types (AND)'),	-- tooltip
+	_('CollectHelper: all'),	-- label
+	_('will create a collect parameter set that utilizes all enabled CollectHelper types (and)'),	-- tooltip
 	true	-- default
 )
 dt.preferences.register("module_CollectHelper", "colors",	-- name
 	"bool",	-- type
-	_('CollectHelper: Color Label(s)'),	-- label
-	_('Enable the button that allows you to swap to a collection based on selected image\'s COLOR LABEL(S)'),	-- tooltip
+	_('CollectHelper: color label(s)'),	-- label
+	_('enable the button that allows you to swap to a collection based on selected image\'s color label(s)'),	-- tooltip
 	true	-- default
 )
 dt.preferences.register("module_CollectHelper", "folder",	-- name
 	"bool",	-- type
-	_('CollectHelper: Folder'),	-- label
-	_('Enable the button that allows you to swap to a collection based on selected image\'s FOLDER location'),	-- tooltip
+	_('CollectHelper: folder'),	-- label
+	_('enable the button that allows you to swap to a collection based on selected image\'s folder location'),	-- tooltip
 	true	-- default
 )
 

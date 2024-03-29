@@ -80,12 +80,12 @@ function destroy()
 end
 
 -- Preferences
-dt.preferences.register("slideshowMusic", "SlideshowMusic", "file", _("Slideshow background music file"), "", "")
+dt.preferences.register("slideshowMusic", "SlideshowMusic", "file", _("slideshow background music file"), "", "")
 dt.preferences.register("slideshowMusic",
                         "PlaySlideshowMusic",
                         "bool",
-                        _("Play slideshow background music"),
-                        _("Plays music with rhythmbox if a slideshow starts"),
+                        _("play slideshow background music"),
+                        _("plays music with rhythmbox if a slideshow starts"),
                         true)
 -- Register
 dt.register_event("slideshow_music", "view-changed",

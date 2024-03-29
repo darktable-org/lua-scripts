@@ -256,7 +256,7 @@ end
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 local function show_status(storage, image, format, filename, number, total, high_quality, extra_data)
-    dt.print(string.format(_("Export Image %i/%i"), number, total))
+    dt.print(string.format(_("export image %i/%i"), number, total))
 end
 
 -- read the gui and populate the align_image_stack arguments
@@ -551,7 +551,7 @@ local function image_stack(storage, image_table, extra_data)
       local import_filename = df.create_unique_filename(film_roll_path .. PS .. df.get_filename(output_filename))
       df.file_move(output_filename, import_filename)
       imported_image = dt.database.import(import_filename)
-      local created_tag = dt.tags.create(_("Created with|image_stack"))
+      local created_tag = dt.tags.create(_("created with|image_stack"))
       dt.tags.attach(created_tag, imported_image)
       -- all the images are the same except for time, so just copy the  attributes
       -- from the first
@@ -565,7 +565,7 @@ local function image_stack(storage, image_table, extra_data)
 
       if tag_source then
         dt.print(_("tagging source images"))
-        local source_tag = dt.tags.create(_("Source file|" .. imported_image.filename))
+        local source_tag = dt.tags.create(_("source file|" .. imported_image.filename))
         for img, _ in pairs(image_table) do 
           dt.tags.attach(source_tag, img)
         end
@@ -589,7 +589,7 @@ end
 
 dt.preferences.register("align_image_stack", "align_use_gpu", -- name
   "bool",                                                     -- type
-  _('align image stack: use GPU for remaping'),               -- label
+  _('align image stack: use GPU for remapping'),               -- label
   _('set the GPU remapping for image align'),                 -- tooltip
   false)
 

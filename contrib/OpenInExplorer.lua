@@ -74,7 +74,7 @@ local PS = act_os == "windows" and  "\\"  or  "/"
 
 --Detect OS and quit if it is not supported.	
 if act_os ~= "macos" and act_os ~= "windows" and act_os ~= "linux" then
-  dt.print(_("OpenInExplorer plug-in only supports Linux, macOS, and Windows at this time"))
+  dt.print(_("OpenInExplorer plug-in only supports linux, macos, and windows at this time"))
   dt.print_error("OpenInExplorer plug-in only supports Linux, macOS, and Windows at this time")
   return
 end
@@ -90,11 +90,11 @@ local function check_if_links_dir_exists()
   local dir_exists = true
   if not links_dir then
     --Just for paranoic reasons. I tried, but I couldn't devise a setting for a nil value.
-    dt.print(_("No links directory selected.\nPlease check the dt preferences (lua options)"))
+    dt.print(_("no links directory selected\nplease check the dt preferences (lua options)"))
     dt.print_error("OpenInExplorer: No links directory selected")
     dir_exists = false
   elseif not df.check_if_file_exists(links_dir) then
-    dt.print(string.format(_("Links directory '%s' not found.\nPlease check the dt preferences (lua options)"), links_dir))
+    dt.print(string.format(_("links directory '%s' not found\nplease check the dt preferences (lua options)"), links_dir))
     dt.print_error(string.format("OpenInExplorer: Links directory '%s' not found", links_dir))
     dir_exists = false
   end
@@ -151,7 +151,7 @@ local function set_links(selected_images)
     end
     ]]
     if dsys.external_command(run_cmd) ~= 0 then
-      dt.print(_("Failed to create links. Missing rights?"))
+      dt.print(_("failed to create links, missing rights?"))
       dt.print_error("OpenInExplorer: Failed to create links")
       return
     end
@@ -167,13 +167,13 @@ end
 local function open_in_fmanager()
   local images = dt.gui.selection()
   if #images == 0 then
-    dt.print(_("Please select an image"))
+    dt.print(_("please select an image"))
   else
     if use_links and not check_if_links_dir_exists() then
       return
     end
     if #images > 15 and not use_links then
-      dt.print(_("Please select fewer images (max. 15)"))
+      dt.print(_("please select fewer images (max. 15)"))
     elseif use_links then
       set_links(images)
     else
@@ -200,7 +200,7 @@ end
 dt.gui.libs.image.register_action(
   "OpenInExplorer", _("show in file explorer"),
   function() open_in_fmanager() end,
-  _("Open the file manager at the selected image's location")
+  _("open the file manager at the selected image's location")
 )
   
 
@@ -208,17 +208,17 @@ if act_os ~= "windows" then
   dt.preferences.register("OpenInExplorer", "linked_image_files_dir",  -- name
     "directory", -- type
     _("OpenInExplorer: linked files directory"), -- label
-    _("Directory to store the links to the file names. Requires restart to take effect"),  -- tooltip
+    _("directory to store the links to the file names, requires restart to take effect"),  -- tooltip
     "Links to image files",  -- default
     dt.new_widget("file_chooser_button"){
-      title = _("Select directory"),
+      title = _("select directory"),
       is_directory = true,
     }
   )
   dt.preferences.register("OpenInExplorer", "use_links",  -- name
     "bool", -- type
     _("OpenInExplorer: use links"), -- label
-    _("Use links instead of multiple windows. Requires restart to take effect"),  -- tooltip
+    _("use links instead of multiple windows, requires restart to take effect"),  -- tooltip
     false,  -- default
     ""
   )

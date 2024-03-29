@@ -106,7 +106,7 @@ end
 
 local function show_status(storage, image, format, filename,
   number, total, high_quality, extra_data)
-    dt.print(string.format(_("Export Image %i/%i"), number, total))
+    dt.print(string.format(_("export image %i/%i"), number, total))
 end
 
 local function gimp_edit(storage, image_table, extra_data) --finalize
@@ -139,7 +139,7 @@ local function gimp_edit(storage, image_table, extra_data) --finalize
     img_list = img_list ..exp_img.. " "
   end
 
-  dt.print(_("Launching GIMP..."))
+  dt.print(_("launching GIMP..."))
 
   local gimpStartCommand
   gimpStartCommand = gimp_executable .. " " .. img_list
@@ -210,7 +210,7 @@ gimp_widget = dt.new_widget("check_button"){
   end
 }
 
-dt.register_storage("module_gimp", _("Edit with GIMP"), show_status, gimp_edit, nil, nil, gimp_widget)
+dt.register_storage("module_gimp", _("edit with GIMP"), show_status, gimp_edit, nil, nil, gimp_widget)
 
 --
 script_data.destroy = destroy

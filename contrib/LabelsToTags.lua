@@ -115,23 +115,23 @@ end
 
 
 local initialAvailableMappings = {
-   [_("Colors")] = { ["+*****"] = { _("Red") },
-      ["*+****"] = { _("Yellow") },
-      ["**+***"] = { _("Green") },
-      ["***+**"] = { _("Blue") },
-      ["****+*"] = { _("Purple") } },
-   [_("Single colors")] = { ["+----*"] = { _("Red"), _("Only red") },
-      ["-+---*"] = { _("Yellow"), _("Only yellow") },
-      ["--+--*"] = { _("Green"), _("Only green") },
-      ["---+-*"] = { _("Blue"), _("Only blue") },
-      ["----+*"] = { _("Purple"), _("Only purple") } },
-   [_("Ratings")] = { ["*****0"] = { _("No stars"), _("Not rejected") },
-      ["*****1"] = { _("One star"), _("Not rejected") },
-      ["*****2"] = { _("Two stars"), _("Not rejected") },
-      ["*****3"] = { _("Three stars"), _("Not rejected") },
-      ["*****4"] = { _("Four stars"), _("Not rejected") },
-      ["*****5"] = { _("Five stars"), _("Not rejected") },
-      ["*****R"] = { _("Rejected") } }
+   [_("colors")] = { ["+*****"] = { _("red") },
+      ["*+****"] = { _("yellow") },
+      ["**+***"] = { _("green") },
+      ["***+**"] = { _("blue") },
+      ["****+*"] = { _("purple") } },
+   [_("single colors")] = { ["+----*"] = { _("red"), _("only red") },
+      ["-+---*"] = { _("Yellow"), _("only yellow") },
+      ["--+--*"] = { _("Green"), _("only green") },
+      ["---+-*"] = { _("Blue"), _("only blue") },
+      ["----+*"] = { _("Purple"), _("only purple") } },
+   [_("ratings")] = { ["*****0"] = { _("no stars"), _("not rejected") },
+      ["*****1"] = { _("one star"), _("not rejected") },
+      ["*****2"] = { _("two stars"), _("not rejected") },
+      ["*****3"] = { _("three stars"), _("not rejected") },
+      ["*****4"] = { _("four stars"), _("not rejected") },
+      ["*****5"] = { _("five stars"), _("not rejected") },
+      ["*****R"] = { _("rejected") } }
 }
 
 local availableMappings = {}
@@ -146,9 +146,9 @@ end
 
 local function getComboboxTooltip()
    if availableMappings == nil or next(availableMappings) == nil then
-      return(_("No registered mappings -- using defaults"))
+      return(_("no registered mappings -- using defaults"))
    else
-      return(_("Select a label-to-tag mapping"))
+      return(_("select a label-to-tag mapping"))
    end
 end
 

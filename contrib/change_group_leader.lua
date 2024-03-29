@@ -118,7 +118,7 @@ end
 
 local function process_image_groups(images)
   if #images < 1 then
-    dt.print(_("No images selected."))
+    dt.print(_("o images selected"))
     dt.print_log(MODULE .. "no images seletected, returning...")
   else
     local mode = cgl.widgets.mode.value
@@ -158,7 +158,7 @@ cgl.widgets.mode = dt.new_widget("combobox"){
 }
 
 cgl.widgets.execute = dt.new_widget("button"){
-  label = _("Execute"),
+  label = _("execute"),
   clicked_callback = function()
     process_image_groups(dt.gui.action_images)
   end

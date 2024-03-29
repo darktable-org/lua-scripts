@@ -176,7 +176,7 @@ function PHOTILS.image_changed()
 end
 
 function PHOTILS.tagged_image_has_changed()
-    GUI.warning.label = _("The suggested tags were not generated\n for the currently selected image!")
+    GUI.warning.label = _("the suggested tags were not generated\n for the currently selected image!")
 end
 
 function PHOTILS.paginate()
@@ -233,7 +233,7 @@ end
 
 function PHOTILS.attach_tags()
     local num_selected = #dt.gui.selection()
-    local job = dt.gui.create_job(_("Apply tag to image"), true)
+    local job = dt.gui.create_job(_("apply tag to image"), true)
 
     for i = 1, num_selected, 1 do
         local image = dt.gui.selection()[i]
@@ -245,7 +245,7 @@ function PHOTILS.attach_tags()
         job.percent = i / num_selected
     end
 
-    dt.print(_("Tags successfully attached to image"))
+    dt.print(_("tags successfully attached to image"))
     job.valid = false
 end
 
@@ -311,11 +311,11 @@ function PHOTILS.on_tags_clicked()
     local images = dt.gui.selection()
 
     if #images == 0 then
-        dt.print(_("No image selected."))
+        dt.print(_("no image selected."))
         dt.control.sleep(2000)
     else
         if #images > 1 then
-            dt.print(_("This plugin can only handle a single image."))
+            dt.print(_("this plugin can only handle a single image."))
             dt.gui.selection({images[1]})
             dt.control.sleep(2000)
         end
@@ -428,7 +428,7 @@ if not photils_installed then
     GUI.warning_label.label = _("photils-cli not found")
     dt.print_log("photils-cli not found")
 else
-    GUI.warning_label.label = _("Select an image, click \"get tags\" and get \nsuggestions for tags.")
+    GUI.warning_label.label = _("select an image, click \"get tags\" and get \nsuggestions for tags.")
 end
 
 GUI.pagination = dt.new_widget("box") {
@@ -471,9 +471,9 @@ dt.preferences.register(MODULE_NAME,
                         "export_image_before_for_tags",
                         "bool",
                         _("photils: use exported image for tag request"),
-                        _("If enabled, the image passed to photils for tag suggestion is based on the exported, already edited image. " ..
-                          "Otherwise, the embedded thumbnail of the RAW file will be used for tag suggestion." ..
-                          "The embedded thumbnail could speedup the tag suggestion but can fail if the RAW file is not supported."),
+                        _("if enabled, the image passed to photils for tag suggestion is based on the exported, already edited image. " ..
+                          "otherwise, the embedded thumbnail of the RAW file will be used for tag suggestion." ..
+                          "the embedded thumbnail could speedup the tag suggestion but can fail if the RAW file is not supported."),
                         true)
 
 dt.register_event("photils", "mouse-over-image-changed",

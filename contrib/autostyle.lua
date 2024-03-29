@@ -98,7 +98,7 @@ local function autostyle_apply_one_image (image)
 
   -- check they all exist (correct syntax)
   if (not tag) then
-	  darktable.print(string.format(_("EXIF TAG not found in %s"), pref))
+	  darktable.print(string.format(_("EXIF tag not found in %s"), pref))
 	  return 0
   end
   if (not value) then
@@ -110,7 +110,7 @@ local function autostyle_apply_one_image (image)
 	  return 0
   end
   if not filelib.check_if_bin_exists("exiftool") then
-	  darktable.print(_("Can't find exiftool"))
+	  darktable.print(_("can't find exiftool"))
     return 0
   end
 	
@@ -133,7 +133,7 @@ local function autostyle_apply_one_image (image)
   --darktable.print_error("dr_attr:" .. auto_dr_attr)
   -- If the lookup fails, stop here
   if (not ok) then
-    darktable.print(string.format(_("Couldn't get attribute %s from exiftool's output"), auto_dr_attr))
+    darktable.print(string.format(_("couldn't get attribute %s from exiftool's output"), auto_dr_attr))
     return 0
   end
   if auto_dr_attr == value then
@@ -160,7 +160,7 @@ local function autostyle_apply(shortcut)
     images_submitted = images_submitted + 1
     images_processed = images_processed + autostyle_apply_one_image(image)
   end
-  darktable.print(string.format(_("Applied auto style to %d out of %d image(s)"), images_processed, images_submitted))
+  darktable.print(string.format(_("applied auto style to %d out of %d image(s)"), images_processed, images_submitted))
 end
 
 local function destroy()
@@ -170,9 +170,9 @@ end
 
 -- Registering events
 darktable.register_event("autostyle", "shortcut", autostyle_apply,
-       _("Apply your chosen style from exiftool tags"))
+       _("apply your chosen style from exiftool tags"))
 
-darktable.preferences.register("autostyle", "exif_tag", "string", "Autostyle: EXIF_tag=value=>style", _("apply a style automatically if an EXIF_tag matches value. Find the tag with exiftool"), "")
+darktable.preferences.register("autostyle", "exif_tag", "string", "Autostyle: EXIF_tag=value=>style", _("apply a style automatically if an EXIF tag matches value, find the tag with exiftool"), "")
 
 darktable.register_event("autostyle", "post-import-image",
   autostyle_apply_one_image_event)

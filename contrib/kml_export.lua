@@ -59,7 +59,7 @@ local function _(msgid)
 end
 
 local function show_status(storage, image, format, filename, number, total, high_quality, extra_data)
-  dt.print(string.format(_("Export Image %i/%i"), number, total))
+  dt.print(string.format(_("export image %i/%i"), number, total))
 end
 
 -- Add duplicate index to filename
@@ -317,14 +317,14 @@ if dt.configuration.running_os == "windows" then
     "OpenKmlFile",
     "bool",
     _("KML export: Open KML file after export"),
-    _("Opens the KML file after the export with the standard program for KML files"),
+    _("opens the KML file after the export with the standard program for KML files"),
     false )
 else
   dt.preferences.register("kml_export",
     "OpenKmlFile",
     "bool",
-    _("KML export: Open KML/KMZ file after export"),
-    _("Opens the KML file after the export with the standard program for KML files"),
+    _("KML export: open KML/KMZ file after export"),
+    _("opens the KML file after the export with the standard program for KML files"),
     false )
 end
 
@@ -343,23 +343,23 @@ end
 dt.preferences.register("kml_export",
   "ExportDirectory",
   "directory",
-  _("KML export: Export directory"),
-  _("A directory that will be used to export the KML/KMZ files"),
+  _("KML export: export directory"),
+  _("a directory that will be used to export the KML/KMZ files"),
   defaultDir )
 
 if dt.configuration.running_os ~= "linux" then  
   dt.preferences.register("kml_export", 
     "magickPath",	-- name
 	"file",	-- type
-	_("KML export: ImageMagick binary Location"),	-- label
-	_("Install location of magick[.exe]. Requires restart to take effect."),	-- tooltip
+	_("KML export: ImageMagick binary location"),	-- label
+	_("install location of magick[.exe], requires restart to take effect"),	-- tooltip
 	"magick")	-- default
 end  
   
 dt.preferences.register("kml_export",
   "CreatePath",
   "bool",
-  _("KML export: Connect images with path"),
+  _("KML export: connect images with path"),
   _("connect all images with a path"),
   false )
 
@@ -367,16 +367,16 @@ if dt.configuration.running_os == "linux" then
   dt.preferences.register("kml_export",
     "CreateKMZ",
     "bool",
-    _("KML export: Create KMZ file"),
-    _("Compress all imeges to one KMZ file"),
+    _("KML export: create KMZ file"),
+    _("compress all imeges to one KMZ file"),
     true )
 end
 
 -- Register
 if dt.configuration.running_os == "windows" then
-  dt.register_storage("kml_export", _("KML Export"), nil, create_kml_file)
+  dt.register_storage("kml_export", _("KML export"), nil, create_kml_file)
 else
-  dt.register_storage("kml_export", _("KML/KMZ Export"), nil, create_kml_file)
+  dt.register_storage("kml_export", _("KML/KMZ export"), nil, create_kml_file)
 end
 
 script_data.destroy = destroy
