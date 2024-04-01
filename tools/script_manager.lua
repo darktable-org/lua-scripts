@@ -22,9 +22,9 @@
     manage the lua scripts.
 
     On startup script_manager scans the lua scripts directory to see what scripts are present.
-    Scripts are sorted by 'category' based on what sub-directory they are in.  With no 
-    additional script repositories iinstalled, the categories are contrib, examples, official
-    and tools.  When a category is selected the buttons show the script name and whether the
+    Scripts are sorted by 'folder' based on what sub-directory they are in.  With no 
+    additional script repositories iinstalled, the folders are contrib, examples, official
+    and tools.  When a folder is selected the buttons show the script name and whether the
     script is started or stopped.  The button is a toggle, so if the script is stopped click 
     the button to start it and vice versa.
 
@@ -128,7 +128,7 @@ sm.event_registered = false
 -- set up tables to contain all the widgets and choices
 
 sm.widgets = {}
-sm.categories = {}
+sm.folders = {}
 
 -- set log level for functions
 
@@ -137,14 +137,14 @@ sm.log_level = DEFAULT_LOG_LEVEL
 --[[
 
   sm.scripts is a table of tables for containing the scripts
-  It is organized as into category (folder) subtables containing
+  It is organized as into folder (folder) subtables containing
   each script definition, which is a table
 
   sm.scripts-
             |
-            - category------------|
+            - folder------------|
             |                     - script
-            - category----|       |
+            - folder----|       |
                           - script|
                           |       - script
                           - script|
@@ -152,7 +152,7 @@ sm.log_level = DEFAULT_LOG_LEVEL
   and a script table looks like
 
   name          the name of the script file without the lua extension
-  path          category (folder), path separator, path, name without the lua extension
+  path          folder (folder), path separator, path, name without the lua extension
   doc           the header comments from the script to be used as a tooltip
   script_name   the folder, path separator, and name without the lua extension
   running       true if running, false if not, hidden if running but the 
@@ -178,7 +178,7 @@ sm.page_status = {}
 sm.page_status.num_buttons = DEFAULT_BUTTONS_PER_PAGE
 sm.page_status.buttons_created = 0
 sm.page_status.current_page = 0
-sm.page_status.category = ""
+sm.page_status.folder = ""
 
 -- use color in the interface?
 sm.use_color = false
@@ -348,12 +348,12 @@ end
 -- script handling
 ------------------
 
-local function add_script_category(category)
+local function add_script_folder(folder)
   local old_log_level = set_log_level(sm.log_level)
-  if #sm.categories == 0 or not string.match(du.join(sm.categories, " "), ds.sanitize_lua(category)) then
-    table.insert(sm.categories, category)
-    sm.scripts[category] = {}
-    log.msg(log.debug, "created category " .. category)
+  if #sm.folders == 0 or not string.match(du.join(sm.folders, " "), ds.sanitize_lua(folder)) then
+    table.insert(sm.folders, folder)
+    sm.scripts[folder] = {}
+    log.msg(log.debug, "created folder " .. folder)
   end
   restore_log_level(old_log_level)
 end
@@ -452,19 +452,19 @@ local function deactivate(script)
   restore_log_level(old_log_level)
 end
 
-local function add_script_name(name, path, category)
+local function add_script_name(name, path, folder)
   local old_log_level = set_log_level(sm.log_level)
-  log.msg(log.debug, "category is " .. category)
+  log.msg(log.debug, "folder is " .. folder)
   log.msg(log.debug, "name is " .. name)
   local script = { 
     name = name, 
-    path = category .. "/" .. path .. name,
+    path = folder .. "/" .. path .. name,
     running = false,
-    doc = get_script_doc(category .. "/" .. path .. name),
-    script_name = category .. "/" .. name,
+    doc = get_script_doc(folder .. "/" .. path .. name),
+    script_name = folder .. "/" .. name,
     data = nil
   }
-  table.insert(sm.scripts[category], script)
+  table.insert(sm.scripts[folder], script)
   if pref_read(script.script_name, "bool") then
     activate(script)
   else
@@ -476,10 +476,10 @@ end
 local function process_script_data(script_file)
   local old_log_level = set_log_level(sm.log_level)
 
-  -- the script file supplied is category/filename.filetype
-  -- the following pattern splits the string into category, path, name, fileename, and filetype
+  -- the script file supplied is folder/filename.filetype
+  -- the following pattern splits the string into folder, path, name, fileename, and filetype
   -- for example contrib/gimp.lua becomes
-  -- category - contrib
+  -- folder - contrib
   -- path - 
   -- name - gimp.lua
   -- filename - gimp
@@ -496,14 +496,14 @@ local function process_script_data(script_file)
   log.msg(log.info, "processing " .. script_file)
 
   -- add the script data
-  local category,path,name,filename,filetype = string.match(script_file, pattern)
+  local folder,path,name,filename,filetype = string.match(script_file, pattern)
 
-  if category and name and path then
-    log.msg(log.debug, "category is " .. category)
+  if folder and name and path then
+    log.msg(log.debug, "folder is " .. folder)
     log.msg(log.debug, "name is " .. name)
 
-    add_script_category(category)
-    add_script_name(name, path, category)
+    add_script_folder(folder)
+    add_script_name(name, path, folder)
   end
 
   restore_log_level(old_log_level)
@@ -594,25 +594,25 @@ local function scan_repositories()
   local output = io.popen(find_cmd)
   for line in output:lines() do
     local l = string.gsub(line, ds.sanitize_lua(LUA_DIR) .. PS, "")   -- strip the lua dir off
-    local category = string.match(l, "(.-)" .. PS)                        -- get everything to teh first /
-    if category then                                                 -- if we have a category (.git doesn't)
-      log.msg(log.debug, "found category " .. category)
-      if not string.match(category, "plugins") and not string.match(category, "%.git") then -- skip plugins
+    local folder = string.match(l, "(.-)" .. PS)                        -- get everything to teh first /
+    if folder then                                                 -- if we have a folder (.git doesn't)
+      log.msg(log.debug, "found folder " .. folder)
+      if not string.match(folder, "plugins") and not string.match(folder, "%.git") then -- skip plugins
         if #sm.installed_repositories == 1 then
-          log.msg(log.debug, "only 1 repo, adding " .. category)
-          table.insert(sm.installed_repositories, {name = category, directory = LUA_DIR .. PS .. category})
+          log.msg(log.debug, "only 1 repo, adding " .. folder)
+          table.insert(sm.installed_repositories, {name = folder, directory = LUA_DIR .. PS .. folder})
         else
           log.msg(log.debug, "more than 1 repo, we have to search the repos to make sure it's not there")
           local found = nil
           for _, repo in ipairs(sm.installed_repositories) do
-            if string.match(repo.name, ds.sanitize_lua(category)) then
+            if string.match(repo.name, ds.sanitize_lua(folder)) then
               log.msg(log.debug, "matched " .. repo.name)
               found = true
               break
             end
           end
           if not found then
-            table.insert(sm.installed_repositories, {name = category, directory = LUA_DIR .. PS .. category})
+            table.insert(sm.installed_repositories, {name = folder, directory = LUA_DIR .. PS .. folder})
           end
         end
       end
@@ -625,11 +625,11 @@ end
 local function install_scripts()
   local old_log_level = set_log_level(sm.log_level)
   local url = sm.widgets.script_url.text
-  local category = sm.widgets.new_category.text
+  local folder = sm.widgets.new_folder.text
 
-  if string.match(du.join(sm.categories, " "), ds.sanitize_lua(category)) then
-    log.msg(log.screen, _("category ") .. category .. _(" is already in use. Please specify a different category name."))
-    log.msg(log.error, "category " .. category .. " already exists, returning...")
+  if string.match(du.join(sm.folders, " "), ds.sanitize_lua(folder)) then
+    log.msg(log.screen, _("folder ") .. folder .. _(" is already in use. Please specify a different folder name."))
+    log.msg(log.error, "folder " .. folder .. " already exists, returning...")
     restore_log_level(old_log_level)
     return
   end
@@ -644,7 +644,7 @@ local function install_scripts()
     return
   end
 
-  local git_command = "cd " .. LUA_DIR .. " " .. CS .. " " .. git .. " clone " .. url .. " " .. category
+  local git_command = "cd " .. LUA_DIR .. " " .. CS .. " " .. git .. " clone " .. url .. " " .. folder
   log.msg(log.debug, "update git command is " .. git_command)
 
   if dt.configuration.running_os == "windows" then
@@ -656,27 +656,27 @@ local function install_scripts()
   log.msg(log.info, "result from import is " .. result)
 
   if result == 0 then
-    local count = scan_scripts(LUA_DIR .. PS .. category)
+    local count = scan_scripts(LUA_DIR .. PS .. folder)
     if count > 0 then
-      update_combobox_choices(sm.widgets.category_selector, sm.categories, sm.widgets.category_selector.selected)
-      dt.print(_("scripts successfully installed into category ") .. category)
-      table.insert(sm.installed_repositories, {name = category, directory = LUA_DIR .. PS .. category})
+      update_combobox_choices(sm.widgets.folder_selector, sm.folders, sm.widgets.folder_selector.selected)
+      dt.print(_("scripts successfully installed into folder ") .. folder)
+      table.insert(sm.installed_repositories, {name = folder, directory = LUA_DIR .. PS .. folder})
       update_script_update_choices()
-      for i = 1, #sm.widgets.category_selector do
-        if string.match(sm.widgets.category_selector[i], ds.sanitize_lua(category)) then
-          log.msg(log.debug, "setting category selector to " .. i)
-          sm.widgets.category_selector.selected = i
+      for i = 1, #sm.widgets.folder_selector do
+        if string.match(sm.widgets.folder_selector[i], ds.sanitize_lua(folder)) then
+          log.msg(log.debug, "setting folder selector to " .. i)
+          sm.widgets.folder_selector.selected = i
           break
         end
         i = i + 1
       end
       log.msg(log.debug, "clearing text fields")
       sm.widgets.script_url.text = ""
-      sm.widgets.new_category.text = ""
+      sm.widgets.new_folder.text = ""
       sm.widgets.main_menu.selected = 3
     else
       dt.print(_("No scripts found to install"))
-      log.msg(log.error, "scan_scripts returned " .. count .. " scripts found.  Not adding to category_selector")
+      log.msg(log.error, "scan_scripts returned " .. count .. " scripts found.  Not adding to folder_selector")
     end
   else
     dt.print(_("failed to download scripts"))
@@ -696,10 +696,10 @@ local function clear_button(number)
   restore_log_level(old_log_level)
 end
 
-local function find_script(category, name)
+local function find_script(folder, name)
   local old_log_level = set_log_level(sm.log_level)
-  log.msg(log.debug, "looking for script " .. name .. " in category " .. category)
-  for _, script in ipairs(sm.scripts[category]) do
+  log.msg(log.debug, "looking for script " .. name .. " in folder " .. folder)
+  for _, script in ipairs(sm.scripts[folder]) do
     if string.match(script.name, "^" .. ds.sanitize_lua(name) .. "$") then
       return script
     end
@@ -708,12 +708,12 @@ local function find_script(category, name)
   return nil
 end
 
-local function populate_buttons(category, first, last)
+local function populate_buttons(folder, first, last)
   local old_log_level = set_log_level(sm.log_level)
-  log.msg(log.debug, "category is " .. category .. " and first is " .. first .. " and last is " .. last)
+  log.msg(log.debug, "folder is " .. folder .. " and first is " .. first .. " and last is " .. last)
   local button_num = 1
   for i = first, last do
-    script = sm.scripts[category][i]
+    script = sm.scripts[folder][i]
     button = sm.widgets.buttons[button_num]
     if script.running == true then
       if sm.use_color then
@@ -741,7 +741,7 @@ local function populate_buttons(category, first, last)
       else
         script_name, state = string.match(this.label, "(.-) (.+)")
       end
-      local script = find_script(sm.widgets.category_selector.value, script_name)
+      local script = find_script(sm.widgets.folder_selector.value, script_name)
       if script then 
         log.msg(log.debug, "found script " .. script.name .. " with path " .. script.path)
         if script.running == true then
@@ -779,9 +779,9 @@ end
 
 local function paginate(direction)
   local old_log_level = set_log_level(sm.log_level)
-  local category = sm.page_status.category
-  log.msg(log.debug, "category is " .. category)
-  local num_scripts = #sm.scripts[category]
+  local folder = sm.page_status.folder
+  log.msg(log.debug, "folder is " .. folder)
+  local num_scripts = #sm.scripts[folder]
   log.msg(log.debug, "num_scripts is " .. num_scripts)
   local max_pages = math.ceil(num_scripts / sm.page_status.num_buttons)
   local cur_page = sm.page_status.current_page
@@ -829,18 +829,18 @@ local function paginate(direction)
   end
   sm.widgets.page_status.label = _("Page ") .. cur_page .. _(" of ") .. max_pages
 
-  populate_buttons(category, first, last)
+  populate_buttons(folder, first, last)
   restore_log_level(old_log_level)
 end
 
-local function change_category(category)
+local function change_folder(folder)
   local old_log_level = set_log_level(sm.log_level)
-  if not category then
-    log.msg(log.debug "setting category to selector value " ..  sm.widgets.category_selector.value)
-    sm.page_status.category = sm.widgets.category_selector.value
+  if not folder then
+    log.msg(log.debug "setting folder to selector value " ..  sm.widgets.folder_selector.value)
+    sm.page_status.folder = sm.widgets.folder_selector.value
   else
-    log.msg(log.debug, "setting catgory to argument " .. category)
-    sm.page_status.category = category
+    log.msg(log.debug, "setting catgory to argument " .. folder)
+    sm.page_status.folder = folder
   end
 
   paginate(2)
@@ -898,14 +898,14 @@ local function load_preferences()
   end
   update_script_update_choices()
   log.msg(log.debug, "updated installed scripts")
-  -- category selector
-  local val = pref_read("category_selector", "integer")
+  -- folder selector
+  local val = pref_read("folder_selector", "integer")
   if val == 0 then
     val = 1
   end
-  sm.widgets.category_selector.selected = val
-  sm.page_status.category = sm.widgets.category_selector.value
-  log.msg(log.debug, "updated category selector and set it to " .. sm.widgets.category_selector.value)
+  sm.widgets.folder_selector.selected = val
+  sm.page_status.folder = sm.widgets.folder_selector.value
+  log.msg(log.debug, "updated folder selector and set it to " .. sm.widgets.folder_selector.value)
   -- num_buttons
   local val = pref_read("num_buttons", "integer")
   if val == 0 then
@@ -1069,18 +1069,18 @@ sm.widgets.script_url = dt.new_widget("entry"){
   tooltip = _("enter the URL of the git repository containing the scripts you wish to add")
 }
 
-sm.widgets.new_category = dt.new_widget("entry"){
+sm.widgets.new_folder = dt.new_widget("entry"){
   text = "",
-  placeholder = _("name of new category"),
-  tooltip = _("enter a category name for the additional scripts")
+  placeholder = _("name of new folder"),
+  tooltip = _("enter a folder name for the additional scripts")
 }
 
 sm.widgets.add_scripts = dt.new_widget("box"){
   orientation = vertical,
   dt.new_widget("label"){label = _("URL to download additional scripts from")},
   sm.widgets.script_url,
-  dt.new_widget("label"){label = _("new category to place scripts in")},
-  sm.widgets.new_category,
+  dt.new_widget("label"){label = _("new folder to place scripts in")},
+  sm.widgets.new_folder,
   dt.new_widget("button"){
     label = _("install additional scripts"),
     clicked_callback = function(this)
@@ -1124,17 +1124,17 @@ sm.widgets.install_update = dt.new_widget("box"){
 
 -- manage the scripts
 
-sm.widgets.category_selector = dt.new_widget("combobox"){
-  label = _("category"),
-  tooltip = _( "select the script category"),
+sm.widgets.folder_selector = dt.new_widget("combobox"){
+  label = _("folder"),
+  tooltip = _( "select the script folder"),
   selected = 1,
   changed_callback = function(self)
     if sm.run then
-      pref_write("category_selector", "integer", self.selected)
-      change_category(self.value)
+      pref_write("folder_selector", "integer", self.selected)
+      change_folder(self.value)
     end
   end,
-  table.unpack(sm.categories),
+  table.unpack(sm.folders),
 }
 
 sm.widgets.buttons ={}
@@ -1175,7 +1175,7 @@ sm.widgets.page_control = dt.new_widget("box"){
 sm.widgets.scripts = dt.new_widget("box"){
   orientation = vertical,
   dt.new_widget("label"){label = _("Scripts")},
-  sm.widgets.category_selector,
+  sm.widgets.folder_selector,
   sm.widgets.page_control,
   table.unpack(sm.widgets.buttons)
 }
