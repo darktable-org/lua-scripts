@@ -68,7 +68,7 @@ end
 
 -- api check
 
-du.check_min_api_version("5.0.0", "script_manager")
+du.check_min_api_version("9.3.0", "script_manager")
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- C O N S T A N T S
@@ -92,6 +92,10 @@ local LUA_DIR = dt.configuration.config_dir .. PS .. "lua"
 local LUA_SCRIPT_REPO = "https://github.com/darktable-org/lua-scripts.git"
 
 local LUA_API_VER = "API-" .. dt.configuration.api_version_string
+
+-- local POWER_ICON = dt.configuration.config_dir .. "/lua/data/data/icons/power.png"
+local POWER_ICON = dt.configuration.config_dir .. "/lua/data/icons/path20.png"
+local BLANK_ICON = dt.configuration.config_dir .. "/lua/data/icons/blank20.png"
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- P R E F E R E N C E S
@@ -344,6 +348,10 @@ local function string_dequote(str)
   return string.gsub(str, "['\"]", "")
 end
 
+local function string_dei18n(str)
+  return string.match(str, "%_%((.+)%)")
+end
+
 ------------------
 -- script handling
 ------------------
@@ -356,6 +364,51 @@ local function add_script_folder(folder)
     log.msg(log.debug, "created folder " .. folder)
   end
   restore_log_level(old_log_level)
+end
+
+local function get_script_metadata(script)
+  local old_log_level = set_log_level(sm.log_level)
+  -- set_log_level(log.debug)
+
+  log.msg(log.debug, "processing metatdata for " .. script)
+
+  local description = nil
+  local metadata = nil
+
+  f = io.open(LUA_DIR .. PS .. script .. ".lua")
+  if f then
+    -- slurp the file
+    local content = f:read("*all")
+    f:close()
+    -- grab the script_data.metadata table
+    description = string.match(content, "script_data%.metadata = %{\r?\n(.-)\r?\n%}")
+  else
+    log.msg(log.error, _("Cant read from " .. script))
+  end
+
+  if description then
+    metadata = ""
+    -- format it into a string block for display
+    local lines = du.split(description, "\n")
+    log.msg(log.debug, "got " .. #lines .. " lines")
+    local first = 1
+    for i = 1, #lines do
+      log.msg(log.debug, "splitting line " .. lines[i])
+      local parts = du.split(lines[i], " = ")
+      log.msg(log.debug, "got value " .. parts[1] .. " and data " .. parts[2])
+      if string.match(parts[2], "%_%(") then
+        parts[2] = _(string_dequote(string_dei18n(parts[2])))
+      else
+        parts[2] = string_dequote(parts[2])
+      end
+      metadata = metadata .. string.format("%s%-10s\t%s", first and "" or "\n", parts[1], parts[2])
+      first = nil
+    end
+    log.msg(log.debug, "script data is \n" .. metadata)
+  end
+
+  restore_log_level(old_log_level)
+  return metadata
 end
 
 local function get_script_doc(script)
@@ -461,6 +514,7 @@ local function add_script_name(name, path, folder)
     path = folder .. "/" .. path .. name,
     running = false,
     doc = get_script_doc(folder .. "/" .. path .. name),
+    metadata = get_script_metadata(folder .. "/" .. path .. name),
     script_name = folder .. "/" .. name,
     data = nil
   }
@@ -511,7 +565,7 @@ end
 
 local function ensure_lib_in_search_path(line)
   local old_log_level = set_log_level(sm.log_level)
-  set_log_level(log.debug)
+  -- set_log_level(log.debug)
   log.msg(log.debug, "line is " .. line)
   if string.match(line, ds.sanitize_lua(dt.configuration.config_dir .. PS .. "lua/lib")) then
     log.msg(log.debug, line .. " is already in search path, returning...")
@@ -710,10 +764,12 @@ end
 local function clear_button(number)
   local old_log_level = set_log_level(sm.log_level)
   local button = sm.widgets.buttons[number]
-  button.label = ""
+  local label = sm.widgets.labels[number]
+  button.image = BLANK_ICON
   button.tooltip = ""
   button.sensitive = false
-  --button.name = ""
+  label.label = ""
+  button.name = ""
   restore_log_level(old_log_level)
 end
 
@@ -734,58 +790,36 @@ local function populate_buttons(folder, first, last)
   log.msg(log.debug, "folder is " .. folder .. " and first is " .. first .. " and last is " .. last)
   local button_num = 1
   for i = first, last do
-    script = sm.scripts[folder][i]
-    button = sm.widgets.buttons[button_num]
+    local script = sm.scripts[folder][i]
+    local button = sm.widgets.buttons[button_num]
+    local label = sm.widgets.labels[button_num]
     if script.running == true then
-      if sm.use_color then
-        button.label = script.name
-        button.name = "sm_started"
-      else
-        button.label = script.name .. _(" started")
-      end
+      button.name = "pb_on"
     else
-      if sm.use_color then
-        button.label = script.name
-        button.name = "sm_stopped"
-      else
-        button.label = script.name .. _(" stopped")
-      end
+      button.name = "pb_off"
     end
-    button.ellipsize = "middle"
+    button.image = POWER_ICON
+    label.label = script.name
+    label.name = "pb_label"
+    button.ellipsize = "end"
     button.sensitive = true
-    button.tooltip = script.doc
+    label.tooltip = script.metadata and script.metadata or script.doc
     button.clicked_callback = function (this)
-      local script_name = nil
+      local cb_script = script
       local state = nil
-      if sm.use_color then
-        script_name = string.match(this.label, "(.+)")
-      else
-        script_name, state = string.match(this.label, "(.-) (.+)")
-      end
-      local script = find_script(sm.widgets.folder_selector.value, script_name)
-      if script then 
-        log.msg(log.debug, "found script " .. script.name .. " with path " .. script.path)
-        if script.running == true then
-          log.msg(log.debug, "deactivating " .. script.name .. " on " .. script.path .. " for button " .. this.label)
-          deactivate(script)
-          if sm.use_color then
-            this.name = "sm_stopped"
-          else
-            this.label = script.name .. _(" stopped")
-          end
+      if cb_script then 
+        log.msg(log.debug, "found script " .. cb_script.name .. " with path " .. cb_script.path)
+        if cb_script.running == true then
+          log.msg(log.debug, "deactivating " .. cb_script.name .. " on " .. cb_script.path)
+          deactivate(cb_script)
+          this.name = "pb_off"
         else
-          log.msg(log.debug, "activating " .. script.name .. " on " .. script.path .. " for button " .. this.label)
-          local result = activate(script)
+          log.msg(log.debug, "activating " .. cb_script.name .. " on " .. script.path)
+          local result = activate(cb_script)
           if result then
-            if sm.use_color then
-              this.name = "sm_started"
-            else
-              this.label = script.name .. " started"
-            end
+            this.name = "pb_on"
           end
         end
-      else
-        log.msg(log.error, "script " .. script_name .. " not found")
       end
     end
     button_num = button_num + 1
@@ -870,18 +904,34 @@ end
 
 local function change_num_buttons()
   local old_log_level = set_log_level(sm.log_level)
+  -- set_log_level(log.debug)
   cur_buttons = sm.page_status.num_buttons
   new_buttons = sm.widgets.num_buttons.value
   pref_write("num_buttons", "integer", new_buttons)
   if new_buttons < cur_buttons then
+    log.msg(log.debug, "took new is less than current branch")
     for i = 1, cur_buttons - new_buttons do
       table.remove(sm.widgets.scripts)
     end
     log.msg(log.debug, "finished removing widgets, now there are " .. #sm.widgets.buttons)
   elseif new_buttons > cur_buttons then
+    log.msg(log.debug, "took new is greater than current branch")
+    log.msg(log.debug, "number of scripts is " .. #sm.widgets.scripts)
+    log.msg(log.debug, "number of buttons is " .. #sm.widgets.buttons)
+    log.msg(log.debug, "number of labels is " .. #sm.widgets.labels)
+    log.msg(log.debug, "number of boxes is " .. #sm.widgets.boxes)
     if new_buttons > sm.page_status.buttons_created then
       for i = sm.page_status.buttons_created + 1, new_buttons do
+        log.msg(log.debug, "i is " .. i)
         table.insert(sm.widgets.buttons, dt.new_widget("button"){})
+        log.msg(log.debug, "inserted new button")
+        log.msg(log.debug, "number of buttons is " .. #sm.widgets.buttons)
+        table.insert(sm.widgets.labels, dt.new_widget("label"){})
+        log.msg(log.debug, "inserted new label")
+        log.msg(log.debug, "number of labels is " .. #sm.widgets.labels)
+        table.insert(sm.widgets.boxes, dt.new_widget("box"){ orientation = "horizontal", expand = false, fill = false, 
+                                                       sm.widgets.buttons[i], sm.widgets.labels[i]})
+        log.msg(log.debug, "inserted new box")
         sm.page_status.buttons_created = sm.page_status.buttons_created + 1
       end
     end
@@ -889,7 +939,7 @@ local function change_num_buttons()
     log.msg(log.debug, #sm.widgets.buttons .. " buttons are available")
     for i = cur_buttons + 1, new_buttons do
       log.msg(log.debug, "inserting button " .. i .. " into scripts widget")
-      table.insert(sm.widgets.scripts, sm.widgets.buttons[i])
+      table.insert(sm.widgets.scripts, sm.widgets.boxes[i])
     end
     log.msg(log.debug, "finished adding widgets, now there are " .. #sm.widgets.buttons)
   else -- no change
@@ -1158,10 +1208,20 @@ sm.widgets.folder_selector = dt.new_widget("combobox"){
   table.unpack(sm.folders),
 }
 
+-- a script "button" consists of:
+--      a button to start and stop the script
+--      a label that contains the name of the script
+--      a horizontal box that contains the button and the label
+
 sm.widgets.buttons ={}
+sm.widgets.labels = {}
+sm.widgets.boxes = {}
 for i =1, DEFAULT_BUTTONS_PER_PAGE do 
   table.insert(sm.widgets.buttons, dt.new_widget("button"){})
-  sm.page_status.buttons_create = sm.page_status.buttons_created + 1
+  table.insert(sm.widgets.labels, dt.new_widget("label"){})
+  table.insert(sm.widgets.boxes, dt.new_widget("box"){ orientation = "horizontal", expand = false, fill = false, 
+                                                       sm.widgets.buttons[i], sm.widgets.labels[i]})
+  sm.page_status.buttons_created = sm.page_status.buttons_created + 1
 end
 
 local page_back = "<"
@@ -1198,7 +1258,7 @@ sm.widgets.scripts = dt.new_widget("box"){
   dt.new_widget("label"){label = _("Scripts")},
   sm.widgets.folder_selector,
   sm.widgets.page_control,
-  table.unpack(sm.widgets.buttons)
+  table.unpack(sm.widgets.boxes)
 }
 
 -- configure options
