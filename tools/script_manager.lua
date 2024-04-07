@@ -1351,14 +1351,25 @@ sm.widgets.disable_scripts = dt.new_widget("button"){
 
 sm.widgets.install_update = dt.new_widget("box"){
   orientation = "vertical",
-  dt.new_widget("section_label"){label = _("update scripts")},
+  dt.new_widget("section_label"){label = _(" ")},
+  dt.new_widget("label"){label = " "},
+  dt.new_widget("label"){label = _("update scripts")},
+  dt.new_widget("label"){label = " "},
   sm.widgets.update_script_choices,
   sm.widgets.update,
-  dt.new_widget("section_label"){label = _("add more scripts")},
+  dt.new_widget("section_label"){label = "  "},
+  dt.new_widget("label"){label = " "},
+  dt.new_widget("label"){label = _("add more scripts")},
+  dt.new_widget("label"){label = " "},
   sm.widgets.add_scripts,
-  dt.new_widget("section_label"){label = _("disable scripts")},
+  dt.new_widget("section_label"){label = " "},
+  dt.new_widget("label"){label = " "},
+  dt.new_widget("label"){label = _("disable scripts")},
+  dt.new_widget("label"){label = " "},
   sm.widgets.allow_disable,
-  sm.widgets.disable_scripts
+  sm.widgets.disable_scripts,
+  dt.new_widget("section_label"){label = " "},
+  dt.new_widget("label"){label = " "},
 }
 
 -- manage the scripts
@@ -1425,10 +1436,12 @@ sm.widgets.page_control = dt.new_widget("box"){
 
 sm.widgets.scripts = dt.new_widget("box"){
   orientation = vertical,
+  dt.new_widget("section_label"){label = _(" ")},
+  dt.new_widget("label"){label = " "},
   dt.new_widget("label"){label = _("Scripts")},
   sm.widgets.folder_selector,
   sm.widgets.page_control,
-  table.unpack(sm.widgets.boxes)
+  table.unpack(sm.widgets.boxes),
 }
 
 -- configure options
@@ -1452,13 +1465,6 @@ sm.widgets.change_buttons = dt.new_widget("button"){
   end
 }
 
-sm.widgets.configure = dt.new_widget("box"){
-  orientation = "vertical",
-  dt.new_widget("label"){label = _("Configuration")},
-  sm.widgets.num_buttons,
-  sm.widgets.change_buttons,
-}
-
 sm.widgets.color = dt.new_widget("check_button"){
   label = _("use color interface?"),
   value = pref_read("use_color", "bool"),
@@ -1468,7 +1474,21 @@ sm.widgets.color = dt.new_widget("check_button"){
   end
 }
 
+sm.widgets.configure = dt.new_widget("box"){
+  orientation = "vertical",
+  dt.new_widget("section_label"){label = " "},
+  dt.new_widget("label"){label = " "},
+  dt.new_widget("label"){label = _("Configuration")},
+  dt.new_widget("label"){label = " "},
+  sm.widgets.num_buttons,
+  dt.new_widget("label"){label = " "},
+  sm.widgets.change_buttons,
+  dt.new_widget("label"){label = " "},
+}
+
 table.insert(sm.widgets.configure, sm.widgets.color)
+table.insert(sm.widgets.configure,   dt.new_widget("section_label"){label = " "})
+table.insert(sm.widgets.configure, dt.new_widget("label"){label = " "})
 
 -- stack for the options
 
