@@ -509,25 +509,6 @@ local function process_script_data(script_file)
   restore_log_level(old_log_level)
 end
 
-local function ensure_lib_in_search_path(line)
-  local old_log_level = set_log_level(sm.log_level)
-  set_log_level(log.debug)
-  log.msg(log.debug, "line is " .. line)
-  if string.match(line, ds.sanitize_lua(dt.configuration.config_dir .. PS .. "lua/lib")) then
-    log.msg(log.debug, line .. " is already in search path, returning...")
-    return
-  end
-  local path = string.match(line, "(.+)/lib/.+lua")
-  log.msg(log.debug, "extracted path is " .. path)
-  log.msg(log.debug, "package.path is " .. package.path)
-  if not string.match(package.path, ds.sanitize_lua(path)) then
-    log.msg(log.debug, "path isn't in package.path, adding...")
-    package.path = package.path .. ";" .. path .. "/?.lua"
-    log.msg(log.debug, "new package.path is " .. package.path)
-  end
-  restore_log_level(old_log_level)
-end
-
 local function scan_scripts(script_dir)
   local old_log_level = set_log_level(sm.log_level)
   local script_count = 0
@@ -549,7 +530,7 @@ local function scan_scripts(script_dir)
             script_count = script_count + 1
           end
         else
-          ensure_lib_in_search_path(line)                             -- but let's make sure libraries can be found
+          -- ensure_lib_in_search_path(line)                             -- but let's make sure libraries can be found
         end
       end
     end
