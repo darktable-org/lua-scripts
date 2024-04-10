@@ -184,9 +184,6 @@ sm.page_status.buttons_created = 0
 sm.page_status.current_page = 0
 sm.page_status.folder = ""
 
--- use color in the interface?
-sm.use_color = false
-
 -- installed script repositories
 sm.installed_repositories = {
   {name = "lua-scripts", directory = LUA_DIR},
@@ -630,7 +627,8 @@ local function ensure_lib_in_search_path(line)
     return
   end
 
-  local path = string.match(line, "(.+)/lib/.+lua")
+  local pattern =  dt.configuration.running_os == "windows" and  "(.+)\\lib\\.+lua" or  "(.+)/lib/.+lua"
+  local path = string.match(line, pattern)
 
   log.msg(log.debug, "extracted path is " .. path)
   log.msg(log.debug, "package.path is " .. package.path)
@@ -657,11 +655,12 @@ local function scan_scripts(script_dir)
     find_cmd = "dir /b/s \"" .. script_dir .. "\\*.lua\" | sort"
   end
 
-  log.msg(log.debug, _("find command is ") .. find_cmd)
+  log.msg(log.debug, "find command is " .. find_cmd)
 
   -- scan the scripts
   local output = io.popen(find_cmd)
   for line in output:lines() do
+    log.msg(log.debug, "line is " .. line)
     local l = string.gsub(line, ds.sanitize_lua(LUA_DIR) .. PS, "")   -- strip the lua dir off
     local script_file = l:sub(1,-5)                                   -- strip off .lua\n
     if not string.match(script_file, "script_manager") then           -- let's not include ourself
@@ -1334,6 +1333,8 @@ sm.widgets.allow_disable = dt.new_widget("check_button"){
   clicked_callback = function(this)
     if this.value == true then
       sm.widgets.disable_scripts.sensitive = true
+    else
+      sm.widgets.disable_scripts.sensitive = false
     end
   end,
 }
@@ -1368,7 +1369,6 @@ sm.widgets.install_update = dt.new_widget("box"){
   dt.new_widget("label"){label = " "},
   sm.widgets.allow_disable,
   sm.widgets.disable_scripts,
-  dt.new_widget("section_label"){label = " "},
   dt.new_widget("label"){label = " "},
 }
 
@@ -1465,15 +1465,6 @@ sm.widgets.change_buttons = dt.new_widget("button"){
   end
 }
 
-sm.widgets.color = dt.new_widget("check_button"){
-  label = _("use color interface?"),
-  value = pref_read("use_color", "bool"),
-  clicked_callback = function(this)
-    pref_write("use_color", "bool", this.value)
-    sm.use_color = this.value
-  end
-}
-
 sm.widgets.configure = dt.new_widget("box"){
   orientation = "vertical",
   dt.new_widget("section_label"){label = " "},
@@ -1485,10 +1476,6 @@ sm.widgets.configure = dt.new_widget("box"){
   sm.widgets.change_buttons,
   dt.new_widget("label"){label = " "},
 }
-
-table.insert(sm.widgets.configure, sm.widgets.color)
-table.insert(sm.widgets.configure,   dt.new_widget("section_label"){label = " "})
-table.insert(sm.widgets.configure, dt.new_widget("label"){label = " "})
 
 -- stack for the options
 
