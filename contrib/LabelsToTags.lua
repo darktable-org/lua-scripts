@@ -52,6 +52,14 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("7.0.0", "LabelsToTags") 
 
+local gettext = dt.gettext.gettext
+
+gettext.bindtextdomain("LabelsToTags", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+  return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
@@ -68,7 +76,7 @@ local ltt = {}
 ltt.module_installed = false
 ltt.event_registered = false
 
-local LIB_ID = "LabelsToTags"
+local LIB_ID = _("LabelsToTags")
 
 -- Helper functions: BEGIN
 
@@ -109,23 +117,23 @@ end
 
 
 local initialAvailableMappings = {
-   ["Colors"] = { ["+*****"] = { "Red" },
-      ["*+****"] = { "Yellow" },
-      ["**+***"] = { "Green" },
-      ["***+**"] = { "Blue" },
-      ["****+*"] = { "Purple" } },
-   ["Single colors"] = { ["+----*"] = { "Red", "Only red" },
-      ["-+---*"] = { "Yellow", "Only yellow" },
-      ["--+--*"] = { "Green", "Only green" },
-      ["---+-*"] = { "Blue", "Only blue" },
-      ["----+*"] = { "Purple", "Only purple" } },
-   ["Ratings"] = { ["*****0"] = { "No stars", "Not rejected" },
-      ["*****1"] = { "One star", "Not rejected" },
-      ["*****2"] = { "Two stars", "Not rejected" },
-      ["*****3"] = { "Three stars", "Not rejected" },
-      ["*****4"] = { "Four stars", "Not rejected" },
-      ["*****5"] = { "Five stars", "Not rejected" },
-      ["*****R"] = { "Rejected" } }
+   [_("colors")] = { ["+*****"] = { _("red") },
+      ["*+****"] = { _("yellow") },
+      ["**+***"] = { _("green") },
+      ["***+**"] = { _("blue") },
+      ["****+*"] = { _("purple") } },
+   [_("single colors")] = { ["+----*"] = { _("red"), _("only red") },
+      ["-+---*"] = { _("Yellow"), _("only yellow") },
+      ["--+--*"] = { _("Green"), _("only green") },
+      ["---+-*"] = { _("Blue"), _("only blue") },
+      ["----+*"] = { _("Purple"), _("only purple") } },
+   [_("ratings")] = { ["*****0"] = { _("no stars"), _("not rejected") },
+      ["*****1"] = { _("one star"), _("not rejected") },
+      ["*****2"] = { _("two stars"), _("not rejected") },
+      ["*****3"] = { _("three stars"), _("not rejected") },
+      ["*****4"] = { _("four stars"), _("not rejected") },
+      ["*****5"] = { _("five stars"), _("not rejected") },
+      ["*****R"] = { _("rejected") } }
 }
 
 local availableMappings = {}
@@ -140,14 +148,14 @@ end
 
 local function getComboboxTooltip()
    if availableMappings == nil or next(availableMappings) == nil then
-      return("No registered mappings -- using defaults")
+      return(_("no registered mappings -- using defaults"))
    else
-      return("Select a label-to-tag mapping")
+      return(_("select a label-to-tag mapping"))
    end
 end
 
 local mappingComboBox = darktable.new_widget("combobox"){
-   label = "mapping",
+   label = _("mapping"),
    value = 1,
    tooltip = getComboboxTooltip(),
    reset_callback = function(selfC)
@@ -170,7 +178,7 @@ local mappingComboBox = darktable.new_widget("combobox"){
 }
 
 local function doTagging(selfC)
-   local job = darktable.gui.create_job(string.format("labels to tags (%d image" .. (#(darktable.gui.action_images) == 1 and "" or "s") .. ")",#(darktable.gui.action_images)),true)
+   local job = darktable.gui.create_job(string.format(_("labels to tags (%d image%s)"), #(darktable.gui.action_images), (#(darktable.gui.action_images) == 1 and "" or "s")), true)
    job.percent = 0.0
    local pctIncrement = 1.0 / #(darktable.gui.action_images)
 

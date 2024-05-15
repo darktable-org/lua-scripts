@@ -107,7 +107,7 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 local ds = require "lib/dtutils.string"
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 local img_time = {}
 img_time.module_installed = false
@@ -125,11 +125,11 @@ script_data.restart = nil -- how to restart the (lib) script after it's been hid
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("image_time",dt.configuration.config_dir.."/lua/locale/")
+
+gettext.bindtextdomain("image_time", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("image_time", msgid)
+    return gettext(msgid)
 end
 
 local PS = dt.configuration.runnin_os == "windows" and "\\" or "/"
@@ -175,7 +175,7 @@ local function calculate_difference(images)
     img_time.diff_entry.text = calc_time_difference(images[1], images[2])
     img_time.btn.sensitive = true
   else
-    dt.print(_("Error: 2 images must be selected"))
+    dt.print(_("ERROR: 2 images must be selected"))
   end
 end
 
@@ -249,7 +249,7 @@ local function _get_windows_image_file_creation_time(image)
     end
     p:close()
   else
-    dt.print(_("unable to get information for  ") .. image.filename)
+    dt.print(string.format(_("unable to get information for $s"), image.filename))
     datetime = ERROR
   end
   return datetime
@@ -266,7 +266,7 @@ local function _get_nix_image_file_creation_time(image)
     end
     p:close()
   else
-    dt.print(_("unable to get information for  ") .. image.filename)
+    dt.print(string.format(_("unable to get information for %s"), image.filename))
     datetime = ERROR
   end
   return datetime
@@ -314,7 +314,7 @@ local function reset_time(images)
       image.exif_datetime_taken = get_original_image_time(image)
     end
   else
-    dt.print_error(_("reset time: no images selected"))
+    dt.print_error("reset time: no images selected")
     dt.print(_("please select the images that need their time reset"))
   end
 end
@@ -430,8 +430,8 @@ end
 img_time.widgets  = {
   -- name, type, tooltip, placeholder,
   {"ayr", "combobox", _("years"), _("years to adjust by, 0 - ?"), {seq(0,20)}, 1},
-  {"amo", "combobox", _("months"), ("months to adjust by, 0-12"), {seq(0,12)}, 1},
-  {"ady", "combobox", _("days"), ("days to adjust by, 0-31"), {seq(0,31)}, 1},
+  {"amo", "combobox", _("months"), _("months to adjust by, 0-12"), {seq(0,12)}, 1},
+  {"ady", "combobox", _("days"), _("days to adjust by, 0-31"), {seq(0,31)}, 1},
   {"ahr", "combobox", _("hours"), _("hours to adjust by, 0-23"), {seq(0,23)}, 1},
   {"amn", "combobox", _("minutes"), _("minutes to adjust by, 0-59"), {seq(0,59)}, 1},
   {"asc", "combobox", _("seconds"), _("seconds to adjust by, 0-59"), {seq(0,59)}, 1},
@@ -457,13 +457,13 @@ end
 img_time.syr.selected = #img_time.syr
 
 img_time.diff_entry = dt.new_widget("entry"){
-  tooltip = _("Time difference between images in seconds"),
-  placeholder = _("Select 2 images and use the calculate button"),
+  tooltip = _("time difference between images in seconds"),
+  placeholder = _("select 2 images and use the calculate button"),
   text = "",
 }
 
 img_time.calc_btn = dt.new_widget("button"){
-  label = _("Calculate"),
+  label = _("calculate"),
   tooltip = _("calculate time difference between 2 images"),
   clicked_callback = function()
     calculate_difference(dt.gui.action_images)

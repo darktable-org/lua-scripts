@@ -23,6 +23,16 @@ USAGE
 ]] 
 local dt = require "darktable"
 
+-- translation facilities
+
+local gettext = dt.gettext.gettext
+
+gettext.bindtextdomain("api_version", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msg)
+  return gettext(msg)
+end
+
 -- script_manager integration to allow a script to be removed
 -- without restarting darktable
 local function destroy()
@@ -30,7 +40,8 @@ local function destroy()
 end
 
 local result = dt.configuration.api_version_string
-dt.print_error("API Version: "..result)
+dt.print_log("API Version: " .. result)
+dt.print(string.format(_("API version: %s"), result))
 
 -- set the destroy routine so that script_manager can call it when
 -- it's time to destroy the script and then return the data to 

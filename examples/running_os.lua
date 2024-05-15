@@ -30,13 +30,23 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("5.0.0", "running_os") 
 
+-- translation facilities
+
+local gettext = dt.gettext.gettext
+
+gettext.bindtextdomain("running_os", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msg)
+  return gettext(msg)
+end
+
 -- script_manager integration to allow a script to be removed
 -- without restarting darktable
 local function destroy()
   -- nothing to destroy
 end
 
-dt.print("You are running: "..dt.configuration.running_os)
+dt.print(string.format(_("you are running: %s"), dt.configuration.running_os))
 
 -- set the destroy routine so that script_manager can call it when
 -- it's time to destroy the script and then return the data to 

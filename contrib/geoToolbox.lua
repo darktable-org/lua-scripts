@@ -28,7 +28,7 @@ require "geoToolbox"
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "geoToolbox") 
 
@@ -41,11 +41,10 @@ script_data.destroy_method = nil -- set to hide for libs since we can't destroy 
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("geoToolbox",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("geoToolbox", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("geoToolbox", msgid)
+    return gettext(msgid)
 end
 
 
@@ -56,7 +55,7 @@ gT.event_registered = false
 
 -- <GUI>
 local labelDistance = dt.new_widget("label")
-labelDistance.label = _("Distance:")
+labelDistance.label = _("distance:")
 
 local label_copy_gps_lat = dt.new_widget("check_button")
 {
@@ -300,9 +299,9 @@ local function copy_gps()
       end
     end
 
-    label_copy_gps_lat.label = _("latitude: ") .. copy_gps_latitude
-    label_copy_gps_lon.label = _("longitude: ") ..copy_gps_longitude
-    label_copy_gps_ele.label = _("elevation: ") .. copy_gps_elevation
+    label_copy_gps_lat.label = string.format(_("latitude: "), copy_gps_latitude)
+    label_copy_gps_lon.label = string.format(_("longitude: "),copy_gps_longitude)
+    label_copy_gps_ele.label = string.format(_("elevation: "), copy_gps_elevation)
 
     return
   end
@@ -493,7 +492,7 @@ local function calc_distance()
         distanceUnit = _("km")
     end
 
-    return string.format(_("Distance: %.2f %s"), distance, distanceUnit)
+    return string.format(_("distance: %.2f %s"), distance, distanceUnit)
 end
 
 local function print_calc_distance()
@@ -516,12 +515,12 @@ local altitude_filename = dt.new_widget("entry")
     text = "altitude.csv",
     placeholder = "altitude.csv",
     editable = true,
-    tooltip = _("Name of the exported file"),
+    tooltip = _("name of the exported file"),
     reset_callback = function(self) self.text = "text" end
   }
 
 local function altitude_profile()
-	  dt.print(_("Start export"))
+	  dt.print(_("start export"))
     local sel_images = dt.gui.action_images
 
     local lat1 = 0;
@@ -582,7 +581,7 @@ local function altitude_profile()
     file = io.open(exportDirectory.."/"..exportFilename, "w")
     file:write(csv_file)
     file:close()
-    dt.print(_("File created in ")..exportDirectory)
+    dt.print(string.format(_("file created in %s"), exportDirectory))
 
 end
 
@@ -612,14 +611,14 @@ end
 
 local function restart()
   dt.register_event("geoToolbox_cd", "shortcut", 
-    print_calc_distance, _("Calculate the distance from latitude and longitude in km"))
+    print_calc_distance, _("calculate the distance from latitude and longitude in km"))
   dt.register_event("geoToolbox", "mouse-over-image-changed", 
     toolbox_calc_distance)
 
   dt.register_event("geoToolbox_wg", "shortcut", 
-    select_with_gps, _("Select all images with GPS information"))
+    select_with_gps, _("select all images with GPS information"))
   dt.register_event("geoToolbox_ng", "shortcut", 
-    select_without_gps, _("Select all images without GPS information"))
+    select_without_gps, _("select all images without GPS information"))
 
   dt.gui.libs["geoToolbox"].visible = true
 end
@@ -642,20 +641,20 @@ gT.widget = dt.new_widget("box")
     dt.new_widget("button")
     {
       label = _("select geo images"),
-      tooltip = _("Select all images with GPS information"),
+      tooltip = _("select all images with GPS information"),
       clicked_callback = select_with_gps
     },
     dt.new_widget("button")
     {
       label = _("select non-geo images"),
-      tooltip = _("Select all images without GPS information"),
+      tooltip = _("select all images without GPS information"),
       clicked_callback = select_without_gps
     },
     separator,--------------------------------------------------------
     dt.new_widget("button")
     {
       label = _("copy GPS data"),
-      tooltip = _("Copy GPS data"),
+      tooltip = _("copy GPS data"),
       clicked_callback = copy_gps
     },
     label_copy_gps_lat,
@@ -664,7 +663,7 @@ gT.widget = dt.new_widget("box")
     dt.new_widget("button")
     {
       label = _("paste GPS data"),
-      tooltip = _("Paste GPS data"),
+      tooltip = _("paste GPS data"),
       clicked_callback = paste_gps
     },
     separator2,--------------------------------------------------------
@@ -694,14 +693,14 @@ gT.widget = dt.new_widget("box")
     dt.new_widget("button")
     {
       label = _("open in Gnome Maps"),
-      tooltip = _("Open location in Gnome Maps"),
+      tooltip = _("open location in Gnome Maps"),
       clicked_callback = open_location_in_gnome_maps
     },
     separator4,--------------------------------------------------------
     dt.new_widget("button")
     {
       label = _("reverse geocode"),
-      tooltip = _("This just shows the name of the location, but doesn't add it as tag"),
+      tooltip = _("this just shows the name of the location, but doesn't add it as tag"),
       clicked_callback = reverse_geocode
     },
     separator5,--------------------------------------------------------
@@ -711,7 +710,7 @@ gT.widget = dt.new_widget("box")
     dt.new_widget("button")
     {
       label = _("export altitude CSV file"),
-      tooltip = _("Create an altitude profile using the GPS data in the metadata"),
+      tooltip = _("create an altitude profile using the GPS data in the metadata"),
       clicked_callback = altitude_profile
     },
     labelDistance
@@ -744,14 +743,14 @@ dt.preferences.register("geoToolbox",
 
 -- Register
 dt.register_event("geoToolbox_cd", "shortcut", 
-  print_calc_distance, _("Calculate the distance from latitude and longitude in km"))
+  print_calc_distance, _("calculate the distance from latitude and longitude in km"))
 dt.register_event("geoToolbox", "mouse-over-image-changed", 
   toolbox_calc_distance)
 
 dt.register_event("geoToolbox_wg", "shortcut", 
-  select_with_gps, _("Select all images with GPS information"))
+  select_with_gps, _("select all images with GPS information"))
 dt.register_event("geoToolbox_ng", "shortcut", 
-  select_without_gps, _("Select all images without GPS information"))
+  select_without_gps, _("select all images without GPS information"))
 
 script_data.destroy = destroy
 script_data.restart = restart

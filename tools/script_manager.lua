@@ -56,14 +56,14 @@ local dtsys = require "lib/dtutils.system"
 local log = require "lib/dtutils.log"
 local debug = require "darktable.debug"
 
-local gettext = dt.gettext
+-- set up translation
 
+local gettext = dt.gettext.gettext
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("script_manager",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("script_manager", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("script_manager", msgid)
+    return gettext(msgid)
 end
 
 -- api check
@@ -369,7 +369,7 @@ local function get_script_doc(script)
     -- assume that the second block comment is the documentation
     description = string.match(content, "%-%-%[%[.-%]%].-%-%-%[%[(.-)%]%]")
   else
-    log.msg(log.error, _("Cant read from " .. script))
+    log.msg(log.error, "Cant read from " .. script)
   end
   if description then
     restore_log_level(old_log_level)
@@ -392,7 +392,7 @@ local function activate(script)
     script_manager_running_script = nil
     if status then
       pref_write(script.script_name, "bool", true)
-      log.msg(log.screen, _("Loaded ") .. script.script_name)
+      log.msg(log.screen, string.format(_("loaded %s"), script.script_name))
       script.running = true
       if err ~= true then
         log.msg(log.debug, "got lib data")
@@ -404,7 +404,7 @@ local function activate(script)
         script.data = nil
       end
      else
-      log.msg(log.screen, script.script_name .. _(" failed to load"))
+      log.msg(log.screen, string.format(_("%s failed to load"), script.script_name))
       log.msg(log.error, "Error loading " .. script.script_name)
       log.msg(log.error, "Error message: " .. err)
     end
@@ -443,11 +443,11 @@ local function deactivate(script)
       script.running = false
     end
     log.msg(log.info, "turned off " .. script.script_name)
-    log.msg(log.screen, script.name .. _(" stopped"))
+    log.msg(log.screen, string.format(_("%s stopped"), script.name))
   else
     script.running = false
     log.msg(log.info, "setting " .. script.script_name .. " to not start")
-    log.msg(log.screen, script.name .. _(" will not start when darktable is restarted"))
+    log.msg(log.screen, string.format(_("%s will not start when darktable is restarted"), script.name))
   end
   restore_log_level(old_log_level)
 end
@@ -545,7 +545,7 @@ local function scan_scripts(script_dir)
   if dt.configuration.running_os == "windows" then
     find_cmd = "dir /b/s \"" .. script_dir .. "\\*.lua\" | sort"
   end
-  log.msg(log.debug, _("find command is ") .. find_cmd)
+  log.msg(log.debug, "find command is " .. find_cmd)
   -- scan the scripts
   local output = io.popen(find_cmd)
   for line in output:lines() do
@@ -575,7 +575,7 @@ local function update_scripts()
   local git = sm.executables.git
 
   if not git then
-    dt.print(_("ERROR: git not found.  Install or specify the location of the git executable."))
+    dt.print(_("ERROR: git not found, install or specify the location of the git executable."))
     return
   end
 
@@ -621,7 +621,7 @@ local function scan_repositories()
   if dt.configuration.running_os == "windows" then
     find_cmd = "dir /b/s /a:d " .. LUA_DIR .. PS .. "*.git | sort"
   end
-  log.msg(log.debug, _("find command is ") .. find_cmd)
+  log.msg(log.debug, "find command is " .. find_cmd)
   local output = io.popen(find_cmd)
   for line in output:lines() do
     local l = string.gsub(line, ds.sanitize_lua(LUA_DIR) .. PS, "")   -- strip the lua dir off
@@ -659,7 +659,7 @@ local function install_scripts()
   local category = sm.widgets.new_category.text
 
   if string.match(du.join(sm.categories, " "), ds.sanitize_lua(category)) then
-    log.msg(log.screen, _("category ") .. category .. _(" is already in use. Please specify a different category name."))
+    log.msg(log.screen, string.format(_("category %s is already in use, please specify a different category name."), category))
     log.msg(log.error, "category " .. category .. " already exists, returning...")
     restore_log_level(old_log_level)
     return
@@ -670,7 +670,7 @@ local function install_scripts()
   local git = sm.executables.git
 
   if not git then
-    dt.print(_("ERROR: git not found.  Install or specify the location of the git executable."))
+    dt.print(_("ERROR: git not found, install or specify the location of the git executable."))
     restore_log_level(old_log_level)
     return
   end
@@ -690,7 +690,7 @@ local function install_scripts()
     local count = scan_scripts(LUA_DIR .. PS .. category)
     if count > 0 then
       update_combobox_choices(sm.widgets.category_selector, sm.categories, sm.widgets.category_selector.selected)
-      dt.print(_("scripts successfully installed into category ") .. category)
+      dt.print(string.format(_("scripts successfully installed into category "), category))
       table.insert(sm.installed_repositories, {name = category, directory = LUA_DIR .. PS .. category})
       update_script_update_choices()
       for i = 1, #sm.widgets.category_selector do
@@ -706,7 +706,7 @@ local function install_scripts()
       sm.widgets.new_category.text = ""
       sm.widgets.main_menu.selected = 3
     else
-      dt.print(_("No scripts found to install"))
+      dt.print(_("no scripts found to install"))
       log.msg(log.error, "scan_scripts returned " .. count .. " scripts found.  Not adding to category_selector")
     end
   else
@@ -751,14 +751,14 @@ local function populate_buttons(category, first, last)
         button.label = script.name
         button.name = "sm_started"
       else
-        button.label = script.name .. _(" started")
+        button.label = string.format(_("%s started"), script.name)
       end
     else
       if sm.use_color then
         button.label = script.name
         button.name = "sm_stopped"
       else
-        button.label = script.name .. _(" stopped")
+        button.label = string.format(_("%s stopped"), script.name)
       end
     end
     button.ellipsize = "middle"
@@ -781,7 +781,7 @@ local function populate_buttons(category, first, last)
           if sm.use_color then
             this.name = "sm_stopped"
           else
-            this.label = script.name .. _(" stopped")
+            this.label = string.format(_("%s stopped"), script.name)
           end
         else
           log.msg(log.debug, "activating " .. script.name .. " on " .. script.path .. " for button " .. this.label)
@@ -790,7 +790,7 @@ local function populate_buttons(category, first, last)
             if sm.use_color then
               this.name = "sm_started"
             else
-              this.label = script.name .. " started"
+              this.label = string.format(_("%s started"), script.name)
             end
           end
         end
@@ -858,7 +858,7 @@ local function paginate(direction)
   else
     last = first + sm.page_status.num_buttons - 1
   end
-  sm.widgets.page_status.label = _("Page ") .. cur_page .. _(" of ") .. max_pages
+  sm.widgets.page_status.label = string.format(_("page %d of %d"), cur_page, max_pages)
 
   populate_buttons(category, first, last)
   restore_log_level(old_log_level)
@@ -1121,7 +1121,7 @@ sm.widgets.add_scripts = dt.new_widget("box"){
 }
 
 sm.widgets.allow_disable = dt.new_widget("check_button"){
-  label = _('Enable "Disable Scripts" button'),
+  label = _('enable "disable scripts" button'),
   value = false,
   clicked_callback = function(this)
     if this.value == true then
@@ -1131,7 +1131,7 @@ sm.widgets.allow_disable = dt.new_widget("check_button"){
 }
 
 sm.widgets.disable_scripts = dt.new_widget("button"){
-  label = _("Disable Scripts"),
+  label = _("disable scripts"),
   sensitive = false,
   clicked_callback = function(this)
     local LUARC = dt.configuration.config_dir .. PS .. "luarc"
@@ -1157,7 +1157,7 @@ sm.widgets.install_update = dt.new_widget("box"){
 
 sm.widgets.category_selector = dt.new_widget("combobox"){
   label = _("category"),
-  tooltip = _( "select the script category"),
+  tooltip = _("select the script category"),
   selected = 1,
   changed_callback = function(self)
     if sm.run then
@@ -1177,7 +1177,7 @@ end
 local page_back = "<"
 local page_forward = ">"
 
-sm.widgets.page_status = dt.new_widget("label"){label = _("Page:")}
+sm.widgets.page_status = dt.new_widget("label"){label = _("page:")}
 sm.widgets.page_back = dt.new_widget("button"){
   label = page_back,
   clicked_callback = function(this)
@@ -1205,7 +1205,7 @@ sm.widgets.page_control = dt.new_widget("box"){
 
 sm.widgets.scripts = dt.new_widget("box"){
   orientation = vertical,
-  dt.new_widget("label"){label = _("Scripts")},
+  dt.new_widget("label"){label = _("scripts")},
   sm.widgets.category_selector,
   sm.widgets.page_control,
   table.unpack(sm.widgets.buttons)
@@ -1234,7 +1234,7 @@ sm.widgets.change_buttons = dt.new_widget("button"){
 
 sm.widgets.configure = dt.new_widget("box"){
   orientation = "vertical",
-  dt.new_widget("label"){label = _("Configuration")},
+  dt.new_widget("label"){label = _("configuration")},
   sm.widgets.num_buttons,
   sm.widgets.change_buttons,
 }

@@ -36,9 +36,11 @@ USAGE
 local dt = require "darktable"
 local du = require "lib/dtutils"
 
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext 
 
 local MODULE = "change_group_leader"
+
+gettext.bindtextdomain(MODULE, dt.configuration.config_dir .."/lua/locale/")
 
 du.check_min_api_version("3.0.0", MODULE)
 
@@ -51,11 +53,8 @@ script_data.destroy_method = nil -- set to hide for libs since we can't destroy 
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain(MODULE, dt.configuration.config_dir.."/lua/locale/")
-
 local function _(msgid)
-    return gettext.dgettext(MODULE, msgid)
+    return gettext(msgid)
 end
 
 -- create a namespace to contain persistent data and widgets
@@ -121,7 +120,7 @@ end
 
 local function process_image_groups(images)
   if #images < 1 then
-    dt.print(_("No images selected."))
+    dt.print(_("o images selected"))
     dt.print_log(MODULE .. "no images seletected, returning...")
   else
     local mode = cgl.widgets.mode.value
@@ -161,7 +160,7 @@ cgl.widgets.mode = dt.new_widget("combobox"){
 }
 
 cgl.widgets.execute = dt.new_widget("button"){
-  label = _("Execute"),
+  label = _("execute"),
   clicked_callback = function()
     process_image_groups(dt.gui.action_images)
   end

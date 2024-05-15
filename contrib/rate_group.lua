@@ -44,6 +44,14 @@ local du = require "lib/dtutils"
 -- added version check
 du.check_min_api_version("7.0.0", "rate_group") 
 
+local gettext = dt.gettext.gettext
+
+gettext.bindtextdomain("rate_group", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
@@ -62,9 +70,9 @@ local function apply_rating(rating)
       end
   end
   if rating < 0 then
-      dt.print("rejecting group(s)")
+      dt.print(_("rejecting group(s)"))
   else
-      dt.print("applying rating " ..rating.. " to group(s)")
+      dt.print(string.format(_("applying rating %d to group(s)"), rating))
   end
 end
 
@@ -81,37 +89,37 @@ end
 dt.register_event("rg_reject", "shortcut",
   function(event, shortcut)
     apply_rating(-1)
-end, "Reject group")
+end, _("reject group"))
 
 dt.register_event("rg0", "shortcut",
   function(event, shortcut)
     apply_rating(0)
-end, "Rate group 0")
+end, _("rate group 0"))
 
 dt.register_event("rg1", "shortcut",
   function(event, shortcut)
     apply_rating(1)
-end, "Rate group 1")
+end, _("rate group 1"))
 
 dt.register_event("rg2", "shortcut",
   function(event, shortcut)
     apply_rating(2)
-end, "Rate group 2")
+end, _("rate group 2"))
 
 dt.register_event("rg3", "shortcut",
   function(event, shortcut)
     apply_rating(3)
-end, "Rate group 3")
+end, _("rate group 3"))
 
 dt.register_event("rg4", "shortcut",
   function(event, shortcut)
     apply_rating(4)
-end, "Rate group 4")
+end, _("rate group 4"))
 
 dt.register_event("rg5", "shortcut",
   function(event, shortcut)
     apply_rating(5)
-end, "Rate group 5")
+end, _("rate group 5"))
 
 script_data.destroy = destroy
 

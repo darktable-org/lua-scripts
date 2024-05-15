@@ -42,12 +42,12 @@ script_data.destroy_method = nil -- set to hide for libs since we can't destroy 
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
-gettext.bindtextdomain("exportLUT",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("exportLUT", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("exportLUT", msgid)
+    return gettext(msgid)
 end
 
 du.check_min_api_version("5.0.0", "exportLUT") 
@@ -64,13 +64,13 @@ local mkdir_command = 'mkdir -p '
 if dt.configuration.running_os == 'windows' then mkdir_command = 'mkdir ' end
 
 local file_chooser_button = dt.new_widget("file_chooser_button"){
-    title = _("Identity_file_chooser"),
+    title = _("identity_file_chooser"),
     value = "",
     is_directory = false
 }
 
 local export_chooser_button = dt.new_widget("file_chooser_button"){
-    title = _("Export_location_chooser"),
+    title = _("export_location_chooser"),
     value = "",
     is_directory = true
 }
@@ -106,9 +106,9 @@ end
 local function export_luts()
   local identity = dt.database.import(file_chooser_button.value)
   if(type(identity) ~= "userdata") then
-    dt.print(_("Invalid identity lut file"))
+    dt.print(_("invalid identity lut file"))
   else
-    local job = dt.gui.create_job(_('Exporting styles as haldCLUTs'), true, end_job)
+    local job = dt.gui.create_job(_('exporting styles as haldCLUTs'), true, end_job)
     
     local size = 1
 
@@ -127,9 +127,9 @@ local function export_luts()
       io_lut:write_image(identity, output_path(style.name, job))
       count = count + 1
       job.percent = count / size
-      dt.print(_("Exported: ") .. output_path(style.name, job))
+      dt.print(string.format(_("exported: %s"), output_path(style.name, job)))
     end
-    dt.print(_("Done exporting haldCLUTs"))
+    dt.print(_("done exporting haldCLUTs"))
     job.valid = false
     identity:reset()
   end

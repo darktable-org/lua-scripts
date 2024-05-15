@@ -69,13 +69,12 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 -- I 1 8 N
 -- - - - - - - - - - - - - - - - - - - - - - - - - -
 
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain(MODULE, dt.configuration.config_dir .. "/lua/locale/")
+gettext.bindtextdomain("cycle_group_leader", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext(MODULE, msgid)
+    return gettext(msgid)
 end
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
@@ -100,7 +99,7 @@ end
 local function cycle_group_leader(image)
   local group_images = image:get_group_members()
   if #group_images < 2 then
-    hinter_msg(_("No images to cycle to in group"))
+    hinter_msg(_("no images to cycle to in group"))
     return
   else
     local position = nil
@@ -147,7 +146,7 @@ dt.register_event(MODULE, "shortcut",
     -- ignore the film roll, it contains all the images, not just the imported
     local images = dt.gui.selection()
     if #images < 1 then
-      dt.print(_("No image selected.  Please select an image and try again"))
+      dt.print(_("no image selected, please select an image and try again"))
     else
       cycle_group_leader(images[1])
     end

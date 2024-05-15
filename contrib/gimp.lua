@@ -69,7 +69,7 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 local dtsys = require "lib/dtutils.system"
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 local gimp_widget = nil
 
 du.check_min_api_version("7.0.0", "gimp") 
@@ -83,11 +83,10 @@ script_data.destroy_method = nil -- set to hide for libs since we can't destroy 
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("gimp",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("gimp", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("gimp", msgid)
+    return gettext(msgid)
 end
 
 local function group_if_not_member(img, new_img)
@@ -109,7 +108,7 @@ end
 
 local function show_status(storage, image, format, filename,
   number, total, high_quality, extra_data)
-    dt.print(string.format(_("Export Image %i/%i"), number, total))
+    dt.print(string.format(_("export image %i/%i"), number, total))
 end
 
 local function gimp_edit(storage, image_table, extra_data) --finalize
@@ -119,7 +118,7 @@ local function gimp_edit(storage, image_table, extra_data) --finalize
   local gimp_executable = df.check_if_bin_exists("gimp")
 
   if not gimp_executable then
-    dt.print_error(_("GIMP not found"))
+    dt.print_error("GIMP not found")
     return
   end
 
@@ -142,7 +141,7 @@ local function gimp_edit(storage, image_table, extra_data) --finalize
     img_list = img_list ..exp_img.. " "
   end
 
-  dt.print(_("Launching GIMP..."))
+  dt.print(_("launching GIMP..."))
 
   local gimpStartCommand
   gimpStartCommand = gimp_executable .. " " .. img_list
@@ -213,7 +212,7 @@ gimp_widget = dt.new_widget("check_button"){
   end
 }
 
-dt.register_storage("module_gimp", _("Edit with GIMP"), show_status, gimp_edit, nil, nil, gimp_widget)
+dt.register_storage("module_gimp", _("edit with GIMP"), show_status, gimp_edit, nil, nil, gimp_widget)
 
 --
 script_data.destroy = destroy

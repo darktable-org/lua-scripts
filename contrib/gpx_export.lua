@@ -25,7 +25,7 @@ For each source folder, a separate <trk> is generated in the gpx file.
 local dt = require "darktable"
 local df = require "lib/dtutils.file"
 local dl = require "lib/dtutils"
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 dl.check_min_api_version("7.0.0", "gpx_export") 
 
@@ -38,8 +38,7 @@ script_data.destroy_method = nil -- set to hide for libs since we can't destroy 
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("gpx_export",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("gpx_export", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
   return gettext.dgettext("gpx_export", msgid)
@@ -132,11 +131,11 @@ local function create_gpx_file()
 
   local file = io.open(path, "w")
   if (file == nil) then
-    dt.print(_("invalid path: ")..path)
+    dt.print(string.format(_("invalid path: %s"), path))
   else
     file:write(gpx_file)
     file:close()
-    dt.print(_("gpx file created: ")..path)
+    dt.print(string.format(_("gpx file created: "), path))
   end
 end
 

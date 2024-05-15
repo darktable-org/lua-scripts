@@ -45,9 +45,7 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 
-local gettext = dt.gettext
-
-gettext.bindtextdomain("executable_manager",dt.configuration.config_dir.."/lua/locale/")
+local gettext = dt.gettext.gettext
 
 local exec_man = {} -- our own namespace
 exec_man.module_installed = false
@@ -57,8 +55,10 @@ exec_man.event_registered = false
 -- F U N C T I O N S
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
+gettext.bindtextdomain("executable_manager", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msg)
-    return gettext.dgettext("executable_manager", msg)
+    return gettext(msg)
 end
 
 local function grep(file, pattern)
@@ -142,7 +142,7 @@ local matches = grep(DARKTABLERC, "executable_paths")
 -- check if we have something to manage and exit if not
 
 if #matches == 0 then
-  dt.print(_("No executable paths found, exiting..."))
+  dt.print(_("no executable paths found, exiting..."))
   return
 end
 
@@ -167,7 +167,7 @@ for i,exec in ipairs(exec_table) do
     editable = false
   }
   executable_path_widgets[exec] = dt.new_widget("file_chooser_button"){
-    title = _("select ") .. exec .. _(" executable"),
+    title = _(string.format("select %s executable", exec)),
     value = df.get_executable_path_preference(exec),
     is_directory = false,
     changed_callback = function(self)
@@ -210,7 +210,7 @@ for i,exec in ipairs(exec_table) do
     dt.new_widget("section_label"){label = _("reset")},
     dt.new_widget("button"){
       label = _("clear"),
-      tooltip = _("Clear path for ") .. exec,
+      tooltip = string.format(_("clear path for %s"), exec),
       clicked_callback = function()
         df.set_executable_path_preference(exec, "")
         executable_path_widgets[exec].value = ""

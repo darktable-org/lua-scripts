@@ -96,10 +96,10 @@ local PATH_SEGMENT_REGEX = "(" .. PATH_SEPARATOR .. "?)([^" .. PATH_SEPARATOR ..
 unpack = unpack or table.unpack
 gmatch = string.gfind or string.gmatch
 
-darktable.gettext.bindtextdomain(LIB_ID, darktable.configuration.config_dir .. PATH_SEPARATOR .. "lua" .. PATH_SEPARATOR .. "locale" .. PATH_SEPARATOR)
+gettext.bindtextdomain("transfer_hierarchy", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
-    return darktable.gettext.dgettext(LIB_ID, msgid)
+    return darktable.gettext.gettext(msgid)
 end
 
 -- Header material: END
@@ -151,7 +151,7 @@ end
 -- Widgets and business logic: BEGIN
 
 local sourceTextBox = darktable.new_widget("entry") {
-   tooltip = _("Lowest directory containing all selected images"),
+   tooltip = _("lowest directory containing all selected images"),
    editable = false
 						    }
 sourceTextBox.reset_callback = function() sourceTextBox.text = "" end
@@ -268,17 +268,17 @@ local function doTransfer(transferFunc)
        films[film] = destBase .. string.sub(film.path, #sourceBase+1)
        if not pathExists(films[film]) then
            if createDirectory(films[film]) == nil then
-	       darktable.print(_("transfer hierarchy: ERROR: could not create directory: " .. films[film]))
+	       darktable.print(string.format(_("transfer hierarchy: ERROR: could not create directory: %s"),  films[film]))
 	       return
 	   end
        end
        if not pathIsDirectory(films[film]) then
-           darktable.print(_("transfer hierarchy: ERROR: not a directory: " .. films[film]))
+           darktable.print(string.format(_("transfer hierarchy: ERROR: not a directory: %s"), films[film]))
 	   return
        end
        destFilms[film] = darktable.films.new(films[film])
        if destFilms[film] == nil then
-           darktable.print(_("transfer hierarchy: ERROR: could not create film: " .. film.path))
+           darktable.print(string.format(_("transfer hierarchy: ERROR: could not create film: %s"), film.path))
        end
     end
 
@@ -287,7 +287,7 @@ local function doTransfer(transferFunc)
        srcFilms[img] = img.film
     end
 
-    local job = darktable.gui.create_job(string.format(_("transfer hierarchy") .. " (%d image" .. (#(darktable.gui.action_images) == 1 and "" or "s") .. ")", #(darktable.gui.action_images)), true, stopTransfer)
+    local job = darktable.gui.create_job(string.format(_("transfer hierarchy (%d image%s)"), #(darktable.gui.action_images), (#(darktable.gui.action_images) == 1 and "" or "s")), true, stopTransfer)
     job.percent = 0.0
     local pctIncrement = 1.0 / #(darktable.gui.action_images)
     for _,img in ipairs(darktable.gui.action_images) do

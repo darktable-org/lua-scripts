@@ -67,10 +67,12 @@ if dt.configuration.running_os == 'windows' then os_path_seperator = '\\' end
 local CURR_API_STRING = dt.configuration.api_version_string
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-local gettext = dt.gettext
-gettext.bindtextdomain('HDRMerge', dt.configuration.config_dir..'/lua/locale/')
+local gettext = dt.gettext.gettext
+
+gettext.bindtextdomain("HDRMerge", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
-    return gettext.dgettext('HDRMerge', msgid)
+    return gettext(msgid)
 end
 
 local temp
@@ -208,7 +210,7 @@ end
 local function main()
   PreCall({HDRM}) --check if furst run then check if install OK
   if HDRM.install_error then
-    dt.print_error(_('HDRMerge install issue'))
+    dt.print_error('HDRMerge install issue')
     dt.print(_('HDRMerge install issue, please ensure the binary path is proper'))
     return
   end
@@ -277,7 +279,7 @@ local function main()
     end
     dt.print(_('HDRMerge completed successfully'))
   else
-    dt.print_error(_('HDRMerge failed'))
+    dt.print_error('HDRMerge failed')
     dt.print(_('HDRMerge failed'))
   end
 
@@ -378,7 +380,7 @@ local lbl_import = dt.new_widget('section_label'){
 }
 GUI.Target.style = dt.new_widget('combobox'){
   label = _('apply style on import'),
-  tooltip = _('Apply selected style on auto-import to newly created image'),
+  tooltip = _('apply selected style on auto-import to newly created image'),
   selected = 1,
   _('none'),
   changed_callback = function(self)
@@ -407,9 +409,9 @@ GUI.Target.copy_tags = dt.new_widget('check_button'){
 temp = dt.preferences.read(mod, 'active_add_tags', 'string')
 if temp == '' then temp = nil end 
 GUI.Target.add_tags = dt.new_widget('entry'){
-  tooltip = _('Additional tags to be added on import. Seperate with commas, all spaces will be removed'),
+  tooltip = _('additional tags to be added on import, seperate with commas, all spaces will be removed'),
   text = temp,
-  placeholder = _('Enter tags, seperated by commas'),
+  placeholder = _('enter tags, seperated by commas'),
   editable = true
 }
 GUI.run = dt.new_widget('button'){
@@ -418,7 +420,7 @@ GUI.run = dt.new_widget('button'){
   clicked_callback = function() main() end
 }
 GUI.exes.HDRMerge = dt.new_widget('file_chooser_button'){
-  title = _('Select HDRmerge executable'),
+  title = _('select HDRmerge executable'),
   value = df.get_executable_path_preference(HDRM.name),
   is_directory = false
 }

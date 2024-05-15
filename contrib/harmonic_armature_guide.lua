@@ -32,15 +32,14 @@ USAGE
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 du.check_min_api_version("2.0.0", "harmonic_armature_guide") 
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("harmonic_armature_guide",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("harmonic_armature_guide", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
-  return gettext.dgettext("harmonic_armature_guide", msgid)
+  return gettext(msgid)
 end
 
 dt.guides.register_guide("harmonic armature",

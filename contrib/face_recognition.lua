@@ -44,7 +44,7 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 local dtsys = require "lib/dtutils.system"
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 -- constants
 
@@ -69,11 +69,10 @@ local fc = {}
 fc.module_installed = false
 fc.event_registered = false
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("face_recognition", dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("face_recognition", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
-  return gettext.dgettext("face_recognition", msgid)
+  return gettext(msgid)
 end
 
 local function build_image_table(images)
@@ -135,7 +134,7 @@ local function do_export(img_tbl, images)
   job.percent = 0.0
   for export,img in pairs(img_tbl) do
     exp_cnt = exp_cnt + 1
-    dt.print(string.format(_("Exporting image %i of %i images"), exp_cnt, images))
+    dt.print(string.format(_("exporting image %i of %i images"), exp_cnt, images))
     exporter:write_image(img, export, upsize)
     job.percent = job.percent + percent_step
   end
@@ -205,7 +204,7 @@ local function face_recognition ()
   local bin_path = df.check_if_bin_exists("face_recognition")
 
   if not bin_path then
-    dt.print(_("Face recognition not found"))
+    dt.print(_("face recognition not found"))
     return
   end
 
@@ -257,7 +256,7 @@ local function face_recognition ()
       local command = bin_path ..  " --cpus " .. nrCores .. " --tolerance " .. tolerance .. " " .. knownPath .. " " .. path .. " > " .. OUTPUT
       os.setlocale()
       dt.print_log("Face recognition: Running command: " .. command)
-      dt.print(_("Starting face recognition..."))
+      dt.print(_("starting face recognition..."))
 
       dtsys.external_command(command)
 
@@ -265,9 +264,9 @@ local function face_recognition ()
       local f = io.open(OUTPUT, "rb")
 
       if not f then
-        dt.print(_("Face recognition failed"))
+        dt.print(_("face recognition failed"))
       else
-        dt.print(_("Face recognition finished"))
+        dt.print(_("face recognition finished"))
         f:close ()
       end
 
@@ -399,7 +398,7 @@ fc.category_tags = dt.new_widget("entry"){
 
 fc.tolerance = dt.new_widget("slider"){
   label = _("tolerance"),
-  tooltip = ("detection tolerance - 0.6 default - lower if too many faces detected"),
+  tooltip = _("detection tolerance - 0.6 default - lower if too many faces detected"),
   soft_min = 0.0,
   hard_min = 0.0,
   soft_max = 1.0,
@@ -482,12 +481,12 @@ table.insert(widgets, fc.num_cores)
 table.insert(widgets, fc.export_format)
 table.insert(widgets, dt.new_widget("box"){
   orientation = "horizontal",
-  dt.new_widget("label"){ label = _("width  ")},
+  dt.new_widget("label"){ label = _("width")},
   fc.width,
 })
 table.insert(widgets, dt.new_widget("box"){
   orientation = "horizontal",
-  dt.new_widget("label"){ label = _("height ")},
+  dt.new_widget("label"){ label = _("height")},
   fc.height,
 })
 table.insert(widgets, fc.execute)

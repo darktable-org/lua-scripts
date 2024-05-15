@@ -78,10 +78,12 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 
 -- translation
-local gettext = dt.gettext
-gettext.bindtextdomain(MODULE_NAME, dt.configuration.config_dir..PS.."lua"..PS.."locale"..PS)
+local gettext = dt.gettext.gettext
+
+gettext.bindtextdomain("RL_out_sharp", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
-  return gettext.dgettext(MODULE_NAME, msgid)
+  return gettext(msgid)
   end
 
 -- initialize module preferences
@@ -137,7 +139,7 @@ local function export2RL(storage, image_table, extra_data)
   for image, temp_name in pairs(image_table) do
 
     i = i + 1
-    dt.print(_("sharpening image ")..i.." ...")
+    dt.print(string.format(_("sharpening image %d ..."), i))
     -- create unique filename
     new_name = output_folder..PS..df.get_basename(temp_name)..".jpg"
     new_name = df.create_unique_filename(new_name)

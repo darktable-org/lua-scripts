@@ -62,13 +62,12 @@ qt.module_installed = false
 qt.event_registered = false
 qt.widget_table = {}
 
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("quicktag",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("quicktag", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("quicktag", msgid)
+    return gettext(msgid)
 end
 
 -- maximum length of button labels

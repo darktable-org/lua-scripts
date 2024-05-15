@@ -52,13 +52,12 @@ du.check_min_api_version("7.0.0", "color_profile_manager")
 -- L O C A L I Z A T I O N
 -- - - - - - - - - - - - - - - - - - - - - - - -
 
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("color_profile_manager", dt.configuration.config_dir .. "/lua/locale/")
+gettext.bindtextdomain("color_profile_manager", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("color_profile_manager", msgid)
+    return gettext(msgid)
 end
 
 -- - - - - - - - - - - - - - - - - - - - - - - -
@@ -119,13 +118,13 @@ end
 
 local function add_profile(file, dir)
   df.file_copy(file, dir)
-  dt.print(_("added color profile " .. file .. " to " .. dir))
+  dt.print(string.format(_("added color profile %s to %s"), file, dir))
   dt.print_log("color profile " .. file .. " added to " .. dir)
 end
 
 local function remove_profile(file, dir)
   os.remove(dir .. PS .. file)
-  dt.print(_("removed color profile " .. file .. " from " .. dir))
+  dt.print(string.format(_("removed color profile %s from %s"), file, dir))
   dt.print_log("color profile " .. file .. " removed from " .. dir)
 end
 

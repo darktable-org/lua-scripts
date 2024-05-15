@@ -53,17 +53,18 @@ end
 -- C O N S T A N T S
 -- - - - - - - - - - - - - - - - - - - - - - - -
 
-local MODULE_NAME = "panels"
+local MODULE_NAME = "panels_demo"
 local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 
 -- - - - - - - - - - - - - - - - - - - - - - - -
 -- T R A N S L A T I O N S
 -- - - - - - - - - - - - - - - - - - - - - - - -
-local gettext = dt.gettext
-gettext.bindtextdomain(MODULE_NAME, dt.configuration.config_dir..PS.."lua"..PS.."locale"..PS)
+local gettext = dt.gettext.gettext
+
+gettext.bindtextdomain("panels_demo", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
-  return gettext.dgettext(MODULE_NAME, msgid)
+  return gettext(msgid)
 end
 
 -- - - - - - - - - - - - - - - - - - - - - - - -
@@ -94,29 +95,29 @@ dt.gui.panel_show_all()
 
 -- hide center_top, center_bottom, left, top, right, bottom in order
 
-dt.print(_("Hiding all panels, one at a tme"))
+dt.print(_("hiding all panels, one at a tme"))
 sleep(1500)
 
 for i = 1, #panels do
-  dt.print(_("Hiding " .. panels[i]))
+  dt.print(_("hiding " .. panels[i]))
   dt.gui.panel_hide(panels[i])
   sleep(1500)
 end
 
 -- display left, then top, then right, then bottom
 
-  dt.print(_("Make panels visible, one at a time"))
+  dt.print(_("make panels visible, one at a time"))
   sleep(1500)
 
   for i = #panels, 1, -1 do
-    dt.print(_("Showing " .. panels[i]))
+    dt.print(_("showing " .. panels[i]))
     dt.gui.panel_show(panels[i])
     sleep(1500)
   end
 
 -- hide all
 
-dt.print(_("Hiding all panels"))
+dt.print(_("hiding all panels"))
 sleep(1500)
 
 dt.gui.panel_hide_all()
@@ -124,7 +125,7 @@ sleep(1500)
 
 -- show all
 
-dt.print(_("Showing all panels"))
+dt.print(_("showing all panels"))
 sleep(1500)
 
 dt.gui.panel_show_all()
@@ -132,7 +133,7 @@ sleep(1500)
 
 -- restore
 
-dt.print(_("Restoring panels to starting configuration"))
+dt.print(_("restoring panels to starting configuration"))
 for i = 1, #panels do
   if panel_status[i] then
     dt.gui.panel_show(panels[i])

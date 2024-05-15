@@ -77,10 +77,12 @@ script_data.restart = nil -- how to restart the (lib) script after it's been hid
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-local gettext = dt.gettext
-gettext.bindtextdomain('enfuseAdvanced',dt.configuration.config_dir..'/lua/locale/')
+local gettext = dt.gettext.gettext
+
+gettext.bindtextdomain("enfuseAdvanced", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
-    return gettext.dgettext('enfuseAdvanced', msgid)
+    return gettext(msgid)
 end
 
 -- INITS --
@@ -260,7 +262,7 @@ local function ExeUpdate(prog_tbl) --updates executable paths and verifies them
         if not prog.bin then 
             prog.install_error = true
             dt.preferences.write(mod, 'bin_exists', 'bool', false)
-            dt.print(_('issue with ')..prog.name.._(' executable'))
+            dt.print(string.format(_("issue with %s executable"), prog.name))
         else
             prog.bin = CleanSpaces(prog.bin)
         end
@@ -377,7 +379,7 @@ local function SaveToPreference(preset) --save the present values of enfuse GUI 
             dt.preferences.write(mod, preset..argument, arg_data.style, temp)
         end
     end
-    dt.print(_('saved to ')..preset)
+    dt.print(string.format(_("saved to %s"), preset))
 end
 
 local function LoadFromPreference(preset) --load values from the specified 'preset' into the GUI elements
@@ -393,7 +395,7 @@ local function LoadFromPreference(preset) --load values from the specified 'pres
             dt.preferences.write(mod, 'active_'..argument, arg_data.style, temp)
         end     
     end
-    dt.print(_('loaded from ')..preset)
+    dt.print(string.format(_("loaded from %s"), preset))
 end
 
 local function remove_temp_files(images_to_remove) --deletes all files specified by the input string
@@ -428,7 +430,7 @@ local function support_format(storage, format) --tells dt we only support TIFF e
 end
 
 local function show_status(storage, image, format, filename, number, total, high_quality, extra_data) --outputs message to user showing script export status
-    dt.print(_('export for image fusion ')..tostring(math.floor(number))..' / '..tostring(math.floor(total)))
+    dt.print(string.format(_("export for image fusion %d / %d"), math.floor(number), math.floor(total)))
 end
 
 local function main(storage, image_table, extra_data)
@@ -456,8 +458,8 @@ local function main(storage, image_table, extra_data)
         job.valid = false
         if resp ~= 0 then
             remove_temp_files(images_to_remove)
-            dt.print_error(AIS.name.._(' failed'))
-            dt.print(AIS.name.._(' failed'))
+            dt.print(string.format(_("%s failed"), AIS.name))
+            dt.print_error(AIS.name .. ' failed')
             return
         end
     end
@@ -483,8 +485,8 @@ local function main(storage, image_table, extra_data)
         local resp = dsys.external_command(run_cmd)
         if resp ~= 0 then
             remove_temp_files(images_to_remove)
-            dt.print_error(ENF.name.._(' failed'))
-            dt.print(ENF.name.._(' failed'))
+            dt.print_error(ENF.name..' failed')
+            dt.print(string.format(_("%s failed"), ENF.name))
             return
         end
         
@@ -729,7 +731,7 @@ GUI.ENF.hard_masks = dt.new_widget('check_button'){
 GUI.ENF.save_masks = dt.new_widget('check_button'){
     label = _('save masks'), 
     value = dt.preferences.read(mod, 'active_save_masks', 'bool'),
-    tooltip = _('Save the generated weight masks to your home directory,\nenblend saves masks as 8 bit grayscale, \ni.e. single channel images. \nfor accuracy we recommend to choose a lossless format.'),  
+    tooltip = _('save the generated weight masks to your home directory,\nenblend saves masks as 8 bit grayscale, \ni.e. single channel images. \nfor accuracy we recommend to choose a lossless format.'),  
     clicked_callback = function(self) dt.preferences.write(mod, 'active_save_masks', 'bool', self.value) end,
     reset_callback = function(self) self.value = false end
 }
@@ -882,7 +884,7 @@ GUI.Target.output_directory = dt.new_widget('file_chooser_button'){
 GUI.Target.source_location = dt.new_widget('check_button'){
     label = _('save to source image location'), 
     value = dt.preferences.read(mod, 'active_source_location', 'bool'),
-    tooltip = _('If checked ignores the location above and saves output image(s) to the same location as the source images.'),  
+    tooltip = _('if checked ignores the location above and saves output image(s) to the same location as the source images.'),  
     clicked_callback = function(self) dt.preferences.write(mod, 'active_source_location', 'bool', self.value) end,
     reset_callback = function(self) self.value = true end
 }
@@ -916,8 +918,8 @@ GUI.Target.auto_import = dt.new_widget('check_button'){
 }
 temp = dt.preferences.read(mod, 'active_apply_style_ind', 'integer')
 GUI.Target.apply_style = dt.new_widget('combobox'){
-    label = _('Apply Style on Import'),
-    tooltip = _('Apply selected style on auto-import to newly created blended image'),
+    label = _('apply style on Import'),
+    tooltip = _('apply selected style on auto-import to newly created blended image'),
     selected = 1,
     'none',
     changed_callback = function(self)
@@ -938,16 +940,16 @@ GUI.Target.apply_style.selected = temp
 GUI.Target.copy_tags = dt.new_widget('check_button'){
     label = _('copy tags'), 
     value = dt.preferences.read(mod, 'active_copy_tags', 'bool'),
-    tooltip = _('Copy tags from first image.'), 
+    tooltip = _('copy tags from first image.'), 
     clicked_callback = function(self) dt.preferences.write(mod, 'active_copy_tags', 'bool', self.value) end,
     reset_callback = function(self) self.value = true end
 }
 temp = dt.preferences.read(mod, 'active_add_tags', 'string')
 if temp == '' then temp = nil end 
 GUI.Target.add_tags = dt.new_widget('entry'){
-    tooltip = _('Additional tags to be added on import. Seperate with commas, all spaces will be removed'),
+    tooltip = _('additional tags to be added on import, seperate with commas, all spaces will be removed'),
     text = temp,
-    placeholder = 'Enter tags, seperated by commas',
+    placeholder = _('enter tags, seperated by commas'),
     editable = true
 }
 temp = dt.preferences.read(mod, 'active_current_preset_ind', 'integer')

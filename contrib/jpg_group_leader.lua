@@ -73,13 +73,12 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 -- I 1 8 N
 -- - - - - - - - - - - - - - - - - - - - - - - - - -
 
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain(MODULE, dt.configuration.config_dir .. "/lua/locale/")
+gettext.bindtextdomain("jpg_group_leader", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext(MODULE, msgid)
+    return gettext(msgid)
 end
 
 
@@ -182,7 +181,7 @@ dt.register_event(MODULE .. "_collect", "shortcut",
     local images = dt.collection
     make_existing_jpg_group_leader(images)
   end,
-  _("Make jpg group leader for collection")
+  _("make jpg group leader for collection")
 )
 
 dt.register_event(MODULE .. "_select", "shortcut",
@@ -190,7 +189,7 @@ dt.register_event(MODULE .. "_select", "shortcut",
     local images = dt.gui.selection()
     make_existing_jpg_group_leader(images)
   end,
-  _("Make jpg group leader for selection")
+  _("make jpg group leader for selection")
 )
 
 return script_data

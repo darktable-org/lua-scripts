@@ -40,7 +40,7 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 local debug = require "darktable.debug"
 
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "copy_attach_detach_tags") 
 
@@ -53,11 +53,10 @@ script_data.destroy_method = nil -- set to hide for libs since we can't destroy 
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("copy_attach_detach_tags",dt.configuration.config_dir.."/lua/locale/")
+gettext.bindtextdomain("copy_attach_detach_tags", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("copy_attach_detach_tags", msgid)
+    return gettext(msgid)
 end
 
 local cadt = {}
@@ -99,7 +98,7 @@ local function mcopy_tags()
          end
       end
 
-      dt.print(_('Image tags copied ...'))
+      dt.print(_('image tags copied ...'))
 
      --create UI tag list
      local taglist = ""
@@ -121,7 +120,7 @@ local function mcopy_tags()
 local function attach_tags()
 
   if next(image_tags) == nil then
-    dt.print(_('No tag to attach, please copy tags first.'))
+    dt.print(_('no tag to attach, please copy tags first.'))
     return true
   end
 
@@ -145,7 +144,7 @@ local function attach_tags()
       end
     end
   end
- dt.print(_('Tags attached ...'))
+ dt.print(_('tags attached ...'))
 end
 
 local function detach_tags()
@@ -161,13 +160,13 @@ local function detach_tags()
         end
       end
    end
-  dt.print(_('Tags removed from image(s).'))
+  dt.print(_('tags removed from image(s).'))
 end
 
 local function replace_tags()
   detach_tags()
   attach_tags()
-  dt.print(_('Tags replaced'))
+  dt.print(_('tags replaced'))
 end
 
 local function install_module()
