@@ -1328,7 +1328,7 @@ sm.widgets.add_scripts = dt.new_widget("box"){
 }
 
 sm.widgets.allow_disable = dt.new_widget("check_button"){
-  label = _('Enable "Disable Scripts" button'),
+  label = _('enable "disable scripts" button'),
   value = false,
   clicked_callback = function(this)
     if this.value == true then
@@ -1340,7 +1340,7 @@ sm.widgets.allow_disable = dt.new_widget("check_button"){
 }
 
 sm.widgets.disable_scripts = dt.new_widget("button"){
-  label = _("Disable Scripts"),
+  label = _("disable scripts"),
   sensitive = false,
   clicked_callback = function(this)
     local LUARC = dt.configuration.config_dir .. PS .. "luarc"
@@ -1469,7 +1469,7 @@ sm.widgets.configure = dt.new_widget("box"){
   orientation = "vertical",
   dt.new_widget("section_label"){label = " "},
   dt.new_widget("label"){label = " "},
-  dt.new_widget("label"){label = _("Configuration")},
+  dt.new_widget("label"){label = _("configuration")},
   dt.new_widget("label"){label = " "},
   sm.widgets.num_buttons,
   dt.new_widget("label"){label = " "},
