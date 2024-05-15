@@ -53,13 +53,15 @@ end
 -- C O N S T A N T S
 -- - - - - - - - - - - - - - - - - - - - - - - -
 
-local MODULE_NAME = "panels"
+local MODULE_NAME = "panels_demo"
 local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 
 -- - - - - - - - - - - - - - - - - - - - - - - -
 -- T R A N S L A T I O N S
 -- - - - - - - - - - - - - - - - - - - - - - - -
 local gettext = dt.gettext.gettext
+
+gettext.bindtextdomain("panels_demo", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
   return gettext(msgid)

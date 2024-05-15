@@ -61,6 +61,8 @@ end
 -- - - - - - - - - - - - - - - - - - - - - - - -
 local gettext = dt.gettext.gettext
 
+gettext.bindtextdomain("lighttable_demo", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
   return gettext(msgid)
 end

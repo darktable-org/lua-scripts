@@ -97,6 +97,8 @@ ee.widgets = {}
 -- translation
 local gettext = dt.gettext.gettext
 
+gettext.bindtextdomain("ext_editor", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
   return gettext(msgid)
 end

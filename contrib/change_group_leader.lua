@@ -40,6 +40,8 @@ local gettext = dt.gettext.gettext
 
 local MODULE = "change_group_leader"
 
+gettext.bindtextdomain(MODULE, dt.configuration.config_dir .."/lua/locale/")
+
 du.check_min_api_version("3.0.0", MODULE)
 
 -- return data structure for script_manager

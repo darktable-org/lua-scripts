@@ -39,6 +39,8 @@ du.check_min_api_version("7.0.0", "cr2hdr")
 
 local gettext = dt.gettext.gettext
 
+gettext.bindtextdomain("cr2hdr", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
     return gettext(msgid)
 end

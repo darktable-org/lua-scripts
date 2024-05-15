@@ -43,6 +43,7 @@ local filelib = require "lib/dtutils.file"
 du.check_min_api_version("7.0.0", "autostyle") 
 
 local gettext = darktable.gettext.gettext
+gettext.bindtextdomain("autostyle", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
   return gettext(msgid)

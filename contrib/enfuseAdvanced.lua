@@ -79,6 +79,8 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 local gettext = dt.gettext.gettext
 
+gettext.bindtextdomain("enfuseAdvanced", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
     return gettext(msgid)
 end

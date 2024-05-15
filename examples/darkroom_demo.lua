@@ -40,7 +40,7 @@ local du = require "lib/dtutils"
 -- V E R S I O N  C H E C K
 -- - - - - - - - - - - - - - - - - - - - - - - -
 
-du.check_min_api_version("5.0.2", "darkroom_mode")  -- darktable 3.0
+du.check_min_api_version("5.0.2", "darkroom_demo")  -- darktable 3.0
 
 -- script_manager integration to allow a script to be removed
 -- without restarting darktable
@@ -52,13 +52,15 @@ end
 -- C O N S T A N T S
 -- - - - - - - - - - - - - - - - - - - - - - - -
 
-local MODULE_NAME = "darkroom"
+local MODULE_NAME = "darkroom_demo"
 local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 
 -- - - - - - - - - - - - - - - - - - - - - - - -
 -- T R A N S L A T I O N S
 -- - - - - - - - - - - - - - - - - - - - - - - -
 local gettext = dt.gettext.gettext
+
+gettext.bindtextdomain("darkroom_demo", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
   return gettext(msgid)

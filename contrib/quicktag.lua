@@ -64,6 +64,8 @@ qt.widget_table = {}
 
 local gettext = dt.gettext.gettext
 
+gettext.bindtextdomain("quicktag", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
     return gettext(msgid)
 end

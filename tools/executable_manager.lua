@@ -55,6 +55,8 @@ exec_man.event_registered = false
 -- F U N C T I O N S
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
+gettext.bindtextdomain("executable_manager", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msg)
     return gettext(msg)
 end

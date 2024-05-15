@@ -58,6 +58,8 @@ local publisher = ""
 local rights = ""
 local tags = {}
 
+gettext.bindtextdomain("copy_paste_metadata", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
     return gettext(msgid)
 end

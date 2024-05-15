@@ -28,6 +28,8 @@ local du = require "lib/dtutils"
 
 local gettext = dt.gettext.gettext
 
+gettext.bindtextdomain("preferenceExamples", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msg)
   return gettext(msg)
 end

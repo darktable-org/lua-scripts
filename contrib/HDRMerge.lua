@@ -69,6 +69,8 @@ local CURR_API_STRING = dt.configuration.api_version_string
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 local gettext = dt.gettext.gettext
 
+gettext.bindtextdomain("HDRMerge", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
     return gettext(msgid)
 end

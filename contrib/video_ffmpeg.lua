@@ -54,6 +54,8 @@ local MODULE_NAME = "video_ffmpeg"
 
 local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 
+gettext.bindtextdomain("video_ffmpeg", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
   return gettext(msgid)
 end

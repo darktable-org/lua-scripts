@@ -64,6 +64,8 @@ exporter.max_width = 224
 
 -- helper functions
 
+gettext.bindtextdomain("photils", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
     return gettext(msgid)
 end

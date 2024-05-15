@@ -96,6 +96,8 @@ local PATH_SEGMENT_REGEX = "(" .. PATH_SEPARATOR .. "?)([^" .. PATH_SEPARATOR ..
 unpack = unpack or table.unpack
 gmatch = string.gfind or string.gmatch
 
+gettext.bindtextdomain("transfer_hierarchy", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
     return darktable.gettext.gettext(msgid)
 end

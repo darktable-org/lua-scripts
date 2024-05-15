@@ -27,6 +27,8 @@ local dt = require "darktable"
 
 local gettext = dt.gettext.gettext
 
+gettext.bindtextdomain("api_version", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msg)
   return gettext(msg)
 end

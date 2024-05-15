@@ -80,6 +80,8 @@ local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 -- translation
 local gettext = dt.gettext.gettext
 
+gettext.bindtextdomain("RL_out_sharp", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
   return gettext(msgid)
   end

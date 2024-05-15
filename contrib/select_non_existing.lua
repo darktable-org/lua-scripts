@@ -31,6 +31,8 @@ local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 
 local gettext = dt.gettext.gettext
 
+gettext.bindtextdomain("select_non_existing", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
     return gettext(msgid)
 end

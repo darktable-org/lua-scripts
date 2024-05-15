@@ -57,6 +57,8 @@ enf.event_registered = false
 enf.module_installed = false
 enf.lib_widgets = {}
 
+gettext.bindtextdomain("enfuse", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
     return gettext(msgid)
 end

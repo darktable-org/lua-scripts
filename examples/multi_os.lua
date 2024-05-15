@@ -72,6 +72,8 @@ local dtsys = require "lib/dtutils.system"  -- system utilities
 
 local gettext = dt.gettext.gettext
 
+gettext.bindtextdomain("multi_os", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
     return gettext(msgid)
 end

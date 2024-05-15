@@ -54,6 +54,8 @@ du.check_min_api_version("7.0.0", "LabelsToTags")
 
 local gettext = dt.gettext.gettext
 
+gettext.bindtextdomain("LabelsToTags", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
   return gettext(msgid)
 end

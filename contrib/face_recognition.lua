@@ -69,6 +69,8 @@ local fc = {}
 fc.module_installed = false
 fc.event_registered = false
 
+gettext.bindtextdomain("face_recognition", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
   return gettext(msgid)
 end

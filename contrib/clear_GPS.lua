@@ -49,6 +49,7 @@ script_data.restart = nil -- how to restart the (lib) script after it's been hid
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
 local gettext = dt.gettext.gettext 
+gettext.bindtextdomain("clear_GPS", dt.configuration.config_dir .."/lua/locale/")
 
 -- not a number
 local NaN = 0/0

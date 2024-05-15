@@ -49,6 +49,8 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 -- https://www.darktable.org/lua-api/index.html#darktable_gettext
 local gettext = dt.gettext.gettext
 
+gettext.bindtextdomain("moduleExample", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
     return gettext(msgid)
 end

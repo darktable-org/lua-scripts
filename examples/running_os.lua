@@ -34,6 +34,8 @@ du.check_min_api_version("5.0.0", "running_os")
 
 local gettext = dt.gettext.gettext
 
+gettext.bindtextdomain("running_os", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msg)
   return gettext(msg)
 end

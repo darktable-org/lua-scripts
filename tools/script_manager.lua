@@ -60,6 +60,8 @@ local debug = require "darktable.debug"
 
 local gettext = dt.gettext.gettext
 
+gettext.bindtextdomain("script_manager", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
     return gettext(msgid)
 end

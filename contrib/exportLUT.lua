@@ -44,6 +44,8 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 
 local gettext = dt.gettext.gettext
 
+gettext.bindtextdomain("exportLUT", dt.configuration.config_dir .."/lua/locale/")
+
 local function _(msgid)
     return gettext(msgid)
 end
