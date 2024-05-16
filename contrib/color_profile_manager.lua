@@ -54,7 +54,7 @@ du.check_min_api_version("7.0.0", "color_profile_manager")
 
 local gettext = dt.gettext.gettext
 
-gettext.bindtextdomain("color_profile_manager", dt.configuration.config_dir .."/lua/locale/")
+dt.gettext.bindtextdomain("color_profile_manager", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
     return gettext(msgid)
@@ -362,6 +362,13 @@ else
 end
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "color_profile_manager",
+  purpose = _("manage external darktable color profiles"),
+  author = "Bill Ferguson <wpferguson@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/color_profile_manager"
+}
 
 script_data.destroy = destroy
 script_data.restart = restart

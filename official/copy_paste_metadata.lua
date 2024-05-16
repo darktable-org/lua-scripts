@@ -31,9 +31,22 @@ local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "copy_paste_metadata")
 
+dt.gettext.bindtextdomain("copy_paste_metadata", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "copy_paste_metadata",
+  purpose = _("adds keyboard shortcuts and buttons to copy/paste metadata between images"),
+  author = "Tobias Ellinghaus",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/copy_paste_metadata"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
@@ -57,12 +70,6 @@ local creator = ""
 local publisher = ""
 local rights = ""
 local tags = {}
-
-gettext.bindtextdomain("copy_paste_metadata", dt.configuration.config_dir .."/lua/locale/")
-
-local function _(msgid)
-    return gettext(msgid)
-end
 
 local function copy(image)
   if not image then

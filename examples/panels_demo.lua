@@ -61,7 +61,7 @@ local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 -- - - - - - - - - - - - - - - - - - - - - - - -
 local gettext = dt.gettext.gettext
 
-gettext.bindtextdomain("panels_demo", dt.configuration.config_dir .."/lua/locale/")
+dt.gettext.bindtextdomain("panels_demo", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
   return gettext(msgid)
@@ -146,6 +146,14 @@ end
 -- it's time to destroy the script and then return the data to 
 -- script_manager
 local script_data = {}
+
+script_data.metadata = {
+  name = "panels_demo",
+  purpose = _("example demonstrating how to contol panel visibility"),
+  author = "Bill Ferguson <wpferguson@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/panels_demo"
+}
+
 script_data.destroy = destroy
 
 return script_data

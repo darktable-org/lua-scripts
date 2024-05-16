@@ -12,6 +12,14 @@ local libname = nil
 
 du.check_min_api_version("3.0.0", "get_lib_manpages") 
 
+local gettext = dt.gettext.gettext
+
+dt.gettext.bindtextdomain("get_lib_manpages", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msg)
+    return gettext(msg)
+end
+
 local function destroy()
   -- nothing to destroy
 end
@@ -79,6 +87,14 @@ for line in output:lines() do
 end
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "get_lib_manpages",
+  purpose = _("output the internal library documentation as man pages"),
+  author = "Bill Ferguson <wpferguson@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/tools/get_lib_manpages"
+}
+
 script_data.destroy = destroy
 
 return script_data

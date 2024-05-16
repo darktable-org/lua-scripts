@@ -34,9 +34,24 @@ local cjson = require "cjson"
 
 du.check_min_api_version("2.0.0", "check_for_updates") 
 
+local gettext = dt.gettext.gettext
+
+dt.gettext.bindtextdomain("check_for_updates", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msg)
+  return gettext(msg)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "check_for_updates",
+  purpose = _("check for newer darktable releases"),
+  author = "Tobias Ellinghaus",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/check_for_updates"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet

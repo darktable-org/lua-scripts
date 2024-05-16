@@ -54,9 +54,22 @@ local OUTPUT = dt.configuration.tmp_dir .. PS .. "facerecognition.txt"
 
 du.check_min_api_version("7.0.0", MODULE) 
 
+dt.gettext.bindtextdomain("face_recognition", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+  return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "face_recognition",
+  purpose = _("use facial recognition to tag images"),
+  author = "Sebastian Witt",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/face_recognition"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
@@ -68,12 +81,6 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 local fc = {}
 fc.module_installed = false
 fc.event_registered = false
-
-gettext.bindtextdomain("face_recognition", dt.configuration.config_dir .."/lua/locale/")
-
-local function _(msgid)
-  return gettext(msgid)
-end
 
 local function build_image_table(images)
   local image_table = {}

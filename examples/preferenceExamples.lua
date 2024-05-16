@@ -28,11 +28,20 @@ local du = require "lib/dtutils"
 
 local gettext = dt.gettext.gettext
 
-gettext.bindtextdomain("preferenceExamples", dt.configuration.config_dir .."/lua/locale/")
+dt.gettext.bindtextdomain("preferenceExamples", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msg)
   return gettext(msg)
 end
+
+local script_data = {}
+
+script_data.metadata = {
+  name = "preferenceExamples",
+  purpose = _("example to show the different preference types that are possible"),
+  author = "Tobias Jakobs",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/preferenceExamples"
+}
 
 du.check_min_api_version("2.0.1", "preferenceExamples") 
 
@@ -92,3 +101,11 @@ dt.preferences.register("preferenceExamples",        -- script: This is a string
                         "Enum 1",                     -- default
                         "Enum 1", "Enum 2")           -- values
 
+
+local function destroy()
+  -- nothing to destroy
+end
+
+script_data.destroy = destroy
+
+return script_data

@@ -35,7 +35,7 @@ du.check_min_api_version("2.0.0", "hello_world")
 
 local gettext = dt.gettext.gettext
 
-gettext.bindtextdomain("hello_world", dt.configuration.config_dir .."/lua/locale/")
+dt.gettext.bindtextdomain("hello_world", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msg)
   return gettext(msg)
@@ -53,6 +53,14 @@ dt.print(_("hello, world"))
 -- it's time to destroy the script and then return the data to 
 -- script_manager
 local script_data = {}
+
+script_data.metadata = {
+  name = "hello_world",
+  purpose = _("example of how to print a message to the screen"),
+  author = "Tobias Ellinghaus",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/hello_world"
+}
+
 script_data.destroy = destroy
 
 return script_data

@@ -69,7 +69,7 @@ dt.print_error("Hello World!")
 
 local gettext = dt.gettext.gettext 
 
-gettext.bindtextdomain("gettextExample", dt.configuration.config_dir .."/lua/locale/")
+dt.gettext.bindtextdomain("gettextExample", dt.configuration.config_dir .."/lua/locale/")
 
 -- Translate a string using the darktable textdomain
 dt.print_error(gettext("image"))
@@ -86,6 +86,14 @@ dt.print_error(_("hello world!"))
 -- it's time to destroy the script and then return the data to 
 -- script_manager
 local script_data = {}
+
+script_data.metadata = {
+  name = "gettextExample",
+  purpose = _("example of how translations works"),
+  author = "Tobias Jakobs",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/gettextExample"
+}
+
 script_data.destroy = destroy
 
 return script_data

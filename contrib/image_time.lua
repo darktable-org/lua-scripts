@@ -115,9 +115,22 @@ img_time.event_registered = false
 
 du.check_min_api_version("7.0.0", "image_time") 
 
+dt.gettext.bindtextdomain("image_time", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "image_time",
+  purpose = _("synchronize image time for images shot with different cameras or adjust or set image time"),
+  author = "Bill Ferguson <wpferguson@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/image_time"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
@@ -125,12 +138,6 @@ script_data.restart = nil -- how to restart the (lib) script after it's been hid
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
 
-
-gettext.bindtextdomain("image_time", dt.configuration.config_dir .."/lua/locale/")
-
-local function _(msgid)
-    return gettext(msgid)
-end
 
 local PS = dt.configuration.runnin_os == "windows" and "\\" or "/"
 local ERROR = -1

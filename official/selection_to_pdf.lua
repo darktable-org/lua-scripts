@@ -38,9 +38,9 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("7.0.0", "selection_to_pdf")
 
-local gettext = dt.gettext.gettext 
+local gettext = dt.gettext.gettext
 
-gettext.bindtextdomain("selection_to_pdf", dt.configuration.config_dir .."/lua/locale/")
+dt.gettext.bindtextdomain("selection_to_pdf", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msg)
   return gettext(msg)
@@ -49,6 +49,13 @@ end
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "selection_to_pdf",
+  purpose = _("generate a pdf file of selected images"),
+  author = "Jérémy Rosen & Pascal Obry",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/selection_to_pdf"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet

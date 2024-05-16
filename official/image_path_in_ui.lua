@@ -33,9 +33,24 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("7.0.0", "image_path_in_ui") 
 
+local gettext = dt.gettext.gettext
+
+dt.gettext.bindtextdomain("image_path_in_ui", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "image_path_in_ui",
+  purpose = _("print the image path in the UI"),
+  author = "Jérémy Rosen",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/image_path_in_ui"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet

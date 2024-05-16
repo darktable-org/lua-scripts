@@ -34,9 +34,24 @@ local df = require "lib/dtutils.file"
 
 du.check_min_api_version("7.0.0", "executable_manager")
 
+local gettext = dt.gettext.gettext
+
+dt.gettext.bindtextdomain("executable_manager", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msg)
+    return gettext(msg)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "executable_manager",
+  purpose = _("manage the list of external executables used by the lua scripts"),
+  author = "Bill Ferguson <wpferguson@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/tools/executable_manager"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
@@ -45,8 +60,6 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 
-local gettext = dt.gettext.gettext
-
 local exec_man = {} -- our own namespace
 exec_man.module_installed = false
 exec_man.event_registered = false
@@ -54,12 +67,6 @@ exec_man.event_registered = false
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 -- F U N C T I O N S
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-
-gettext.bindtextdomain("executable_manager", dt.configuration.config_dir .."/lua/locale/")
-
-local function _(msg)
-    return gettext(msg)
-end
 
 local function grep(file, pattern)
 

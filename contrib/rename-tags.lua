@@ -36,9 +36,9 @@ local debug = require "darktable.debug"
 du.check_min_api_version("7.0.0", "rename-tags") 
 du.deprecated("contrib/rename-tags.lua","darktable release 4.0")
 
-local gettext = dt.gettext.gettext
+local gettext = darktable.gettext.gettext
 
-gettext.bindtextdomain("rename-tags", dt.configuration.config_dir .."/lua/locale/")
+darktable.gettext.bindtextdomain("rename-tags", darktable.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
     return gettext(msgid)
@@ -47,6 +47,13 @@ end
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "rename-tags",
+  purpose = _("rename an existing tag"),
+  author = "Sebastian Witt (se.witt@gmx.net)",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/rename-tags"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil

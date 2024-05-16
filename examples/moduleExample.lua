@@ -35,9 +35,25 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("7.0.0", "moduleExample") 
 
+-- https://www.darktable.org/lua-api/index.html#darktable_gettext
+local gettext = dt.gettext.gettext
+
+dt.gettext.bindtextdomain("moduleExample", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "moduleExample",
+  purpose = _("example of how to create a lighttable module"),
+  author = "Tobias Jakobs",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/moduleExample"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
@@ -45,15 +61,6 @@ script_data.restart = nil -- how to restart the (lib) script after it's been hid
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
 -- translation
-
--- https://www.darktable.org/lua-api/index.html#darktable_gettext
-local gettext = dt.gettext.gettext
-
-gettext.bindtextdomain("moduleExample", dt.configuration.config_dir .."/lua/locale/")
-
-local function _(msgid)
-    return gettext(msgid)
-end
 
 -- declare a local namespace and a couple of variables we'll need to install the module
 local mE = {}

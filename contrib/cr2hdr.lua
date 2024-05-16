@@ -37,9 +37,9 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("7.0.0", "cr2hdr") 
 
-local gettext = dt.gettext.gettext
+local gettext = darktable.gettext.gettext
 
-gettext.bindtextdomain("cr2hdr", dt.configuration.config_dir .."/lua/locale/")
+darktable.gettext.bindtextdomain("cr2hdr", darktable.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
     return gettext(msgid)
@@ -48,6 +48,13 @@ end
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "cr2hdr",
+  purpose = _("process Magic Lantern dual ISO images"),
+  author = "Till Theato <theato@ttill.de>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/cr2hdr"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil

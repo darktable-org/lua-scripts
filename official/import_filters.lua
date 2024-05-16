@@ -30,6 +30,28 @@ USAGE
 
 local dt = require "darktable"
 
+local gettext = dt.gettext.gettext
+
+dt.gettext.bindtextdomain("import_filters", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msg)
+  return gettext(msg)
+end
+
+local script_data = {}
+
+script_data.metadata = {
+  name = "import_filters",
+  purpose = _("import filtering"),
+  author = "Tobias Ellinghaus & Christian Mandel",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/import_filters"
+}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
+script_data.show = nil -- only required for libs since the destroy_method only hides them
+
 -- we get fed a sorted list of filenames. just setting images to ignore to nil is enough
 
 -- ignore jpeg
@@ -87,6 +109,14 @@ dt.register_import_filter("prefer raw over jpeg", function(event, images)
   images[last_index] = nil
 
 end)
+
+local function destroy()
+  -- nothing to destroy
+end
+
+script_data.destroy = destroy
+
+return script_data
 
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent
 -- kate: tab-indents: off; indent-width 2; replace-tabs on; remove-trailing-space on;

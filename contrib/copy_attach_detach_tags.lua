@@ -44,20 +44,27 @@ local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "copy_attach_detach_tags") 
 
+dt.gettext.bindtextdomain("copy_attach_detach_tags", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "copy_attach_detach_tags",
+  purpose = _("shortcuts to copy, paste, replace, or remove tags from images"),
+  author = "Christian Kanzian",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/copy_attach_detach_tags"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
-
-gettext.bindtextdomain("copy_attach_detach_tags", dt.configuration.config_dir .."/lua/locale/")
-
-local function _(msgid)
-    return gettext(msgid)
-end
 
 local cadt = {}
 cadt.module_installed = false

@@ -25,24 +25,31 @@ For each source folder, a separate <trk> is generated in the gpx file.
 local dt = require "darktable"
 local df = require "lib/dtutils.file"
 local dl = require "lib/dtutils"
-local gettext = dt.gettext.gettext
+local gettext = dt.gettext
 
 dl.check_min_api_version("7.0.0", "gpx_export") 
-
--- return data structure for script_manager
-
-local script_data = {}
-
-script_data.destroy = nil -- function to destory the script
-script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
-script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
-script_data.show = nil -- only required for libs since the destroy_method only hides them
 
 gettext.bindtextdomain("gpx_export", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
   return gettext.dgettext("gpx_export", msgid)
 end
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.metadata = {
+  name = "gpx_export",
+  purpose = _("export gpx information to a file"),
+  author = "Jannis_V",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/gpx_export"
+}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
+script_data.show = nil -- only required for libs since the destroy_method only hides them
 
 local gpx = {}
 gpx.module_installed = false

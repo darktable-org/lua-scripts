@@ -48,7 +48,7 @@ du.check_min_api_version("7.0.0", "rename_images")
 
 local gettext = dt.gettext.gettext
 
-gettext.bindtextdomain("rename_images", dt.configuration.config_dir .."/lua/locale/")
+dt.gettext.bindtextdomain("rename_images", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
     return gettext(msgid)
@@ -70,6 +70,13 @@ rename.event_registered = false
 
 -- script_manager integration
 local script_data = {}
+
+script_data.metadata = {
+  name = "rename_images",
+  purpose = _("rename an image file or files"),
+  author = "Bill Ferguson <wpferguson@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/rename_images"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
