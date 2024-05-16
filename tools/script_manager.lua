@@ -60,7 +60,7 @@ local gettext = dt.gettext
 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("script_manager",dt.configuration.config_dir.."/lua/locale/")
+dt.gettext.bindtextdomain("script_manager",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
     return gettext.dgettext("script_manager", msgid)
@@ -380,6 +380,10 @@ local function string_dei18n(str)
   return string.match(str, "%_%((.+)%)")
 end
 
+local function string_chop(str)
+  return str:sub(1, -2)
+end
+
 ------------------
 -- script handling
 ------------------
@@ -431,6 +435,9 @@ local function get_script_metadata(script)
       else
         parts[2] = string_dequote(parts[2])
       end
+      if string.match(parts[2], ",$") then
+        parts[2] = string_chop(parts[2])
+      end
       metadata = metadata .. string.format("%s%-10s\t%s", first and "" or "\n", parts[1], parts[2])
       first = nil
     end
@@ -438,6 +445,7 @@ local function get_script_metadata(script)
   end
 
   restore_log_level(old_log_level)
+  dt.print_log(metadata)
   return metadata
 end
 
