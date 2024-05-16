@@ -445,7 +445,6 @@ local function get_script_metadata(script)
   end
 
   restore_log_level(old_log_level)
-  dt.print_log(metadata)
   return metadata
 end
 
