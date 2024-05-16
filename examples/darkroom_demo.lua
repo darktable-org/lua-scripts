@@ -60,7 +60,7 @@ local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 -- - - - - - - - - - - - - - - - - - - - - - - -
 local gettext = dt.gettext.gettext
 
-gettext.bindtextdomain("darkroom_demo", dt.configuration.config_dir .."/lua/locale/")
+dt.gettext.bindtextdomain("darkroom_demo", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
   return gettext(msgid)
@@ -117,6 +117,14 @@ dt.gui.current_view(current_view)
 -- it's time to destroy the script and then return the data to 
 -- script_manager
 local script_data = {}
+
+script_data.metadata = {
+  name = "darkroom_demo",
+  purpose = _("example demonstrating how to control image display in darkroom mode"),
+  author = "Bill Ferguson <wpferguson@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/darkroom_demo"
+}
+
 script_data.destroy = destroy
 
 return script_data

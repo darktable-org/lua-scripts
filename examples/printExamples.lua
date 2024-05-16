@@ -28,7 +28,7 @@ du.check_min_api_version("5.0.0", "printExamples")
 
 local gettext = dt.gettext.gettext
 
-gettext.bindtextdomain("printExamples", dt.configuration.config_dir .."/lua/locale/")
+dt.gettext.bindtextdomain("printExamples", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msg)
   return gettext(msg)
@@ -58,6 +58,14 @@ dt.print_log("print log")
 -- it's time to destroy the script and then return the data to 
 -- script_manager
 local script_data = {}
+
+script_data.metadata = {
+  name = "printExamples",
+  purpose = _("example showing the different types of printing messages"),
+  author = "Tobias Jakobs",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/printExamples"
+}
+
 script_data.destroy = destroy
 
 return script_data

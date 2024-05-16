@@ -41,9 +41,22 @@ local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "video_ffmpeg") 
 
+dt.gettext.bindtextdomain("video_ffmpeg", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+  return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "video_ffmpeg",
+  purpose = _("timelapse video plugin based on ffmpeg"),
+  author = "Dominik Markiewicz",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contib/video_ffmpeg"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
@@ -53,13 +66,6 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 local MODULE_NAME = "video_ffmpeg"
 
 local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
-
-gettext.bindtextdomain("video_ffmpeg", dt.configuration.config_dir .."/lua/locale/")
-
-local function _(msgid)
-  return gettext(msgid)
-end
-
 
 ---- DECLARATIONS
 
@@ -376,7 +382,7 @@ local module_widget = dt.new_widget("box") {
 ---- EXPORT & REGISTRATION
 
 local function show_status(enf_storage, image, format, filename, number, total, high_quality, extra_data)
-  dt.print(string.format(_("export %d / %d"), number), total))   
+  dt.print(string.format(_("export %d / %d", number), total))   
 end
 
 local function init_export(storage, img_format, images, high_quality, extra_data)

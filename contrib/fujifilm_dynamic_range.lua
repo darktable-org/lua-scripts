@@ -60,12 +60,26 @@ cameras may behave in other ways.
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "fujifilm_dynamic_range") 
+
+dt.gettext.bindtextdomain("fujifilm_dynamic_range", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+  return gettext(msgid)
+end
 
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "fujifilm_dynamic_range",
+  purpose = _("compensate for Fujifilm raw files made using \"dynamic range\""),
+  author = "Dan Torop <dant@pnym.net>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/fujifilm_dynamic_range"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil

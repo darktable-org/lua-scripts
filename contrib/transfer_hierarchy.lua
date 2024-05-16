@@ -80,9 +80,22 @@ local dtutils_system = require("lib/dtutils.system")
 local LIB_ID = "transfer_hierarchy"
 dtutils.check_min_api_version("7.0.0", LIB_ID) 
 
+darktable.gettext.bindtextdomain("transfer_hierarchy", darktable.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return darktable.gettext.gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "transfer_hierarchy",
+  purpose = _("allows the moving or copying of images from one directory tree to another, while preserving the existing hierarchy"),
+  author = "August Schwerdfeger (august@schwerdfeger.name)",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/transfer_hierarchy"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
@@ -95,12 +108,6 @@ local PATH_SEGMENT_REGEX = "(" .. PATH_SEPARATOR .. "?)([^" .. PATH_SEPARATOR ..
 
 unpack = unpack or table.unpack
 gmatch = string.gfind or string.gmatch
-
-gettext.bindtextdomain("transfer_hierarchy", dt.configuration.config_dir .."/lua/locale/")
-
-local function _(msgid)
-    return darktable.gettext.gettext(msgid)
-end
 
 -- Header material: END
 

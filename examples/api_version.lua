@@ -27,7 +27,7 @@ local dt = require "darktable"
 
 local gettext = dt.gettext.gettext
 
-gettext.bindtextdomain("api_version", dt.configuration.config_dir .."/lua/locale/")
+dt.gettext.bindtextdomain("api_version", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msg)
   return gettext(msg)
@@ -47,6 +47,14 @@ dt.print(string.format(_("API version: %s"), result))
 -- it's time to destroy the script and then return the data to 
 -- script_manager
 local script_data = {}
+
+script_data.metadata = {
+  name = "api_version",
+  purpose = _("display api_version example"),
+  author = "Tobias Jakobs",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/api_version"
+}
+
 script_data.destroy = destroy
 
 return script_data

@@ -43,7 +43,7 @@ local filelib = require "lib/dtutils.file"
 du.check_min_api_version("7.0.0", "autostyle") 
 
 local gettext = darktable.gettext.gettext
-gettext.bindtextdomain("autostyle", dt.configuration.config_dir .."/lua/locale/")
+darktable.gettext.bindtextdomain("autostyle", darktable.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
   return gettext(msgid)
@@ -52,6 +52,13 @@ end
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "autostyle",
+  purpose = _("automatically apply a style based on image EXIF tag"),
+  author = "Marc Cousin <cousinmarc@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/autostyle/"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil

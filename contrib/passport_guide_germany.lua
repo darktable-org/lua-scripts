@@ -45,11 +45,25 @@ local gettext = dt.gettext
 du.check_min_api_version("2.0.0", "passport_guide_germany") 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("passport_guide_germany",dt.configuration.config_dir.."/lua/locale/")
+dt.gettext.bindtextdomain("passport_guide_germany",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
   return gettext.dgettext("passport_guide_germany", msgid)
 end
+
+local script_data = {}
+
+script_data.metadata = {
+  name = "passport_guide_germany",
+  purpose = _("guides for cropping passport and ID card (\"Personalausweis\") photos based on the \"Passbild-Schablone\" from the German Federal Ministry of the Interior and Community"),
+  author = "menschmachine",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/passport_guide_germany"
+}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
+script_data.show = nil -- only required for libs since the destroy_method only hides them
 
 dt.guides.register_guide("Passport Photo Germany",
 -- draw
@@ -100,6 +114,14 @@ function()
   return dt.new_widget("label"){label = _("Passport Photo Germany"), halign = "start"}
 end
 )
+
+local function destroy()
+  -- noting to destroy
+end
+
+script_data.destroy = destroy
+
+return script_data
 
 -- kate: tab-indents: off; indent-width 2; replace-tabs on; remove-trailing-space on; hl Lua;
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent syntax=lua

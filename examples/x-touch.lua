@@ -55,6 +55,29 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("9.2.0", "x-touch")
 
+local gettext = dt.gettext.gettext 
+dt.gettext.bindtextdomain("gui_action", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return gettext(msgid)
+end
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.metadata = {
+  name = "x-touch",
+  purpose = _("example of how to control an x-touch midi device"),
+  author = "Diederik ter Rahe",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/x-touch"
+}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
+script_data.show = nil -- only required for libs since the destroy_method only hides them
+
 -- set up 8 mimic sliders with the same function
 for k = 1,8 do
   dt.gui.mimic("slider", "knob ".. k,
@@ -161,3 +184,11 @@ for k = 1,8 do
       return dt.gui.action(which, element, effect, size)
     end)
 end
+
+local function destroy()
+  -- nothing to destroy
+end
+
+script_data.destroy = destroy
+
+return script_data

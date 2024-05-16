@@ -74,20 +74,27 @@ local gimp_widget = nil
 
 du.check_min_api_version("7.0.0", "gimp") 
 
+dt.gettext.bindtextdomain("gimp", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "gimp",
+  purpose = _("export and edit with GIMP"),
+  author = "Bill Ferguson <wpferguson@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/gimp"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
-
-gettext.bindtextdomain("gimp", dt.configuration.config_dir .."/lua/locale/")
-
-local function _(msgid)
-    return gettext(msgid)
-end
 
 local function group_if_not_member(img, new_img)
   local image_table = img:get_group_members()

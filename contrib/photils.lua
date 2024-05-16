@@ -44,9 +44,23 @@ local dtsys = require "lib/dtutils.system"
 local MODULE_NAME = "photils"
 du.check_min_api_version("7.0.0", MODULE_NAME) 
 
+local gettext = dt.gettext.gettext
+dt.gettext.bindtextdomain("photils", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "photils",
+  purpose = _("suggest tags based on image classification"),
+  author = "Tobias Scheck",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/photils"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
@@ -55,7 +69,6 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 
 
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"
-local gettext = dt.gettext.gettext
 
 local exporter = dt.new_format("jpeg")
 exporter.quality = 80
@@ -63,12 +76,6 @@ exporter.max_height = 224
 exporter.max_width = 224
 
 -- helper functions
-
-gettext.bindtextdomain("photils", dt.configuration.config_dir .."/lua/locale/")
-
-local function _(msgid)
-    return gettext(msgid)
-end
 
 local function num_keys(tbl)
     local num = 0

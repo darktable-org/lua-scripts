@@ -33,9 +33,24 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("2.0.0", "delete_long_tags") 
 
+local gettext = dt.gettext.gettext
+
+dt.gettext.bindtextdomain("delete_long_tags", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "delete_long_tags",
+  purpose = _("delete all tags longer than a set length"),
+  author = "Tobias Ellinghaus",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/delete_long_tags"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet

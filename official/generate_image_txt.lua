@@ -40,7 +40,7 @@ require "darktable.debug"
 
 local gettext = dt.gettext.gettext
 
-gettext.bindtextdomain("generate_image_txt", dt.configuration.config_dir .."/lua/locale/")
+dt.gettext.bindtextdomain("generate_image_txt", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msg)
   return gettext(msg)
@@ -51,6 +51,13 @@ du.check_min_api_version("7.0.0", "generate_image_txt")
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "generate_image_txt",
+  purpose = _("overlay metadata on the selected image(s)"),
+  author = "Tobias Ellinghaus",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/generate_image_txt"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet

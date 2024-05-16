@@ -51,9 +51,25 @@ local dsys = require 'lib/dtutils.system'
 
 du.check_min_api_version("7.0.0", "HDRmerge") 
 
+-- Tell gettext where to find the .mo file translating messages for a particular domain
+local gettext = dt.gettext.gettext
+
+dt.gettext.bindtextdomain("HDRMerge", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "HDRmerge",
+  purpose = _("merge bracketed images into an HDR DNG image"),
+  author = "Kevin Ertel",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/HDRmerge"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
@@ -65,15 +81,6 @@ local mod = 'module_HDRMerge'
 local os_path_seperator = '/'
 if dt.configuration.running_os == 'windows' then os_path_seperator = '\\' end
 local CURR_API_STRING = dt.configuration.api_version_string
-
--- Tell gettext where to find the .mo file translating messages for a particular domain
-local gettext = dt.gettext.gettext
-
-gettext.bindtextdomain("HDRMerge", dt.configuration.config_dir .."/lua/locale/")
-
-local function _(msgid)
-    return gettext(msgid)
-end
 
 local temp
 local HDRM = { --HDRMerge Program Table

@@ -40,22 +40,29 @@ local gettext = dt.gettext.gettext
 
 local MODULE = "change_group_leader"
 
-gettext.bindtextdomain(MODULE, dt.configuration.config_dir .."/lua/locale/")
+dt.gettext.bindtextdomain(MODULE, dt.configuration.config_dir .."/lua/locale/")
 
 du.check_min_api_version("3.0.0", MODULE)
+
+local function _(msgid)
+    return gettext(msgid)
+end
 
 -- return data structure for script_manager
 
 local script_data = {}
 
+script_data.metadata = {
+  name = "change_group_leader",
+  purpose = _("automatically change the leader of raw+jpg paired image groups"),
+  author = "Bill Ferguson <wpferguson@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/change_group_leader"
+}
+
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
-
-local function _(msgid)
-    return gettext(msgid)
-end
 
 -- create a namespace to contain persistent data and widgets
 chg_grp_ldr = {}

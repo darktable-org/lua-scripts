@@ -49,9 +49,24 @@ local debug = require "darktable.debug"
 
 du.check_min_api_version("7.0.0", "quicktag") 
 
+local gettext = dt.gettext.gettext
+
+dt.gettext.bindtextdomain("quicktag", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "quicktag",
+  purpose = _("use buttons to quickly apply tags assigned to them"),
+  author = "Christian Kanzian",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/quicktag"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
@@ -61,14 +76,6 @@ local qt = {}
 qt.module_installed = false
 qt.event_registered = false
 qt.widget_table = {}
-
-local gettext = dt.gettext.gettext
-
-gettext.bindtextdomain("quicktag", dt.configuration.config_dir .."/lua/locale/")
-
-local function _(msgid)
-    return gettext(msgid)
-end
 
 -- maximum length of button labels
 dt.preferences.register("quickTag",

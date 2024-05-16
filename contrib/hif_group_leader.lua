@@ -59,27 +59,34 @@ du.check_min_api_version("7.0.0", MODULE)
 
 
 -- - - - - - - - - - - - - - - - - - - - - - - - - -
--- S C R I P T  M A N A G E R  I N T E G R A T I O N
--- - - - - - - - - - - - - - - - - - - - - - - - - -
-
-local script_data = {}
-
-script_data.destroy = nil -- function to destory the script
-script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
-script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
-script_data.show = nil -- only required for libs since the destroy_method only hides them
-
--- - - - - - - - - - - - - - - - - - - - - - - - - -
 -- I 1 8 N
 -- - - - - - - - - - - - - - - - - - - - - - - - - -
 
 local gettext = dt.gettext.gettext
 
-gettext.bindtextdomain("hif_group_leader", dt.configuration.config_dir .."/lua/locale/")
+dt.gettext.bindtextdomain("hif_group_leader", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
     return gettext(msgid)
 end
+
+-- - - - - - - - - - - - - - - - - - - - - - - - - -
+-- S C R I P T  M A N A G E R  I N T E G R A T I O N
+-- - - - - - - - - - - - - - - - - - - - - - - - - -
+
+local script_data = {}
+
+script_data.metadata = {
+  name = "hif_group_leader",
+  purpose = _("make hif image group leader"),
+  author = "Bill Ferguson <wpferguson@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/hif_group_leader"
+}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
+script_data.show = nil -- only required for libs since the destroy_method only hides them
 
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 

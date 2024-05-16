@@ -43,9 +43,22 @@ local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "enfuse")
 
+dt.gettext.bindtextdomain("enfuse", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "enfuse",
+  purpose = _("exposure blend images"),
+  author = "Tobias Ellinghaus",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/enfuse"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
@@ -56,12 +69,6 @@ local enf = {}
 enf.event_registered = false
 enf.module_installed = false
 enf.lib_widgets = {}
-
-gettext.bindtextdomain("enfuse", dt.configuration.config_dir .."/lua/locale/")
-
-local function _(msgid)
-    return gettext(msgid)
-end
 
 local function install_module()
   if not enf.module_installed then

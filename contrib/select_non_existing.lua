@@ -31,7 +31,7 @@ local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 
 local gettext = dt.gettext.gettext
 
-gettext.bindtextdomain("select_non_existing", dt.configuration.config_dir .."/lua/locale/")
+dt.gettext.bindtextdomain("select_non_existing", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
     return gettext(msgid)
@@ -74,5 +74,13 @@ dt.gui.libs.select.register_selection(
     _("select all non-existing images in the current images"))
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "select_non_existing",
+  purpose = _("enable selection of non-existing images"),
+  author = "Dirk Dittmar",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/select_non_existing"
+}
+
 script_data.destroy = destroy
 return script_data

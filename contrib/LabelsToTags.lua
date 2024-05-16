@@ -52,9 +52,9 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("7.0.0", "LabelsToTags") 
 
-local gettext = dt.gettext.gettext
+local gettext = darktable.gettext.gettext
 
-gettext.bindtextdomain("LabelsToTags", dt.configuration.config_dir .."/lua/locale/")
+darktable.gettext.bindtextdomain("LabelsToTags", darktable.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
   return gettext(msgid)
@@ -63,6 +63,13 @@ end
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "LabelsToTags",
+  purpose = _("allows the mass-application of tags using color labels and ratings as a guide"),
+  author = "August Schwerdfeger (august@schwerdfeger.name)",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/LabelsToTags"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil

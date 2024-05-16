@@ -45,20 +45,27 @@ local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 
 du.check_min_api_version("7.0.0", "kml_export") 
 
+dt.gettext.bindtextdomain("kml_export", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+  return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "kml_export",
+  purpose = _("export KML/KMZ data to a file"),
+  author = "Tobias Jakobs",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/kml_export"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
-
-gettext.bindtextdomain("kml_export", dt.configuration.config_dir .."/lua/locale/")
-
-local function _(msgid)
-  return gettext(msgid)
-end
 
 local function show_status(storage, image, format, filename, number, total, high_quality, extra_data)
   dt.print(string.format(_("export image %i/%i"), number, total))

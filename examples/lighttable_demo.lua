@@ -61,7 +61,7 @@ end
 -- - - - - - - - - - - - - - - - - - - - - - - -
 local gettext = dt.gettext.gettext
 
-gettext.bindtextdomain("lighttable_demo", dt.configuration.config_dir .."/lua/locale/")
+dt.gettext.bindtextdomain("lighttable_demo", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
   return gettext(msgid)
@@ -216,6 +216,14 @@ current_sort_order = dt.gui.libs.filter.sort_order(current_sort_order)
 -- it's time to destroy the script and then return the data to 
 -- script_manager
 local script_data = {}
+
+script_data.metadata = {
+  name = "lighttable_demo",
+  purpose = _("example demonstrating how to control lighttable display modes"),
+  author = "Bill Ferguson <wpferguson@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/lighttable_demo"
+}
+
 script_data.destroy = destroy
 
 return script_data

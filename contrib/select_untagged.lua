@@ -24,20 +24,27 @@ local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "select_untagged") 
 
+dt.gettext.bindtextdomain("select_untagged", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+  return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "select_untagged",
+  purpose = _("enable selection of untagged images"),
+  author = "Jannis_V",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/select_untagged"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
-
-gettext.bindtextdomain("select_untagged", dt.configuration.config_dir .."/lua/locale/")
-
-local function _(msgid)
-  return gettext(msgid)
-end
 
 local function stop_job(job)
   job.valid = false

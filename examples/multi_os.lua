@@ -72,7 +72,7 @@ local dtsys = require "lib/dtutils.system"  -- system utilities
 
 local gettext = dt.gettext.gettext
 
-gettext.bindtextdomain("multi_os", dt.configuration.config_dir .."/lua/locale/")
+dt.gettext.bindtextdomain("multi_os", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
     return gettext(msgid)
@@ -260,6 +260,14 @@ dt.register_event(
 ]]
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "multi_os",
+  purpose = _("example module thet runs on different operating systems"),
+  author = "Bill Ferguson <wpferguson@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/multi_os"
+}
+
 script_data.destroy = destroy
 
 return script_data

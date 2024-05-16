@@ -34,7 +34,7 @@ du.check_min_api_version("5.0.0", "running_os")
 
 local gettext = dt.gettext.gettext
 
-gettext.bindtextdomain("running_os", dt.configuration.config_dir .."/lua/locale/")
+dt.gettext.bindtextdomain("running_os", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msg)
   return gettext(msg)
@@ -52,6 +52,14 @@ dt.print(string.format(_("you are running: %s"), dt.configuration.running_os))
 -- it's time to destroy the script and then return the data to 
 -- script_manager
 local script_data = {}
+
+script_data.metadata = {
+  name = "running_os",
+  purpose = _("example of how to determine the operating system being used"),
+  author = "Tobias Jakobs",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/running_os"
+}
+
 script_data.destroy = destroy
 
 return script_data
