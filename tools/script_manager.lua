@@ -60,7 +60,7 @@ local gettext = dt.gettext
 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("script_manager",dt.configuration.config_dir.."/lua/locale/")
+dt.gettext.bindtextdomain("script_manager",dt.configuration.config_dir.."/lua/locale/")
 
 local function _(msgid)
     return gettext.dgettext("script_manager", msgid)
