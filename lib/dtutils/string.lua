@@ -476,118 +476,6 @@ function dtutils_string.get_filetype(str)
   return parts["filetype"]
 end
 
-local substitutes = {}
-local category_substitutes = {}
-
--- - - - - - - - - - - - - - - - - - - - - - - -
--- C O N S T A N T S
--- - - - - - - - - - - - - - - - - - - - - - - -
-
-local PLACEHOLDERS = {"ROLL.NAME", 
-                      "FILE.FOLDER", 
-                      "FILE.NAME",
-                      "FILE.EXTENSION", 
-                      "ID", 
-                      "VERSION", 
-                      "VERSION.IF.MULTI",
-                      "VERSION.NAME",
-                      "DARKTABLE.VERSION",
-                      "DARKTABLE.NAME",      -- Not Implemented
-                      "SEQUENCE",
-                      "WIDTH.SENSOR",
-                      "HEIGHT.SENSOR",
-                      "WIDTH.RAW",
-                      "HEIGHT.RAW",
-                      "WIDTH.CROP",
-                      "HEIGHT.CROP",
-                      "WIDTH.EXPORT",
-                      "HEIGHT.EXPORT",
-                      "WIDTH.MAX",           -- Not Implemented
-                      "HEIGHT.MAX",          -- Not Implemented
-                      "YEAR", 
-                      "YEAR.SHORT",
-                      "MONTH", 
-                      "MONTH.LONG",
-                      "MONTH.SHORT",
-                      "DAY", 
-                      "HOUR", 
-                      "MINUTE", 
-                      "SECOND", 
-                      "MSEC",
-                      "EXIF.YEAR", 
-                      "EXIF.YEAR.SHORT",
-                      "EXIF.MONTH", 
-                      "EXIF.MONTH.LONG",
-                      "EXIF.MONTH.SHORT",
-                      "EXIF.DAY",
-                      "EXIF.HOUR", 
-                      "EXIF.MINUTE", 
-                      "EXIF.SECOND", 
-                      "EXIF.MSEC",
-                      "EXIF.DATE.REGIONAL",  -- Not Implemented
-                      "EXIF.TIME.REGIONAL",  -- Not Implemented
-                      "EXIF.ISO",
-                      "EXIF.EXPOSURE",
-                      "EXIF.EXPOSURE.BIAS",
-                      "EXIF.APERTURE",
-                      "EXIF.CROP.FACTOR",
-                      "EXIF.FOCAL.LENGTH",
-                      "EXIF.FOCAL.LENGTH.EQUIV",  -- Not Implemented
-                      "EXIF.FOCUS.DISTANCE",
-                      "IMAGE.EXIF",          -- Not Implemented
-                      "LONGITUDE",
-                      "LATITUDE",
-                      "ELEVATION",
-                      "GPS.LOCATION",        -- Not Implemented
-                      "STARS", 
-                      "RATING.ICONS",        -- Not Implemented
-                      "LABELS",
-                      "LABELS.ICONS",        -- Not Implemented 
-                      "MAKER", 
-                      "MODEL", 
-                      "LENS",
-                      "TITLE",
-                      "DESCRIPTION",
-                      "CREATOR", 
-                      "PUBLISHER", 
-                      "RIGHTS", 
-                      "TAGS",                -- Not Implemented
-                      "CATEGORY",            -- Not Implemented
-                      "SIDECAR.TXT",         -- Not Implemented
-                      "FOLDER.PICTURES",
-                      "FOLDER.HOME", 
-                      "FOLDER.DESKTOP",
-                      "OPENCL.ACTIVATED",    -- Not Implemented
-                      "USERNAME",
-                      "NL",                  -- Not Implemented
-                      "JOBCODE"              -- Not Implemented
-}
-
-local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
-local USER = os.getenv("USERNAME")
-local HOME =  dt.configuration.running_os == "windows" and  os.getenv("HOMEPATH") or os.getenv("HOME")
-local PICTURES = HOME .. PS .. (dt.configuration.running_os == "windows" and "My Pictures" or "Pictures")
-local DESKTOP = HOME .. PS .. "Desktop"
-
-local function get_colorlabels(image)
-  local old_log_level = log.log_level()
-  log.log_level(dtutils_string.log_level)
-
-  local colorlabels = {}
-
-  if image.red then table.insert(colorlabels, "red") end
-  if image.yellow then table.insert(colorlabels, "yellow") end
-  if image.green then table.insert(colorlabels, "green") end
-  if image.blue then table.insert(colorlabels, "blue") end
-  if image.purple then table.insert(colorlabels, "purple") end
-
-  local labels = #colorlabels == 1 and colorlabels[1] or du.join(colorlabels, "_")
-
-  log.log_level(old_log_level)
-
-  return labels 
-end
-
 dtutils_string.libdoc.functions["build_substitution_list"] = {
   Name = [[build_substitution_list]],
   Synopsis = [[build a list of variable substitutions]],
@@ -612,50 +500,174 @@ dtutils_string.libdoc.functions["build_substitution_list"] = {
   Copyright = [[]],
 }
 
-local function build_category_substitution_list(image, variable_string)
-  -- scan the variable string for CATEGORYn(tag name) entries and build the substitutions
-  local old_log_level = log.log_level()
-  -- log.log_level(dtutils_string.log_level)
-  --log.log_level(log.debug)
+local substitutes = {}
+local category_substitutes = {}
 
-  for match in string.gmatch(variable_string, "%$%(.-%)?%)") do
+-- - - - - - - - - - - - - - - - - - - - - - - -
+-- C O N S T A N T S
+-- - - - - - - - - - - - - - - - - - - - - - - -
+
+local PLACEHOLDERS = {"ROLL.NAME", 
+                      "FILE.FOLDER", 
+                      "FILE.NAME",
+                      "FILE.EXTENSION", 
+                      "ID", 
+                      "VERSION", 
+                      "VERSION.IF.MULTI",
+                      "VERSION.NAME",
+                      "DARKTABLE.VERSION",
+                      "DARKTABLE.NAME",           -- Not Implemented
+                      "SEQUENCE",
+                      "WIDTH.SENSOR",
+                      "HEIGHT.SENSOR",
+                      "WIDTH.RAW",
+                      "HEIGHT.RAW",
+                      "WIDTH.CROP",
+                      "HEIGHT.CROP",
+                      "WIDTH.EXPORT",
+                      "HEIGHT.EXPORT",
+                      "WIDTH.MAX",                -- Not Implemented
+                      "HEIGHT.MAX",               -- Not Implemented
+                      "YEAR", 
+                      "YEAR.SHORT",
+                      "MONTH", 
+                      "MONTH.LONG",
+                      "MONTH.SHORT",
+                      "DAY", 
+                      "HOUR", 
+                      "MINUTE", 
+                      "SECOND", 
+                      "MSEC",
+                      "EXIF.YEAR", 
+                      "EXIF.YEAR.SHORT",
+                      "EXIF.MONTH", 
+                      "EXIF.MONTH.LONG",
+                      "EXIF.MONTH.SHORT",
+                      "EXIF.DAY",
+                      "EXIF.HOUR", 
+                      "EXIF.MINUTE", 
+                      "EXIF.SECOND", 
+                      "EXIF.MSEC",
+                      "EXIF.DATE.REGIONAL",       -- Not Implemented
+                      "EXIF.TIME.REGIONAL",       -- Not Implemented
+                      "EXIF.ISO",
+                      "EXIF.EXPOSURE",
+                      "EXIF.EXPOSURE.BIAS",
+                      "EXIF.APERTURE",
+                      "EXIF.CROP.FACTOR",
+                      "EXIF.FOCAL.LENGTH",
+                      "EXIF.FOCAL.LENGTH.EQUIV",  -- Not Implemented
+                      "EXIF.FOCUS.DISTANCE",
+                      "IMAGE.EXIF",               -- Not Implemented
+                      "LONGITUDE",
+                      "LATITUDE",
+                      "ELEVATION",
+                      "GPS.LOCATION",             -- Not Implemented
+                      "STARS", 
+                      "RATING.ICONS",             -- Not Implemented
+                      "LABELS",
+                      "LABELS.ICONS",             -- Not Implemented 
+                      "MAKER", 
+                      "MODEL", 
+                      "LENS",
+                      "TITLE",
+                      "DESCRIPTION",
+                      "CREATOR", 
+                      "PUBLISHER", 
+                      "RIGHTS", 
+                      "TAGS",                     -- Not Implemented
+                      "SIDECAR.TXT",              -- Not Implemented
+                      "FOLDER.PICTURES",
+                      "FOLDER.HOME", 
+                      "FOLDER.DESKTOP",
+                      "OPENCL.ACTIVATED",         -- Not Implemented
+                      "USERNAME",
+                      "NL",                       -- Not Implemented
+                      "JOBCODE"                   -- Not Implemented
+}
+
+local PS        = dt.configuration.running_os == "windows" and  "\\"  or  "/"
+local USER      = os.getenv("USERNAME")
+local HOME      =  dt.configuration.running_os == "windows" and  os.getenv("HOMEPATH") or os.getenv("HOME")
+local PICTURES  = HOME .. PS .. (dt.configuration.running_os == "windows" and "My Pictures" or "Pictures")
+local DESKTOP   = HOME .. PS .. "Desktop"
+
+local function get_colorlabels(image)
+  local old_log_level = log.log_level()
+  log.log_level(dtutils_string.log_level)
+
+  local colorlabels = {}
+
+  if image.red then table.insert(colorlabels, "red") end
+  if image.yellow then table.insert(colorlabels, "yellow") end
+  if image.green then table.insert(colorlabels, "green") end
+  if image.blue then table.insert(colorlabels, "blue") end
+  if image.purple then table.insert(colorlabels, "purple") end
+
+  local labels = #colorlabels == 1 and colorlabels[1] or du.join(colorlabels, "_")
+
+  log.log_level(old_log_level)
+
+  return labels 
+end
+
+-- find the $CATEGORYn requests and add them to the substitute list
+
+local function build_category_substitution_list(image, variable_string)
+  local old_log_level = log.log_level()
+  log.log_level(dtutils_string.log_level)
+
+  for match in string.gmatch(variable_string, "%$%(.-%)?%)") do -- grab each complete variable 
     log.msg(log.info, "match is " .. match)
-    local var = string.match(match, "%$%((.-%)?)%)")
+
+    local var = string.match(match, "%$%((.-%)?)%)")  -- strip of the leading $( and trailing )
     log.msg(log.info, "var is " .. var)
+
     if string.match(var, "CATEGORY%d") then
-      local element, tag = string.match(var, "CATEGORY(%d)%((.-)%)")
-      element = element + 1
+      local element, tag = string.match(var, "CATEGORY(%d)%((.-)%)")   -- get the element number and the tag to match
+
+      element = element + 1  -- add one to element since lua arrays are 1 based
       log.msg(log.debug, "element is " .. element .. " and tag is " .. tag)
+
       local tags = image:get_tags()
       log.msg(log.debug, "got " .. #tags .. " from image " .. image.filename)
+
       for _, image_tag in ipairs(tags) do
         log.msg(log.debug, "checking tag " .. image_tag.name)
+
         if string.match(image_tag.name, tag) then
-          parts = du.split(image_tag.name, "|")
-          substitutes[var] = parts[element]
-          log.msg(log.info, "set substitute for " .. var .. " to " .. parts[element])
-          log.msg(log.info, "double check substitutes[" .. var .. "] is " .. substitutes[var])
+          fields = du.split(image_tag.name, "|")
+
+          if element <= #fields then
+            substitutes[var] = fields[element]
+          else
+            substitutes[var] = ""
+            log.msg(log.warn, "requested field for tag " .. tag .. " doesn't exist")
+          end
+
+          log.msg(log.info, "set substitute for " .. var .. " to " .. fields[element])
+
         end
       end
     end
   end
-  -- scan the variable string looking for CATEGORYn 
-  -- retrieve the tag and compute the replacement string
-  -- add the found string as a PLACEHOLDER
-  -- add the replacement to the corresponding spot in the replacement table
   log.log_level(old_log_level)
 end
+
+-- convert image.exif_datetime_taken to system time
 
 local function exiftime2systime(exiftime)
   local yr,mo,dy,h,m,s = string.match(exiftime, "(%d-):(%d-):(%d-) (%d-):(%d-):(%d+)")
   return(os.time{year=yr, month=mo, day=dy, hour=h, min=m, sec=s})
 end
 
-function dtutils_string.build_substition_list(image, sequence, variable_string, username, pic_folder, home, desktop)
-  -- build the argument substitution list from each image
+-- build the argument substitution list from each image
 
+function dtutils_string.build_substition_list(image, sequence, variable_string, username, pic_folder, home, desktop)
   local old_log_level = log.log_level()
   log.log_level(dtutils_string.log_level)
+
+  -- is time millisecond aware?  Implemented in API 9.1.0
 
   local is_api_9_1 = true
   if dt.configuration.api_version_string < "9.1.0" then
@@ -668,11 +680,10 @@ function dtutils_string.build_substition_list(image, sequence, variable_string, 
   local user_name = username or USER
   local pictures_folder = pic_folder or PICTURES
   local home_folder = home or HOME
-  log.msg(log.info, "home is " .. tostring(home) .. " and HOME is " .. tostring(HOME) .. " and home_folder is " .. tostring(home_folder))
   local desktop_folder = desktop or DESKTOP
 
   local labels = get_colorlabels(image)
-  log.msg(log.info, "image date time taken is " .. image.exif_datetime_taken)
+
   local eyear, emon, eday, ehour, emin, esec, emsec
   if dt.preferences.read("darktable", "lighttable/ui/milliseconds", "bool") and is_api_9_1 then
     eyear, emon, eday, ehour, emin, esec, emsec = 
@@ -682,14 +693,16 @@ function dtutils_string.build_substition_list(image, sequence, variable_string, 
     eyear, emon, eday, ehour, emin, esec = 
       string.match(image.exif_datetime_taken, "(%d+):(%d+):(%d+) (%d+):(%d+):(%d+)$")
   end
+
+  local version_multi = #image:get_group_members() > 1 and image.version or ""
+
   local replacements = {image.film,                            -- ROLL.NAME
                         image.path,                            -- FILE.FOLDER
                         image.filename,                        -- FILE.NAME
                         dtutils_string.get_filetype(image.filename),-- FILE.EXTENSION
                         image.id,                              -- ID
                         image.duplicate_index,                 -- VERSION
- --                        #image:get_group_members() > 1 and image.duplicate_index or "", -- VERSION.IF_MULTI
-                        "", -- VERSION.IF_MULTI
+                        version_multi,                         -- VERSION.IF_MULTI
                         image.version_name,                    -- VERSION.NAME
                         dt.configuration.version,              -- DARKTABLE.VERSION
                         "",                                    -- DARKTABLE.NAME
@@ -698,12 +711,12 @@ function dtutils_string.build_substition_list(image, sequence, variable_string, 
                         image.height,                          -- HEIGHT.SENSOR
                         is_api_9_1 and image.p_width or "",    -- WIDTH.RAW
                         is_api_9_1 and image.p_height or "",   -- HEIGHT.RAW
-                        is_api_9_1 and image.final_width or "", -- WIDTH.CROP
+                        is_api_9_1 and image.final_width or "",  -- WIDTH.CROP
                         is_api_9_1 and image.final_height or "", -- HEIGHT.CROP
                         is_api_9_1 and image.final_width or "",  -- WIDTH.EXPORT
                         is_api_9_1 and image.final_height or "", -- HEIGHT.EXPORT
-                        "",                                    -- WIDTH.MAX
-                        "",                                    -- HEIGHT.MAX
+                        "",                                    -- WIDTH.MAX   -- from export module
+                        "",                                    -- HEIGHT.MAX  -- from export module
                         string.format("%4d", datetime.year),   -- YEAR
                         string.sub(datetime.year, 3),          -- YEAR.SHORT
                         string.format("%02d", datetime.month), -- MONTH
@@ -717,8 +730,8 @@ function dtutils_string.build_substition_list(image, sequence, variable_string, 
                         eyear,                                 -- EXIF.YEAR
                         string.sub(eyear, 3),                  -- EXIF.YEAR.SHORT
                         emon,                                  -- EXIF.MONTH
-                        os.date("%B", exiftime2systime(image.exif_datetime_taken)),           -- EXIF.MONTH.LONG
-                        os.date("%b", exiftime2systime(image.exif_datetime_taken)),          -- EXIF.MONTH.SHORT
+                        os.date("%B", exiftime2systime(image.exif_datetime_taken)), -- EXIF.MONTH.LONG
+                        os.date("%b", exiftime2systime(image.exif_datetime_taken)), -- EXIF.MONTH.SHORT
                         eday,                                  -- EXIF.DAY
                         ehour,                                 -- EXIF.HOUR
                         emin,                                  -- EXIF.MINUTE
@@ -752,7 +765,6 @@ function dtutils_string.build_substition_list(image, sequence, variable_string, 
                         image.publisher,                       -- PUBLISHER
                         image.rights,                          -- RIGHTS
                         "",                                    -- TAGS - wont be implemented
-                        "",                                    -- CATEGORY
                         "",                                    -- SIDECAR.TXT - wont be implemented
                         pictures_folder,                       -- FOLDER.PICTURES
                         home_folder,                           -- FOLDER.HOME
@@ -763,36 +775,50 @@ function dtutils_string.build_substition_list(image, sequence, variable_string, 
                         ""                                     -- JOBCODE - wont be implemented
   }
 
+  -- populate the substitution list
+
   for i = 1, #PLACEHOLDERS, 1 do 
     substitutes[PLACEHOLDERS[i]] = replacements[i] 
     log.msg(log.info, "setting " .. PLACEHOLDERS[i] .. " to " .. tostring(replacements[i]))
   end
+
+  -- do category substitutions separately
 
   build_category_substitution_list(image, variable_string)
 
   log.log_level(old_log_level)
 end
 
+-- handle different versions of names
+
 local function check_legacy_vars(var_name)
   local var = var_name
+
   if string.match(var, "_") then
     var = string.gsub(var, "_", ".")
   end
+
   if string.match(var, "^HOME$") then var = "FOLDER.HOME" end
   if string.match(var, "^PICTURES.FOLDER$") then var = "FOLDER.PICTURES" end
   if string.match(var, "^DESKTOP$") then var = "FOLDER.DESKTOP" end
+
   return var 
 end
 
+-- get the substitution and do any string manipulations requested
+
 local function treat(var_string)
   local old_log_level = log.log_level()
-  --log.log_level(dtutils_string.log_level)
-  --log.log_level(log.info)
+  log.log_level(dtutils_string.log_level)
+
   local ret_val = ""
+
   -- remove the var from the string
   local var = string.match(var_string, "[%a%._]+")
+
   var = check_legacy_vars(var)
   log.msg(log.info, "var_string is " .. tostring(var_string) .. " and var is " .. tostring(var))
+
   if string.match(var_string, "CATEGORY%d") then
     log.msg(log.info, "substituting for " .. var_string)
     ret_val = substitutes[var_string]
@@ -800,12 +826,11 @@ local function treat(var_string)
   else
     ret_val = substitutes[var]
   end
+
   local valid_var = false 
 
   if ret_val then
     valid_var = true 
-  --elseif string.match(var, "CATEGORY%d") then 
-    --valid_var = true 
   end
 
   if not valid_var then
@@ -813,79 +838,109 @@ local function treat(var_string)
     log.log_level(old_log_level)
     return ""
   end
-  if string.match(var, "CATEGORY%d") then 
-    ret_val = process_category(image, var, var_string)
-  else
-    local args = string.gsub(var_string, var, "")
-    log.msg(log.info, "args is " .. tostring(args))
-    if string.len(args) > 0 then
-      if string.match(args, '^%^%^') then
-        ret_val = string.upper(ret_val)
-      elseif string.match(args, "^%^") then
-        ret_val = string.gsub(ret_val, "^%a", string.upper, 1)
-      elseif string.match(args, "^,,") then
-        ret_val = string.lower(ret_val)
-      elseif string.match(args, "^,") then
-        ret_val = string.gsub(ret_val, "^%a", string.lower, 1)
-      elseif string.match(args, "^:%-?%d+:%-?%d+") then
-        local soffset, slen = string.match(args, ":(%-?%d+):(%-?%d+)")
-        log.msg(log.info, "soffset is " .. soffset .. " and slen is " .. slen)
-        if tonumber(soffset) >= 0 then
-          soffset = soffset + 1
-        end
-        log.msg(log.info, "soffset is " .. soffset .. " and slen is " .. slen)
-        if tonumber(soffset) < 0 and tonumber(slen) < 0 then
-          local temp = soffset
-          soffset = slen 
-          slen = temp 
-        end
-        log.msg(log.info, "soffset is " .. soffset .. " and slen is " .. slen)
-        ret_val = string.sub(ret_val, soffset, slen)
-        log.msg(log.info, "ret_val is " .. ret_val)
-      elseif string.match(args, "^:%-?%d+") then
-        local soffset= string.match(args, ":(%-?%d+)")
-        if tonumber(soffset) >= 0 then
-          soffset = soffset + 1
-        end
-        ret_val = string.sub(ret_val, soffset, -1)
-      elseif string.match(args, "^-%$%(.-%)") then
-        local replacement = string.match(args, "-%$%(([%a%._]+)%)")
-        replacement = check_legacy_vars(replacement)
-        if string.len(ret_val) == 0 then
-          ret_val = substitutes[replacement]
-        end
-      elseif string.match(args, "^-.+$") then
-        local replacement = string.match(args, "-(.+)$")
-        if string.len(ret_val) == 0 then
-          ret_val = replacement
-        end
-      elseif string.match(args, "^+.+") then
-        local replacement = string.match(args, "+(.+)")
-        if string.len(ret_val) > 0 then
-          ret_val = replacement
-        end
-      elseif string.match(args, "^#.+") then
-        local pattern = string.match(args, "#(.+)")
-        log.msg(log.info, "pattern to remove is " .. tostring(pattern))
-        ret_val = string.gsub(ret_val, "^" .. dtutils_string.sanitize_lua(pattern), "")
-      elseif string.match(args, "^%%.+") then
-        local pattern = string.match(args, "%%(.+)")
-        ret_val = string.gsub(ret_val, pattern .. "$", "")
-      elseif string.match(args, "^//.-/.+") then
-        local pattern, replacement = string.match(args, "//(.-)/(.+)")
-        ret_val = string.gsub(ret_val, pattern, replacement)
-       elseif string.match(args, "^/#.+/.+") then
-        local pattern, replacement = string.match(args, "/#(.+)/(.+)")
-        ret_val = string.gsub(ret_val, "^" .. pattern, replacement, 1)
-      elseif string.match(args, "^/%%.-/.+") then
-        local pattern, replacement = string.match(args, "/%%(.-)/(.+)")
-        ret_val = string.gsub(ret_val, pattern .. "$", replacement)
-      elseif string.match(args, "^/.-/.+") then
-        log.msg(log.info, "took replacement branch")
-        local pattern, replacement = string.match(args, "/(.-)/(.+)")
-        ret_val = string.gsub(ret_val, pattern, replacement, 1)
+
+  -- string modifications
+
+  local args = string.gsub(var_string, var, "")
+  log.msg(log.info, "args is " .. tostring(args))
+
+  if string.len(args) > 0 then
+
+    if string.match(args, '^%^%^') then
+      ret_val = string.upper(ret_val)
+
+    elseif string.match(args, "^%^") then
+      ret_val = string.gsub(ret_val, "^%a", string.upper, 1)
+
+    elseif string.match(args, "^,,") then
+      ret_val = string.lower(ret_val)
+
+    elseif string.match(args, "^,") then
+      ret_val = string.gsub(ret_val, "^%a", string.lower, 1)
+
+    elseif string.match(args, "^:%-?%d+:%-?%d+") then
+
+      local soffset, slen = string.match(args, ":(%-?%d+):(%-?%d+)")
+      log.msg(log.info, "soffset is " .. soffset .. " and slen is " .. slen)
+
+      if tonumber(soffset) >= 0 then
+        soffset = soffset + 1
       end
+      log.msg(log.info, "soffset is " .. soffset .. " and slen is " .. slen)
+
+      if tonumber(soffset) < 0 and tonumber(slen) < 0 then
+        local temp = soffset
+        soffset = slen 
+        slen = temp 
+      end
+      log.msg(log.info, "soffset is " .. soffset .. " and slen is " .. slen)
+
+      ret_val = string.sub(ret_val, soffset, slen)
+      log.msg(log.info, "ret_val is " .. ret_val)
+
+    elseif string.match(args, "^:%-?%d+") then
+
+      local soffset= string.match(args, ":(%-?%d+)")
+      if tonumber(soffset) >= 0 then
+        soffset = soffset + 1
+      end
+      ret_val = string.sub(ret_val, soffset, -1)
+
+    elseif string.match(args, "^-%$%(.-%)") then
+
+      local replacement = string.match(args, "-%$%(([%a%._]+)%)")
+      replacement = check_legacy_vars(replacement)
+      if string.len(ret_val) == 0 then
+        ret_val = substitutes[replacement]
+      end
+
+    elseif string.match(args, "^-.+$") then
+
+      local replacement = string.match(args, "-(.+)$")
+      if string.len(ret_val) == 0 then
+        ret_val = replacement
+      end
+
+    elseif string.match(args, "^+.+") then
+
+      local replacement = string.match(args, "+(.+)")
+      if string.len(ret_val) > 0 then
+        ret_val = replacement
+      end
+
+    elseif string.match(args, "^#.+") then
+
+      local pattern = string.match(args, "#(.+)")
+      log.msg(log.info, "pattern to remove is " .. tostring(pattern))
+      ret_val = string.gsub(ret_val, "^" .. dtutils_string.sanitize_lua(pattern), "")
+
+    elseif string.match(args, "^%%.+") then
+
+      local pattern = string.match(args, "%%(.+)")
+      ret_val = string.gsub(ret_val, pattern .. "$", "")
+
+    elseif string.match(args, "^//.-/.+") then
+
+      local pattern, replacement = string.match(args, "//(.-)/(.+)")
+      ret_val = string.gsub(ret_val, pattern, replacement)
+
+     elseif string.match(args, "^/#.+/.+") then
+
+      local pattern, replacement = string.match(args, "/#(.+)/(.+)")
+      ret_val = string.gsub(ret_val, "^" .. pattern, replacement, 1)
+
+    elseif string.match(args, "^/%%.-/.+") then
+
+      local pattern, replacement = string.match(args, "/%%(.-)/(.+)")
+      ret_val = string.gsub(ret_val, pattern .. "$", replacement)
+
+    elseif string.match(args, "^/.-/.+") then
+
+      log.msg(log.info, "took replacement branch")
+      local pattern, replacement = string.match(args, "/(.-)/(.+)")
+      ret_val = string.gsub(ret_val, pattern, replacement, 1)
     end
+
   end
   log.log_level(old_log_level)
   return ret_val
@@ -911,15 +966,22 @@ dtutils_string.libdoc.functions["substitute_list"] = {
 function dtutils_string.substitute_list(str)
   local old_log_level = log.log_level()
   log.log_level(dtutils_string.log_level)
+
   -- replace the substitution variables in a string
   for match in string.gmatch(str, "%$%(.-%)?%)") do
+
     local var = string.match(match, "%$%((.-%)?)%)")
+
     local treated_var = treat(var)
     log.msg(log.info, "var is " .. var .. " and treated var is " .. tostring(treated_var))
+
     str = string.gsub(str, "%$%(".. dtutils_string.sanitize_lua(var) .."%)", tostring(treated_var))
     log.msg(log.info, "str after replacement is " .. str)
+
   end
+
   log.log_level(old_log_level)
+
   return str
 end
 
@@ -986,6 +1048,7 @@ function dtutils_string.substitute(image, sequence, variable_string, username, p
 
   return str
 end
+
 
 
 return dtutils_string
