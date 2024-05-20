@@ -960,7 +960,6 @@ local function treat(var_string)
 
   end
   log.log_level(old_log_level)
-  dt.print_log("returning ret_val of " .. ret_val)
   return ret_val
 end
 
@@ -983,8 +982,7 @@ dtutils_string.libdoc.functions["substitute_list"] = {
 
 function dtutils_string.substitute_list(str)
   local old_log_level = log.log_level()
-  -- log.log_level(dtutils_string.log_level)
-  log.log_level(log.info)
+  log.log_level(dtutils_string.log_level)
 
   -- replace the substitution variables in a string
   for match in string.gmatch(str, "%$%(.-%)?%)") do
@@ -993,8 +991,6 @@ function dtutils_string.substitute_list(str)
 
     local treated_var = treat(var)
     log.msg(log.info, "var is " .. var .. " and treated var is " .. tostring(treated_var))
-
-    dt.print_log("str is " .. str)
 
     str = string.gsub(str, "%$%(".. dtutils_string.sanitize_lua(var) .."%)", tostring(treated_var))
     log.msg(log.info, "str after replacement is " .. str)
