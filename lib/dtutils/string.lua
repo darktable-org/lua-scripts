@@ -706,7 +706,7 @@ function dtutils_string.build_substition_list(image, sequence, variable_string, 
                         image.version_name,                    -- VERSION.NAME
                         dt.configuration.version,              -- DARKTABLE.VERSION
                         "",                                    -- DARKTABLE.NAME
-                        sequence,                              -- SEQUENCE
+                        string.format("%04d", sequence),       -- SEQUENCE
                         image.width,                           -- WIDTH.SENSOR
                         image.height,                          -- HEIGHT.SENSOR
                         is_api_9_1 and image.p_width or "",    -- WIDTH.RAW
