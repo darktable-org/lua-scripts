@@ -335,6 +335,8 @@ function dtutils_string.sanitize_lua(str)
   str = string.gsub(str, "%-", "%%-")
   str = string.gsub(str, "%(", "%%(")
   str = string.gsub(str, "%)", "%%)")
+  str = string.gsub(str, "%[", "%%[")
+  str = string.gsub(str, "%]", "%%]")
   str = string.gsub(str, "+", "%%+")
   log.log_level(old_log_level)
   return str
@@ -623,8 +625,15 @@ local function build_category_substitution_list(image, variable_string)
     local var = string.match(match, "%$%((.-%)?)%)")  -- strip of the leading $( and trailing )
     log.msg(log.info, "var is " .. var)
 
-    if string.match(var, "CATEGORY%d") then
-      local element, tag = string.match(var, "CATEGORY(%d)%((.-)%)")   -- get the element number and the tag to match
+    if string.match(var, "CATEGORY%d") or string.match(var, "CATEGORY%[") then
+      local element
+      local tag
+
+      if string.match(var, "CATEGORY%d") then
+        element, tag = string.match(var, "CATEGORY(%d)%((.-)%)")   -- get the element number and the tag to match
+      else
+        element, tag = string.match(var, "%[(%d),(.-)%]") -- new syntax
+      end
 
       element = element + 1  -- add one to element since lua arrays are 1 based
       log.msg(log.debug, "element is " .. element .. " and tag is " .. tag)
@@ -696,7 +705,7 @@ function dtutils_string.build_substition_list(image, sequence, variable_string, 
 
   local version_multi = #image:get_group_members() > 1 and image.version or ""
 
-  local replacements = {image.film,                            -- ROLL.NAME
+  local replacements = {image.film.path,                       -- ROLL.NAME
                         image.path,                            -- FILE.FOLDER
                         image.filename,                        -- FILE.NAME
                         dtutils_string.get_filetype(image.filename),-- FILE.EXTENSION
@@ -819,10 +828,18 @@ local function treat(var_string)
   var = check_legacy_vars(var)
   log.msg(log.info, "var_string is " .. tostring(var_string) .. " and var is " .. tostring(var))
 
-  if string.match(var_string, "CATEGORY%d") then
+  if string.match(var_string, "CATEGORY%d") or string.match(var_string, "CATEGORY%[") then
     log.msg(log.info, "substituting for " .. var_string)
     ret_val = substitutes[var_string]
     log.msg(log.info, "ret_val is " .. ret_val)
+
+  elseif string.match(var_string, "SEQUENCE%[") then
+    local start, width = string.match(var_string, "(%d+),(%d)")
+    local seq_val = tonumber(substitutes[var])
+    local pat = "%0" .. width .. "d"
+    substitutes[var_string] = string.format(pat, start + (seq_val - 1))
+    ret_val = substitutes[var_string]
+
   else
     ret_val = substitutes[var]
   end
@@ -943,6 +960,7 @@ local function treat(var_string)
 
   end
   log.log_level(old_log_level)
+  dt.print_log("returning ret_val of " .. ret_val)
   return ret_val
 end
 
@@ -965,7 +983,8 @@ dtutils_string.libdoc.functions["substitute_list"] = {
 
 function dtutils_string.substitute_list(str)
   local old_log_level = log.log_level()
-  log.log_level(dtutils_string.log_level)
+  -- log.log_level(dtutils_string.log_level)
+  log.log_level(log.info)
 
   -- replace the substitution variables in a string
   for match in string.gmatch(str, "%$%(.-%)?%)") do
@@ -974,6 +993,8 @@ function dtutils_string.substitute_list(str)
 
     local treated_var = treat(var)
     log.msg(log.info, "var is " .. var .. " and treated var is " .. tostring(treated_var))
+
+    dt.print_log("str is " .. str)
 
     str = string.gsub(str, "%$%(".. dtutils_string.sanitize_lua(var) .."%)", tostring(treated_var))
     log.msg(log.info, "str after replacement is " .. str)
