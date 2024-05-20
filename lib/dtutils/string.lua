@@ -484,7 +484,7 @@ dtutils_string.libdoc.functions["build_substitution_list"] = {
   Usage = [[local ds = require "lib/dtutils.string"
     ds.build_substitution_list(image, sequence, variable_string, [username], [pic_folder], [home], [desktop])
       image - dt_lua_image_t - the image being processed
-      sequence - integer - the sequence number of the image
+      sequence - integer - the sequence number of the image being processed (exported)
       variable_string - string - the substitution variable string
       [username] - string - optional - user name.  Will be determined if not supplied
       [pic_folder] - string - optional - pictures folder name.  Will be determined if not supplied
@@ -496,7 +496,7 @@ dtutils_string.libdoc.functions["build_substitution_list"] = {
   Limitations = [[If the value for a variable can not be determined, or if it is not supported,
     then an empty string is used for the value.]],
   Example = [[]],
-  See_Also = [[https://docs.darktable.org/usermanual/4.2/en/special-topics/variables/]],
+  See_Also = [[https://docs.darktable.org/usermanual/4.6/en/special-topics/variables/]],
   Reference = [[]],
   License = [[]],
   Copyright = [[]],
@@ -613,7 +613,7 @@ local function get_colorlabels(image)
   return labels 
 end
 
--- find the $CATEGORYn requests and add them to the substitute list
+-- find the $CATEGORYn and $CATEGORY[n,m] requests and add them to the substitute list
 
 local function build_category_substitution_list(image, variable_string)
   local old_log_level = log.log_level()
@@ -974,7 +974,7 @@ dtutils_string.libdoc.functions["substitute_list"] = {
   Return_Value = [[result - string - the input string with values substituted for the variables]],
   Limitations = [[]],
   Example = [[]],
-  See_Also = [[]],
+  See_Also = [[https://docs.darktable.org/usermanual/4.6/en/special-topics/variables/]],
   Reference = [[]],
   License = [[]],
   Copyright = [[]],
@@ -1033,7 +1033,7 @@ dtutils_string.libdoc.functions["substitute"] = {
   Usage = [[local ds = require "lib/dtutils.string"
     ds.substitute(image, sequence, variable_string, [username], [pic_folder], [home], [desktop])
       image - dt_lua_image_t - the image being processed
-      sequence - integer - the sequence number of the image
+      sequence - integer - the number of the image being processed (exported)
       variable_string - string - the substitution variable string
       [username] - string - optional - user name.  Will be determined if not supplied
       [pic_folder] - string - optional - pictures folder name.  Will be determined if not supplied
@@ -1045,7 +1045,7 @@ dtutils_string.libdoc.functions["substitute"] = {
   Return_Value = [[result - string - the input string with values substituted for the variables]],
   Limitations = [[]],
   Example = [[]],
-  See_Also = [[]],
+  See_Also = [[https://docs.darktable.org/usermanual/4.6/en/special-topics/variables/]],
   Reference = [[]],
   License = [[]],
   Copyright = [[]],
