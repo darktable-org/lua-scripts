@@ -1029,7 +1029,7 @@ end
 
 dtutils_string.libdoc.functions["substitute"] = {
   Name = [[substitute]],
-  Synopsis = [[Check if a string has been sanitized]],
+  Synopsis = [[Perform all the variable substitution steps with one function call]],
   Usage = [[local ds = require "lib/dtutils.string"
     ds.substitute(image, sequence, variable_string, [username], [pic_folder], [home], [desktop])
       image - dt_lua_image_t - the image being processed
@@ -1040,7 +1040,7 @@ dtutils_string.libdoc.functions["substitute"] = {
       [home] - string - optional - home directory.  Will be determined if not supplied
       [desktop] - string - optional - desktop directory.  Will be determined if not supplied]],
   Description = [[substitute initializes the substitution list by calling clear_substitute_list(),
-    then builds the substitutions by calling build_substitution_list() and finally does the 
+    then builds the substitutions by calling build_substitute_list() and finally does the 
     substitution by calling substitute_list(), then returns the result string.]],
   Return_Value = [[result - string - the input string with values substituted for the variables]],
   Limitations = [[]],
