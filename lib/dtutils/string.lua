@@ -478,11 +478,11 @@ function dtutils_string.get_filetype(str)
   return parts["filetype"]
 end
 
-dtutils_string.libdoc.functions["build_substitution_list"] = {
-  Name = [[build_substitution_list]],
+dtutils_string.libdoc.functions["build_substitute_list"] = {
+  Name = [[build_substitute_list]],
   Synopsis = [[build a list of variable substitutions]],
   Usage = [[local ds = require "lib/dtutils.string"
-    ds.build_substitution_list(image, sequence, variable_string, [username], [pic_folder], [home], [desktop])
+    ds.build_substitute_list(image, sequence, variable_string, [username], [pic_folder], [home], [desktop])
       image - dt_lua_image_t - the image being processed
       sequence - integer - the sequence number of the image being processed (exported)
       variable_string - string - the substitution variable string
@@ -490,7 +490,7 @@ dtutils_string.libdoc.functions["build_substitution_list"] = {
       [pic_folder] - string - optional - pictures folder name.  Will be determined if not supplied
       [home] - string - optional - home directory.  Will be determined if not supplied
       [desktop] - string - optional - desktop directory.  Will be determined if not supplied]],
-  Description = [[build_substitution_list populates variables with values from the arguments
+  Description = [[build_substitute_list populates variables with values from the arguments
     and determined from the system and darktable.]],
   Return_Value = [[]],
   Limitations = [[If the value for a variable can not be determined, or if it is not supported,
@@ -1057,7 +1057,7 @@ function dtutils_string.substitute(image, sequence, variable_string, username, p
 
   dtutils_string.clear_substitute_list()
 
-  dtutils_string.build_substition_list(image, sequence, variable_string, username, pic_folder, home, desktop)  
+  dtutils_string.build_substitute_list(image, sequence, variable_string, username, pic_folder, home, desktop)  
 
   local str = dtutils_string.substitute_list(variable_string)
 
