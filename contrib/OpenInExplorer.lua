@@ -130,7 +130,7 @@ local function call_list_of_files_osx(selected_images)
   for _, image in pairs(selected_images) do
     current_image = image.path..PS..image.filename
     -- AppleScript needs double quoted strings, and the whole command is wrapped in single quotes.
-    table.insert(cmds, string.format(reveal_file_osx_cmd, string.gsub(string.gsub(current_image, "'", "'\\''"), "\"", "\\\"") ))
+    table.insert(cmds, string.format(reveal_file_osx_cmd, string.gsub(string.gsub(current_image, "\"", "\\\""), "'", "'\"'\"'")))
   end
   reveal_cmd = table.concat(cmds, ",")
   run_cmd = string.format(open_files.macos, reveal_cmd)
