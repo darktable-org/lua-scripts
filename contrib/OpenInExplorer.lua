@@ -118,8 +118,25 @@ open_dir.linux = [[busctl --user call org.freedesktop.FileManager1 /org/freedesk
 
 local open_files = {}
 open_files.windows = "explorer.exe /select, %s"
-open_files.macos = "open -Rn %s"
+open_files.macos = "osascript -e 'tell application \"Finder\" to (reveal {%s}) activate'"
 open_files.linux = [[busctl --user call org.freedesktop.FileManager1 /org/freedesktop/FileManager1 org.freedesktop.FileManager1 ShowItems ass %d %s ""]]
+
+reveal_file_osx_cmd = "\"%s\" as POSIX file"
+
+--Call the osx Finder with each selected image selected.
+--For images in multiple folders, Finder will open a separate window for each
+local function call_list_of_files_osx(selected_images)
+  local cmds = {}
+  for _, image in pairs(selected_images) do
+    current_image = image.path..PS..image.filename
+    -- AppleScript needs double quoted strings, and the whole command is wrapped in single quotes.
+    table.insert(cmds, string.format(reveal_file_osx_cmd, string.gsub(string.gsub(current_image, "\"", "\\\""), "'", "'\"'\"'")))
+  end
+  reveal_cmd = table.concat(cmds, ",")
+  run_cmd = string.format(open_files.macos, reveal_cmd)
+  dt.print_log("OSX run_cmd = "..run_cmd)
+  dsys.external_command(run_cmd)
+end
 
 --Call the file mangager for each selected image on Linux.
 --There is one call to busctl containing a list of all the image file names.
@@ -188,6 +205,8 @@ local function open_in_fmanager()
     else
       if act_os == "linux" then
         call_list_of_files(images)
+      elseif act_os == "macos" then
+        call_list_of_files_osx(images)
       else
         call_file_by_file(images)
       end
