@@ -75,27 +75,27 @@ du.check_min_api_version("9.3.0", "script_manager")
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
 -- path separator
-local PS = dt.configuration.running_os == "windows" and "\\" or "/"
+local PS <const> = dt.configuration.running_os == "windows" and "\\" or "/"
 
 -- command separator
-local CS = dt.configuration.running_os == "windows" and "&" or ";"
+local CS <const> = dt.configuration.running_os == "windows" and "&" or ";"
 
-local MODULE = "script_manager"
+local MODULE <const> = "script_manager"
 
-local MIN_BUTTONS_PER_PAGE = 5
-local MAX_BUTTONS_PER_PAGE = 20
-local DEFAULT_BUTTONS_PER_PAGE = 10
+local MIN_BUTTONS_PER_PAGE <const> = 5
+local MAX_BUTTONS_PER_PAGE <const> = 20
+local DEFAULT_BUTTONS_PER_PAGE <const> = 10
 
-local DEFAULT_LOG_LEVEL = log.error
+local DEFAULT_LOG_LEVEL <const> = log.error
 
-local LUA_DIR = dt.configuration.config_dir .. PS .. "lua"
-local LUA_SCRIPT_REPO = "https://github.com/darktable-org/lua-scripts.git"
+local LUA_DIR <const> = dt.configuration.config_dir .. PS .. "lua"
+local LUA_SCRIPT_REPO <const> = "https://github.com/darktable-org/lua-scripts.git"
 
-local LUA_API_VER = "API-" .. dt.configuration.api_version_string
+local LUA_API_VER <const> = "API-" .. dt.configuration.api_version_string
 
 -- local POWER_ICON = dt.configuration.config_dir .. "/lua/data/data/icons/power.png"
-local POWER_ICON = dt.configuration.config_dir .. "/lua/data/icons/path20.png"
-local BLANK_ICON = dt.configuration.config_dir .. "/lua/data/icons/blank20.png"
+local POWER_ICON <const> = dt.configuration.config_dir .. "/lua/data/icons/path20.png"
+local BLANK_ICON <const> = dt.configuration.config_dir .. "/lua/data/icons/blank20.png"
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- P R E F E R E N C E S
