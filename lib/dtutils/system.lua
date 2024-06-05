@@ -1,6 +1,7 @@
 local dtutils_system = {}
 
 local dt = require "darktable"
+local ds = require "lib/dtutils.string"
 
 dtutils_system.libdoc = {
   Name = [[dtutils.system]],
@@ -50,9 +51,9 @@ function dtutils_system.external_command(command)
   local result = nil
 
   if dt.configuration.running_os == "windows" then
-    result = dtutils_system.windows_command(command)
+    result = dtutils_system.windows_command(ds.sanitize(command))
   else
-    result = dt.control.execute(command)
+    result = dt.control.execute(ds.sanitize(command))
   end
 
   return result
@@ -77,15 +78,20 @@ dtutils_system.libdoc.functions["windows_command"] = {
   Copyright = [[]],
 }
 
+local function quote_windows_command(command)
+  return "\"" .. command .. "\""
+end
+
 function dtutils_system.windows_command(command)
   local result = 1
 
-  local fname = dt.configuration.tmp_dir .. "/run_command.bat"
+  local fname = ds.sanitize(dt.configuration.tmp_dir .. "/run_command.bat")
 
   local file = io.open(fname, "w")
   if file then
     dt.print_log("opened file")
     command = string.gsub(command, "%%", "%%%%") -- escape % from windows shell
+    command = quote_windows-command(command)
     file:write(command)
     file:close()
 
@@ -149,7 +155,7 @@ dtutils_system.libdoc.functions["os_execute"] = {
 
 function dtutils_system.os_execute(cmd)
   if dt.configuration.running_os == "windows" then
-    cmd = "\"" .. cmd .. "\""
+    cmd = quote_windows_command(cmd)
   end
   return os.execute(cmd)
 end
@@ -174,7 +180,7 @@ dtutils_system.libdoc.functions["io_popen"] = {
 
 function dtutils_system.io_popen(cmd)
   if dt.configuration.running_os == "windows" then
-    cmd = "\"" .. cmd .. "\""
+    cmd = quote_windows_command(cmd)
   end
   return io.popen(cmd)
 end
