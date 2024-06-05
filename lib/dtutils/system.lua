@@ -129,4 +129,55 @@ function dtutils_system.launch_default_app(path)
 end
 
 
+dtutils_system.libdoc.functions["os_execute"] = {
+  Name = [[os_execute]],
+  Synopsis = [[wrapper around the lua os.execute function]],
+  Usage = [[local dsys = require "lib/dtutils.file"
+
+    result = dsys.os_execute(cmd)
+      cmd - string - a command to execute on the operating system]],
+  Description = [[os_execute wraps the lua os.execute system call to provide
+    correct sanitization of windows commands]],
+  Return_Value = [[see the lua os.execute documentation]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_system.os_execute(cmd)
+  if _scripts_install.dt.configuration.running_os == "windows" then
+    cmd = "\"" .. cmd .. "\""
+  end
+  return os.execute(cmd)
+end
+
+dtutils_system.libdoc.functions["io_popen"] = {
+  Name = [[io_popen]],
+  Synopsis = [[wrapper around the lua io.popen function]],
+  Usage = [[local dsys = require "lib/dtutils.file"
+
+    result = dsys.io_popen(cmd)
+      cmd - string - a command to execute and attach to]],
+  Description = [[io_popen wraps the lua io.popen system call to provide
+    correct sanitization of windows commands]],
+  Return_Value = [[see the lua io.popen documentation]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_system.io_popen(cmd)
+  if _scripts_install.dt.configuration.running_os == "windows" then
+    cmd = "\"" .. cmd .. "\""
+  end
+  return io.popen(cmd)
+end
+
+
 return dtutils_system
