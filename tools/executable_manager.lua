@@ -107,13 +107,19 @@ local function update_combobox_choices(combobox, choice_table, selected)
 end
 
 local function install_module()
+  local panel = "DT_UI_CONTAINER_PANEL_LEFT_BOTTOM"
+  local panel_pos = 600
+  if dt.configuration.running_os == "windows" then
+    panel = "DT_UI_CONTAINER_PANEL_LEFT_CENTER"
+    panel_pos = 100
+  end
   if not exec_man.module_installed then
     dt.register_lib(
       "executable_manager",     -- Module name
       "executable manager",     -- Visible name
       true,                -- expandable
       false,               -- resetable
-      {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_BOTTOM", 600}},   -- containers
+      {[dt.gui.views.lighttable] = {panel, panel_pos}},   -- containers
       dt.new_widget("box") -- widget
       {
         orientation = "vertical",
