@@ -148,7 +148,7 @@ dtutils_system.libdoc.functions["os_execute"] = {
 }
 
 function dtutils_system.os_execute(cmd)
-  if _scripts_install.dt.configuration.running_os == "windows" then
+  if dt.configuration.running_os == "windows" then
     cmd = "\"" .. cmd .. "\""
   end
   return os.execute(cmd)
@@ -173,7 +173,7 @@ dtutils_system.libdoc.functions["io_popen"] = {
 }
 
 function dtutils_system.io_popen(cmd)
-  if _scripts_install.dt.configuration.running_os == "windows" then
+  if dt.configuration.running_os == "windows" then
     cmd = "\"" .. cmd .. "\""
   end
   return io.popen(cmd)
