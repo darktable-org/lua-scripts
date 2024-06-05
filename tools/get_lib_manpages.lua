@@ -34,7 +34,7 @@ local function output_man(d)
     libname = name
   end
   local fname = "/tmp/" .. name .. ".3"
-  local mf = dtsys.io_popen(fname, "w")
+  local mf = io.open(fname, "w")
   if mf then
     mf:write(".TH " .. string.upper(name) .. " 3 \"\" \"\" \"Darktable " .. libname .. " functions\"\n")
     for _,section in ipairs(keys) do
