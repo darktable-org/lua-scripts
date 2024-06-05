@@ -34,7 +34,7 @@ local function output_man(d)
     libname = name
   end
   local fname = "/tmp/" .. name .. ".3"
-  local mf = dtsys.io_open(fname, "w")
+  local mf = dtsys.io_popen(fname, "w")
   if mf then
     mf:write(".TH " .. string.upper(name) .. " 3 \"\" \"\" \"Darktable " .. libname .. " functions\"\n")
     for _,section in ipairs(keys) do
@@ -46,7 +46,7 @@ local function output_man(d)
     mf:close()
     if df.check_if_bin_exists("groff") then
       if df.check_if_bin_exists("ps2pdf") then
-        os.execute("groff -man " .. fname .. " | ps2pdf - " .. fname .. ".pdf")
+        dtsys.os_execute("groff -man " .. fname .. " | ps2pdf - " .. fname .. ".pdf")
       else
         log.msg(log.error, "Missing ps2pdf.  Can't generate pdf man pages.")
       end
