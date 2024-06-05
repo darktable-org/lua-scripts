@@ -28,6 +28,7 @@ require "geoToolbox"
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+local dtsys = require "lib/dtutils.system"
 local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "geoToolbox") 
@@ -411,7 +412,7 @@ local function reverse_geocode()
     -- jq could be replaced with a Lua JSON parser
     startCommand = string.format("curl --silent \"https://api.mapbox.com/geocoding/v5/mapbox.places/%s,%s.json?types=%s&access_token=%s\" | jq '.features | .[0] | '.text''", lon1, lat1, types, tokan)
 
-    local handle = io.popen(startCommand)
+    local handle = dtsys.io_popen(startCommand)
     local result = trim12(handle:read("*a"))
     handle:close()
     

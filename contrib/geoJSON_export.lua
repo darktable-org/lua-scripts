@@ -35,6 +35,7 @@ USAGE
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+local dtsys = require "lib/dtutils.system"
 local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "geoJSON_export") 
@@ -330,7 +331,7 @@ dt.preferences.register("geoJSON_export",
 	_("opens the geoJSON file after the export with the standard program for geoJSON files"),
 	false )
 
-local handle = io.popen("xdg-user-dir DESKTOP")
+local handle = dtsys.io_popen("xdg-user-dir DESKTOP")
 local result = handle:read()
 handle:close()
 if (result == nil) then

@@ -7,6 +7,7 @@
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+local dtsys = require "lib/dtutils.system"
 local log = require "lib/dtutils.log"
 local libname = nil
 
@@ -33,7 +34,7 @@ local function output_man(d)
     libname = name
   end
   local fname = "/tmp/" .. name .. ".3"
-  local mf = io.open(fname, "w")
+  local mf = dtsys.io_open(fname, "w")
   if mf then
     mf:write(".TH " .. string.upper(name) .. " 3 \"\" \"\" \"Darktable " .. libname .. " functions\"\n")
     for _,section in ipairs(keys) do
@@ -59,7 +60,7 @@ end
 
 -- find the libraries
 
-local output = io.popen("cd "..dt.configuration.config_dir.."/lua/lib ;find . -name \\*.lua -print | sort")
+local output = dtsys.io_popen("cd "..dt.configuration.config_dir.."/lua/lib ;find . -name \\*.lua -print | sort")
 
 -- loop through the libraries
 

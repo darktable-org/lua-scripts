@@ -107,6 +107,7 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 local ds = require "lib/dtutils.string"
+local dtsys = require "lib/dtutils.system"
 local gettext = dt.gettext.gettext
 
 local img_time = {}
@@ -225,7 +226,7 @@ local function get_image_taken_time(image)
 
   local exiv2 = df.check_if_bin_exists("exiv2")
   if exiv2 then
-    p = io.popen(exiv2 .. " -K Exif.Image.DateTime " .. image.path .. PS .. image.filename)
+    p = dtsys.io_popen(exiv2 .. " -K Exif.Image.DateTime " .. image.path .. PS .. image.filename)
     if p then
       for line in p:lines() do
         if string.match(line, "Exif.Image.DateTime") then
@@ -243,7 +244,7 @@ end
 
 local function _get_windows_image_file_creation_time(image)
   local datetime = nil
-  local p = io.popen("dir " .. image.path .. PS .. image.filename)
+  local p = dtsys.io_popen("dir " .. image.path .. PS .. image.filename)
   if p then
     for line in p:lines() do
       if string.match(line, ds.sanitize_lua(image.filename)) then
@@ -264,7 +265,7 @@ end
 
 local function _get_nix_image_file_creation_time(image)
   local datetime = nil
-  local p = io.popen("ls -lL --time-style=full-iso " .. image.path .. PS .. image.filename)
+  local p = dtsys.io_popen("ls -lL --time-style=full-iso " .. image.path .. PS .. image.filename)
   if p then
     for line in p:lines() do
       if string.match(line, ds.sanitize_lua(image.filename)) then
