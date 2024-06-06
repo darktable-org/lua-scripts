@@ -26,6 +26,7 @@ Dependencies:
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+local dtsys = require "lib/dtutils.system"
 local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "fujifilm_ratings") 
@@ -61,7 +62,7 @@ local function detect_rating(event, image)
 	local JPEG_filename = string.gsub(RAF_filename, "%.RAF$", ".JPG")
 	local command = "exiftool -Rating " .. JPEG_filename
 	dt.print_error(command)
-	local output = io.popen(command)
+	local output = dtsys.io_popen(command)
 	local jpeg_result = output:read("*all")
 	output:close()
 	if string.len(jpeg_result) > 0 then
@@ -72,7 +73,7 @@ local function detect_rating(event, image)
 	end
 	command = "exiftool -Rating " .. RAF_filename
 	dt.print_error(command)
-	output = io.popen(command)
+	output = dtsys.io_popen(command)
 	local raf_result = output:read("*all")
 	output:close()
 	if string.len(raf_result) > 0 then

@@ -82,8 +82,7 @@ dtutils.libdoc.functions["check_max_api_version"] = {
     run against the current api version. This function is used when a part of the Lua API that 
     the script relies on is removed.  If the maximum api version is not met, then an 
     error message is printed saying the script_name failed to load, then an error is thrown causing the
-    program to stop executing. 
-
+    program to stop executing.]],
   Return_Value = [[result - true if the maximum api version is available, false if not.]],
   Limitations = [[When using the default handler on a script being executed from the luarc file, the error thrown
     will stop the luarc file from executing any remaining statements. This limitation does not apply to script_manger.]],
