@@ -1,6 +1,6 @@
 --[[
   This file is part of darktable,
-  copyright (c) 2018, 2020, 2023 Bill Ferguson <wpferguson@gmail.com>
+  copyright (c) 2018, 2020, 2023, 2024 Bill Ferguson <wpferguson@gmail.com>
   
   darktable is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ local gettext = dt.gettext
 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
-dt.gettext.bindtextdomain("script_manager",dt.configuration.config_dir.."/lua/locale/")
+dt.gettext.bindtextdomain("script_manager", dt.configuration.config_dir .. "/lua/locale/")
 
 local function _(msgid)
     return gettext.dgettext("script_manager", msgid)
@@ -241,7 +241,7 @@ end
 local function get_repo_status(repo)
   local old_log_level = set_log_level(sm.log_level)
 
-  local p = io.popen("cd " .. repo .. CS .. "git status")
+  local p = dtsys.io_popen("cd " .. repo .. CS .. "git status")
 
   if p then
     local data = p:read("*a")
@@ -259,7 +259,7 @@ local function get_current_repo_branch(repo)
 
   local branch = nil
 
-  local p = io.popen("cd " .. repo .. CS .. "git branch --all")
+  local p = dtsys.io_popen("cd " .. repo .. CS .. "git branch --all")
 
   if p then
     local data = p:read("*a")
@@ -289,7 +289,7 @@ local function get_repo_branches(repo)
   local old_log_level = set_log_level(sm.log_level)
 
   local branches = {}
-  local p = io.popen("cd " .. repo .. CS .. "git pull --all" .. CS .. "git branch --all")
+  local p = dtsys.io_popen("cd " .. repo .. CS .. "git pull --all" .. CS .. "git branch --all")
 
   if p then
     local data = p:read("*a")
@@ -329,7 +329,7 @@ local function checkout_repo_branch(repo, branch)
 
   log.msg(log.info, "checkout out branch " .. branch .. " from repository " .. repo)
 
-  os.execute("cd " .. repo .. CS .. "git checkout " .. branch)
+  dtsys.os_execute("cd " .. repo .. CS .. "git checkout " .. branch)
 
   restore_log_level(old_log_level)
 end
@@ -417,7 +417,7 @@ local function get_script_metadata(script)
     -- grab the script_data.metadata table
     description = string.match(content, "script_data%.metadata = %{\r?\n(.-)\r?\n%}")
   else
-    log.msg(log.error, _("Cant read from " .. script))
+    log.msg(log.error, "cant read from " .. script)
   end
 
   if description then
@@ -459,7 +459,7 @@ local function get_script_doc(script)
     -- assume that the second block comment is the documentation
     description = string.match(content, "%-%-%[%[.-%]%].-%-%-%[%[(.-)%]%]")
   else
-    log.msg(log.error, _("Cant read from " .. script))
+    log.msg(log.error, "can't read from " .. script)
   end
   if description then
     restore_log_level(old_log_level)
@@ -489,7 +489,7 @@ local function activate(script)
 
     if status then
       pref_write(script.script_name, "bool", true)
-      log.msg(log.screen, _("Loaded ") .. script.script_name)
+      log.msg(log.screen, _(string.format("loaded %s", script.script_name)))
       script.running = true
 
       if err ~= true then
@@ -503,9 +503,9 @@ local function activate(script)
       end
 
      else
-      log.msg(log.screen, script.script_name .. _(" failed to load"))
-      log.msg(log.error, "Error loading " .. script.script_name)
-      log.msg(log.error, "Error message: " .. err)
+      log.msg(log.screen, _(string.format("%s failed to load", script.script_name)))
+      log.msg(log.error, "error loading " .. script.script_name)
+      log.msg(log.error, "error message: " .. err)
     end
 
   else -- script is a lib and loaded but hidden and the user wants to reload
@@ -549,13 +549,13 @@ local function deactivate(script)
     end
 
     log.msg(log.info, "turned off " .. script.script_name)
-    log.msg(log.screen, script.name .. _(" stopped"))
+    log.msg(log.screen, _(string.format("%s stopped", script.name)))
 
   else
     script.running = false
 
     log.msg(log.info, "setting " .. script.script_name .. " to not start")
-    log.msg(log.screen, script.name .. _(" will not start when darktable is restarted"))
+    log.msg(log.screen, _(string.format("%s will not start when darktable is restarted", script.name)))
   end
 
   restore_log_level(old_log_level)
@@ -665,7 +665,7 @@ local function scan_scripts(script_dir)
   log.msg(log.debug, "find command is " .. find_cmd)
 
   -- scan the scripts
-  local output = io.popen(find_cmd)
+  local output = dtsys.io_popen(find_cmd)
   for line in output:lines() do
     log.msg(log.debug, "line is " .. line)
     local l = string.gsub(line, ds.sanitize_lua(LUA_DIR) .. PS, "")   -- strip the lua dir off
@@ -695,7 +695,7 @@ local function update_scripts()
   local git = sm.executables.git
 
   if not git then
-    dt.print(_("ERROR: git not found.  Install or specify the location of the git executable."))
+    log.msg(log.screen, _("ERROR: git not found.  Install or specify the location of the git executable."))
     return
   end
 
@@ -709,7 +709,7 @@ local function update_scripts()
   end
 
   if result == 0 then
-    dt.print(_("lua scripts successfully updated"))
+    log.msg(log.screen, _("lua scripts successfully updated"))
   end
 
   restore_log_level(old_log_level)
@@ -749,9 +749,9 @@ local function scan_repositories()
     find_cmd = "dir /b/s /a:d " .. LUA_DIR .. PS .. "*.git | sort"
   end
 
-  log.msg(log.debug, _("find command is ") .. find_cmd)
+  log.msg(log.debug, "find command is " .. find_cmd)
 
-  local output = io.popen(find_cmd)
+  local output = dtsys.io_popen(find_cmd)
 
   for line in output:lines() do
     local l = string.gsub(line, ds.sanitize_lua(LUA_DIR) .. PS, "")   -- strip the lua dir off
@@ -799,7 +799,7 @@ local function install_scripts()
   local folder = sm.widgets.new_folder.text
 
   if string.match(du.join(sm.folders, " "), ds.sanitize_lua(folder)) then
-    log.msg(log.screen, _("folder ") .. folder .. _(" is already in use. Please specify a different folder name."))
+    log.msg(log.screen, _(string.format("folder %s is already in use. Please specify a different folder name.", folder)))
     log.msg(log.error, "folder " .. folder .. " already exists, returning...")
     restore_log_level(old_log_level)
     return
@@ -810,7 +810,7 @@ local function install_scripts()
   local git = sm.executables.git
 
   if not git then
-    dt.print(_("ERROR: git not found.  Install or specify the location of the git executable."))
+    log.msg(log.screen, _("ERROR: git not found.  Install or specify the location of the git executable."))
     restore_log_level(old_log_level)
     return
   end
@@ -849,12 +849,12 @@ local function install_scripts()
       sm.widgets.new_folder.text = ""
       sm.widgets.main_menu.selected = 3
     else
-      dt.print(_("No scripts found to install"))
+      log.msg(log.screen, _("No scripts found to install"))
       log.msg(log.error, "scan_scripts returned " .. count .. " scripts found.  Not adding to folder_selector")
     end
 
   else
-    dt.print(_("failed to download scripts"))
+    log.msg(log.screen, _("failed to download scripts"))
   end
 
   restore_log_level(old_log_level)
@@ -1006,7 +1006,7 @@ local function paginate(direction)
     last = first + sm.page_status.num_buttons - 1
   end
 
-  sm.widgets.page_status.label = _("Page ") .. cur_page .. _(" of ") .. max_pages
+  sm.widgets.page_status.label = _(string.format("page %d of %d", cur_page, max_pages))
 
   populate_buttons(folder, first, last)
 
@@ -1177,17 +1177,6 @@ local function install_module()
   log.msg(log.debug, "set run to true, loading preferences")
   load_preferences()
   scan_repositories()
-  --[[dt.print_log("\n\nsetting sm visible false\n\n")
-  dt.gui.libs["script_manager"].visible = false
-  dt.control.sleep(5000)
-  dt.print_log("setting sm visible true")
-  dt.gui.libs["script_manager"].visible = true
-  --[[dt.control.sleep(5000)
-  dt.print_log("setting sm expanded false")
-  dt.gui.libs["script_manager"].expanded = false
-  dt.control.sleep(5000)
-  dt.print_log("setting sm expanded true")
-  dt.gui.libs["script_manager"].expanded = true]]
 
   restore_log_level(old_log_level)
 end
@@ -1217,7 +1206,7 @@ if check_for_updates then
         -- probably upgraded from an earlier api version so get back to master
         -- to use the latest version of script_manager to get the proper API
         checkout_repo_branch(repo, "master")
-        log.msg(log.screen, "lua API version reset, please restart darktable")
+        log.msg(log.screen, _("lua API version reset, please restart darktable"))
 
       elseif LUA_API_VER == current_branch then
         -- do nothing, we are fine
@@ -1353,7 +1342,7 @@ sm.widgets.disable_scripts = dt.new_widget("button"){
     local LUARC = dt.configuration.config_dir .. PS .. "luarc"
     df.file_move(LUARC, LUARC .. ".disabled")
     log.msg(log.info, "lua scripts disabled")
-    dt.print(_("lua scripts will not run the next time darktable is started"))
+    log.msg(log.screen, _("lua scripts will not run the next time darktable is started"))
   end
 }
 
@@ -1414,7 +1403,7 @@ end
 local page_back = "<"
 local page_forward = ">"
 
-sm.widgets.page_status = dt.new_widget("label"){label = _("Page:")}
+sm.widgets.page_status = dt.new_widget("label"){label = _("page:")}
 
 sm.widgets.page_back = dt.new_widget("button"){
   label = page_back,
@@ -1445,7 +1434,7 @@ sm.widgets.scripts = dt.new_widget("box"){
   orientation = vertical,
   dt.new_widget("section_label"){label = _(" ")},
   dt.new_widget("label"){label = " "},
-  dt.new_widget("label"){label = _("Scripts")},
+  dt.new_widget("label"){label = _("scripts")},
   sm.widgets.folder_selector,
   sm.widgets.page_control,
   table.unpack(sm.widgets.boxes),
@@ -1529,7 +1518,7 @@ else
       function(event, old_view, new_view)
         if new_view.name == "lighttable" and old_view.name == "darkroom" then
           install_module()
-         end
+        end
       end
     )
     sm.event_registered = true
