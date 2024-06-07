@@ -36,9 +36,24 @@ local debug = require "darktable.debug"
 du.check_min_api_version("7.0.0", "rename-tags") 
 du.deprecated("contrib/rename-tags.lua","darktable release 4.0")
 
+local gettext = darktable.gettext.gettext
+
+darktable.gettext.bindtextdomain("rename-tags", darktable.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "rename-tags",
+  purpose = _("rename an existing tag"),
+  author = "Sebastian Witt (se.witt@gmx.net)",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/rename-tags"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
@@ -50,8 +65,8 @@ rt.module_installed = false
 rt.event_registered = false
 
 -- GUI entries
-local old_tag = darktable.new_widget("entry") { tooltip = "Enter old tag" }
-local new_tag = darktable.new_widget("entry") { tooltip = "Enter new tag" }
+local old_tag = darktable.new_widget("entry") { tooltip = _("enter old tag") }
+local new_tag = darktable.new_widget("entry") { tooltip = _("enter new tag") }
 
 local function rename_reset()
     old_tag.text = ''
@@ -62,11 +77,11 @@ end
 local function rename_tags()
   -- If entries are empty, return
   if old_tag.text == '' then
-    darktable.print ("Old tag can't be empty")
+    darktable.print (_("old tag can't be empty"))
     return
   end
   if new_tag.text == '' then
-    darktable.print ("New tag can't be empty")
+    darktable.print (_("new tag can't be empty"))
     return
   end
   
@@ -76,12 +91,12 @@ local function rename_tags()
   local ot = darktable.tags.find (old_tag.text)
   
   if not ot then
-    darktable.print ("Old tag does not exist")
+    darktable.print (_("old tag does not exist"))
     return
   end
 
   -- Show job
-  local job = darktable.gui.create_job ("Renaming tag", true)
+  local job = darktable.gui.create_job (_("renaming tag"), true)
   
   old_tag.editable = false
   new_tag.editable = false
@@ -104,7 +119,7 @@ local function rename_tags()
   darktable.tags.delete (ot)
 
   job.valid = false
-  darktable.print ("Renamed tags for " .. count .. " images")
+  darktable.print (string.format(_("renamed tags for %d images"), count))
   old_tag.editable = true
   new_tag.editable = true
 
@@ -115,7 +130,7 @@ end
 
 local function install_module()
   if not rt.module_installed then
-    darktable.register_lib ("rename_tags", "rename tag", true, true, {[darktable.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 20},}, rt.rename_widget, nil, nil)
+    darktable.register_lib ("rename_tags", _("rename tag"), true, true, {[darktable.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 20},}, rt.rename_widget, nil, nil)
     rt.module_installed = true
   end
 end
@@ -131,13 +146,13 @@ end
 -- GUI
 local old_widget = darktable.new_widget ("box") {
     orientation = "horizontal",
-    darktable.new_widget("label") { label = "Old tag" },
+    darktable.new_widget("label") { label = _("old tag") },
     old_tag
 }
 
 local new_widget = darktable.new_widget ("box") {
     orientation = "horizontal",
-    darktable.new_widget("label") { label = "New tag" },
+    darktable.new_widget("label") { label = _("new tag") },
     new_tag
 }
 
@@ -146,7 +161,7 @@ rt.rename_widget = darktable.new_widget ("box") {
     reset_callback = rename_reset,
     old_widget,
     new_widget,
-    darktable.new_widget("button") { label = "Go", clicked_callback = rename_tags }
+    darktable.new_widget("button") { label = _("go"), clicked_callback = rename_tags }
 }
 
 if darktable.gui.current_view().id == "lighttable" then

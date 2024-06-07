@@ -75,9 +75,25 @@ local dtsys = require "lib/dtutils.system"
 local MODULE_NAME = "ext_editor"
 du.check_min_api_version("7.0.0", MODULE_NAME) 
 
+-- translation
+local gettext = dt.gettext.gettext
+
+dt.gettext.bindtextdomain("ext_editor", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+  return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "ext_editor",
+  purpose = _("edit images with external editors"),
+  author = "Marco Carrarini, marco.carrarini@gmail.com",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/ext_editor"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
@@ -93,13 +109,6 @@ ee.module_installed = false
 ee.event_registered = false
 ee.widgets = {}
 
-
--- translation
-local gettext = dt.gettext
-gettext.bindtextdomain(MODULE_NAME, dt.configuration.config_dir..PS.."lua"..PS.."locale"..PS)
-local function _(msgid)
-  return gettext.dgettext(MODULE_NAME, msgid)
-end
 
 -- maximum number of external programs, can be increased to necessity
 local MAX_EDITORS = 9
@@ -156,7 +165,7 @@ local function UpdateProgramList(combobox, button_edit, button_edit_copy, update
       button_edit.sensitive = active
       button_edit_copy.sensitive = active
 
-  if update_button_pressed then dt.print(n_entries.._(" editors configured")) end
+  if update_button_pressed then dt.print(string.format(_("%d editors configured"), n_entries)) end
 end
 
 
@@ -223,17 +232,17 @@ local function OpenWith(images, choice, copy)
     -- physical copy, check result, return if error
     local copy_success = df.file_copy(name, new_name)
     if not copy_success then
-      dt.print(_("error copying file ")..name)
+      dt.print(string.format(_("error copying file %s"), name))
       return
     end    
   end
 
   -- launch the external editor, check result, return if error
   local run_cmd = bin.." "..df.sanitize_filename(new_name) 
-  dt.print(_("launching ")..friendly_name.."...") 
+  dt.print(string.format(_("launching %s..."), friendly_name))
   local result = dtsys.external_command(run_cmd)
   if result ~= 0 then
-    dt.print(_("error launching ")..friendly_name)
+    dt.print(string.format(_("error launching %s"), friendly_name))
     return
   end
 
@@ -326,7 +335,7 @@ local function export2collection(storage, image_table, extra_data)
     -- move image to collection folder, check result, return if error
     move_success = df.file_move(temp_name, new_name)
     if not move_success then
-      dt.print(_("error moving file ")..temp_name)
+      dt.print(string.format(_("error moving file %s"), temp_name))
       return
     end
 
@@ -378,7 +387,7 @@ end
 local function restart()
   for i = 1, MAX_EDITORS do
     dt.register_event(MODULE_NAME .. i, "shortcut", 
-      program_shortcut, _("edit with program ")..string.format("%02d", i)) 
+      program_shortcut, string.format(_("edit with program %02d"), i)) 
   end
   dt.register_storage("exp2coll", _("collection"), nil, export2collection)
   dt.gui.libs[MODULE_NAME].visible = true
@@ -476,11 +485,11 @@ dt.register_storage("exp2coll", _("collection"), nil, export2collection)
 -- register the new preferences -----------------------------------------------
 for i = MAX_EDITORS, 1, -1 do
   dt.preferences.register(MODULE_NAME, "program_path_"..i, "file", 
-  _("executable for external editor ")..i, 
-  _("select executable for external editor")  , _("(None)"))
+  string.format(_("executable for external editor %d"), i), 
+  _("select executable for external editor")  , _("(none)"))
   
   dt.preferences.register(MODULE_NAME, "program_name_"..i, "string", 
-  _("name of external editor ")..i, 
+  string.format(_("name of external editor %d"), i), 
   _("friendly name of external editor"), "")
 end
 dt.preferences.register(MODULE_NAME, "show_in_darkrooom", "bool", 
@@ -491,7 +500,7 @@ dt.preferences.register(MODULE_NAME, "show_in_darkrooom", "bool",
 -- register the new shortcuts -------------------------------------------------
 for i = 1, MAX_EDITORS do
   dt.register_event(MODULE_NAME .. i, "shortcut", 
-    program_shortcut, _("edit with program ")..string.format("%02d", i)) 
+    program_shortcut, string.format(_("edit with program %02d"), i)) 
 end
 
 

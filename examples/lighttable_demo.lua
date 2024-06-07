@@ -59,11 +59,12 @@ end
 -- - - - - - - - - - - - - - - - - - - - - - - -
 -- T R A N S L A T I O N S
 -- - - - - - - - - - - - - - - - - - - - - - - -
-local gettext = dt.gettext
-gettext.bindtextdomain(MODULE_NAME, dt.configuration.config_dir..PS.."lua"..PS.."locale"..PS)
+local gettext = dt.gettext.gettext
+
+dt.gettext.bindtextdomain("lighttable_demo", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
-  return gettext.dgettext(MODULE_NAME, msgid)
+  return gettext(msgid)
 end
 
 -- - - - - - - - - - - - - - - - - - - - - - - -
@@ -145,17 +146,17 @@ sleep(2000)
 
 for n, layout in ipairs(layouts) do
   dt.gui.libs.lighttable_mode.layout(layout)
-  dt.print(_("set lighttable layout to " .. layout))
-  dt.print_log(_("set lighttable layout to " .. layout))
+  dt.print(string.format(_("set lighttable layout to %s"), layout))
+  dt.print_log("set lighttable layout to " .. layout)
   sleep(1500)
   for i = 1, 10 do
     dt.gui.libs.lighttable_mode.zoom_level(i)
-    dt.print(_("Set zoom level to " .. i))
+    dt.print(string.format(_("set zoom level to %d"), i))
     sleep(1500)
   end
   for i = 9, 1, -1 do
     dt.gui.libs.lighttable_mode.zoom_level(i)
-    dt.print(_("Set zoom level to " .. i))
+    dt.print(string.format(_("set zoom level to %d"), i))
     sleep(1500)
   end
 end
@@ -174,12 +175,12 @@ dt.print_log("starting sorts")
 
 for n, sort in ipairs(sorts) do
   dt.gui.libs.filter.sort(sort)
-  dt.print(_("set lighttable sort to " .. sort))
+  dt.print(string.format(_("set lighttable sort to %s"), sort))
   sleep(1500)
 
   for m, sort_order in ipairs(sort_orders) do
     dt.gui.libs.filter.sort_order(sort_order)
-    dt.print(_("sort order set to " .. sort_order))
+    dt.print(string.format(_("sort order set to %s"), sort_order))
     sleep(1500)
   end
 end
@@ -190,12 +191,12 @@ dt.print(_("lighttable filtering demonstration"))
 
 for n, rating in ipairs(ratings) do
   dt.gui.libs.filter.rating(rating)
-  dt.print(_("set filter to " .. rating))
+  dt.print(string.format(_("set filter to %s"), rating))
   sleep(1500)
 
   for m, rating_comparator in ipairs(rating_comparators) do
     dt.gui.libs.filter.rating_comparator(rating_comparator)
-    dt.print(_("set rating comparator to " .. rating_comparator))
+    dt.print(string.format(_("set rating comparator to %s"), rating_comparator))
     sleep(1500)
   end
 end
@@ -215,6 +216,14 @@ current_sort_order = dt.gui.libs.filter.sort_order(current_sort_order)
 -- it's time to destroy the script and then return the data to 
 -- script_manager
 local script_data = {}
+
+script_data.metadata = {
+  name = "lighttable_demo",
+  purpose = _("example demonstrating how to control lighttable display modes"),
+  author = "Bill Ferguson <wpferguson@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/lighttable_demo"
+}
+
 script_data.destroy = destroy
 
 return script_data

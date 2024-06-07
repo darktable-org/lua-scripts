@@ -56,14 +56,16 @@ local dtsys = require "lib/dtutils.system"
 local log = require "lib/dtutils.log"
 local debug = require "darktable.debug"
 
-local gettext = dt.gettext
+-- set up translation
 
+local gettext = dt.gettext.gettext
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 dt.gettext.bindtextdomain("script_manager", dt.configuration.config_dir .. "/lua/locale/")
 
+
 local function _(msgid)
-    return gettext.dgettext("script_manager", msgid)
+    return gettext(msgid)
 end
 
 -- api check
@@ -459,7 +461,9 @@ local function get_script_doc(script)
     -- assume that the second block comment is the documentation
     description = string.match(content, "%-%-%[%[.-%]%].-%-%-%[%[(.-)%]%]")
   else
+    
     log.msg(log.error, "can't read from " .. script)
+
   end
   if description then
     restore_log_level(old_log_level)
@@ -489,7 +493,9 @@ local function activate(script)
 
     if status then
       pref_write(script.script_name, "bool", true)
+
       log.msg(log.screen, _(string.format("loaded %s", script.script_name)))
+
       script.running = true
 
       if err ~= true then
@@ -503,10 +509,10 @@ local function activate(script)
       end
 
      else
+
       log.msg(log.screen, _(string.format("%s failed to load", script.script_name)))
       log.msg(log.error, "error loading " .. script.script_name)
       log.msg(log.error, "error message: " .. err)
-    end
 
   else -- script is a lib and loaded but hidden and the user wants to reload
     script.data.restart()
@@ -549,13 +555,16 @@ local function deactivate(script)
     end
 
     log.msg(log.info, "turned off " .. script.script_name)
+
     log.msg(log.screen, _(string.format("%s stopped", script.name)))
 
   else
     script.running = false
 
     log.msg(log.info, "setting " .. script.script_name .. " to not start")
+
     log.msg(log.screen, _(string.format("%s will not start when darktable is restarted", script.name)))
+
   end
 
   restore_log_level(old_log_level)
@@ -652,6 +661,35 @@ local function ensure_lib_in_search_path(line)
   restore_log_level(old_log_level)
 end
 
+local function ensure_lib_in_search_path(line)
+  local old_log_level = set_log_level(sm.log_level)
+  set_log_level(log.debug)
+
+  log.msg(log.debug, "line is " .. line)
+
+  if string.match(line, ds.sanitize_lua(dt.configuration.config_dir .. PS .. "lua" .. PS .. "lib")) then
+    log.msg(log.debug, line .. " is already in search path, returning...")
+    return
+  end
+
+  local pattern =  dt.configuration.running_os == "windows" and  "(.+)\\lib\\.+lua" or  "(.+)/lib/.+lua"
+  local path = string.match(line, pattern)
+
+  log.msg(log.debug, "extracted path is " .. path)
+  log.msg(log.debug, "package.path is " .. package.path)
+
+  if not string.match(package.path, ds.sanitize_lua(path)) then
+
+    log.msg(log.debug, "path isn't in package.path, adding...")
+
+    package.path = package.path .. ";" .. path .. "/?.lua"
+
+    log.msg(log.debug, "new package.path is " .. package.path)
+  end
+
+  restore_log_level(old_log_level)
+end
+
 local function scan_scripts(script_dir)
   local old_log_level = set_log_level(sm.log_level)
 
@@ -695,7 +733,9 @@ local function update_scripts()
   local git = sm.executables.git
 
   if not git then
+
     log.msg(log.screen, _("ERROR: git not found.  Install or specify the location of the git executable."))
+
     return
   end
 
@@ -1404,7 +1444,6 @@ local page_back = "<"
 local page_forward = ">"
 
 sm.widgets.page_status = dt.new_widget("label"){label = _("page:")}
-
 sm.widgets.page_back = dt.new_widget("button"){
   label = page_back,
   clicked_callback = function(this)
@@ -1432,6 +1471,7 @@ sm.widgets.page_control = dt.new_widget("box"){
 
 sm.widgets.scripts = dt.new_widget("box"){
   orientation = vertical,
+
   dt.new_widget("section_label"){label = _(" ")},
   dt.new_widget("label"){label = " "},
   dt.new_widget("label"){label = _("scripts")},

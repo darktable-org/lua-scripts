@@ -42,17 +42,16 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("pdf_slideshow",dt.configuration.config_dir.."/lua/locale/")
+dt.gettext.bindtextdomain("pdf_slideshow", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("pdf_slideshow", msgid)
+    return gettext(msgid)
 end
 
 if not df.check_if_bin_exists("pdflatex") then
-   dt.print_error(_("pdflatex not found"))
+   dt.print_error("pdflatex not found")
    return
 end
 
@@ -61,6 +60,13 @@ du.check_min_api_version("7.0.0", "pdf_slideshow")
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "pdf_slideshow",
+  purpose = _("generates a PDF slideshow (via Latex) containing all selected images one per slide"),
+  author = "Pascal Obry",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/pdf_slideshow"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
@@ -231,7 +237,7 @@ dt.register_storage("pdf_slideshow",_("pdf slideshow"),
       local result = dt.control.execute(command)
       if result ~= 0 then
         dt.print(_("problem running pdflatex")) -- this one is probably usefull to the user
-        error(_("problem running ")..command)
+        error("problem running "..command)
       end
 
       -- open the PDF
@@ -241,7 +247,7 @@ dt.register_storage("pdf_slideshow",_("pdf slideshow"),
       local result = dt.control.execute(command)
       if result ~= 0 then
         dt.print(_("problem running pdf viewer")) -- this one is probably usefull to the user
-        error(_("problem running ")..command)
+        error("problem running "..command)
       end
 
       -- finally do some clean-up

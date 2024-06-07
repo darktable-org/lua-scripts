@@ -32,16 +32,29 @@ USAGE
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 du.check_min_api_version("2.0.0", "harmonic_armature_guide") 
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("harmonic_armature_guide",dt.configuration.config_dir.."/lua/locale/")
+dt.gettext.bindtextdomain("harmonic_armature_guide", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
-  return gettext.dgettext("harmonic_armature_guide", msgid)
+  return gettext(msgid)
 end
+
+local script_data = {}
+
+script_data.metadata = {
+  name = "harmonic_armature_guide",
+  purpose = _("harmonic artmature guide"),
+  author = "Hubert Kowalski",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/harmonic_armature_guide"
+}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
+script_data.show = nil -- only required for libs since the destroy_method only hides them
 
 dt.guides.register_guide("harmonic armature",
 -- draw
@@ -76,3 +89,11 @@ function()
   return dt.new_widget("label"){label = _("harmonic armature"), halign = "start"}
 end
 )
+
+local function destroy()
+  -- nothing to destroy
+end
+
+script_data.destroy = destroy
+
+return script_data

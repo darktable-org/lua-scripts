@@ -39,28 +39,33 @@
 local dt = require "darktable"
 local du = require "lib/dtutils"
 
+local gettext = dt.gettext.gettext 
+dt.gettext.bindtextdomain("clear_GPS", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "clear_GPS",
+  purpose = _("remove GPS data from selected image(s)"),
+  author = "Bill Ferguson <wpferguson@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/clear_gps/"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
-local gettext = dt.gettext
-
 -- not a number
 local NaN = 0/0
 
 du.check_min_api_version("7.0.0", "clear_GPS") 
-
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("clear_GPS",dt.configuration.config_dir.."/lua/locale/")
-
-local function _(msgid)
-    return gettext.dgettext("clear_GPS", msgid)
-end
 
 local function clear_GPS(images)
   for _, image in ipairs(images) do
@@ -81,13 +86,13 @@ script_data.destroy = destroy
 dt.gui.libs.image.register_action(
   "clear_GPS", _("clear GPS data"),
   function(event, images) clear_GPS(images) end,
-  _("Clear GPS data from selected images")
+  _("clear GPS data from selected images")
 )
 
 dt.register_event(
   "clear_GPS", "shortcut",
   function(event, shortcut) clear_GPS(dt.gui.action_images) end,
-  _("Clear GPS data")
+  _("clear GPS data")
 )
 
 return script_data

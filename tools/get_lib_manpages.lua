@@ -7,10 +7,19 @@
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+local dtsys = require "lib/dtutils.system"
 local log = require "lib/dtutils.log"
 local libname = nil
 
 du.check_min_api_version("3.0.0", "get_lib_manpages") 
+
+local gettext = dt.gettext.gettext
+
+dt.gettext.bindtextdomain("get_lib_manpages", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msg)
+    return gettext(msg)
+end
 
 local function destroy()
   -- nothing to destroy
@@ -37,7 +46,7 @@ local function output_man(d)
     mf:close()
     if df.check_if_bin_exists("groff") then
       if df.check_if_bin_exists("ps2pdf") then
-        os.execute("groff -man " .. fname .. " | ps2pdf - " .. fname .. ".pdf")
+        dtsys.os_execute("groff -man " .. fname .. " | ps2pdf - " .. fname .. ".pdf")
       else
         log.msg(log.error, "Missing ps2pdf.  Can't generate pdf man pages.")
       end
@@ -51,7 +60,7 @@ end
 
 -- find the libraries
 
-local output = io.popen("cd "..dt.configuration.config_dir.."/lua/lib ;find . -name \\*.lua -print | sort")
+local output = dtsys.io_popen("cd "..dt.configuration.config_dir.."/lua/lib ;find . -name \\*.lua -print | sort")
 
 -- loop through the libraries
 
@@ -79,6 +88,14 @@ for line in output:lines() do
 end
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "get_lib_manpages",
+  purpose = _("output the internal library documentation as man pages"),
+  author = "Bill Ferguson <wpferguson@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/tools/get_lib_manpages"
+}
+
 script_data.destroy = destroy
 
 return script_data

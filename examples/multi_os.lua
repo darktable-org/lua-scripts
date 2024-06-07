@@ -70,13 +70,12 @@ local dtsys = require "lib/dtutils.system"  -- system utilities
     translations, inserting this lays the groundwork for anyone who wants to translate the strings.
 ]]
 
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("multi_os",dt.configuration.config_dir.."/lua/locale/")
+dt.gettext.bindtextdomain("multi_os", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext("multi_os", msgid)
+    return gettext(msgid)
 end
 
 --[[
@@ -187,12 +186,12 @@ local function extract_embedded_jpeg(images)
         end
       else
         dt.print_error(image.filename .. " is not a raw file.  No image can be extracted") -- print debugging error message
-        dt.print(image.filename .. " is not a raw file.  No image can be extracted") -- print the error to the screen
+        dt.print(string.format(_("%s is not a raw file, no image can be extracted"), image.filename)) -- print the error to the screen
       end
     end
   else
     dt.print_error("ufraw-batch not found.  Exiting...") -- print debugging error message
-    dt.print("ufraw-batch not found.  Exiting...") -- print the error to the screen
+    dt.print("ufraw-batch not found, exiting...") -- print the error to the screen
   end
 end
 
@@ -216,7 +215,7 @@ end
 if dt.configuration.running_os ~= "linux" then
   local executable = "ufraw-batch"
   local ufraw_batch_path_widget = dt.new_widget("file_chooser_button"){
-    title = _("Select ufraw-batch[.exe] executable"),
+    title = _("select ufraw-batch[.exe] executable"),
     value = df.get_executable_path_preference(executable),
     is_directory = false,
     changed_callback = function(self)
@@ -228,7 +227,7 @@ if dt.configuration.running_os ~= "linux" then
   dt.preferences.register("executable_paths", "ufraw-batch", -- name
     "file", -- type
     _('multi_os: ufraw-batch location'),  -- label
-    _('Installed location of ufraw-batch. Requires restart to take effect.'), -- tooltip
+    _('Installed location of ufraw-batch, requires restart to take effect.'), -- tooltip
     "ufraw-batch", -- default
     ufraw_batch_path_widget
   )
@@ -241,7 +240,7 @@ end
 dt.gui.libs.image.register_action(
   "multi_os", _("extract embedded jpeg"),
   function(event, images) extract_embedded_jpeg(images) end,
-  "extract embedded jpeg"
+  _("extract embedded jpeg")
 )
   
 --[[
@@ -251,7 +250,7 @@ dt.gui.libs.image.register_action(
 dt.register_event(
   "multi_os", "shortcut",
   function(event, shortcut) extract_embedded_jpeg(dt.gui.action_images) end,
-  "extract embedded jpeg"
+  _("extract embedded jpeg")
 )
 
 --[[
@@ -261,6 +260,14 @@ dt.register_event(
 ]]
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "multi_os",
+  purpose = _("example module thet runs on different operating systems"),
+  author = "Bill Ferguson <wpferguson@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/multi_os"
+}
+
 script_data.destroy = destroy
 
 return script_data

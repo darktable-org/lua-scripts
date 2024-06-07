@@ -6,8 +6,17 @@
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
+local dtsys = require "lib/dtutils.system"
 
 du.check_min_api_version("3.0.0", "get_libdoc") 
+
+local gettext = dt.gettext.gettext
+
+dt.gettext.bindtextdomain("get_libdoc", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msg)
+    return gettext(msg)
+end
 
 local function destroy()
   -- nothing to destroy
@@ -28,7 +37,7 @@ end
 
 -- find the libraries
 
-local output = io.popen("cd "..dt.configuration.config_dir.."/lua/lib ;find . -name \\*.lua -print | sort")
+local output = dtsys.io_popen("cd "..dt.configuration.config_dir.."/lua/lib ;find . -name \\*.lua -print | sort")
 
 -- loop through the libraries
 
@@ -53,6 +62,14 @@ for line in output:lines() do
 end
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "get_libdoc",
+  purpose = _("retrieve and print the documentation to the console"),
+  author = "Bill Ferguson <wpferguson@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/tools/get_libdoc"
+}
+
 script_data.destroy = destroy
 
 return script_data

@@ -32,20 +32,42 @@ USAGE
 
 local dt = require "darktable"
 
+local gettext = dt.gettext.gettext
+
+dt.gettext.bindtextdomain("import_filter_manager", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msg)
+  return gettext(msg)
+end
+
+local script_data = {}
+
+script_data.metadata = {
+  name = "import_filter_manager",
+  purpose = _("manage import filters"),
+  author = "Tobias Ellinghaus",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/import_filter_manager"
+}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
+script_data.show = nil -- only required for libs since the destroy_method only hides them
+
 local import_filter_list = {}
 local n_import_filters = 1
 
 -- allow changing the filter from the preferences
 dt.preferences.register("import_filter_manager", "active_filter", "string",
-  "import filter", "the name of the filter used for importing images", "")
+  _("import filter"), _("the name of the filter used for importing images"), "")
 
 
 -- the dropdown to select the active filter from the import dialog
 local filter_dropdown = dt.new_widget("combobox")
 {
-  label = "import filter",
+  label = _("import filter"),
   editable = false,
-  tooltip = "import filters are applied after completion of the import dialog",
+  tooltip = _("import filters are applied after completion of the import dialog"),
 
   changed_callback = function(widget)
     dt.preferences.write("import_filter_manager", "active_filter", "string", widget.value)
@@ -75,6 +97,12 @@ dt.register_import_filter = function(name, callback)
   if name == active_filter then filter_dropdown.value = n_import_filters end
 end
 
+local function destroy()
+  --noting to destroy
+end
 
+script_data.destroy = destroy
+
+return script_data
 -- vim: shiftwidth=2 expandtab tabstop=2 cindent
 -- kate: tab-indents: off; indent-width 2; replace-tabs on; remove-trailing-space on;

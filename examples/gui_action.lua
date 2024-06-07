@@ -4,6 +4,29 @@ local NaN = 0/0
 
 local wg = {}
 
+local gettext = dt.gettext.gettext 
+dt.gettext.bindtextdomain("gui_action", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return gettext(msgid)
+end
+
+-- return data structure for script_manager
+
+local script_data = {}
+
+script_data.metadata = {
+  name = "gui_action",
+  purpose = _("example of how to use darktable.gui.action() calls"),
+  author = "Diederik ter Rahe",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/gui_action"
+}
+
+script_data.destroy = nil -- function to destory the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
+script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
+script_data.show = nil -- only required for libs since the destroy_method only hides them
+
 wg.action = dt.new_widget("entry"){
     text = "lib/filter/view",
     placeholder = "action path",
@@ -90,7 +113,7 @@ dt.register_lib(
         label = "execute action",
         tooltip = "execute the action specified in the fields above",
         clicked_callback = function(_)
-          local sp = nan
+          local sp = NaN
           if wg.check.value then sp = wg.speed.text end
           wg.return_value.text = dt.gui.action(wg.action.text, wg.instance.value, wg.element.text, wg.effect.text, sp)
         end
@@ -103,3 +126,18 @@ dt.register_lib(
       },
     }
   )
+
+local function restart()
+  dt.gui.libs["execute_action"].visible = true
+end
+
+local function destroy()
+  dt.gui.libs["execute_action"].visible = false
+end
+
+script_data.destroy = destroy
+script_data.destroy_method = "hide"
+script_data.restart = restart
+script_data.show = restart
+
+return script_data

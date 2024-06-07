@@ -40,7 +40,7 @@ local du = require "lib/dtutils"
 -- V E R S I O N  C H E C K
 -- - - - - - - - - - - - - - - - - - - - - - - -
 
-du.check_min_api_version("5.0.2", "darkroom_mode")  -- darktable 3.0
+du.check_min_api_version("5.0.2", "darkroom_demo")  -- darktable 3.0
 
 -- script_manager integration to allow a script to be removed
 -- without restarting darktable
@@ -52,17 +52,18 @@ end
 -- C O N S T A N T S
 -- - - - - - - - - - - - - - - - - - - - - - - -
 
-local MODULE_NAME = "darkroom"
+local MODULE_NAME = "darkroom_demo"
 local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 
 -- - - - - - - - - - - - - - - - - - - - - - - -
 -- T R A N S L A T I O N S
 -- - - - - - - - - - - - - - - - - - - - - - - -
-local gettext = dt.gettext
-gettext.bindtextdomain(MODULE_NAME, dt.configuration.config_dir..PS.."lua"..PS.."locale"..PS)
+local gettext = dt.gettext.gettext
+
+dt.gettext.bindtextdomain("darkroom_demo", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
-  return gettext.dgettext(MODULE_NAME, msgid)
+  return gettext(msgid)
 end
 
 -- - - - - - - - - - - - - - - - - - - - - - - -
@@ -92,13 +93,13 @@ dt.gui.current_view(dt.gui.views.darkroom)
 
 local max_images = 10
 
-dt.print(_("Showing images, with a pause in between each"))
+dt.print(_("showing images, with a pause in between each"))
 sleep(1500)
 
 -- display first 10 images of collection pausing for a second between each
 
 for i, img in ipairs(dt.collection) do 
-  dt.print(_("Displaying image " .. i))
+  dt.print(string.format(_("displaying image "), i))
   dt.gui.views.darkroom.display_image(img)
   sleep(1500)
   if i == max_images then
@@ -108,7 +109,7 @@ end
 
 -- return to lighttable view
 
-dt.print(_("Restoring view"))
+dt.print(_("restoring view"))
 sleep(1500)
 dt.gui.current_view(current_view)
 
@@ -116,6 +117,14 @@ dt.gui.current_view(current_view)
 -- it's time to destroy the script and then return the data to 
 -- script_manager
 local script_data = {}
+
+script_data.metadata = {
+  name = "darkroom_demo",
+  purpose = _("example demonstrating how to control image display in darkroom mode"),
+  author = "Bill Ferguson <wpferguson@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/darkroom_demo"
+}
+
 script_data.destroy = destroy
 
 return script_data

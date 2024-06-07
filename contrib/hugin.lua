@@ -40,7 +40,7 @@ local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 local log = require "lib/dtutils.log"
 local dtsys = require "lib/dtutils.system"
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 local namespace = 'module_hugin'
 local user_pref_str = 'prefer_gui'
@@ -56,21 +56,27 @@ local PQ = dt.configuration.running_os == "windows" and '"' or "'"
 -- works with darktable API version from 5.0.0 on
 du.check_min_api_version("7.0.0", "hugin") 
 
+dt.gettext.bindtextdomain("hugin", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+  return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "hugin",
+  purpose = _("stitch images into a panorama"),
+  author = "Wolfgang Goetz",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/hugin"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
-
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("hugin",dt.configuration.config_dir.."/lua/locale/")
-
-local function _(msgid)
-  return gettext.dgettext("hugin", msgid)
-end
 
 local function user_preference_changed(widget)
   user_prefer_gui = widget.value
@@ -201,7 +207,7 @@ local function create_panorama(storage, image_table, extra_data) --finalize
       if df.check_if_file_exists(src_path) then
         log.msg(log.debug, "found ", src_path, " importing to ", dst_path)
         df.file_move(src_path, dst_path)
-        dt.print(_("importing file "..dst_path))
+        dt.print(string.format(_("importing file %s"), dst_path))
         dt.database.import(dst_path)
       end
     end
@@ -227,7 +233,7 @@ hugin_widget = dt.new_widget("box") {
   orientation = "vertical",
   dt.new_widget("check_button")
   {
-    label = _("  launch hugin gui"),
+    label = _("launch hugin gui"),
     value = user_prefer_gui,
     tooltip = _('launch hugin in gui mode'),
     clicked_callback = user_preference_changed

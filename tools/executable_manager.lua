@@ -31,12 +31,28 @@
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+local dtsys = require "lib/dtutils.system"
 
 du.check_min_api_version("7.0.0", "executable_manager")
+
+local gettext = dt.gettext.gettext
+
+dt.gettext.bindtextdomain("executable_manager", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msg)
+    return gettext(msg)
+end
 
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "executable_manager",
+  purpose = _("manage the list of external executables used by the lua scripts"),
+  author = "Bill Ferguson <wpferguson@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/tools/executable_manager"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
@@ -44,10 +60,6 @@ script_data.restart = nil -- how to restart the (lib) script after it's been hid
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"
-
-local gettext = dt.gettext
-
-gettext.bindtextdomain("executable_manager",dt.configuration.config_dir.."/lua/locale/")
 
 local exec_man = {} -- our own namespace
 exec_man.module_installed = false
@@ -57,10 +69,6 @@ exec_man.event_registered = false
 -- F U N C T I O N S
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-local function _(msg)
-    return gettext.dgettext("executable_manager", msg)
-end
-
 local function grep(file, pattern)
 
   local result = {}
@@ -68,7 +76,7 @@ local function grep(file, pattern)
   if dt.configuration.running_os == "windows" then
     -- use find to get the matches
     local command = "\\windows\\system32\\find.exe " .. "\"" .. pattern .. "\"" .. " " .. file
-    local f = io.popen(command)
+    local f = dtsys.io_popen(command)
     local output = f:read("all")
     f:close()
     -- strip out the first line
@@ -77,7 +85,7 @@ local function grep(file, pattern)
   else
     -- use grep and just return the answers
     local command = "grep " .. pattern .. " " .. file
-    local f = io.popen(command)
+    local f = dtsys.io_popen(command)
     local output = f:read("all")
     f:close()
     result = du.split(output, "\n")
@@ -100,13 +108,19 @@ local function update_combobox_choices(combobox, choice_table, selected)
 end
 
 local function install_module()
+  local panel = "DT_UI_CONTAINER_PANEL_LEFT_BOTTOM"
+  local panel_pos = 600
+  if dt.configuration.running_os == "windows" then
+    panel = "DT_UI_CONTAINER_PANEL_LEFT_CENTER"
+    panel_pos = 100
+  end
   if not exec_man.module_installed then
     dt.register_lib(
       "executable_manager",     -- Module name
       "executable manager",     -- Visible name
       true,                -- expandable
       false,               -- resetable
-      {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_BOTTOM", 600}},   -- containers
+      {[dt.gui.views.lighttable] = {panel, panel_pos}},   -- containers
       dt.new_widget("box") -- widget
       {
         orientation = "vertical",
@@ -142,7 +156,7 @@ local matches = grep(DARKTABLERC, "executable_paths")
 -- check if we have something to manage and exit if not
 
 if #matches == 0 then
-  dt.print(_("No executable paths found, exiting..."))
+  dt.print(_("no executable paths found, exiting..."))
   return
 end
 
@@ -167,7 +181,7 @@ for i,exec in ipairs(exec_table) do
     editable = false
   }
   executable_path_widgets[exec] = dt.new_widget("file_chooser_button"){
-    title = _("select ") .. exec .. _(" executable"),
+    title = _(string.format("select %s executable", exec)),
     value = df.get_executable_path_preference(exec),
     is_directory = false,
     changed_callback = function(self)
@@ -210,7 +224,7 @@ for i,exec in ipairs(exec_table) do
     dt.new_widget("section_label"){label = _("reset")},
     dt.new_widget("button"){
       label = _("clear"),
-      tooltip = _("Clear path for ") .. exec,
+      tooltip = string.format(_("clear path for %s"), exec),
       clicked_callback = function()
         df.set_executable_path_preference(exec, "")
         executable_path_widgets[exec].value = ""

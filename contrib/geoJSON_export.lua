@@ -35,25 +35,32 @@ USAGE
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-local gettext = dt.gettext
+local dtsys = require "lib/dtutils.system"
+local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "geoJSON_export") 
+
+dt.gettext.bindtextdomain("geoJSON_export", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return gettext(msgid)
+end
 
 -- return data structure for script_manager
 
 local script_data = {}
 
+script_data.metadata = {
+  name = "geoJSON_export",
+  purpose = _("export a geoJSON file from geo data"),
+  author = "Tobias Jakobs",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/geoJSON_export"
+}
+
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
-
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("geoJSON_export",dt.configuration.config_dir.."/lua/locale/")
-
-local function _(msgid)
-    return gettext.dgettext("geoJSON_export", msgid)
-end
 
 -- Sort a table
 local function spairs(_table, order) -- Code copied from http://stackoverflow.com/questions/15706270/sort-a-table-in-lua
@@ -80,7 +87,7 @@ local function spairs(_table, order) -- Code copied from http://stackoverflow.co
 end
 
 local function show_status(storage, image, format, filename, number, total, high_quality, extra_data)
-    dt.print(string.format(_("Export Image %i/%i"), number, total))
+    dt.print(string.format(_("export image %i/%i"), number, total))
 end
 
 local function create_geoJSON_file(storage, image_table, extra_data)
@@ -309,22 +316,22 @@ dt.preferences.register("geoJSON_export",
 	"CreateMapBoxHTMLFile",
 	"bool",
 	_("geoJSON export: Create an additional HTML file"),
-	_("Creates a HTML file, that loads the geoJASON file. (Needs a MapBox key"),
+	_("creates an HTML file that loads the geoJSON file. (needs a MapBox key"),
 	false )
 dt.preferences.register("geoJSON_export",
 	"mapBoxKey",
 	"string",
-	_("geoJSON export: MapBox Key"),
+	_("geoJSON export: MapBox key"),
 	_("https://www.mapbox.com/studio/account/tokens"),
 	'' )
 dt.preferences.register("geoJSON_export",
 	"OpengeoJSONFile",
 	"bool",
-	_("geoJSON export: Open geoJSON file after export"),
-	_("Opens the geoJSON file after the export with the standard program for geoJSON files"),
+	_("geoJSON export: open geoJSON file after export"),
+	_("opens the geoJSON file after the export with the standard program for geoJSON files"),
 	false )
 
-local handle = io.popen("xdg-user-dir DESKTOP")
+local handle = dtsys.io_popen("xdg-user-dir DESKTOP")
 local result = handle:read()
 handle:close()
 if (result == nil) then
@@ -333,8 +340,8 @@ end
 dt.preferences.register("geoJSON_export",
 	"ExportDirectory",
 	"directory",
-	_("geoJSON export: Export directory"),
-	_("A directory that will be used to export the geoJSON files"),
+	_("geoJSON export: export directory"),
+	_("a directory that will be used to export the geoJSON files"),
 	result )
 
 -- Register

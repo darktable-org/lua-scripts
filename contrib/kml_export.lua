@@ -39,30 +39,36 @@ local df = require "lib/dtutils.file"
 local ds = require "lib/dtutils.string"
 local dsys = require "lib/dtutils.system"
 
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 
 du.check_min_api_version("7.0.0", "kml_export") 
 
+dt.gettext.bindtextdomain("kml_export", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+  return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "kml_export",
+  purpose = _("export KML/KMZ data to a file"),
+  author = "Tobias Jakobs",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/kml_export"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("kml_export",dt.configuration.config_dir.."/lua/locale/")
-
-local function _(msgid)
-  return gettext.dgettext("kml_export", msgid)
-end
-
 local function show_status(storage, image, format, filename, number, total, high_quality, extra_data)
-  dt.print(string.format(_("Export Image %i/%i"), number, total))
+  dt.print(string.format(_("export image %i/%i"), number, total))
 end
 
 -- Add duplicate index to filename
@@ -320,14 +326,14 @@ if dt.configuration.running_os == "windows" then
     "OpenKmlFile",
     "bool",
     _("KML export: Open KML file after export"),
-    _("Opens the KML file after the export with the standard program for KML files"),
+    _("opens the KML file after the export with the standard program for KML files"),
     false )
 else
   dt.preferences.register("kml_export",
     "OpenKmlFile",
     "bool",
-    _("KML export: Open KML/KMZ file after export"),
-    _("Opens the KML file after the export with the standard program for KML files"),
+    _("KML export: open KML/KMZ file after export"),
+    _("opens the KML file after the export with the standard program for KML files"),
     false )
 end
 
@@ -337,7 +343,7 @@ if dt.configuration.running_os == "windows" then
 elseif dt.configuration.running_os == "macos" then
   defaultDir =  os.getenv("HOME")
 else
-  local handle = io.popen("xdg-user-dir DESKTOP")
+  local handle = dsys.io_popen("xdg-user-dir DESKTOP")
   defaultDir = handle:read()
   handle:close()
 end
@@ -346,23 +352,23 @@ end
 dt.preferences.register("kml_export",
   "ExportDirectory",
   "directory",
-  _("KML export: Export directory"),
-  _("A directory that will be used to export the KML/KMZ files"),
+  _("KML export: export directory"),
+  _("a directory that will be used to export the KML/KMZ files"),
   defaultDir )
 
 if dt.configuration.running_os ~= "linux" then  
   dt.preferences.register("kml_export", 
     "magickPath",	-- name
 	"file",	-- type
-	_("KML export: ImageMagick binary Location"),	-- label
-	_("Install location of magick[.exe]. Requires restart to take effect."),	-- tooltip
+	_("KML export: ImageMagick binary location"),	-- label
+	_("install location of magick[.exe], requires restart to take effect"),	-- tooltip
 	"magick")	-- default
 end  
   
 dt.preferences.register("kml_export",
   "CreatePath",
   "bool",
-  _("KML export: Connect images with path"),
+  _("KML export: connect images with path"),
   _("connect all images with a path"),
   false )
 
@@ -370,16 +376,16 @@ if dt.configuration.running_os == "linux" then
   dt.preferences.register("kml_export",
     "CreateKMZ",
     "bool",
-    _("KML export: Create KMZ file"),
-    _("Compress all imeges to one KMZ file"),
+    _("KML export: create KMZ file"),
+    _("compress all imeges to one KMZ file"),
     true )
 end
 
 -- Register
 if dt.configuration.running_os == "windows" then
-  dt.register_storage("kml_export", _("KML Export"), nil, create_kml_file)
+  dt.register_storage("kml_export", _("KML export"), nil, create_kml_file)
 else
-  dt.register_storage("kml_export", _("KML/KMZ Export"), nil, create_kml_file)
+  dt.register_storage("kml_export", _("KML/KMZ export"), nil, create_kml_file)
 end
 
 script_data.destroy = destroy

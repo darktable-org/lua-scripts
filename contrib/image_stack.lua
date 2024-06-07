@@ -64,7 +64,7 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 local dtsys = require "lib/dtutils.system"
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 local job = nil
 
 -- path separator constant
@@ -73,21 +73,27 @@ local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 -- works with LUA API version 5.0.0
 du.check_min_api_version("7.0.0", "image_stack") 
 
+dt.gettext.bindtextdomain("image_stack", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "image_stack",
+  purpose = _("process a stack of images"),
+  author = "Bill Ferguson <wpferguson@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/image_stack"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
-
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("image_stack",dt.configuration.config_dir.."/lua/locale/")
-
-local function _(msgid)
-    return gettext.dgettext("image_stack", msgid)
-end
 
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 --  GUI definitions
@@ -259,7 +265,7 @@ end
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 local function show_status(storage, image, format, filename, number, total, high_quality, extra_data)
-    dt.print(string.format(_("Export Image %i/%i"), number, total))
+    dt.print(string.format(_("export image %i/%i"), number, total))
 end
 
 -- read the gui and populate the align_image_stack arguments
@@ -342,7 +348,7 @@ local function list_files(search_string)
     search_string = string.gsub(search_string, "/", "\\\\")
   end
 
-  local f = io.popen(ls .. search_string)
+  local f = dtsys.io_popen(ls .. search_string)
   if f then
     local found_file = f:read()
     while found_file do 
@@ -452,7 +458,7 @@ local function copy_image_attributes(from, to, ...)
       to.rights = from.rights
       to.description = from.description
     else
-      dt.print_error(_("Unrecognized option to copy_image_attributes: " .. arg))
+      dt.print_error("Unrecognized option to copy_image_attributes: " .. arg)
     end
   end
 end
@@ -496,7 +502,7 @@ local function image_stack(storage, image_table, extra_data)
 
   if image_count < 2 then
     dt.print(_("ERROR: at least 2 images required for image stacking, exiting..."))
-    dt.print_error(_(image_count .. " image(s) selected, at least 2 required"))
+    dt.print_error(image_count .. " image(s) selected, at least 2 required")
     return
   end
 
@@ -520,13 +526,13 @@ local function image_stack(storage, image_table, extra_data)
         job.percent = job.percent + percent_step
       else
         dt.print(_("ERROR: image alignment failed"))
-        dt.print_error(_("image alignment failed"))
+        dt.print_error("image alignment failed")
         cleanup(img_list)
         return
       end
     else
       dt.print(_("ERROR: align_image_stack not found"))
-      dt.print_error(_("align_image_stack not found"))
+      dt.print_error("align_image_stack not found")
       cleanup(img_list)
       return
     end
@@ -540,7 +546,7 @@ local function image_stack(storage, image_table, extra_data)
   local ignore_tif_tags = " -quiet -define tiff:ignore-tags=40965,42032,42033,42034,42036,18246,18249,36867,34864,34866 "
   if convert_executable then
     local convert_command = convert_executable .. ignore_tif_tags .. convert_arguments
-    dt.print_log(_("convert command is " .. convert_command))
+    dt.print_log("convert command is " .. convert_command)
     dt.print(_("processing image stack"))
     local result = dtsys.external_command(convert_command)
     if result == 0 then
@@ -554,7 +560,7 @@ local function image_stack(storage, image_table, extra_data)
       local import_filename = df.create_unique_filename(film_roll_path .. PS .. df.get_filename(output_filename))
       df.file_move(output_filename, import_filename)
       imported_image = dt.database.import(import_filename)
-      local created_tag = dt.tags.create(_("Created with|image_stack"))
+      local created_tag = dt.tags.create(_("created with|image_stack"))
       dt.tags.attach(created_tag, imported_image)
       -- all the images are the same except for time, so just copy the  attributes
       -- from the first
@@ -568,7 +574,7 @@ local function image_stack(storage, image_table, extra_data)
 
       if tag_source then
         dt.print(_("tagging source images"))
-        local source_tag = dt.tags.create(_("Source file|" .. imported_image.filename))
+        local source_tag = dt.tags.create(_("source file|" .. imported_image.filename))
         for img, _ in pairs(image_table) do 
           dt.tags.attach(source_tag, img)
         end
@@ -580,7 +586,7 @@ local function image_stack(storage, image_table, extra_data)
     end
   else
     dt.print(_("ERROR: convert executable not found"))
-    dt.print_error(_("convert executable not found"))
+    dt.print_error("convert executable not found")
     cleanup(img_list)
   end
   job.valid = false
@@ -592,7 +598,7 @@ end
 
 dt.preferences.register("align_image_stack", "align_use_gpu", -- name
   "bool",                                                     -- type
-  _('align image stack: use GPU for remaping'),               -- label
+  _('align image stack: use GPU for remapping'),               -- label
   _('set the GPU remapping for image align'),                 -- tooltip
   false)
 

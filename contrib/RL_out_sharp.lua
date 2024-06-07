@@ -65,9 +65,25 @@ local MODULE_NAME = "RL_out_sharp"
 -- check API version
 du.check_min_api_version("7.0.0", MODULE_NAME) 
 
+-- translation
+local gettext = dt.gettext.gettext
+
+dt.gettext.bindtextdomain("RL_out_sharp", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+  return gettext(msgid)
+  end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "RL_out_sharp",
+  purpose = _("Richardson-Lucy output sharpening using GMic"),
+  author = "Marco Carrarini <marco.carrarini@gmail.com>",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/RL_out_sharp"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
@@ -76,13 +92,6 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 
 -- OS compatibility
 local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
-
--- translation
-local gettext = dt.gettext
-gettext.bindtextdomain(MODULE_NAME, dt.configuration.config_dir..PS.."lua"..PS.."locale"..PS)
-local function _(msgid)
-  return gettext.dgettext(MODULE_NAME, msgid)
-  end
 
 -- initialize module preferences
 if not dt.preferences.read(MODULE_NAME, "initialized", "bool") then
@@ -137,7 +146,7 @@ local function export2RL(storage, image_table, extra_data)
   for image, temp_name in pairs(image_table) do
 
     i = i + 1
-    dt.print(_("sharpening image ")..i.." ...")
+    dt.print(string.format(_("sharpening image %d ..."), i))
     -- create unique filename
     new_name = output_folder..PS..df.get_basename(temp_name)..".jpg"
     new_name = df.create_unique_filename(new_name)

@@ -39,30 +39,36 @@ local dtsys = require "lib/dtutils.system"
 
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "enfuse")
+
+dt.gettext.bindtextdomain("enfuse", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return gettext(msgid)
+end
 
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "enfuse",
+  purpose = _("exposure blend images"),
+  author = "Tobias Ellinghaus",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/enfuse"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("enfuse",dt.configuration.config_dir..PS .. "lua" .. PS .. "locale" .. PS)
-
 local enf = {}
 enf.event_registered = false
 enf.module_installed = false
 enf.lib_widgets = {}
-
-local function _(msgid)
-    return gettext.dgettext("enfuse", msgid)
-end
 
 local function install_module()
   if not enf.module_installed then
@@ -110,7 +116,7 @@ if enfuse_installed then
 
   local version = nil
 
-  local p = io.popen(enfuse_installed .. " --version")
+  local p = dtsys.io_popen(enfuse_installed .. " --version")
   local f = p:read("all")
   p:close()
   version = string.match(f, "enfuse (%d.%d)")
@@ -132,7 +138,7 @@ if enfuse_installed then
     exposure_mu = dt.new_widget("slider")
     {
       label = "exposure mu",
-      tooltip = "center also known as MEAN of Gaussian weighting function (0 <= MEAN <= 1); default: 0.5",
+      tooltip = _("center also known as mean of gaussian weighting function (0 <= mean <= 1); default: 0.5"),
       hard_min = 0,
       hard_max = 1,
       value = dt.preferences.read("enfuse", "exposure_mu", "float")
@@ -141,7 +147,7 @@ if enfuse_installed then
     exposure_mu = dt.new_widget("slider")
     {
       label = "exposure optimum",
-      tooltip = "optimum exposure value, usually the maximum of the weighting function (0 <= OPTIMUM <=1); default 0.5",
+      tooltip = _("optimum exposure value, usually the maximum of the weighting function (0 <= optimum <=1); default 0.5"),
       hard_min = 0,
       hard_max = 1,
       value = dt.preferences.read("enfuse", "exposure_optimum", "float")
@@ -151,7 +157,7 @@ if enfuse_installed then
   local depth = dt.new_widget("combobox")
   {
     label = "depth",
-    tooltip = "the number of bits per channel of the output image",
+    tooltip = _("the number of bits per channel of the output image"),
     value = dt.preferences.read("enfuse", "depth", "integer"),
     changed_callback = function(w) dt.preferences.write("enfuse", "depth", "integer", w.selected) end,
     "8", "16", "32"
@@ -160,14 +166,14 @@ if enfuse_installed then
   local blend_colorspace = dt.new_widget("combobox")
   {
     label = "blend colorspace",
-    tooltip = "Force blending in selected colorspace",
+    tooltip = _("force blending in selected colorspace"),
     changed_callback = function(w) dt.preferences.write("enfuse", "blend_colorspace", "string", w.selected) end,
     "", "identity", "ciecam"
   }
 
   local enfuse_button = dt.new_widget("button")
   {
-    label = enfuse_installed and "run enfuse" or "enfuse not installed",
+    label = enfuse_installed and _("run enfuse") or _("enfuse not installed"),
     clicked_callback = function ()
       -- remember exposure_mu
       -- TODO: find a way to save it whenever the value changes
@@ -185,7 +191,7 @@ if enfuse_installed then
       end
       local f = io.open(response_file, "w")
       if not f then
-        dt.print(string.format(_("Error writing to `%s`"), response_file))
+        dt.print(string.format(_("error writing to '%s'"), response_file))
         os.remove(response_file)
         return
       end
@@ -208,9 +214,9 @@ if enfuse_installed then
           if dt.configuration.running_os == "windows" then
             tmp_exported = dt.configuration.tmp_dir .. tmp_exported -- windows os.tmpname() defaults to root directory
           end
-              dt.print(string.format(_("Converting raw file '%s' to tiff..."), i.filename)) 
+              dt.print(string.format(_("converting raw file '%s' to tiff..."), i.filename)) 
           tiff_exporter:write_image(i, tmp_exported, false)
-          dt.print_log(string.format("Raw file '%s' converted to '%s'", i.filename, tmp_exported))
+          dt.print_log(string.format("raw file '%s' converted to '%s'", i.filename, tmp_exported))
 
           cnt = cnt + 1
           f:write(tmp_exported.."\n")
@@ -218,14 +224,14 @@ if enfuse_installed then
           
         -- other images will be skipped
         else
-          dt.print(string.format(_("Skipping %s..."), i.filename))
+          dt.print(string.format(_("skipping %s..."), i.filename))
           n_skipped = n_skipped + 1
         end
       end
       f:close()
       -- bail out if there is nothing to do
       if cnt == 0 then
-        dt.print(_("No suitable images selected, nothing to do for enfuse"))
+        dt.print(_("no suitable images selected, nothing to do for enfuse"))
         os.remove(response_file)
         return
       end
@@ -251,7 +257,7 @@ if enfuse_installed then
                       ..blend_colorspace_option
                       .." -o \""..output_image.."\" \"@"..response_file.."\""
       if dtsys.external_command( command) > 0 then
-        dt.print(_("Enfuse failed, see terminal output for details"))
+        dt.print(_("enfuse failed, see terminal output for details"))
         os.remove(response_file)
         return
       end
@@ -299,7 +305,7 @@ if enfuse_installed then
 else
   dt.print_error("enfuse executable not found")
   error("enfuse executable not found")
-  dt.print(_("Could not find enfuse executable. Not loading enfuse exporter..."))
+  dt.print(_("could not find enfuse executable, not loading enfuse exporter..."))
 end
 
 script_data.destroy = destroy

@@ -37,9 +37,24 @@ local function destroy()
   -- noting to destroy
 end
 
+local gettext = dt.gettext.gettext
+
+dt.gettext.bindtextdomain("delete_unused_tags", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return gettext(msgid)
+end
+
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "delete_unused_tags",
+  purpose = _("delete unused tags"),
+  author = "Tobias Ellinghaus",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/delete_unused_tags"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
@@ -56,7 +71,7 @@ for _, t in ipairs(dt.tags) do
 end
 
 for _,name in pairs(unused_tags) do
-  print("deleting tag `" .. name .. "'")
+  dt.print_log("deleting tag `" .. name .. "'")
   tag = dt.tags.find(name)
   tag:delete()
 end

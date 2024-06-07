@@ -29,11 +29,12 @@ du.check_min_api_version("9.1.0", MODULE)
 -- figure out the path separator
 local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 
-local gettext = dt.gettext
-gettext.bindtextdomain(MODULE, dt.configuration.config_dir..PS.."lua"..PS.."locale"..PS)
+local gettext = dt.gettext.gettext
+
+dt.gettext.bindtextdomain("select_non_existing", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
-    return gettext.dgettext(MODULE, msgid)
+    return gettext(msgid)
 end
 
 local function stop_job(job)
@@ -73,5 +74,13 @@ dt.gui.libs.select.register_selection(
     _("select all non-existing images in the current images"))
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "select_non_existing",
+  purpose = _("enable selection of non-existing images"),
+  author = "Dirk Dittmar",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/select_non_existing"
+}
+
 script_data.destroy = destroy
 return script_data

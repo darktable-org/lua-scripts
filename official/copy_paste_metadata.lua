@@ -27,13 +27,26 @@ USAGE
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "copy_paste_metadata")
+
+dt.gettext.bindtextdomain("copy_paste_metadata", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msgid)
+    return gettext(msgid)
+end
 
 -- return data structure for script_manager
 
 local script_data = {}
+
+script_data.metadata = {
+  name = "copy_paste_metadata",
+  purpose = _("adds keyboard shortcuts and buttons to copy/paste metadata between images"),
+  author = "Tobias Ellinghaus",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/copy_paste_metadata"
+}
 
 script_data.destroy = nil -- function to destory the script
 script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet
@@ -57,13 +70,6 @@ local creator = ""
 local publisher = ""
 local rights = ""
 local tags = {}
-
--- Tell gettext where to find the .mo file translating messages for a particular domain
-gettext.bindtextdomain("copy_paste_metadata",dt.configuration.config_dir.."/lua/locale/")
-
-local function _(msgid)
-    return gettext.dgettext("copy_paste_metadata", msgid)
-end
 
 local function copy(image)
   if not image then
@@ -147,13 +153,13 @@ dt.gui.libs.image.register_action(
 dt.register_event(
   "capmd1", "shortcut",
   function(event, shortcut) copy(dt.gui.action_images[1]) end,
-  "copy metadata"
+  _("copy metadata")
 )
 
 dt.register_event(
   "capmd2", "shortcut",
   function(event, shortcut) paste(dt.gui.action_images) end,
-  "paste metadata"
+  _("paste metadata")
 )
 
 script_data.destroy = destroy

@@ -24,6 +24,16 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("5.0.0", "printExamples") 
 
+-- translation facilities
+
+local gettext = dt.gettext.gettext
+
+dt.gettext.bindtextdomain("printExamples", dt.configuration.config_dir .."/lua/locale/")
+
+local function _(msg)
+  return gettext(msg)
+end
+
 -- script_manager integration to allow a script to be removed
 -- without restarting darktable
 local function destroy()
@@ -32,7 +42,7 @@ end
 
 -- Will print a string to the darktable control log (the long
 -- overlayed window that appears over the main panel).
-dt.print("print")
+dt.print(_("print"))
 
 -- This function will print its parameter if the Lua logdomain is
 -- activated. Start darktable with the "-d lua" command line option
@@ -48,6 +58,14 @@ dt.print_log("print log")
 -- it's time to destroy the script and then return the data to 
 -- script_manager
 local script_data = {}
+
+script_data.metadata = {
+  name = "printExamples",
+  purpose = _("example showing the different types of printing messages"),
+  author = "Tobias Jakobs",
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/printExamples"
+}
+
 script_data.destroy = destroy
 
 return script_data
