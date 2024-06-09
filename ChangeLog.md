@@ -1,5 +1,78 @@
 ## Changes from most recent to oldest
 
+**06 Jun 2024 - wpferguson**
+* fix fujifilm_ratings running on all images 
+* added string library functions to sanitize windows io.popen and os.execute functions
+* added database maintenance script
+
+**05 Jun 2024 - wpferguson**
+* added fix for executable_manager not being visible on windows
+
+**30 May 2024 - kkotowicz**
+* open in explorer now uses applescript on macos to open multiple files
+
+**20 May 2024 - wpferguson**
+* added string variable substitution to the string library
+
+**16 May 2024 - wpferguson**
+* fix crash in script_manager
+
+**15 May 2024 - wpferguson**
+* added metadata to scripts (name, author, purpose, help url)
+
+**06 May 2024 -  christian.sueltrop**
+* added passport_guide_germany script
+
+**08 Apr 2024 - wpferguson**
+* made script_manager aware of library modules in other directories besides lib
+
+**29 Mar 2024 - wpferguson**
+* updated examples/gui_action to use NaN instead of nan
+
+**29 Mar 2024 - dterrahe**
+* add lua action script example
+
+**28 Jan 2024 - wpferguson**
+* fix script_manager crash when script existed in top level lua directory
+
+**24 Jan 2024 - wpferguson**
+* don't set lib visibility unless we are in lighttable mode
+
+**15 Jan 2024 - MStraeten**
+* update x-touch.lua with support for primaries slider
+
+**14 Jan 2024 - wpferguson**
+* added cycle_group_leader script
+* added hif_group_leader script
+* added jpg_group_leader script
+
+**28 Oct 2023 - ddittmar**
+* Added select non existing image script
+
+**17 Oct 2023 - wpferguson**
+* script_manager wrap username in quotes to handle spaces in username
+
+**20 Sep 2023 - wpferguson**
+* script_manager explicitly set stopped scripts to false
+
+**18 Aug 2023 - wpferguson**
+* swap the position of executable_manager and script_manager due to windows gtk bug
+
+**17 Jul 2023 - wpferguson**
+* update check for update instructions
+* update flatpak readme
+
+**16 Jul 2023 - wpferguson**
+* added script_data.show function to contrib/gpx_export
+
+**15 Jul 2023 - wpferguson**
+* script_manager updates
+* added check_max_api_version for the case where the API no longer supports the required 
+  functions
+
+**14 Jul 2023 - spaceChRis**
+* add tooltip to filter manager
+
 **25 Mar 2023 - wpferguson**
 * Added script_manager darktable shortcut integration
 * Moved filename/path/extension string functions to string library
