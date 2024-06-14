@@ -53,7 +53,7 @@ function dtutils_system.external_command(command)
   if dt.configuration.running_os == "windows" then
     result = dtutils_system.windows_command(ds.sanitize(command))
   else
-    result = dt.control.execute(ds.sanitize(command))
+    result = dt.control.execute(command)
   end
 
   return result
