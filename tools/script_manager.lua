@@ -68,11 +68,14 @@ end
 
 -- api check
 
-du.check_min_api_version("9.3.0", "script_manager")
+-- du.check_min_api_version("9.3.0", "script_manager")
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- C O N S T A N T S
 -- - - - - - - - - - - - - - - - - - - - - - - - 
+
+-- script_manager required API version
+local SM_API_VER_REQD <const> = "9.3.0"
 
 -- path separator
 local PS <const> = dt.configuration.running_os == "windows" and "\\" or "/"
@@ -1189,7 +1192,7 @@ end
 
 script_manager_running_script = "script_manager"
 
-if check_for_updates then
+if check_for_updates or SM_API_VER_REQD > dt.configuration.api_version_string then
   local repo_data = get_repo_status(LUA_DIR)
   local current_branch = get_current_repo_branch(LUA_DIR)
   local clean = is_repo_clean(repo_data)
@@ -1246,14 +1249,15 @@ if check_for_updates then
 
         local match = false
 
-        for _, branch in ipairs(branches) do
+        for _x, branch in ipairs(branches) do
           log.msg(log.debug, "checking branch " .. branch .. " against API " .. LUA_API_VER)
 
           if LUA_API_VER == branch then
             match = true
             log.msg(log.info, "checking out repo branch " .. branch)
             checkout_repo_branch(repo, branch)
-            log.msg(log.screen, "you must restart darktable to use the correct version of the lua")
+            log.msg(log.screen, _("you must restart darktable to use the correct version of the lua scripts"))
+            return
           end
 
         end
