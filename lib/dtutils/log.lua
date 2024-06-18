@@ -199,7 +199,7 @@ function dtutils_log.msg(level, ...)
       table.remove(args, 1)
     end
     local log_msg = level.label
-    if level.engine ~= dt_screen and call_level ~= 0 then
+    if level.engine ~= dt_print and call_level ~= 0 then
       log_msg = log_msg .. dtutils_log.caller(call_level, level.caller_info) .. " "
     elseif log_msg:len() > 2 then
       log_msg = log_msg .. " "
