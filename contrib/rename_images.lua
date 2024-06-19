@@ -214,6 +214,7 @@ end
 
 local function do_rename(images)
   if #images > 0 then
+    local first_image = images[1]
     local pattern = rename.widgets.pattern.text
     dt.preferences.write(MODULE_NAME, "pattern", "string", pattern)
     dt.print_log("pattern is " .. pattern)
@@ -256,6 +257,7 @@ local function do_rename(images)
       stop_job(job)
       local collect_rules = dt.gui.libs.collect.filter()
       dt.gui.libs.collect.filter(collect_rules)
+      dt.gui.views.lighttable.set_image_visible(first_image)
       dt.print(string.format(_("renamed %d images"), #images))
     else -- pattern length
       dt.print_error("no pattern supplied, returning...")
