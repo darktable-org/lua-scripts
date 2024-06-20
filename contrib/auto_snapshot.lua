@@ -37,6 +37,7 @@
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
+local log = require "lib/dtutils.log"
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- C O N S T A N T S
@@ -97,6 +98,13 @@ log.log_level(DEFAULT_LOG_LEVEL)
 local auto_snapshot = {}
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
+-- P R E F E R E N C E S
+-- - - - - - - - - - - - - - - - - - - - - - - - 
+
+dt.preferences.register(MODULE, "always_create_snapshot", "bool", "always automatically create_snapshot", 
+    "auto_snapshot - create a snapshot even if the image is altered", false)
+
+-- - - - - - - - - - - - - - - - - - - - - - - - 
 -- D A R K T A B L E  I N T E G R A T I O N 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
@@ -112,7 +120,10 @@ script_data.destroy = destroy
 
 dt.register_event(MODULE, "darkroom-image-loaded",
   function(event, clean, image)
-    if clean then
+    local always = dt.preferences.read(MODULE, "always_create_snapshot", "bool")
+    if clean and always then
+      dt.gui.libs.snapshots.take_snapshot()
+    elseif clean and not image.is_altered then
       dt.gui.libs.snapshots.take_snapshot()
     end
 
