@@ -126,6 +126,17 @@ local function detect_dynamic_range(event, image)
 	-- note that scene-referred workflow exposure preset also pushes exposure up by 0.5 EV
 	image.exif_exposure_bias = image.exif_exposure_bias + tonumber(raf_result)
 	dt.print_log("[fujifilm_dynamic_range] raw exposure bias " .. tostring(raf_result))
+	-- handle any duplicates
+	if #image:get_group_members() > 1 then
+		local basename = df.get_basename(image.filename)
+		local grouped_images = image:get_group_members()
+		for _, img in ipairs(grouped_images) do
+			if string.match(img.filename, basename) and img.duplicate_index > 0 then
+				-- its a duplicate
+				img.exif_exposure_bias = img.exif_exposure_bias + tonumber(raf_result)
+			end
+		end
+	end
 end
 
 local function destroy()
