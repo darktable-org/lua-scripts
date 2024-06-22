@@ -146,29 +146,52 @@ end
 -- M A I N   P R O G R A M
 -- - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-local DARKTABLERC = dt.configuration.config_dir .. PS .. "darktablerc"
+local exec_table = {}
 
+local DARKTABLERC <const> = dt.configuration.config_dir .. PS .. "darktablerc"
 
--- grep the executable_paths statements out of the darktablerc file
+-- see if we have known executables
 
-local matches = grep(DARKTABLERC, "executable_paths")
+local known_executables = dt.preferences.read("executable_manager", "known_executables", "string")
 
--- check if we have something to manage and exit if not
+dt.print_log("known_executables is " .. tostring(known_executables))
 
-if #matches == 0 then
-  dt.print(_("no executable paths found, exiting..."))
-  return
+if not known_executables or known_executables:len() == 0 then
+
+  known_executables = ""
+
+  -- grep the executable_paths statements out of the darktablerc file
+
+  local matches = grep(DARKTABLERC, "executable_paths")
+
+  -- check if we have something to manage and exit if not
+
+  if #matches == 0 then
+    dt.print(_("no executable paths found, exiting..."))
+    return
+  end
+
+  for _,pref  in ipairs(matches) do
+    dt.print_log("processing pref " .. pref)
+    local parts = du.split(pref, "=")
+    dt.print_log("parts 1 is " .. parts[1])
+    local tmp = du.split(parts[1], "/") -- preferences are stored with forward slashes
+    known_executables = known_executables .. tmp[#tmp] .. ","
+  end
+
+  -- remove the trailing comma
+
+  known_executables = known_executables:sub(1, -2)
+
+  dt.preferences.write("executable_manager", "known_executables", "string", known_executables)
 end
+
+dt.print_log("known_executables is " .. known_executables)
+
 
 -- build a table of the path preferences
 
-local exec_table = {}
-
-for _,pref  in ipairs(matches) do
-  local parts = du.split(pref, "=")
-  local tmp = du.split(parts[1], "/") -- preferences are stored with forward slashes
-  table.insert(exec_table, tmp[#tmp])
-end
+local exec_table = du.split(known_executables, ",")
 
 local executable_path_widgets = {}
 local executable_path_values = {}
