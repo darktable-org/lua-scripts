@@ -2,7 +2,7 @@
 
     auto_snapshot.lua - automatically take a snapshot when an image is loaded in darkroom
 
-    Copyright (C) 2024 Bill Ferguson <wpferguson.com>.
+    Copyright (C) 2024 Bill Ferguson <wpferguson@gamil.com>.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
     * open an image in darkroom
 
     BUGS, COMMENTS, SUGGESTIONS
-    Bill Ferguson <wpferguson.com>
+    Bill Ferguson <wpferguson@gamil.com>
 
     CHANGES
 ]]
@@ -80,7 +80,7 @@ script_data.show = nil              -- only required for libs since the destroy_
 script_data.metadata = {
   name = "auto_snapshot",            -- name of script
   purpose = _("automatically take a snapshot when an image is loaded in darkroom"),   -- purpose of script
-  author = "Bill Ferguson <wpferguson.com>",          -- your name and optionally e-mail address
+  author = "Bill Ferguson <wpferguson@gamil.com>",          -- your name and optionally e-mail address
   help = ""                   -- URL to help/documentation
 }
 
