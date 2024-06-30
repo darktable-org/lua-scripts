@@ -2,7 +2,7 @@
 
     dbmaint.lua - perform database maintenance
 
-    Copyright (C) 2024 Bill Ferguson <wpferguson.com>.
+    Copyright (C) 2024 Bill Ferguson <wpferguson@gamil.com>.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
     * look at the results and choose to delete or not
 
     BUGS, COMMENTS, SUGGESTIONS
-    Bill Ferguson <wpferguson.com>
+    Bill Ferguson <wpferguson@gamil.com>
 
     CHANGES
 ]]
@@ -84,7 +84,7 @@ script_data.show = nil              -- only required for libs since the destroy_
 script_data.metadata = {
   name = "dbmaint",
   purpose = _("perform database maintenance"),
-  author = "Bill Ferguson <wpferguson.com>",
+  author = "Bill Ferguson <wpferguson@gamil.com>",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/dbmaint/"
 }
 
