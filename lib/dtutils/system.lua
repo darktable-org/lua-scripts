@@ -91,7 +91,7 @@ function dtutils_system.windows_command(command)
   if file then
     dt.print_log("opened file")
     command = string.gsub(command, "%%", "%%%%") -- escape % from windows shell
-    command = quote_windows-command(command)
+    command = quote_windows_command(command)
     file:write(command)
     file:close()
 
