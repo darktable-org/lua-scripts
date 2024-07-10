@@ -99,7 +99,18 @@ if not dt.preferences.read(MODULE_NAME, "initialized", "bool") then
   dt.preferences.write(MODULE_NAME, "iterations", "string", "10")
   dt.preferences.write(MODULE_NAME, "jpg_quality", "string", "95")
   dt.preferences.write(MODULE_NAME, "initialized", "bool", true)
-  end 
+end 
+
+-- preserve original image metadata in the output image -----------------------
+local function preserve_metadata(original, sharpened)
+  local exiftool = df.check_if_bin_exists("exiftool")
+
+  if exiftool then
+    dtsys.external_command("exiftool -overwrite_original_in_place -tagsFromFile " .. original .. " " .. sharpened)
+  else
+    dt.print_log(MODULE .. " exiftool not found,  metadata not preserved")
+  end
+end
 
 
 -- setup export ---------------------------------------------------------------
@@ -163,7 +174,10 @@ local function export2RL(storage, image_table, extra_data)
     if result ~= 0 then
       dt.print(_("sharpening error"))
       return
-      end
+    end
+
+    -- copy metadata from input_file to output_file
+    preserve_metadata(input_file, output_file)
 
     -- delete temp image
     os.remove(temp_name) 
