@@ -37,7 +37,7 @@ end
 
 -- find the libraries
 
-local output = dtsys.io_popen("cd "..dt.configuration.config_dir.."/lua/lib ;find . -name \\*.lua -print | sort")
+local output = io.popen("cd "..dt.configuration.config_dir.."/lua/lib ;find . -name \\*.lua -print | sort")
 
 -- loop through the libraries
 

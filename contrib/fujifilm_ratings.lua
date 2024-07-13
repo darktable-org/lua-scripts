@@ -65,7 +65,7 @@ local function detect_rating(event, image)
 	local JPEG_filename = string.gsub(RAF_filename, "%.RAF$", ".JPG")
 	local command = "exiftool -Rating " .. JPEG_filename
 	dt.print_log(command)
-	local output = dtsys.io_popen(command)
+	local output = io.popen(command)
 	local jpeg_result = output:read("*all")
 	output:close()
 	if string.len(jpeg_result) > 0 then
@@ -76,7 +76,7 @@ local function detect_rating(event, image)
 	end
 	command = "exiftool -Rating " .. RAF_filename
 	dt.print_log(command)
-	output = dtsys.io_popen(command)
+	output = io.popen(command)
 	local raf_result = output:read("*all")
 	output:close()
 	if string.len(raf_result) > 0 then

@@ -331,7 +331,7 @@ dt.preferences.register("geoJSON_export",
 	_("opens the geoJSON file after the export with the standard program for geoJSON files"),
 	false )
 
-local handle = dtsys.io_popen("xdg-user-dir DESKTOP")
+local handle = io.popen("xdg-user-dir DESKTOP")
 local result = handle:read()
 handle:close()
 if (result == nil) then

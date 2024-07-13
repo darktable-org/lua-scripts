@@ -412,7 +412,7 @@ local function reverse_geocode()
     -- jq could be replaced with a Lua JSON parser
     startCommand = string.format("curl --silent \"https://api.mapbox.com/geocoding/v5/mapbox.places/%s,%s.json?types=%s&access_token=%s\" | jq '.features | .[0] | '.text''", lon1, lat1, types, tokan)
 
-    local handle = dtsys.io_popen(startCommand)
+    local handle = io.popen(startCommand)
     local result = trim12(handle:read("*a"))
     handle:close()
     
