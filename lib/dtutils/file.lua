@@ -42,7 +42,7 @@ end
 
 local function _win_os_execute(cmd)
   local result = nil
-  local p = dsys.io_popen(cmd)
+  local p = io.popen(cmd)
   local output = p:read("*a")
   p:close()
   if string.match(output, "true") then 
@@ -94,7 +94,7 @@ dtutils_file.libdoc.functions["test_file"] = {
 
 function dtutils_file.test_file(path, test)
   local cmd = "test -"
-  local engine = dsys.os_execute
+  local engine = os.execute
   local cmdstring = ""
 
   if dt.configuration.running_os == "windows" then
@@ -167,7 +167,7 @@ local function _search_for_bin_windows(bin)
 
   for _,arg in ipairs(args) do
     local cmd = "where " .. arg .. " " .. ds.sanitize(bin)
-    local p = dsys.io_popen(cmd)
+    local p = io.popen(cmd)
     local output = p:read("*a")
     p:close()
     local lines = du.split(output, "\n")
@@ -191,7 +191,7 @@ end
 
 local function _search_for_bin_nix(bin)
   local result = false
-  local p = dsys.io_popen("command -v " .. bin)
+  local p = io.popen("command -v " .. bin)
   local output = p:read("*a")
   p:close()
   if string.len(output) > 0 then
@@ -220,7 +220,7 @@ local function _search_for_bin_macos(bin)
       search_start = "/Applications/" .. bin .. ".app"
     end
 
-    local p = dsys.io_popen("find " .. search_start .. " -type f -name " .. bin .. " -print")
+    local p = io.popen("find " .. search_start .. " -type f -name " .. bin .. " -print")
     local output = p:read("*a")
     p:close()
     local lines = du.split(output, "\n")
@@ -445,7 +445,7 @@ function dtutils_file.check_if_file_exists(filepath)
   local result = false
   if (dt.configuration.running_os == 'windows') then
     filepath = string.gsub(filepath, '[\\/]+', '\\')
-    local p = dsys.io_popen("if exist " .. dtutils_file.sanitize_filename(filepath) .. " (echo 'yes') else (echo 'no')")
+    local p = io.popen("if exist " .. dtutils_file.sanitize_filename(filepath) .. " (echo 'yes') else (echo 'no')")
     local ans = p:read("*all")
     p:close()
     if string.match(ans, "yes") then
@@ -456,7 +456,7 @@ function dtutils_file.check_if_file_exists(filepath)
 --     result = false
 --    end
   elseif (dt.configuration.running_os == "linux") then
-    result = dsys.os_execute('test -e ' .. dtutils_file.sanitize_filename(filepath))
+    result = os.execute('test -e ' .. dtutils_file.sanitize_filename(filepath))
     if not result then
       result = false
     end
@@ -522,9 +522,9 @@ function dtutils_file.file_copy(fromFile, toFile)
   local result = nil
   -- if cp exists, use it
   if dt.configuration.running_os == "windows" then
-    result = dsys.os_execute('copy "' .. fromFile .. '" "' .. toFile .. '"')
+    result = os.execute('copy "' .. fromFile .. '" "' .. toFile .. '"')
   elseif dtutils_file.check_if_bin_exists("cp") then
-    result = dsys.os_execute("cp '" .. fromFile .. "' '" .. toFile .. "'")
+    result = os.execute("cp '" .. fromFile .. "' '" .. toFile .. "'")
   end
 
   -- if cp was not present, or if cp failed, then a pure lua solution
@@ -575,7 +575,7 @@ function dtutils_file.file_move(fromFile, toFile)
   if not success then
     -- an error occurred, so let's try using the operating system function
     if dtutils_file.check_if_bin_exists("mv") then
-      success = dsys.os_execute("mv '" .. fromFile .. "' '" .. toFile .. "'")
+      success = os.execute("mv '" .. fromFile .. "' '" .. toFile .. "'")
     end
     -- if the mv didn't exist or succeed, then...
     if not success then
