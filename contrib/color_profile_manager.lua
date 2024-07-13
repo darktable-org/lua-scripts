@@ -107,7 +107,7 @@ end
 
 local function list_profiles(dir)
   local files = {}
-  local p = dtsys.io_popen(DIR_CMD .. " " .. dir)
+  local p = io.popen(DIR_CMD .. " " .. dir)
   if p then
     for line in p:lines() do
       table.insert(files, line)

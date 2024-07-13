@@ -69,7 +69,7 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 -- run command and retrieve stdout
 local function get_stdout(cmd)
   -- Open the command, for reading
-  local fd = assert(syslib.io_popen(cmd, 'r'))
+  local fd = assert(io.popen(cmd, 'r'))
   darktable.control.read(fd)
   -- slurp the whole file
   local data = assert(fd:read('*a'))

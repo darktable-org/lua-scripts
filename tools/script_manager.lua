@@ -89,7 +89,7 @@ local MIN_BUTTONS_PER_PAGE <const> = 5
 local MAX_BUTTONS_PER_PAGE <const> = 20
 local DEFAULT_BUTTONS_PER_PAGE <const> = 10
 
-local DEFAULT_LOG_LEVEL <const> = log.error
+local DEFAULT_LOG_LEVEL <const> = log.debug
 
 local LUA_DIR <const> = dt.configuration.config_dir .. PS .. "lua"
 local LUA_SCRIPT_REPO <const> = "https://github.com/darktable-org/lua-scripts.git"
@@ -244,7 +244,7 @@ end
 local function get_repo_status(repo)
   local old_log_level = set_log_level(sm.log_level)
 
-  local p = dtsys.io_popen("cd " .. repo .. CS .. "git status")
+  local p = io.popen("cd " .. repo .. CS .. "git status")
 
   if p then
     local data = p:read("*a")
@@ -262,7 +262,7 @@ local function get_current_repo_branch(repo)
 
   local branch = nil
 
-  local p = dtsys.io_popen("cd " .. repo .. CS .. "git branch --all")
+  local p = io.popen("cd " .. repo .. CS .. "git branch --all")
 
   if p then
     local data = p:read("*a")
@@ -292,7 +292,7 @@ local function get_repo_branches(repo)
   local old_log_level = set_log_level(sm.log_level)
 
   local branches = {}
-  local p = dtsys.io_popen("cd " .. repo .. CS .. "git pull --all" .. CS .. "git branch --all")
+  local p = io.popen("cd " .. repo .. CS .. "git pull --all" .. CS .. "git branch --all")
 
   if p then
     local data = p:read("*a")
@@ -332,7 +332,7 @@ local function checkout_repo_branch(repo, branch)
 
   log.msg(log.info, "checkout out branch " .. branch .. " from repository " .. repo)
 
-  dtsys.os_execute("cd " .. repo .. CS .. "git checkout " .. branch)
+  os.execute("cd " .. repo .. CS .. "git checkout " .. branch)
 
   restore_log_level(old_log_level)
 end
@@ -668,7 +668,7 @@ local function scan_scripts(script_dir)
   log.msg(log.debug, "find command is " .. find_cmd)
 
   -- scan the scripts
-  local output = dtsys.io_popen(find_cmd)
+  local output = io.popen(find_cmd)
   for line in output:lines() do
     log.msg(log.debug, "line is " .. line)
     local l = string.gsub(line, ds.sanitize_lua(LUA_DIR) .. PS, "")   -- strip the lua dir off
@@ -754,7 +754,7 @@ local function scan_repositories()
 
   log.msg(log.debug, "find command is " .. find_cmd)
 
-  local output = dtsys.io_popen(find_cmd)
+  local output = io.popen(find_cmd)
 
   for line in output:lines() do
     local l = string.gsub(line, ds.sanitize_lua(LUA_DIR) .. PS, "")   -- strip the lua dir off

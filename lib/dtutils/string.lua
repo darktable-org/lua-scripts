@@ -298,16 +298,32 @@ local function _sanitize_windows(str)
   end
 end
 
+local function _should_be_sanitized(str)
+  local old_log_level = log.log_level()
+  local result = false
+  log.log_level(dtutils_string.log_level)
+  if string.match(str, "[^%g]") then
+    result =  true
+  end
+  log.log_level(old_log_level)
+  return result
+end
+
 function dtutils_string.sanitize(str)
   local old_log_level = log.log_level()
+  local sanitized_str = nil
   log.log_level(dtutils_string.log_level)
-  if dt.configuration.running_os == "windows" then
-    log.log_level(old_log_level)
-    return _sanitize_windows(str)
+  if _should_be_sanitized(str) then
+    if dt.configuration.running_os == "windows" then
+      sanitized_str = _sanitize_windows(str)
+    else
+      sanitized_str = _sanitize_posix(str)
+    end
   else
-    log.log_level(old_log_level)
-    return _sanitize_posix(str)
+    sanitized_str = str
   end
+  log.log_level(old_log_level)
+  return sanitized_str
 end
 
 dtutils_string.libdoc.functions["sanitize_lua"] = {

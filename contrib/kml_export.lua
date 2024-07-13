@@ -343,7 +343,7 @@ if dt.configuration.running_os == "windows" then
 elseif dt.configuration.running_os == "macos" then
   defaultDir =  os.getenv("HOME")
 else
-  local handle = dsys.io_popen("xdg-user-dir DESKTOP")
+  local handle = io.popen("xdg-user-dir DESKTOP")
   defaultDir = handle:read()
   handle:close()
 end
