@@ -89,7 +89,7 @@ local MIN_BUTTONS_PER_PAGE <const> = 5
 local MAX_BUTTONS_PER_PAGE <const> = 20
 local DEFAULT_BUTTONS_PER_PAGE <const> = 10
 
-local DEFAULT_LOG_LEVEL <const> = log.debug
+local DEFAULT_LOG_LEVEL <const> = log.warn
 
 local LUA_DIR <const> = dt.configuration.config_dir .. PS .. "lua"
 local LUA_SCRIPT_REPO <const> = "https://github.com/darktable-org/lua-scripts.git"
