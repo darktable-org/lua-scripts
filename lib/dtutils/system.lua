@@ -78,10 +78,6 @@ dtutils_system.libdoc.functions["windows_command"] = {
   Copyright = [[]],
 }
 
-local function _quote_windows_command(command)
-  return "\"" .. command .. "\""
-end
-
 function dtutils_system.windows_command(command)
   local result = 1
 
@@ -91,7 +87,6 @@ function dtutils_system.windows_command(command)
   if file then
     dt.print_log("opened file")
     command = string.gsub(command, "%%", "%%%%") -- escape % from windows shell
-    command = _quote_windows_command(command)
     file:write(command)
     file:close()
 
