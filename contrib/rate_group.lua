@@ -93,6 +93,8 @@ local function destroy()
   dt.destroy_event("rg5", "shortcut")
 end
 
+local rate_group = _("rate group")
+
 dt.register_event("rg_reject", "shortcut",
   function(event, shortcut)
     apply_rating(-1)
@@ -101,32 +103,32 @@ end, _("reject group"))
 dt.register_event("rg0", "shortcut",
   function(event, shortcut)
     apply_rating(0)
-end, _("rate group 0"))
+end, rate group .. " 0")
 
 dt.register_event("rg1", "shortcut",
   function(event, shortcut)
     apply_rating(1)
-end, _("rate group 1"))
+end, rate group .. " 1")
 
 dt.register_event("rg2", "shortcut",
   function(event, shortcut)
     apply_rating(2)
-end, _("rate group 2"))
+end, rate group .. " 2")
 
 dt.register_event("rg3", "shortcut",
   function(event, shortcut)
     apply_rating(3)
-end, _("rate group 3"))
+end, rate group .. " 3")
 
 dt.register_event("rg4", "shortcut",
   function(event, shortcut)
     apply_rating(4)
-end, _("rate group 4"))
+end, rate group .. " 4")
 
 dt.register_event("rg5", "shortcut",
   function(event, shortcut)
     apply_rating(5)
-end, _("rate group 5"))
+end, rate group .. " 5")
 
 script_data.destroy = destroy
 

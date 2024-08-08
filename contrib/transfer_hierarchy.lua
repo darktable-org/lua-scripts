@@ -352,7 +352,7 @@ th.transfer_widget = darktable.new_widget("box") {
    },
    darktable.new_widget("button") {
      label = _("copy"),
-     tooltip = _("Copy all selected images"),
+     tooltip = _("copy all selected images"),
      clicked_callback = doCopy
    }
 }

@@ -127,7 +127,7 @@ end
 
 local function process_image_groups(images)
   if #images < 1 then
-    dt.print(_("o images selected"))
+    dt.print(_("no images selected"))
     dt.print_log(MODULE .. "no images seletected, returning...")
   else
     local mode = cgl.widgets.mode.value

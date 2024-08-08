@@ -227,7 +227,7 @@ if dt.configuration.running_os ~= "linux" then
   dt.preferences.register("executable_paths", "ufraw-batch", -- name
     "file", -- type
     _('multi_os: ufraw-batch location'),  -- label
-    _('Installed location of ufraw-batch, requires restart to take effect.'), -- tooltip
+    _('installed location of ufraw-batch, requires restart to take effect.'), -- tooltip
     "ufraw-batch", -- default
     ufraw_batch_path_widget
   )
