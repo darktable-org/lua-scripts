@@ -322,7 +322,7 @@ dt.preferences.register("geoJSON_export",
 	"mapBoxKey",
 	"string",
 	_("geoJSON export: MapBox key"),
-	_("https://www.mapbox.com/studio/account/tokens"),
+	"https://www.mapbox.com/studio/account/tokens",
 	'' )
 dt.preferences.register("geoJSON_export",
 	"OpengeoJSONFile",

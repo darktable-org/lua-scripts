@@ -495,9 +495,9 @@ local function calc_distance()
 
     if (distance < 1) then
         distance = distance * 1000
-        distanceUnit = _("m")
+        distanceUnit = "m"
     else
-        distanceUnit = _("km")
+        distanceUnit = "km"
     end
 
     return string.format(_("distance: %.2f %s"), distance, distanceUnit)
@@ -746,7 +746,7 @@ dt.preferences.register("geoToolbox",
 	"mapBoxKey",
 	"string",
 	_("geoToolbox export: MapBox Key"),
-	_("https://www.mapbox.com/studio/account/tokens"),
+	"https://www.mapbox.com/studio/account/tokens",
 	'' )
 
 -- Register

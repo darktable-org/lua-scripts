@@ -257,7 +257,7 @@ local function _get_windows_image_file_creation_time(image)
     end
     p:close()
   else
-    dt.print(string.format(_("unable to get information for $s"), image.filename))
+    dt.print(string.format(_("unable to get information for %s"), image.filename))
     datetime = ERROR
   end
   return datetime

@@ -852,7 +852,7 @@ local function install_scripts()
       sm.widgets.new_folder.text = ""
       sm.widgets.main_menu.selected = 3
     else
-      log.msg(log.screen, _("No scripts found to install"))
+      log.msg(log.screen, _("no scripts found to install"))
       log.msg(log.error, "scan_scripts returned " .. count .. " scripts found.  Not adding to folder_selector")
     end
 
@@ -1436,7 +1436,7 @@ sm.widgets.page_control = dt.new_widget("box"){
 
 sm.widgets.scripts = dt.new_widget("box"){
   orientation = vertical,
-  dt.new_widget("section_label"){label = _(" ")},
+  dt.new_widget("section_label"){label = " "},
   dt.new_widget("label"){label = " "},
   dt.new_widget("label"){label = _("scripts")},
   sm.widgets.folder_selector,
