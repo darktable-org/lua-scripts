@@ -127,6 +127,8 @@ The following third-party projects are listed for information only. Think of thi
 * [nbremond77/darktable](https://github.com/nbremond77/darktable/tree/master/scripts)
 * [s5k6/dtscripts](https://github.com/s5k6/dtscripts)
 * [ChristianBirzer/darktable_extra_scripts](https://github.com/ChristianBirzer/darktable_extra_scripts)
+* [fjb2020/darktable-scripts](https://github.com//fjb2020/darktable-scripts)
+* [bastibe/Darktable-Film-Simulation-Panel](https://github.com/bastibe/Darktable-Film-Simulation-Panel)
 
 ## Download and Install
 
