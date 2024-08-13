@@ -861,9 +861,6 @@ dtutils_file.libdoc.functions["create_tmp_file"] = {
 
 function dtutils_file.create_tmp_file()
   local tmp_file = os.tmpname()
-  if dt.configuration.running_os == "windows" then
-      tmp_file = dt.configuration.tmp_dir .. tmp_file -- windows os.tmpname() defaults to root directory
-  end
 
   local f = io.open(tmp_file, "w")
   if not f then
