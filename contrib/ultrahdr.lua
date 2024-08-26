@@ -79,7 +79,23 @@ local function image_path(image)
     return image.path .. "/" .. image.filename
 end
 
-local function merge_ultrahdr(base, gainmap, ultrahdr_app, exiftool, metadata, output)
+local ENCODING_VARIANT_API_4 = 1
+
+local function get_encoding_variant()
+    local encoding_variant = dt.preferences.read("ultrahdr", "encoding variant", "integer")
+    if not encoding_variant then
+        encoding_variant = ENCODING_VARIANT_API_4
+    end
+    return encoding_variant
+end
+
+local function merge_ultrahdr_api4(base, gainmap, ultrahdr_app, exiftool, output)
+    local metadata = dt.preferences.read("ultrahdr", "metadata path", "string")
+    if not df.check_if_file_exists(metadata) then
+        dt.print(_("metadata file not found, did you set the correct path?"))
+        log.msg(log.error, "metadata file not found.")
+        return
+    end
     local base_tmp = df.chop_filetype(base) .. ".tmp"
     local hdr = df.chop_filetype(base) .. "_hdr." .. df.get_filetype(base)
     dtsys.external_command(exiftool .. " -all= " .. df.sanitize_filename(base) .. " -o " ..
@@ -101,8 +117,6 @@ local function assert_settings_correct()
     log.msg(log.debug, "ultrahdr_app set to ", ultrahdr_app)
     local exiftool = df.check_if_bin_exists("exiftool")
     log.msg(log.debug, "exiftool set to ", exiftool)
-    local metadata = dt.preferences.read("ultrahdr", "metadata path", "string")
-    log.msg(log.debug, "metadata set to ", metadata)
     local output = dt.preferences.read("ultrahdr", "output dir", "string")
     log.msg(log.debug, "output dir set to ", output)
 
@@ -120,40 +134,42 @@ local function assert_settings_correct()
         return
     end
 
-    if not df.check_if_file_exists(metadata) then
-        dt.print(_("metadata file not found, did you set the path?"))
-        log.msg(log.error, "metadata file not found.")
-        return
-    end
-
-    return ultrahdr_app, exiftool, metadata, output
+    return ultrahdr_app, exiftool, output
 end
 
 local function create_hdr(storage, image_table, extra_data) -- finalize
     local saved_log_level = log.log_level()
     log.log_level(log.info)
 
-    local ultrahdr_app, exiftool, metadata, output = assert_settings_correct()
+    local ultrahdr_app, exiftool, output = assert_settings_correct()
     if not ultrahdr_app or not exiftool then
         return
     end
-    local merged = 0
-    for ignore, v in pairs(extra_data) do
-        if not v then
-            goto continue
+    local encoding_variant = get_encoding_variant()
+    log.msg(log.info, string.format("using encoding variant %d", encoding_variant))
+    if encoding_variant == ENCODING_VARIANT_API_4 then
+        local merged = 0
+        for ignore, v in pairs(extra_data) do
+            if not v then
+                goto continue
+            end
+            local msg = string.format(_("Merging %s and %s"), df.get_filename(image_table[v["base"]]),
+                df.get_filename(image_table[v["gainmap"]]))
+            log.msg(log.info, msg)
+            dt.print(msg)
+            merge_ultrahdr_api4(image_table[v["base"]], image_table[v["gainmap"]], ultrahdr_app, exiftool, output)
+            merged = merged + 1
+            ::continue::
         end
-        local msg = string.format(_("Merging %s and %s"), df.get_filename(image_table[v["base"]]),
-            df.get_filename(image_table[v["gainmap"]]))
-        log.msg(log.info, msg)
+        for ignore, v in pairs(image_table) do
+            if df.check_if_file_exists(v) then os.remove(v) end
+        end
+        dt.print(string.format(_("Created %d UltraHDR image(s) in %s"), merged, output))
+    else 
+        local msg = string.format(_("Unknown encoding variant: %d"), encoding_variant)
+        dt.print_error(msg)
         dt.print(msg)
-        merge_ultrahdr(image_table[v["base"]], image_table[v["gainmap"]], ultrahdr_app, exiftool, metadata, output)
-        merged = merged + 1
-        ::continue::
     end
-    for ignore, v in pairs(image_table) do
-        if df.check_if_file_exists(v) then os.remove(v) end
-    end
-    dt.print(string.format(_("Created %d UltraHDR image(s) in %s"), merged, output))
     log.log_level(saved_log_level)
 end
 
@@ -161,9 +177,14 @@ local function destroy()
     dt.destroy_storage(namespace)
 end
 
+
+
 local function is_supported(storage, format)
-    if format.extension == "jpg" then
-        return true
+    local encoding_variant = get_encoding_variant()
+    if encoding_variant == ENCODING_VARIANT_API_4 then
+        -- API-4 expects compressed base and gainmap
+        -- https://github.com/google/libultrahdr/tree/main?tab=readme-ov-file#encoding-api-outline
+        return format.extension == "jpg"
     end
     return false
 end
@@ -254,10 +275,35 @@ local function output_directory_widget()
     return box
 end
 
+local function encoding_variant_widget()
+    local metadata_widget = metadata_file_widget()
+    local encoding_variant = get_encoding_variant()
+    local combobox = dt.new_widget("combobox"){
+        label = _("Generate HDR from"),
+        selected = encoding_variant,
+        changed_callback=function(self)
+            dt.preferences.write("ultrahdr", "encoding variant", "integer", self.selected)
+            if self.selected == ENCODING_VARIANT_API_4 then
+                metadata_widget.visible = true
+            else
+                metadata_widget.visible = false
+            end
+        end,
+        _("SDR + gainmap (API-4)") -- ENCODING_VARIANT_API_4,
+    }
+
+    combobox.changed_callback(combobox)
+    return dt.new_widget("box") {
+        orientation = "vertical",
+        combobox,
+        metadata_widget
+    }
+end
+
 local ultrahdr_widget = dt.new_widget("box") {
     orientation = "vertical",
-    metadata_file_widget(),
     output_directory_widget(),
+    encoding_variant_widget(),
     df.executable_path_widget({"ultrahdr_app", "exiftool"})
 }
 
