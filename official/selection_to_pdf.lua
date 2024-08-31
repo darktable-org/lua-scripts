@@ -40,8 +40,6 @@ du.check_min_api_version("7.0.0", "selection_to_pdf")
 
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("selection_to_pdf", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msg)
   return gettext(msg)
 end

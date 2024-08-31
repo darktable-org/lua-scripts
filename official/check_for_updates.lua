@@ -36,8 +36,6 @@ du.check_min_api_version("2.0.0", "check_for_updates")
 
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("check_for_updates", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msg)
   return gettext(msg)
 end
