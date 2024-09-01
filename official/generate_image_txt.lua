@@ -40,8 +40,6 @@ require "darktable.debug"
 
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("generate_image_txt", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msg)
   return gettext(msg)
 end

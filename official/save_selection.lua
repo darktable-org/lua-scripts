@@ -40,8 +40,6 @@ du.check_min_api_version("7.0.0", "save_selection")
 
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("save_selection", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msg)
   return gettext(msg)
 end

@@ -39,8 +39,6 @@ end
 
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("delete_unused_tags", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end

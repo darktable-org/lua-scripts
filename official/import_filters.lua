@@ -32,8 +32,6 @@ local dt = require "darktable"
 
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("import_filters", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msg)
   return gettext(msg)
 end

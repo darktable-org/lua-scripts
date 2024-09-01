@@ -35,8 +35,6 @@ du.check_min_api_version("2.0.0", "delete_long_tags")
 
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("delete_long_tags", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end
