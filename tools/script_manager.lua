@@ -517,6 +517,7 @@ local function activate(script)
     status = true
     pref_write(script.script_name, "bool", true)
   end
+  script_manager_running_script = "script_manager"
 
   restore_log_level(old_log_level)
   return status
