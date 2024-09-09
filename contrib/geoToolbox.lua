@@ -67,12 +67,12 @@ labelDistance.label = _("distance:")
 
 local label_copy_gps_lat = dt.new_widget("check_button")
 {
-  label = _("latitude:"),
+  label = _("latitude: "),
   value = true
 }
 local label_copy_gps_lon = dt.new_widget("check_button")
 {
-  label = _("longitude:"),
+  label = _("longitude: "),
   value = true
 }
 local label_copy_gps_ele = dt.new_widget("check_button")
@@ -307,9 +307,9 @@ local function copy_gps()
       end
     end
 
-    label_copy_gps_lat.label = string.format(_("latitude: "), copy_gps_latitude)
-    label_copy_gps_lon.label = string.format(_("longitude: "),copy_gps_longitude)
-    label_copy_gps_ele.label = string.format(_("elevation: "), copy_gps_elevation)
+    label_copy_gps_lat.label = _("latitude: ") .. copy_gps_latitude
+    label_copy_gps_lon.label = _("longitude: ") .. copy_gps_longitude
+    label_copy_gps_ele.label = _("elevation: ") .. copy_gps_elevation
 
     return
   end
