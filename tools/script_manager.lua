@@ -1353,7 +1353,7 @@ sm.widgets.disable_scripts = dt.new_widget("button"){
 
 sm.widgets.install_update = dt.new_widget("box"){
   orientation = "vertical",
-  dt.new_widget("section_label"){label = _(" ")},
+  dt.new_widget("section_label"){label = " "},
   dt.new_widget("label"){label = " "},
   dt.new_widget("label"){label = _("update scripts")},
   dt.new_widget("label"){label = " "},
