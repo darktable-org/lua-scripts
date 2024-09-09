@@ -71,13 +71,13 @@ local mkdir_command = 'mkdir -p '
 if dt.configuration.running_os == 'windows' then mkdir_command = 'mkdir ' end
 
 local file_chooser_button = dt.new_widget("file_chooser_button"){
-    title = _("identity_file_chooser"),
+    title = _("choose the identity file"),
     value = "",
     is_directory = false
 }
 
 local export_chooser_button = dt.new_widget("file_chooser_button"){
-    title = _("export_location_chooser"),
+    title = _("choose the export location"),
     value = "",
     is_directory = true
 }

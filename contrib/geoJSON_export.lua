@@ -315,19 +315,19 @@ end
 dt.preferences.register("geoJSON_export",
 	"CreateMapBoxHTMLFile",
 	"bool",
-	_("geoJSON export: Create an additional HTML file"),
+	"geoJSON export: ".._("Create an additional HTML file"),
 	_("creates an HTML file that loads the geoJSON file. (needs a MapBox key"),
 	false )
 dt.preferences.register("geoJSON_export",
 	"mapBoxKey",
 	"string",
-	_("geoJSON export: MapBox key"),
+	"geoJSON export: MapBox " .. _("key"),
 	"https://www.mapbox.com/studio/account/tokens",
 	'' )
 dt.preferences.register("geoJSON_export",
 	"OpengeoJSONFile",
 	"bool",
-	_("geoJSON export: open geoJSON file after export"),
+	"geoJSON export: " .. _("open geoJSON file after export"),
 	_("opens the geoJSON file after the export with the standard program for geoJSON files"),
 	false )
 

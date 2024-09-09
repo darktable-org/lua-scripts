@@ -129,7 +129,7 @@ local function destroy()
   dt.print_log("done destroying")
 end
 
-dt.register_storage(_("export_pdf"),_("export thumbnails to pdf"),
+dt.register_storage("export_pdf", _("export thumbnails to pdf"),
     nil,
     function(storage,image_table)
       local my_title = title_widget.text
