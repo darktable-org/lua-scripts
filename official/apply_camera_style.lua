@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]]
 --[[
-    apply_camera_style - apply camera style to matching images
+    apply_camera_style - apply darktable camera style to matching images
 
     apply a camera style corresponding to the camera used to
     take the image to provide a starting point for editing that
@@ -90,7 +90,7 @@ script_data.show = nil              -- only required for libs since the destroy_
 
 script_data.metadata = {
   name = "apply_camera_style",            -- name of script
-  purpose = _("apply camera style to matching images"),   -- purpose of script
+  purpose = _("apply darktable camera style to matching images"),   -- purpose of script
   author = "Bill Ferguson <wpferguson@gmail.com>",          -- your name and optionally e-mail address
   help = "https://docs.darktable.org/lua/development/lua.scripts.manual/scripts/official/apply_camera_style/"                   -- URL to help/documentation
 }
@@ -466,13 +466,13 @@ script_data.destroy = destroy
 dt.register_event(MODULE, "shortcut",
   function(event, shortcut)
     apply_camera_style(true)
-  end, _("apply camera styles to collection")
+  end, _("apply darktable camera styles to collection")
 )
 
 dt.register_event(MODULE, "shortcut",
   function(event, shortcut)
     apply_camera_style(false)
-  end, _("apply camera styles to selection")
+  end, _("apply darktable camera styles to selection")
 )
 
 dt.register_event(MODULE, "post-import-image",
