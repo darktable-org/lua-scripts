@@ -72,8 +72,6 @@ local dtsys = require "lib/dtutils.system"  -- system utilities
 
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("multi_os", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end
@@ -215,7 +213,7 @@ end
 if dt.configuration.running_os ~= "linux" then
   local executable = "ufraw-batch"
   local ufraw_batch_path_widget = dt.new_widget("file_chooser_button"){
-    title = _("select ufraw-batch[.exe] executable"),
+    title = string.format(_("select %s executable"), "ufraw-batch[.exe]"),
     value = df.get_executable_path_preference(executable),
     is_directory = false,
     changed_callback = function(self)
@@ -226,7 +224,7 @@ if dt.configuration.running_os ~= "linux" then
   }
   dt.preferences.register("executable_paths", "ufraw-batch", -- name
     "file", -- type
-    _('multi_os: ufraw-batch location'),  -- label
+    'multi_os: ufraw-batch ' .. _('location'),  -- label
     _('installed location of ufraw-batch, requires restart to take effect.'), -- tooltip
     "ufraw-batch", -- default
     ufraw_batch_path_widget
