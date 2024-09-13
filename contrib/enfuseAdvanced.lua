@@ -70,8 +70,6 @@ du.check_min_api_version("7.0.0", "enfuseAdvanced")
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("enfuseAdvanced", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end
@@ -445,7 +443,7 @@ local function main(storage, image_table, extra_data)
         dt.print(_('too few images selected, please select at least 2 images'))
         return
     elseif extra_data[1] == 2 then
-        dt.print(_('installation error, please verify binary paths are proper'))
+        dt.print(_('installation error, please verify binary paths are correct'))
         return
     end
     local images_to_remove = ''
@@ -956,7 +954,7 @@ if temp == '' then temp = nil end
 GUI.Target.add_tags = dt.new_widget('entry'){
     tooltip = _('additional tags to be added on import, seperate with commas, all spaces will be removed'),
     text = temp,
-    placeholder = _('enter tags, seperated by commas'),
+    placeholder = _('enter tags, separated by commas'),
     editable = true
 }
 temp = dt.preferences.read(mod, 'active_current_preset_ind', 'integer')
@@ -1023,7 +1021,7 @@ GUI.Presets.variants_type = dt.new_widget('combobox'){
 GUI.Presets.variants_type.sensitive = GUI.Presets.variants.value
 temp = df.get_executable_path_preference(AIS.name)
 GUI.exes.align_image_stack = dt.new_widget('file_chooser_button'){
-    title = 'AIS binary path',
+    title = 'align_image_stack ' .. _('binary path'),
     value = temp,
     tooltip = temp,
     is_directory = false,
@@ -1031,7 +1029,7 @@ GUI.exes.align_image_stack = dt.new_widget('file_chooser_button'){
 }
 temp = df.get_executable_path_preference(ENF.name)
 GUI.exes.enfuse = dt.new_widget('file_chooser_button'){
-    title = 'enfuse binary path',
+    title = 'enfuse ' .. _('binary path'),
     value = temp,
     tooltip = temp,
     is_directory = false,
@@ -1039,7 +1037,7 @@ GUI.exes.enfuse = dt.new_widget('file_chooser_button'){
 }
 temp = df.get_executable_path_preference(EXF.name)
 GUI.exes.exiftool = dt.new_widget('file_chooser_button'){
-    title = 'Exiftool binary path',
+    title = 'exiftool ' .. _('binary path'),
     value = temp,
     tooltip = temp,
     is_directory = false,

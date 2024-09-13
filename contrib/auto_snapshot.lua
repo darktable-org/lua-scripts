@@ -59,8 +59,6 @@ du.check_min_api_version("7.0.0", MODULE)   -- choose the minimum version that c
 
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain(MODULE , dt.configuration.config_dir .. "/lua/locale/")
-
 local function _(msgid)
     return gettext(MODULE, msgid)
 end
@@ -81,7 +79,7 @@ script_data.metadata = {
   name = "auto_snapshot",            -- name of script
   purpose = _("automatically take a snapshot when an image is loaded in darkroom"),   -- purpose of script
   author = "Bill Ferguson <wpferguson@gamil.com>",          -- your name and optionally e-mail address
-  help = ""                   -- URL to help/documentation
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/auto_snapshot/"                   -- URL to help/documentation
 }
 
 
@@ -101,8 +99,8 @@ local auto_snapshot = {}
 -- P R E F E R E N C E S
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
-dt.preferences.register(MODULE, "always_create_snapshot", "bool", "always automatically create_snapshot", 
-    "auto_snapshot - create a snapshot even if the image is altered", false)
+dt.preferences.register(MODULE, "always_create_snapshot", "bool", "auto_snapshot - " .. _("always automatically create_snapshot"), 
+    _("create a snapshot even if the image is altered"), false)
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- D A R K T A B L E  I N T E G R A T I O N 

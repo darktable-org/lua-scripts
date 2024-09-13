@@ -40,8 +40,6 @@ local gettext = dt.gettext.gettext
 
 local MODULE = "change_group_leader"
 
-dt.gettext.bindtextdomain(MODULE, dt.configuration.config_dir .."/lua/locale/")
-
 du.check_min_api_version("3.0.0", MODULE)
 
 local function _(msgid)
@@ -65,7 +63,7 @@ script_data.restart = nil -- how to restart the (lib) script after it's been hid
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
 -- create a namespace to contain persistent data and widgets
-chg_grp_ldr = {}
+local chg_grp_ldr = {}
 
 local cgl = chg_grp_ldr
 
@@ -82,7 +80,7 @@ local function install_module()
   if not cgl.module_installed then
     dt.register_lib(
       MODULE,     -- Module name
-      _("change_group_leader"),     -- Visible name
+      _("change group leader"),     -- Visible name
       true,                -- expandable
       false,               -- resetable
       {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 700}},   -- containers

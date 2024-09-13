@@ -54,8 +54,6 @@ local OUTPUT = dt.configuration.tmp_dir .. PS .. "facerecognition.txt"
 
 du.check_min_api_version("7.0.0", MODULE) 
 
-dt.gettext.bindtextdomain("face_recognition", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
   return gettext(msgid)
 end

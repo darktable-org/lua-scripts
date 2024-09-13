@@ -53,8 +53,6 @@ local all_active = false
 
 du.check_min_api_version("7.0.0", "CollectHelper") 
 
-dt.gettext.bindtextdomain("CollectHelper", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end
@@ -239,7 +237,7 @@ end
 dt.preferences.register("module_CollectHelper", "all_and",	-- name
 	"bool",	-- type
 	_('CollectHelper: all'),	-- label
-	_('will create a collect parameter set that utilizes all enabled CollectHelper types (and)'),	-- tooltip
+	_('creates a collect parameter set that utilizes all enabled CollectHelper types (and)'),	-- tooltip
 	true	-- default
 )
 dt.preferences.register("module_CollectHelper", "colors",	-- name

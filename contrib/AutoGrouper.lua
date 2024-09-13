@@ -44,7 +44,6 @@ du.check_min_api_version("7.0.0", "AutoGrouper")
 local MOD = 'autogrouper'
 
 local gettext = dt.gettext
-gettext.bindtextdomain(MOD, dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
   return gettext.gettext(msgid)
