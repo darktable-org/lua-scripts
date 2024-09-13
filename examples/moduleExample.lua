@@ -38,8 +38,6 @@ du.check_min_api_version("7.0.0", "moduleExample")
 -- https://www.darktable.org/lua-api/index.html#darktable_gettext
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("moduleExample", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end
@@ -87,7 +85,7 @@ local function install_module()
         orientation = "vertical",
         dt.new_widget("button")
         {
-          label = _("my button"),
+          label = _("my ") .. "button",
           clicked_callback = function (_)
             dt.print(_("button clicked"))
           end
@@ -112,10 +110,10 @@ local function restart()
 end
 
 -- https://www.darktable.org/lua-api/types_lua_check_button.html
-local check_button = dt.new_widget("check_button"){label = _("my check_button"), value = true}
+local check_button = dt.new_widget("check_button"){label = _("my ") .. "check_button", value = true}
 
 -- https://www.darktable.org/lua-api/types_lua_combobox.html
-local combobox = dt.new_widget("combobox"){label = _("my combobox"), value = 2, "8", "16", "32"}
+local combobox = dt.new_widget("combobox"){label = _("my ") .. "combobox", value = 2, "8", "16", "32"}
 
 -- https://www.darktable.org/lua-api/types_lua_entry.html
 local entry = dt.new_widget("entry")
@@ -131,14 +129,14 @@ local entry = dt.new_widget("entry")
 -- https://www.darktable.org/lua-api/types_lua_file_chooser_button.html
 local file_chooser_button = dt.new_widget("file_chooser_button")
 {
-    title = _("my file_chooser_button"),  -- The title of the window when choosing a file
+    title = _("my ") .. "file_chooser_button",  -- The title of the window when choosing a file
     value = "",                       -- The currently selected file
     is_directory = false              -- True if the file chooser button only allows directories to be selecte
 }
 
 -- https://www.darktable.org/lua-api/types_lua_label.html
 local label = dt.new_widget("label")
-label.label = _("my label") -- This is an alternative way to the "{}" syntax to set a property 
+label.label = _("my ") .. "label" -- This is an alternative way to the "{}" syntax to set a property 
 
 -- https://www.darktable.org/lua-api/types_lua_separator.html
 local separator = dt.new_widget("separator"){}
@@ -146,7 +144,7 @@ local separator = dt.new_widget("separator"){}
 -- https://www.darktable.org/lua-api/types_lua_slider.html
 local slider = dt.new_widget("slider")
 {
-  label = _("my slider"), 
+  label = _("my ") .. "slider", 
   soft_min = 10,      -- The soft minimum value for the slider, the slider can't go beyond this point
   soft_max = 100,     -- The soft maximum value for the slider, the slider can't go beyond this point
   hard_min = 0,       -- The hard minimum value for the slider, the user can't manually enter a value beyond this point

@@ -5,7 +5,6 @@ local NaN = 0/0
 local wg = {}
 
 local gettext = dt.gettext.gettext 
-dt.gettext.bindtextdomain("gui_action", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
     return gettext(msgid)
@@ -29,37 +28,37 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 
 wg.action = dt.new_widget("entry"){
     text = "lib/filter/view",
-    placeholder = "action path",
-    tooltip = "enter the full path of an action, for example 'lib/filter/view'"
+    placeholder = _("action path"),
+    tooltip = _("enter the full path of an action, for example 'lib/filter/view'")
   }
 
 wg.instance = dt.new_widget("combobox"){
-  label = "instance",
-  tooltip = "the instance of an image processing module to execute action on",
+  label = _("instance"),
+  tooltip = _("the instance of an image processing module to execute action on"),
   "0", "+1", "-1", "+2", "-2", "+3", "-3", "+4", "-4", "+5", "-5", "+6", "-6", "+7", "-7", "+8", "-8", "+9", "-9"
 }
 
 wg.element = dt.new_widget("entry"){
   text = "",
-  placeholder = "action element",
-  tooltip = "enter the element of an action, for example 'selection', or leave empty for default"
+  placeholder = _("action element"),
+  tooltip = _("enter the element of an action, for example 'selection', or leave empty for default")
 }
 
 wg.effect = dt.new_widget("entry"){
   text = "next",
-  placeholder = "action effect",
-  tooltip = "enter the effect of an action, for example 'next', or leave empty for default"
+  placeholder = _("action effect"),
+  tooltip = _("enter the effect of an action, for example 'next', or leave empty for default")
 }
 
 wg.speed = dt.new_widget("entry"){
   text = "1",
-  placeholder = "action speed",
-  tooltip = "enter the speed to use in action execution, or leave empty to only read state"
+  placeholder = _("action speed"),
+  tooltip = _("enter the speed to use in action execution, or leave empty to only read state")
 }
 
 wg.check = dt.new_widget("check_button"){
-  label = 'perform action',
-  tooltip = 'perform action or only read return',
+  label = _('perform action'),
+  tooltip = _('perform action or only read return'),
   clicked_callback = function()
     wg.speed.sensitive = wg.check.value
   end,
@@ -73,7 +72,7 @@ wg.return_value = dt.new_widget("entry"){
 
 dt.register_lib(
     "execute_action",        -- Module name
-    "execute gui actions",   -- name
+    _("execute gui actions"),   -- name
     true,                    -- expandable
     false,                   -- resetable
     {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_CENTER", 100},
@@ -85,33 +84,33 @@ dt.register_lib(
       dt.new_widget("box")
       {
         orientation = "horizontal",
-        dt.new_widget("label"){label = "action path", halign = "start"},
+        dt.new_widget("label"){label = _("action path"), halign = "start"},
         wg.action
       },
       wg.instance,
       dt.new_widget("box")
       {
         orientation = "horizontal",
-        dt.new_widget("label"){label = "element", halign = "start"},
+        dt.new_widget("label"){label = _("element"), halign = "start"},
         wg.element
       },
       dt.new_widget("box")
       {
         orientation = "horizontal",
-        dt.new_widget("label"){label = "effect", halign = "start"},
+        dt.new_widget("label"){label = _("effect"), halign = "start"},
         wg.effect
       },
       wg.check,
       dt.new_widget("box")
       {
         orientation = "horizontal",
-        dt.new_widget("label"){label = "speed", halign = "start"},
+        dt.new_widget("label"){label = _("speed"), halign = "start"},
         wg.speed
       },
       dt.new_widget("button")
       {
-        label = "execute action",
-        tooltip = "execute the action specified in the fields above",
+        label = _("execute action"),
+        tooltip = _("execute the action specified in the fields above"),
         clicked_callback = function(_)
           local sp = NaN
           if wg.check.value then sp = wg.speed.text end

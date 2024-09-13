@@ -56,7 +56,6 @@ local du = require "lib/dtutils"
 du.check_min_api_version("9.2.0", "x-touch")
 
 local gettext = dt.gettext.gettext 
-dt.gettext.bindtextdomain("gui_action", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
     return gettext(msgid)

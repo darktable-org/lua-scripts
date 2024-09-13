@@ -61,8 +61,6 @@ local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 -- - - - - - - - - - - - - - - - - - - - - - - -
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("panels_demo", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
   return gettext(msgid)
 end
@@ -95,11 +93,11 @@ dt.gui.panel_show_all()
 
 -- hide center_top, center_bottom, left, top, right, bottom in order
 
-dt.print(_("hiding all panels, one at a tme"))
+dt.print(_("hiding all panels, one at a time"))
 sleep(1500)
 
 for i = 1, #panels do
-  dt.print(_("hiding " .. panels[i]))
+  dt.print(string.format(_("hiding %s"), panels[i]))
   dt.gui.panel_hide(panels[i])
   sleep(1500)
 end
@@ -110,7 +108,7 @@ end
   sleep(1500)
 
   for i = #panels, 1, -1 do
-    dt.print(_("showing " .. panels[i]))
+    dt.print(string.format(_("showing %s"), panels[i]))
     dt.gui.panel_show(panels[i])
     sleep(1500)
   end

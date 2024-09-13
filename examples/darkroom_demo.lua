@@ -60,8 +60,6 @@ local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
 -- - - - - - - - - - - - - - - - - - - - - - - -
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("darkroom_demo", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
   return gettext(msgid)
 end
@@ -93,7 +91,7 @@ dt.gui.current_view(dt.gui.views.darkroom)
 
 local max_images = 10
 
-dt.print(_("showing images, with a pause in between each"))
+dt.print(_("showing images, with a pause between each"))
 sleep(1500)
 
 -- display first 10 images of collection pausing for a second between each

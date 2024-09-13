@@ -69,8 +69,6 @@ dt.print_error("Hello World!")
 
 local gettext = dt.gettext.gettext 
 
-dt.gettext.bindtextdomain("gettextExample", dt.configuration.config_dir .."/lua/locale/")
-
 -- Translate a string using the darktable textdomain
 dt.print_error(gettext("image"))
 
