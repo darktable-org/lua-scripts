@@ -37,8 +37,6 @@ du.check_min_api_version("7.0.0", "executable_manager")
 
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("executable_manager", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msg)
     return gettext(msg)
 end
@@ -117,7 +115,7 @@ local function install_module()
   if not exec_man.module_installed then
     dt.register_lib(
       "executable_manager",     -- Module name
-      "executable manager",     -- Visible name
+      _("executables"),     -- Visible name
       true,                -- expandable
       false,               -- resetable
       {[dt.gui.views.lighttable] = {panel, panel_pos}},   -- containers
@@ -201,7 +199,7 @@ exec_man.stack = dt.new_widget("stack"){}
 -- create a combobox to for indexing into the stack of widgets
 
 exec_man.selector = dt.new_widget("combobox"){
-  label = "executable",
+  label = _("executable"),
   tooltip = _("select executable to modify"),
   value = 1, "placeholder",
   changed_callback = function(self)
