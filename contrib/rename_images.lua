@@ -43,6 +43,7 @@
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+local ds = require "lib/dtutils.string"
 
 du.check_min_api_version("7.0.0", "rename_images") 
 
@@ -57,12 +58,6 @@ end
 -- namespace variable
 local rename = {
   presets = {},
-  substitutes = {},
-  placeholders = {"ROLL_NAME","FILE_FOLDER","FILE_NAME","FILE_EXTENSION","ID","VERSION","SEQUENCE","YEAR","MONTH","DAY",
-                  "HOUR","MINUTE","SECOND","EXIF_YEAR","EXIF_MONTH","EXIF_DAY","EXIF_HOUR","EXIF_MINUTE","EXIF_SECOND",
-                  "STARS","LABELS","MAKER","MODEL","TITLE","CREATOR","PUBLISHER","RIGHTS","USERNAME","PICTURES_FOLDER",
-                  "HOME","DESKTOP","EXIF_ISO","EXIF_EXPOSURE","EXIF_EXPOSURE_BIAS","EXIF_APERTURE","EXIF_FOCUS_DISTANCE",
-                  "EXIF_FOCAL_LENGTH","LONGITUDE","LATITUDE","ELEVATION","LENS","DESCRIPTION","EXIF_CROP"},
   widgets = {},
 }
 rename.module_installed = false
@@ -98,83 +93,6 @@ local DESKTOP = HOME .. PS .. "Desktop"
 -- - - - - - - - - - - - - - - - - - - - - - - -
 -- F U N C T I O N S
 -- - - - - - - - - - - - - - - - - - - - - - - -
-
-local function build_substitution_list(image, sequence, datetime, username, pic_folder, home, desktop)
- -- build the argument substitution list from each image
- -- local datetime = os.date("*t")
- local colorlabels = {}
- if image.red then table.insert(colorlabels, "red") end
- if image.yellow then table.insert(colorlabels, "yellow") end
- if image.green then table.insert(colorlabels, "green") end
- if image.blue then table.insert(colorlabels, "blue") end
- if image.purple then table.insert(colorlabels, "purple") end
- local labels = #colorlabels == 1 and colorlabels[1] or du.join(colorlabels, ",")
- local eyear,emon,eday,ehour,emin,esec = string.match(image.exif_datetime_taken, "(%d-):(%d-):(%d-) (%d-):(%d-):(%d-)$")
- local replacements = {image.film,
-                       image.path,
-                       df.get_filename(image.filename),
-                       string.upper(df.get_filetype(image.filename)),
-                       image.id,image.duplicate_index,
-                       string.format("%04d", sequence),
-                       datetime.year,
-                       string.format("%02d", datetime.month),
-                       string.format("%02d", datetime.day),
-                       string.format("%02d", datetime.hour),
-                       string.format("%02d", datetime.min),
-                       string.format("%02d", datetime.sec),
-                       eyear,
-                       emon,
-                       eday,
-                       ehour,
-                       emin,
-                       esec,
-                       image.rating,
-                       labels,
-                       image.exif_maker,
-                       image.exif_model,
-                       image.title,
-                       image.creator,
-                       image.publisher,
-                       image.rights,
-                       username,
-                       pic_folder,
-                       home,
-                       desktop,
-                       image.exif_iso,
-                       image.exif_exposure,
-                       image.exif_exposure_bias,
-                       image.exif_aperture,
-                       image.exif_focus_distance,
-                       image.exif_focal_length,
-                       image.longitude,
-                       image.latitude,
-                       image.elevation,
-                       image.exif_lens,
-                       image.description,
-                       image.exif_crop
-                     }
-
-  for i=1,#rename.placeholders,1 do rename.substitutes[rename.placeholders[i]] = replacements[i] end
-end
-
-local function substitute_list(str)
-  -- replace the substitution variables in a string
-  for match in string.gmatch(str, "%$%(.-%)") do
-    local var = string.match(match, "%$%((.-)%)")
-    if rename.substitutes[var] then
-      str = string.gsub(str, "%$%("..var.."%)", rename.substitutes[var])
-    else
-      dt.print_error("unrecognized variable " .. var)
-      dt.print(string.format(_("unknown variable %s, aborting..."), var))
-      return -1
-    end
-  end
-  return str
-end
-
-local function clear_substitute_list()
-  for i=1,#rename.placeholders,1 do rename.substitutes[rename.placeholders[i]] = nil end
-end
 
 local function stop_job(job)
   job.valid = false
@@ -225,14 +143,14 @@ local function do_rename(images)
       for i, image in ipairs(images) do
         if job.valid then
           job.percent = i / #images
-          build_substitution_list(image, i, datetime, USER, PICTURES, HOME, DESKTOP)
-          local new_name = substitute_list(pattern)
+          ds.build_substitution_list(image, i, pattern, USER, PICTURES, HOME, DESKTOP)
+          local new_name = ds.substitute_list(pattern)
           if new_name == -1 then
             dt.print(_("unable to do variable substitution, exiting..."))
             stop_job(job)
             return
           end
-          clear_substitute_list()
+          ds.clear_substitute_list()
           local args = {}
           local path = string.sub(df.get_path(new_name), 1, -2)
           if string.len(path) == 0 then
@@ -278,50 +196,8 @@ end
 -- - - - - - - - - - - - - - - - - - - - - - - -
 
 rename.widgets.pattern = dt.new_widget("entry"){
-  tooltip = _("$(ROLL_NAME) - film roll name\n") .. 
-            _("$(FILE_FOLDER) - image file folder\n") ..
-            _("$(FILE_NAME) - image file name\n") ..
-            _("$(FILE_EXTENSION) - image file extension\n") ..
-            _("$(ID) - image id\n") ..
-            _("$(VERSION) - version number\n") ..
-            _("$(SEQUENCE) - sequence number of selection\n") ..
-            _("$(YEAR) - current year\n") ..
-            _("$(MONTH) - current month\n") ..
-            _("$(DAY) - current day\n") ..
-            _("$(HOUR) - current hour\n") ..
-            _("$(MINUTE) - current minute\n") ..
-            _("$(SECOND) - current second\n") ..
-            _("$(EXIF_YEAR) - EXIF year\n") ..
-            _("$(EXIF_MONTH) - EXIF month\n") ..
-            _("$(EXIF_DAY) - EXIF day\n") ..
-            _("$(EXIF_HOUR) - EXIF hour\n") ..
-            _("$(EXIF_MINUTE) - EXIF minute\n") ..
-            _("$(EXIF_SECOND) - EXIF seconds\n") ..
-            _("$(EXIF_ISO) - EXIF ISO\n") ..
-            _("$(EXIF_EXPOSURE) - EXIF exposure\n") ..
-            _("$(EXIF_EXPOSURE_BIAS) - EXIF exposure bias\n") ..
-            _("$(EXIF_APERTURE) - EXIF aperture\n") ..
-            _("$(EXIF_FOCAL_LENGTH) - EXIF focal length\n") ..
-            _("$(EXIF_FOCUS_DISTANCE) - EXIF focus distance\n") ..
-            _("$(EXIF_CROP) - EXIF crop\n") ..
-            _("$(LONGITUDE) - longitude\n") ..
-            _("$(LATITUDE) - latitude\n") ..
-            _("$(ELEVATION) - elevation\n") ..
-            _("$(STARS) - star rating\n") ..
-            _("$(LABELS) - color labels\n") ..
-            _("$(MAKER) - camera maker\n") ..
-            _("$(MODEL) - camera model\n") ..
-            _("$(LENS) - lens\n") ..
-            _("$(TITLE) - title from metadata\n") ..
-            _("$(DESCRIPTION) - description from metadata\n") ..
-            _("$(CREATOR) - creator from metadata\n") ..
-            _("$(PUBLISHER) - publisher from metadata\n") ..
-            _("$(RIGHTS) - rights from metadata\n") ..
-            _("$(USERNAME) - username\n") ..
-            _("$(PICTURES_FOLDER) - pictures folder\n") ..
-            _("$(HOME) - user's home directory\n") ..
-            _("$(DESKTOP) - desktop directory"),
-  placeholder = _("enter pattern $(FILE_FOLDER)/$(FILE_NAME)"),
+  tooltip = ds.get_substitution_tooltip(),
+  placeholder = _("enter pattern") .. "$(FILE_FOLDER)/$(FILE_NAME)",
   text = ""
 }
 

@@ -6,6 +6,10 @@ local log = require "lib/dtutils.log"
 
 local DEFAULT_LOG_LEVEL = log.error
 
+local function _(msg)
+  return dt.gettext.gettext(msg)
+end
+
 dtutils_string.log_level = DEFAULT_LOG_LEVEL
 
 dtutils_string.libdoc = {
@@ -688,7 +692,7 @@ end
 
 -- build the argument substitution list from each image
 
-function dtutils_string.build_substition_list(image, sequence, variable_string, username, pic_folder, home, desktop)
+function dtutils_string.build_substitution_list(image, sequence, variable_string, username, pic_folder, home, desktop)
   local old_log_level = log.log_level()
   log.log_level(dtutils_string.log_level)
 
@@ -812,6 +816,102 @@ function dtutils_string.build_substition_list(image, sequence, variable_string, 
   build_category_substitution_list(image, variable_string)
 
   log.log_level(old_log_level)
+end
+
+dtutils_string.libdoc.functions["get_substitution_tooltip"] = {
+  Name = [[get_substitution_tooltip]],
+  Synopsis = [[get a tooltip that lists the substitution variables]],
+  Usage = [[local ds = require "lib/dtutils.string"
+    ds.get_substitution_tooltip()
+  Description = [[get_substitution_tooltip lists the variables with brief explanations]],
+  Return_Value = [[string - the tooltip]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[https://docs.darktable.org/usermanual/4.6/en/special-topics/variables/]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils_string.get_substitution_tooltip()
+  return  string.format("$(ROLL.NAME) - %s\n", _("film roll of the input image")) .. 
+          string.format("$(FILE.FOLDER) - %s\n", _("folder containing the input image")) .. 
+          string.format("$(FILE.NAME) - %s\n", _("basename of the input image")) ..
+          string.format("$(FILE.EXTENSION) - %s\n", _("extension of the input image")) .. 
+          string.format("$(ID) - %s\n", _("the image id")) .. 
+          string.format("$(VERSION) - %s\n", _("the duplicate version number")) .. 
+          string.format("$(VERSION.IF.MULTI) - %s\n", _("same as $(VERSION) but null string if only one version exists")) ..
+          string.format("$(VERSION.NAME) - %s\n", _("version name from metadata")) ..
+          string.format("$(DARKTABLE.VERSION) - %s\n", _("the version of the running darktable instance")) ..
+          --string.format("$(DARKTABLE.NAME) - %s\n", _("")) ..           -- Not Implemented
+          string.format("$(SEQUENCE[n,m]) - %s\n", _("a sequence number within an export job with n digits and starting with m\nparameters are optional, default is [4,1]")) ..
+          string.format("$(WIDTH.SENSOR) - %s\n", _("width of RAW data in pixels before RAW crop")) ..
+          string.format("$(HEIGHT.SENSOR) - %s\n", _("height of RAW data in pixels before RAW crop")) ..
+          string.format("$(WIDTH.RAW) - %s\n", _("width of RAW data in pixels after RAW crop")) ..
+          string.format("$(HEIGHT.RAW) - %s\n", _("height of RAW data in pixels after RAW crop")) ..
+          string.format("$(WIDTH.CROP) - %s\n", _("image width in pixels at the end of the pixelpipe, but before export resize")) ..
+          string.format("$(HEIGHT.CROP) - %s\n", _("image height in pixels at the end of the pixelpipe, but before export resize")) ..
+          string.format("$(WIDTH.EXPORT) - %s\n", _("image width in pixels at the end of the pixelpipe and after export resize")) ..
+          string.format("$(HEIGHT.EXPORT) - %s\n", _("image height in pixels at the end of the pixelpipe and after export resize")) ..
+          --string.format("$(WIDTH.MAX) - %s\n", _("")) ..                -- Not Implemented
+          --string.format("$(HEIGHT.MAX) - %s\n", _("")) ..               -- Not Implemented
+          string.format("$(YEAR) - %s\n", _("current year")) .. 
+          string.format("$(YEAR.SHORT) - %s\n", _("current two digit year")) ..
+          string.format("$(MONTH) - %s\n", _("current numeric (1-12) month")) .. 
+          string.format("$(MONTH.LONG) - %s\n", _("full current month name")) ..
+          string.format("$(MONTH.SHORT) - %s\n", _("abbreviated current month name")) ..
+          string.format("$(DAY) - %s\n", _("current day")) .. 
+          string.format("$(HOUR) - %s\n", _("current hour")) .. 
+          string.format("$(MINUTE) - %s\n", _("current minute")) .. 
+          string.format("$(SECOND) - %s\n", _("current second")) .. 
+          string.format("$(MSEC) - %s\n", _("current millisecond")) ..
+          string.format("$(EXIF.YEAR) - EXIF %s\n", _("year")) .. 
+          string.format("$(EXIF.YEAR.SHORT) - EXIF %s\n", _("year, two-digit version")) ..
+          string.format("$(EXIF.MONTH) - EXIF %s\n", _("month, numeric")) .. 
+          string.format("$(EXIF.MONTH.LONG) - EXIF %s\n", _("month, full name")) ..
+          string.format("$(EXIF.MONTH.SHORT) - EXIF %s\n", _("month, abbreviated name")) ..
+          string.format("$(EXIF.DAY) - EXIF %s\n", _("day")) ..
+          string.format("$(EXIF.HOUR) - EXIF %s\n", _("hour")) .. 
+          string.format("$(EXIF.MINUTE) - EXIF %s\n", _("minute")) .. 
+          string.format("$(EXIF.SECOND) - EXIF %s\n", _("second")) .. 
+          string.format("$(EXIF.MSEC) - EXIF %s\n", _("millisecond")) ..
+          --string.format("$(EXIF.DATE.REGIONAL) - %s\n", _("")) ..       -- Not Implemented
+          --string.format("$(EXIF.TIME.REGIONAL) - %s\n", _("")) ..       -- Not Implemented
+          string.format("$(EXIF.ISO) - EXIF ISO %s\n", _("value")) ..
+          string.format("$(EXIF.EXPOSURE) - EXIF %s\n", _("exposure")) ..
+          string.format("$(EXIF.EXPOSURE.BIAS) - EXIF %s\n", _("exposure bias")) ..
+          string.format("$(EXIF.APERTURE) - EXIF %s\n", _("aperture")) ..
+          string.format("$(EXIF.CROP.FACTOR) - EXIF %s\n", _("crop factor")) ..
+          string.format("$(EXIF.FOCAL.LENGTH) - EXIF %s\n", _("focal length")) ..
+          string.format("$(EXIF.FOCAL.LENGTH.EQUIV) - EXIF 35mm %s\n", _("equivalent focal length")) ..  -- Not Implemented
+          string.format("$(EXIF.FOCUS.DISTANCE) - EXIF %s\n", _("focus distance")) ..
+          --string.format("$(IMAGE.EXIF) - %s\n", _("")) ..               -- Not Implemented
+          string.format("$(LONGITUDE) - %s\n", _("longitude")) ..
+          string.format("$(LATITUDE) - %s\n", _("latitude")) ..
+          string.format("$(ELEVATION) - %s\n", _("elevation")) ..
+          --string.format("$(GPS.LOCATION) - %s\n", _("")) ..             -- Not Implemented
+          string.format("$(STARS) - %s\n", _("star rating")) .. 
+          --string.format("$(RATING.ICONS) - %s\n", _("")) ..             -- Not Implemented
+          string.format("$(LABELS) - %s\n", _("colorlabels")) ..
+          --string.format("$(LABELS.ICONS) - %s\n", _("")) ..             -- Not Implemented 
+          string.format("$(MAKER) - %s\n", _("camera maker")) .. 
+          string.format("$(MODEL) - %s\n", _("camera model")) .. 
+          string.format("$(LENS) - %s\n", _("lens")) ..
+          string.format("$(TITLE) - %s\n", _("title from metadata")) ..
+          string.format("$(DESCRIPTION) - %s\n", _("description from metadata")) ..
+          string.format("$(CREATOR) - %s\n", _("creator from metadata")) .. 
+          string.format("$(PUBLISHER) - %s\n", _("publisher from metadata")) .. 
+          string.format("$(RIGHTS) - %s\n", _("rights from metadata")) .. 
+          --string.format("$(TAGS) - %s\n", _("")) ..                     -- Not Implemented
+          string.format("$(CATEGORY[n,category]) - %s\n", _("tag name of level n [0,9] of selected category (or tag)")) ..
+          --string.format("$(SIDECAR.TXT) - %s\n", _("")) ..              -- Not Implemented
+          string.format("$(FOLDER.PICTURES) - %s\n", _("pictures folder")) ..
+          string.format("$(FOLDER.HOME) - %s\n", _("home folder")) .. 
+          string.format("$(FOLDER.DESKTOP) - %s\n", _("desktop folder")) ..
+          --string.format("$(OPENCL.ACTIVATED) - %s\n", _("")) ..         -- Not Implemented
+          string.format("$(USERNAME) - %s\n", _("user name defined by OS"))
+          --string.format("$(NL) - %s\n", _("")) ..                       -- Not Implemented
+          --string.format("$(JOBCODE) - %s", _(""))                   -- Not Implemented
 end
 
 -- handle different versions of names
