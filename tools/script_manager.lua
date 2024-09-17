@@ -465,7 +465,7 @@ local function get_script_doc(script)
     return description
   else
     restore_log_level(old_log_level)
-    return _("No documentation available")
+    return _("no documentation available")
   end
 end
 
