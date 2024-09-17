@@ -463,16 +463,18 @@ script_data.destroy = destroy
 -- E V E N T S
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
+local shortcut_string = _("apply darktable camera styles to %s")
+
 dt.register_event(MODULE, "shortcut",
   function(event, shortcut)
     apply_camera_style(true)
-  end, _("apply darktable camera styles to collection")
+  end, string.format(shortcut_string, _("collection"))
 )
 
 dt.register_event(MODULE, "shortcut",
   function(event, shortcut)
     apply_camera_style(false)
-  end, _("apply darktable camera styles to selection")
+  end, string.format(shortcut_string, _("selection"))
 )
 
 dt.register_event(MODULE, "post-import-image",
