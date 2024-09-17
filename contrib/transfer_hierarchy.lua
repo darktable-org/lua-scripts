@@ -80,8 +80,6 @@ local dtutils_system = require("lib/dtutils.system")
 local LIB_ID = "transfer_hierarchy"
 dtutils.check_min_api_version("7.0.0", LIB_ID) 
 
-darktable.gettext.bindtextdomain("transfer_hierarchy", darktable.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return darktable.gettext.gettext(msgid)
 end
@@ -145,7 +143,7 @@ end
 local function install_module()
   if not th.module_installed then
     darktable.register_lib(LIB_ID,
-               "transfer hierarchy", true, true, {
+               _("transfer hierarchy"), true, true, {
             [darktable.gui.views.lighttable] = { "DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 700 }
                }, th.transfer_widget, nil, nil)
     th.module_installed = true

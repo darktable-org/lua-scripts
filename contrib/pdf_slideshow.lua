@@ -44,8 +44,6 @@ local df = require "lib/dtutils.file"
 
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("pdf_slideshow", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end

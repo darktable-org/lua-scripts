@@ -51,8 +51,6 @@ du.check_min_api_version("7.0.0", "quicktag")
 
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("quicktag", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end
@@ -199,7 +197,7 @@ local function install_module()
   if not qt.module_installed then
     dt.register_lib(
       "quicktag",     -- Module name
-      "quicktag",     -- name
+      _("quick tag"),     -- name
       true,                -- expandable
       false,               -- resetable
       {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 490}},
@@ -306,7 +304,7 @@ end
 for i=1,qnr do
   dt.register_event("quicktag " .. tostring(i), "shortcut",
 		   function(event, shortcut) tagattach(tostring(quicktag_table[i])) end,
-		  string.format(_("quicktag %i"),i))
+		  string.format(_("quick tag %i"),i))
 end
 
 script_data.destroy = destroy

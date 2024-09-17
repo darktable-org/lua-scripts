@@ -41,8 +41,6 @@ local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "video_ffmpeg") 
 
-dt.gettext.bindtextdomain("video_ffmpeg", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
   return gettext(msgid)
 end
@@ -248,8 +246,8 @@ local function string_pref_write(name, widget_attribute)
 end
 
 local framerates_selector = dt.new_widget("combobox"){
-  label = _("framerate"),
-  tooltip = _("select framerate of output video"),
+  label = _("frame rate"),
+  tooltip = _("select frame rate of output video"),
   value = combobox_pref_read("framerate", framerates),
   changed_callback = combobox_pref_write("framerate"), 
   table.unpack(framerates)
@@ -418,7 +416,7 @@ local function export(extra_data)
   local ffmpeg_path = df.check_if_bin_exists("ffmpeg")
   if not ffmpeg_path then
     dt.print_error("ffmpeg not found")
-    dt.print("ERROR - ffmpeg not found")
+    dt.print(_("ERROR - ffmpeg not found"))
     return
   end
   local dir = extra_data["tmp_dir"]
@@ -450,7 +448,7 @@ local function finalize_export(storage, images_table, extra_data)
       dt.print_error(filename, file.filename)
       df.file_move(filename, tmp_dir .. PS .. i .. extra_data["img_ext"])
     end
-    dt.print("Start video building...")
+    dt.print(_("Start video building..."))
     local result, path = export(extra_data)
     if result ~= 0 then 
       dt.print(_("ERROR: cannot build image, see console for more info")) 
