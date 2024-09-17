@@ -15,8 +15,6 @@ du.check_min_api_version("3.0.0", "get_lib_manpages")
 
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("get_lib_manpages", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msg)
     return gettext(msg)
 end

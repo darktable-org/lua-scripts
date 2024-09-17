@@ -58,10 +58,6 @@ local debug = require "darktable.debug"
 
 local gettext = dt.gettext
 
-
--- Tell gettext where to find the .mo file translating messages for a particular domain
-dt.gettext.bindtextdomain("script_manager", dt.configuration.config_dir .. "/lua/locale/")
-
 local function _(msgid)
     return gettext.dgettext("script_manager", msgid)
 end
@@ -469,7 +465,7 @@ local function get_script_doc(script)
     return description
   else
     restore_log_level(old_log_level)
-    return "No documentation available"
+    return _("no documentation available")
   end
 end
 
@@ -835,7 +831,7 @@ local function install_scripts()
 
     if count > 0 then
       update_combobox_choices(sm.widgets.folder_selector, sm.folders, sm.widgets.folder_selector.selected)
-      dt.print(_("scripts successfully installed into folder ") .. folder)
+      dt.print(_(string.format("scripts successfully installed into folder %s"), folder))
       table.insert(sm.installed_repositories, {name = folder, directory = LUA_DIR .. PS .. folder})
       update_script_update_choices()
 
@@ -1165,7 +1161,7 @@ local function install_module()
   if not sm.module_installed then
     dt.register_lib(
       "script_manager",     -- Module name
-      "script manager",     -- Visible name
+      _("scripts"),     -- Visible name
       true,                -- expandable
       false,               -- resetable
       {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_LEFT_BOTTOM", 100}},   -- containers
@@ -1408,7 +1404,7 @@ end
 local page_back = "<"
 local page_forward = ">"
 
-sm.widgets.page_status = dt.new_widget("label"){label = _("page:")}
+sm.widgets.page_status = dt.new_widget("label"){label = _("page") .. ":"}
 
 sm.widgets.page_back = dt.new_widget("button"){
   label = page_back,

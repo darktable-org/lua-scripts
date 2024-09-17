@@ -12,8 +12,6 @@ du.check_min_api_version("3.0.0", "get_libdoc")
 
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("get_libdoc", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msg)
     return gettext(msg)
 end
