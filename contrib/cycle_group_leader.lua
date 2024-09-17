@@ -60,8 +60,6 @@ du.check_min_api_version("7.0.0", MODULE)
 
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("cycle_group_leader", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end
@@ -106,7 +104,7 @@ end
 local function cycle_group_leader(image)
   local group_images = image:get_group_members()
   if #group_images < 2 then
-    hinter_msg(_("no images to cycle to in group"))
+    hinter_msg(_("no images to cycle through in group"))
     return
   else
     local position = nil

@@ -63,8 +63,6 @@ du.check_min_api_version("7.0.0", MODULE)   -- choose the minimum version that c
 
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain(MODULE , dt.configuration.config_dir .. "/lua/locale/")
-
 local function _(msgid)
     return gettext(MODULE, msgid)
 end
@@ -195,21 +193,21 @@ dbmaint.list_widget = dt.new_widget("text_view"){
 }
 
 dbmaint.chooser = dt.new_widget("combobox"){
-  label = "scan for",
+  label = _("scan for"),
   selected = 1,
-  "film rolls", "images",
+  _("film rolls"), _("images"),
   reset_callback = function(this)
     this.selected = 1
   end
 }
 
 dbmaint.scan_button = dt.new_widget("button"){
-  label = "scan",
-  tooltip = "click to scan for missing film rolls/files",
+  label = _("scan"),
+  tooltip = _("click to scan for missing film rolls/files"),
   clicked_callback = function(this)
     local found = nil
     local found_text = ""
-    if dbmaint.chooser.value == "film rolls" then
+    if dbmaint.chooser.selected == 1 then -- film rolls
       found = scan_film_rolls()
       if #found > 0 then
         for _, film in ipairs(found) do
@@ -238,11 +236,11 @@ dbmaint.scan_button = dt.new_widget("button"){
 }
 
 dbmaint.remove_button = dt.new_widget("button"){
-  label = "remove",
-  tooltip = "remove missing film rolls/images",
+  label = _("remove"),
+  tooltip = _("remove missing film rolls/images"),
   sensitive = false,
   clicked_callback = function(this)
-    if dbmaint.chooser.value == "film rolls" then
+    if dbmaint.chooser.selected == 1 then -- film rolls
       remove_missing_film_rolls(dbmaint.found)
     else
       remove_missing_images(dbmaint.found)
@@ -258,7 +256,7 @@ dbmaint.remove_button = dt.new_widget("button"){
 
 dbmaint.main_widget = dt.new_widget("box"){
   orientation = "vertical",
-  dt.new_widget("section_label"){label = "missing items"},
+  dt.new_widget("section_label"){label = _("missing items")},
   dbmaint.list_widget,
   dt.new_widget("label"){label = ""},
   dbmaint.chooser,

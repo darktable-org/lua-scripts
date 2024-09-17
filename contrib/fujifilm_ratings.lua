@@ -31,8 +31,6 @@ local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "fujifilm_ratings") 
 
-dt.gettext.bindtextdomain("fujifilm_ratings", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
 	return gettext(msgid)
 end
@@ -58,7 +56,7 @@ local function detect_rating(event, image)
 		return
 	end
 	if not df.check_if_bin_exists("exiftool") then
-		dt.print_error(_("exiftool not found"))
+		dt.print_error("exiftool not found")
 		return
 	end
 	local RAF_filename = df.sanitize_filename(tostring(image))

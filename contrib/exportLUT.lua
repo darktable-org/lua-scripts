@@ -35,8 +35,6 @@ du.check_min_api_version("7.0.0", "exportLUT")
 
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("exportLUT", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end

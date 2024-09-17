@@ -40,7 +40,6 @@ local dt = require "darktable"
 local du = require "lib/dtutils"
 
 local gettext = dt.gettext.gettext 
-dt.gettext.bindtextdomain("clear_GPS", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
     return gettext(msgid)
@@ -92,7 +91,7 @@ dt.gui.libs.image.register_action(
 dt.register_event(
   "clear_GPS", "shortcut",
   function(event, shortcut) clear_GPS(dt.gui.action_images) end,
-  _("clear GPS data")
+  _("clear GPS data from selected images")
 )
 
 return script_data

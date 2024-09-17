@@ -55,8 +55,6 @@ du.check_min_api_version("7.0.0", "color_profile_manager")
 
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("color_profile_manager", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end

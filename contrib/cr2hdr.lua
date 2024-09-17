@@ -39,8 +39,6 @@ du.check_min_api_version("7.0.0", "cr2hdr")
 
 local gettext = darktable.gettext.gettext
 
-darktable.gettext.bindtextdomain("cr2hdr", darktable.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end
