@@ -73,8 +73,6 @@ local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 -- works with LUA API version 5.0.0
 du.check_min_api_version("7.0.0", "image_stack") 
 
-dt.gettext.bindtextdomain("image_stack", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end
@@ -141,19 +139,19 @@ local chkbtn_will_align = dt.new_widget("check_button"){
 local chkbtn_radial_distortion = dt.new_widget("check_button"){
   label = _('optimize radial distortion for all images'),
   value = dt.preferences.read("align_image_stack", "def_radial_distortion", "bool"),
-  tooltip = _('optimize radial distortion for all images, \nexcept for first'),
+  tooltip = _('optimize radial distortion for all images, \nexcept the first'),
 }
 
 local chkbtn_optimize_field = dt.new_widget("check_button"){
     label = _('optimize field of view for all images'), 
     value = dt.preferences.read("align_image_stack", "def_optimize_field", "bool"),
-    tooltip =_('optimize field of view for all images, except for first. \nUseful for aligning focus stacks (DFF) with slightly \ndifferent magnification.'), 
+    tooltip =_('optimize field of view for all images, except the first. \nUseful for aligning focus stacks (DFF) with slightly \ndifferent magnification.'), 
 }
 
 local chkbtn_optimize_image_center = dt.new_widget("check_button"){
     label = _('optimize image center shift for all images'), 
     value = dt.preferences.read("align_image_stack", "def_optimize_image_center", "bool"),
-    tooltip =_('optimize image center shift for all images, \nexcept for first.'),   
+    tooltip =_('optimize image center shift for all images, \nexcept the first.'),   
 }
 
 local chkbtn_auto_crop = dt.new_widget("check_button"){
@@ -506,7 +504,7 @@ local function image_stack(storage, image_table, extra_data)
     return
   end
 
-  job = dt.gui.create_job("image stack", true, stop_job)
+  job = dt.gui.create_job(_("image stack"), true, stop_job)
   job.percent = job.percent + percent_step
 
   -- align images if requested

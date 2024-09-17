@@ -33,8 +33,6 @@ local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "geoToolbox") 
 
-dt.gettext.bindtextdomain("geoToolbox", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end
@@ -77,7 +75,7 @@ local label_copy_gps_lon = dt.new_widget("check_button")
 }
 local label_copy_gps_ele = dt.new_widget("check_button")
 {
-  label = _("elevation:"),
+  label = _("elevation: "),
   value = true
 }
 -- </GUI>
@@ -372,12 +370,12 @@ end
 local function reverse_geocode()
 
   if not df.check_if_bin_exists("curl") then
-    dt.print_error(_("curl not found"))
+    dt.print_error("curl not found")
     return
   end	
 
   if not df.check_if_bin_exists("jq") then
-    dt.print_error(_("jq not found"))
+    dt.print_error("jq not found")
     return
   end	
 
@@ -597,7 +595,7 @@ local function install_module()
   if not gT.module_installed then
     dt.register_lib(
       "geoToolbox",        -- Module name
-      "geo toolbox",       -- name
+      _("geo toolbox"),       -- name
       true,                -- expandable
       false,               -- resetable
       {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},   -- containers

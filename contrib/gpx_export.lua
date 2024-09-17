@@ -29,8 +29,6 @@ local gettext = dt.gettext
 
 dl.check_min_api_version("7.0.0", "gpx_export") 
 
-gettext.bindtextdomain("gpx_export", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
   return gettext.dgettext("gpx_export", msgid)
 end
@@ -150,7 +148,7 @@ local function install_module()
   if not gpx.module_installed then
     dt.register_lib(
       "gpx_exporter",
-      "gpx export",
+      _("gpx export"),
       true, -- expandable
       true, -- resetable
       {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},   -- containers

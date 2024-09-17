@@ -40,8 +40,6 @@ local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "geoJSON_export") 
 
-dt.gettext.bindtextdomain("geoJSON_export", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end
@@ -92,19 +90,19 @@ end
 
 local function create_geoJSON_file(storage, image_table, extra_data)
     if not df.check_if_bin_exists("mkdir") then
-        dt.print_error(_("mkdir not found"))
+        dt.print_error("mkdir not found")
         return
     end
     if not df.check_if_bin_exists("convert") then
-        dt.print_error(_("convert not found"))
+        dt.print_error("convert not found")
         return
     end
     if not df.check_if_bin_exists("xdg-open") then
-        dt.print_error(_("xdg-open not found"))
+        dt.print_error("xdg-open not found")
         return
     end
     if not df.check_if_bin_exists("xdg-user-dir") then
-        dt.print_error(_("xdg-user-dir not found"))
+        dt.print_error("xdg-user-dir not found")
         return
     end
 
@@ -295,7 +293,7 @@ local function create_geoJSON_file(storage, image_table, extra_data)
     file:write(geoJSON_file)
     file:close()
 
-    dt.print("geoJSON file created in "..exportDirectory)
+    dt.print(string.format(_("%s file created in %s", "geoJSON", exportDirectory)))
 
 -- Open the file with the standard programm
     if ( dt.preferences.read("geoJSON_export","OpengeoJSONFile","bool") == true ) then
