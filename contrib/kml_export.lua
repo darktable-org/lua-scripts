@@ -45,8 +45,6 @@ local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 
 du.check_min_api_version("7.0.0", "kml_export") 
 
-dt.gettext.bindtextdomain("kml_export", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
   return gettext(msgid)
 end
@@ -95,12 +93,12 @@ local function create_kml_file(storage, image_table, extra_data)
   end
 
   if not df.check_if_bin_exists(magickPath) then
-    dt.print_error(_("magick not found"))
+    dt.print_error("magick not found")
     return
   end
   if dt.configuration.running_os == "linux" then
     if not df.check_if_bin_exists("xdg-user-dir") then
-      dt.print_error(_("xdg-user-dir not found"))
+      dt.print_error("xdg-user-dir not found")
       return
     end
   end
@@ -110,7 +108,7 @@ local function create_kml_file(storage, image_table, extra_data)
   if ( dt.preferences.read("kml_export","CreateKMZ","bool") == true 
        and dt.configuration.running_os == "linux") then
     if not df.check_if_bin_exists("zip") then
-      dt.print_error(_("zip not found"))
+      dt.print_error("zip not found")
       return
     end
     exportDirectory = dt.configuration.tmp_dir

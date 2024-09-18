@@ -54,8 +54,6 @@ du.check_min_api_version("7.0.0", "LabelsToTags")
 
 local gettext = darktable.gettext.gettext
 
-darktable.gettext.bindtextdomain("LabelsToTags", darktable.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
   return gettext(msgid)
 end
@@ -216,8 +214,8 @@ ltt.my_widget = darktable.new_widget("box") {
    orientation = "vertical",
    mappingComboBox,
    darktable.new_widget("button") {
-      label = "start",
-      tooltip = "Tag all selected images",
+      label = _("start"),
+      tooltip = _("tag all selected images"),
       clicked_callback = doTagging
    }
 }
@@ -247,7 +245,7 @@ end
 
 local function install_module()
   if not ltt.module_installed then
-   darktable.register_lib(LIB_ID,"labels to tags",true,true,{
+   darktable.register_lib(LIB_ID,_("labels to tags"),true,true,{
               [darktable.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER",20},
                             },ltt.my_widget,nil,nil)
     ltt.module_installed = true
