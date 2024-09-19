@@ -296,7 +296,7 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
                         " -pix_fmt p010le -f rawvideo " .. df.sanitize_filename(extra))
         update_job_progress()
         execute_cmd(settings.bin.ultrahdr_app .. " -m 0 -y " .. df.sanitize_filename(sdr .. ".raw") .. " -p " ..
-                        df.sanitize_filename(extra) .. " -a 0 -b 3 -c 1 -C 1 -t 2 -M 1 -s 1 -q 100 -Q 100 -D 1 " ..
+                        df.sanitize_filename(extra) .. " -a 0 -b 3 -c 1 -C 1 -t 2 -M 1 -s 1 -q 95 -Q 95 -D 1 " ..
                         " -w " .. tostring(images["sdr"].final_width) .. " -h " .. tostring(images["sdr"].final_height) ..
                         " -z " .. df.sanitize_filename(uhdr))
         update_job_progress()
