@@ -20,13 +20,9 @@
 ]] --[[
 
 ULTRAHDR
-Add a new storage option to generate UltraHDR JPG images.
+Generate UltraHDR JPG images from various combinations of source files (SDR, HDR, gainmap).
 
 https://developer.android.com/media/platform/hdr-image-format
-
-Of all exported files, the storage detects pairs of files generated from the same source image, 
-assuming the first one encountered is the base SDR image, and the second one is the gainmap
-(alternatively, you can tag the gainmaps with a "gainmap" tag).
 
 The images are merged using libultrahdr example application (ultrahdr_app).
 
