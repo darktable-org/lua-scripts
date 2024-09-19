@@ -440,15 +440,15 @@ GUI.optionwidgets.encoding_variant_combo = dt.new_widget("combobox") {
     label = _("Source images"),
     tooltip = string.format(_([[Select types of images in the selection.
 
-%s: SDR image paired with a monochromatic gain map image
-%s: SDR image paired with a JPEG-XL HDR image (10-bit, 'PQ P3 RGB' profile recommended)
-%s: SDR image only. Gainmaps will be just copies of SDR images.
+- %s: SDR image paired with a monochromatic gain map image
+- %s: SDR image paired with a JPEG-XL HDR image (10-bit, 'PQ P3 RGB' profile recommended)
+- %s: SDR images only. Gainmaps will be copies of SDR images (the simplest option).
 
 UltraHDR image will be created for each pair of images that:
  - have the same underlying image path + filename (ignoring file extension)
  - have the same dimensions
 
-By default, the first image in a pair is treated as SDR, and the next one store extra gainmap/HDR data.
+By default, the first image in a pair is treated as SDR, and the second one stores extra gainmap/HDR data.
 You can force the image into a specific slot by attaching "hdr" / "gainmap" tags.
 ]]), _("SDR + monochrome gainmap"), _("SDR + JPEG-XL HDR"), _("SDR (auto gainmap)")),
     selected = 0,
