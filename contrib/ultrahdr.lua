@@ -92,6 +92,7 @@ script_data.metadata = {
 local PS = dt.configuration.running_os == "windows" and "\\" or "/"
 local ENCODING_VARIANT_SDR_AND_GAINMAP = 1
 local ENCODING_VARIANT_SDR_AND_HDR = 2
+local ENCODING_VARIANT_SDR_AUTO_GAINMAP = 3
 
 local function save_preferences()
     dt.preferences.write(namespace, "encoding_variant", "integer", GUI.optionwidgets.encoding_variant_combo.selected)
@@ -128,7 +129,7 @@ local function assert_settings_correct(encoding_variant)
         output = GUI.optionwidgets.output_directory_widget.value,
         use_original_dir = GUI.optionwidgets.use_original_directory.value,
         import_to_darktable = GUI.optionwidgets.import_to_darktable.value,
-        copy_exif = GUI.optionwidgets.copy_exif.value,        
+        copy_exif = GUI.optionwidgets.copy_exif.value,
         metadata = GUI.optionwidgets.metadata_path_widget.value,
         tmpdir = dt.configuration.tmp_dir
     }
@@ -164,6 +165,8 @@ local function get_stacks(images, encoding_variant)
     elseif encoding_variant == ENCODING_VARIANT_SDR_AND_HDR then
         extra_image_extension = "jxl"
         extra_image_content_type = "hdr"
+    elseif encoding_variant == ENCODING_VARIANT_SDR_AUTO_GAINMAP then
+        extra_image_content_type = nil
     end
 
     local tags = nil
@@ -173,7 +176,7 @@ local function get_stacks(images, encoding_variant)
         local is_extra = false
         tags = dt.tags.get_tags(v)
         for ignore, tag in pairs(tags) do
-            if tag.name == extra_image_content_type then
+            if extra_image_content_type and tag.name == extra_image_content_type then
                 is_extra = true
             end
         end
@@ -185,23 +188,27 @@ local function get_stacks(images, encoding_variant)
         if stacks[key] == nil then
             stacks[key] = {}
         end
-        if stacks[key]["sdr"] or is_extra then
+        if extra_image_content_type and (stacks[key]["sdr"] or is_extra) then
             stacks[key][extra_image_content_type] = v
-        else
+        elseif not is_extra then
             stacks[key]["sdr"] = v
         end
     end
     -- remove invalid stacks
     local count = 0
     for k, v in pairs(stacks) do
-        if not v["sdr"] or not v[extra_image_content_type] then
-            stacks[k] = nil
-        elseif (v["sdr"].final_width ~= v[extra_image_content_type].final_width) or
-            (v["sdr"].final_height ~= v[extra_image_content_type].final_height) then
-            stacks[k] = nil
-        elseif extra_image_extension and df.get_filetype(v[extra_image_content_type].filename) ~= extra_image_extension then
-            stacks[k] = nil
-        else
+        if extra_image_content_type then
+            if not v["sdr"] or not v[extra_image_content_type] then
+                stacks[k] = nil
+            elseif (v["sdr"].final_width ~= v[extra_image_content_type].final_width) or
+                (v["sdr"].final_height ~= v[extra_image_content_type].final_height) then
+                stacks[k] = nil
+            elseif extra_image_extension and df.get_filetype(v[extra_image_content_type].filename) ~=
+                extra_image_extension then
+                stacks[k] = nil
+            end
+        end
+        if stacks[k] then
             count = count + 1
         end
     end
@@ -231,7 +238,7 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
         job.percent = (total_substeps * step + substep) / (total_steps * total_substeps)
     end
 
-    if encoding_variant == ENCODING_VARIANT_SDR_AND_GAINMAP then
+    if encoding_variant == ENCODING_VARIANT_SDR_AND_GAINMAP or encoding_variant == ENCODING_VARIANT_SDR_AUTO_GAINMAP then
         total_substeps = 6
         -- Export both SDR and gainmap to JPEGs
         local exporter = dt.new_format("jpeg")
@@ -239,20 +246,27 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
         local sdr = df.create_unique_filename(settings.tmpdir .. PS .. df.chop_filetype(images["sdr"].filename) ..
                                                   ".jpg")
         exporter:write_image(images["sdr"], sdr)
-        local gainmap = df.create_unique_filename(settings.tmpdir .. PS .. images["gainmap"].filename .. "_gainmap.jpg")
-        exporter:write_image(images["gainmap"], gainmap)
-
+        local gainmap
+        if encoding_variant == ENCODING_VARIANT_SDR_AUTO_GAINMAP then -- SDR is also a gainmap
+            gainmap = sdr
+        else
+            gainmap = df.create_unique_filename(settings.tmpdir .. PS .. images["gainmap"].filename .. "_gainmap.jpg")
+            exporter:write_image(images["gainmap"], gainmap)
+        end
+        dd.dprint(images["gainmap"])
         log.msg(log.debug, string.format(_("Exported files: %s, %s"), sdr, gainmap))
         update_job_progress()
         -- Strip EXIFs
         execute_cmd(settings.bin.exiftool .. " -all= " .. df.sanitize_filename(sdr) .. " -o " ..
                         df.sanitize_filename(sdr .. ".noexif"))
-        execute_cmd(settings.bin.exiftool .. " -all= " .. df.sanitize_filename(gainmap) .. " -overwrite_original")
+        if sdr ~= gainmap then
+            execute_cmd(settings.bin.exiftool .. " -all= " .. df.sanitize_filename(gainmap) .. " -overwrite_original")
+        end
         update_job_progress()
         -- Merge files
         uhdr = df.chop_filetype(sdr) .. "_ultrahdr.jpg"
 
-        execute_cmd(settings.bin.ultrahdr_app .. " -m 0 -M 0 -i " .. df.sanitize_filename(sdr .. ".noexif") .. " -g " ..
+        execute_cmd(settings.bin.ultrahdr_app .. " -m 0 -i " .. df.sanitize_filename(sdr .. ".noexif") .. " -g " ..
                         df.sanitize_filename(gainmap) .. " -f " .. df.sanitize_filename(settings.metadata) .. " -z " ..
                         df.sanitize_filename(uhdr))
         update_job_progress()
@@ -265,7 +279,9 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
         -- Cleanup 
         os.remove(sdr)
         os.remove(sdr .. ".noexif")
-        os.remove(gainmap)
+        if sdr ~= gainmap then
+            os.remove(gainmap)
+        end
         update_job_progress()
     elseif encoding_variant == ENCODING_VARIANT_SDR_AND_HDR then
         total_substeps = 5
@@ -289,9 +305,9 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
                         " -pix_fmt p010le -f rawvideo " .. df.sanitize_filename(extra))
         update_job_progress()
         execute_cmd(settings.bin.ultrahdr_app .. " -m 0 -y " .. df.sanitize_filename(sdr .. ".raw") .. " -p " ..
-                        df.sanitize_filename(extra) .. " -a 0 -b 3 -c 1 -C 1 -t 2 -M 1 -s 1 -q 95 -Q 95 -D 1 " ..
-                        " -w " .. tostring(images["sdr"].final_width) .. " -h " .. tostring(images["sdr"].final_height) ..
-                        " -z " .. df.sanitize_filename(uhdr))
+                        df.sanitize_filename(extra) .. " -a 0 -b 3 -c 1 -C 1 -t 2 -M 1 -s 1 -q 95 -Q 95 -D 1 " .. " -w " ..
+                        tostring(images["sdr"].final_width) .. " -h " .. tostring(images["sdr"].final_height) .. " -z " ..
+                        df.sanitize_filename(uhdr))
         update_job_progress()
         if settings.copy_exif then
             execute_cmd(settings.bin.exiftool .. " -tagsfromfile " .. df.sanitize_filename(sdr) .. " -all>all " ..
@@ -320,7 +336,7 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
 
     local msg = string.format(_("Generated %s."), df.get_filename(output_file))
     log.msg(log.info, msg)
-    dt.print(msg)    
+    dt.print(msg)
     update_job_progress()
 end
 
@@ -340,14 +356,7 @@ local function main()
         return
     end
 
-    local images = dt.gui.selection() -- get selected images
-    if #images < 2 then
-        dt.print(_("Select at least 2 images to generate UltraHDR image"))
-        log.log_level(saved_log_level)
-        return
-    end
-
-    local stacks, stack_count = get_stacks(images, encoding_variant)
+    local stacks, stack_count = get_stacks(dt.gui.selection(), encoding_variant)
     dt.print(string.format(_("Detected %d image stack(s)"), stack_count))
     if stack_count == 0 then
         log.log_level(saved_log_level)
@@ -433,13 +442,15 @@ GUI.optionwidgets.encoding_variant_combo = dt.new_widget("combobox") {
 
 %s: SDR image paired with a monochromatic gain map image
 %s: SDR image paired with a JPEG-XL HDR image (10-bit, 'PQ P3 RGB' profile recommended)
+%s: SDR image only. Gainmaps will be just copies of SDR images.
 
 UltraHDR image will be created for each pair of images that:
  - have the same underlying image path + filename (ignoring file extension)
  - have the same dimensions
 
- It is assumed that the first image in a pair is the SDR , unless it has a "hdr" / "gainmap" tag.
-]]), _("SDR + monochrome gainmap"), _("SDR + JPEG-XL HDR")),
+By default, the first image in a pair is treated as SDR, and the next one store extra gainmap/HDR data.
+You can force the image into a specific slot by attaching "hdr" / "gainmap" tags.
+]]), _("SDR + monochrome gainmap"), _("SDR + JPEG-XL HDR"), _("SDR (auto gainmap)")),
     selected = 0,
     changed_callback = function(self)
         if self.selected == ENCODING_VARIANT_SDR_AND_GAINMAP then
@@ -448,8 +459,9 @@ UltraHDR image will be created for each pair of images that:
             GUI.optionwidgets.metadata_path_box.visible = false
         end
     end,
-    _("SDR + monochrome gainmap"), -- ENCODING_VARIANT_SDR_AND_GAINMAP,
-    _("SDR + JPEG-XL HDR") -- ENCODING_VARIANT_SDR_AND_HDR,
+    _("SDR + monochrome gainmap"), -- ENCODING_VARIANT_SDR_AND_GAINMAP
+    _("SDR + JPEG-XL HDR"), -- ENCODING_VARIANT_SDR_AND_HDR
+    _("SDR (auto gainmap)") -- ENCODING_VARIANT_SDR_AUTO_GAINMAP
 }
 
 GUI.optionwidgets.encoding_settings_box = dt.new_widget("box") {
