@@ -237,9 +237,6 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
 
     if encoding_variant == ENCODING_VARIANT_SDR_AND_GAINMAP then
         total_substeps = 6
-        local msg = string.format(_("Stacking %s"), images["sdr"].filename)
-        log.msg(log.info, msg)
-        dt.print(msg)
         -- Export both SDR and gainmap to JPEGs
         local exporter = dt.new_format("jpeg")
         exporter.quality = 95
@@ -324,6 +321,10 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
         end
         dt.tags.attach(tagnr, img)
     end
+
+    local msg = string.format(_("Generated %s."), df.get_filename(output_file))
+    log.msg(log.info, msg)
+    dt.print(msg)    
     update_job_progress()
 end
 
@@ -369,6 +370,9 @@ local function main()
         job.valid = false
     end
 
+    local msg = string.format(_("Generated %d UltraHDR image(s)."), count)
+    log.msg(log.info, msg)
+    dt.print(msg)
     log.log_level(saved_log_level)
 end
 
