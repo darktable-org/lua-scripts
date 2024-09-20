@@ -38,8 +38,6 @@ du.deprecated("contrib/rename-tags.lua","darktable release 4.0")
 
 local gettext = darktable.gettext.gettext
 
-darktable.gettext.bindtextdomain("rename-tags", darktable.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end

@@ -31,8 +31,6 @@ local gettext = dt.gettext.gettext
 
 du.check_min_api_version("7.0.0", "slideshowMusic") 
 
-dt.gettext.bindtextdomain("slideshowMusic", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end
