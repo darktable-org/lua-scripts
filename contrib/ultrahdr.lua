@@ -216,15 +216,21 @@ local function get_stacks(images, encoding_variant)
         if extra_image_extension and df.get_filetype(v.filename) == extra_image_extension then
             is_extra = true
         end
-        -- we assume every image in the stack is generated from the same source image file
+        -- We assume every image in the stack is generated from the same source image file
         local key = df.chop_filetype(v.path .. PS .. v.filename)
         if stacks[key] == nil then
             stacks[key] = {}
         end
-        if extra_image_content_type and (stacks[key]["sdr"] or is_extra) then
-            stacks[key][extra_image_content_type] = v
+        if extra_image_content_type and (is_extra or stacks[key]["sdr"]) then
+            -- Don't overwrite existing entries
+            if not stacks[key][extra_image_content_type] then
+                stacks[key][extra_image_content_type] = v
+            end
         elseif not is_extra then
-            stacks[key]["sdr"] = v
+            -- Don't overwrite existing entries
+            if not stacks[key]["sdr"] then
+                stacks[key]["sdr"] = v
+            end
         end
     end
     -- remove invalid stacks
