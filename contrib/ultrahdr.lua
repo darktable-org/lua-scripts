@@ -100,7 +100,9 @@ local function save_preferences()
         dt.preferences.write(namespace, "metadata_path", "string", GUI.optionwidgets.metadata_path_widget.value)
     end
     dt.preferences.write(namespace, "use_original_directory", "bool", GUI.optionwidgets.use_original_directory.value)
-    dt.preferences.write(namespace, "output_directory", "string", GUI.optionwidgets.output_directory_widget.value)
+    if GUI.optionwidgets.output_directory_widget.value then
+        dt.preferences.write(namespace, "output_directory", "string", GUI.optionwidgets.output_directory_widget.value)
+    end
     dt.preferences.write(namespace, "import_to_darktable", "bool", GUI.optionwidgets.import_to_darktable.value)
     dt.preferences.write(namespace, "copy_exif", "bool", GUI.optionwidgets.copy_exif.value)
 end
@@ -108,11 +110,11 @@ end
 local function load_preferences()
     GUI.optionwidgets.encoding_variant_combo.selected = dt.preferences.read(namespace, "encoding_variant", "integer") or
                                                             ENCODING_VARIANT_SDR_AND_GAINMAP
-    GUI.optionwidgets.metadata_path_widget.value = dt.preferences.read(namespace, "metadata_path", "string")
-    GUI.optionwidgets.use_original_directory.value = dt.preferences.read(namespace, "use_original_directory", "bool")
-    GUI.optionwidgets.output_directory_widget.value = dt.preferences.read(namespace, "output_directory", "string")
-    GUI.optionwidgets.import_to_darktable.value = dt.preferences.read(namespace, "import_to_darktable", "bool")
-    GUI.optionwidgets.copy_exif.value = dt.preferences.read(namespace, "copy_exif", "bool")
+    GUI.optionwidgets.metadata_path_widget.value = dt.preferences.read(namespace, "metadata_path", "string") or ""
+    GUI.optionwidgets.use_original_directory.value = dt.preferences.read(namespace, "use_original_directory", "bool") or true
+    GUI.optionwidgets.output_directory_widget.value = dt.preferences.read(namespace, "output_directory", "string") or ""
+    GUI.optionwidgets.import_to_darktable.value = dt.preferences.read(namespace, "import_to_darktable", "bool") or true
+    GUI.optionwidgets.copy_exif.value = dt.preferences.read(namespace, "copy_exif", "bool") or false
 end
 
 local function get_encoding_variant()
@@ -120,6 +122,7 @@ local function get_encoding_variant()
 end
 
 local function assert_settings_correct(encoding_variant)
+    local errors = {}
     local settings = {
         bin = {
             ultrahdr_app = df.check_if_bin_exists("ultrahdr_app"),
@@ -134,27 +137,26 @@ local function assert_settings_correct(encoding_variant)
         tmpdir = dt.configuration.tmp_dir
     }
 
-    if not settings.use_original_dir and not df.check_if_file_exists(settings.output) then
-        dt.print(string.format(_("output directory (%s) not found, did you set the correct path?"), settings.output))
-        return
+    if not settings.use_original_dir and (not settings.output or not df.check_if_file_exists(settings.output)) then
+        table.insert(errors, string.format(_("output directory (%s) not found"), settings.output))
     end
 
     for k, v in pairs(settings.bin) do
         if not v then
-            dt.print(string.format(_("%s is not found, did you set the path?"), k))
-            return
+            table.insert(errors, string.format(_("%s binary not found"), k))
         end
     end
 
     if encoding_variant == ENCODING_VARIANT_SDR_AND_GAINMAP then
-        if not df.check_if_file_exists(settings.metadata) then
-            dt.print(_("metadata file not found, did you set the correct path?"))
-            log.msg(log.error, "metadata file not found.")
-            return
+        if not settings.metadata or not df.check_if_file_exists(settings.metadata) then
+            table.insert(errors, _("metadata.cfg file not found (select one from libultrahdr/examples directory)"))
         end
     end
 
-    return settings
+    if #errors > 0 then
+        return nil, errors
+    end
+    return settings, nil
 end
 
 local function get_stacks(images, encoding_variant)
@@ -253,7 +255,6 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
             gainmap = df.create_unique_filename(settings.tmpdir .. PS .. images["gainmap"].filename .. "_gainmap.jpg")
             exporter:write_image(images["gainmap"], gainmap)
         end
-        dd.dprint(images["gainmap"])
         log.msg(log.debug, string.format(_("Exported files: %s, %s"), sdr, gainmap))
         update_job_progress()
         -- Strip EXIFs
@@ -349,9 +350,9 @@ local function main()
     local encoding_variant = get_encoding_variant()
     log.msg(log.info, string.format("using encoding variant %d", encoding_variant))
 
-    local settings = assert_settings_correct(encoding_variant)
+    local settings, errors = assert_settings_correct(encoding_variant)
     if not settings then
-        dt.print(_("Export settings are incorrect, exiting..."))
+        dt.print(string.format(_("Export settings are incorrect, exiting:\n\n%s"), table.concat(errors, "\n")))
         log.log_level(saved_log_level)
         return
     end
@@ -453,6 +454,7 @@ You can force the image into a specific slot by attaching "hdr" / "gainmap" tags
 ]]), _("SDR + monochrome gainmap"), _("SDR + JPEG-XL HDR"), _("SDR (auto gainmap)")),
     selected = 0,
     changed_callback = function(self)
+        GUI.run.sensitive = self.selected and self.selected > 0
         if self.selected == ENCODING_VARIANT_SDR_AND_GAINMAP then
             GUI.optionwidgets.metadata_path_box.visible = true
         else
