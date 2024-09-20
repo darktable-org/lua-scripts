@@ -67,9 +67,11 @@ local GUI = {
         output_directory_widget = {},
         copy_exif = {},
         import_to_darktable = {},
+        metadata_file_generate = {},
         metadata_path_label = {},
         metadata_path_widget = {},
         metadata_path_box = {},
+        metadata_path_box2 = {},
         edit_executables_button = {},
         executable_path_widget = {}
     },
@@ -94,6 +96,26 @@ local ENCODING_VARIANT_SDR_AND_GAINMAP = 1
 local ENCODING_VARIANT_SDR_AND_HDR = 2
 local ENCODING_VARIANT_SDR_AUTO_GAINMAP = 3
 
+local function generate_metadata_file()
+    local default_metadata_file = [[--maxContentBoost 6.0
+--minContentBoost 1.0
+--gamma 1.0
+--offsetSdr 0.0
+--offsetHdr 0.0
+--hdrCapacityMin 1.0
+--hdrCapacityMax 6.0]]
+
+    local filename = dt.configuration.config_dir .. PS .. "ultrahdr_metadata.cfg"
+    local f, err = io.open(filename, "w+")
+    if not f then
+        dt.print(err)
+        return nil
+    end
+    f:write(default_metadata_file)
+    f:close()
+    return filename
+end
+
 local function save_preferences()
     dt.preferences.write(namespace, "encoding_variant", "integer", GUI.optionwidgets.encoding_variant_combo.selected)
     if GUI.optionwidgets.metadata_path_widget.value then
@@ -108,13 +130,22 @@ local function save_preferences()
 end
 
 local function load_preferences()
-    GUI.optionwidgets.encoding_variant_combo.selected = dt.preferences.read(namespace, "encoding_variant", "integer") or
-                                                            ENCODING_VARIANT_SDR_AND_GAINMAP
-    GUI.optionwidgets.metadata_path_widget.value = dt.preferences.read(namespace, "metadata_path", "string") or ""
-    GUI.optionwidgets.use_original_directory.value = dt.preferences.read(namespace, "use_original_directory", "bool") or true
-    GUI.optionwidgets.output_directory_widget.value = dt.preferences.read(namespace, "output_directory", "string") or ""
-    GUI.optionwidgets.import_to_darktable.value = dt.preferences.read(namespace, "import_to_darktable", "bool") or true
-    GUI.optionwidgets.copy_exif.value = dt.preferences.read(namespace, "copy_exif", "bool") or false
+    -- Since the option #1 is the default, and empty numeric prefs are 0, we can use math.max
+    GUI.optionwidgets.encoding_variant_combo.selected = math.max(
+        dt.preferences.read(namespace, "encoding_variant", "integer"), ENCODING_VARIANT_SDR_AND_GAINMAP)
+    GUI.optionwidgets.metadata_path_widget.value = dt.preferences.read(namespace, "metadata_path", "string")
+    if not GUI.optionwidgets.metadata_path_widget.value then -- file widgets reset "" value to nil
+        GUI.optionwidgets.metadata_path_widget.value = generate_metadata_file()
+        -- Avoid regenerating the file if the user only enables the plugin, but never clicks "Generate"
+        dt.preferences.write(namespace, "metadata_path", "string", GUI.optionwidgets.metadata_path_widget.value)
+    end
+    GUI.optionwidgets.output_directory_widget.value = dt.preferences.read(namespace, "output_directory", "string")
+    GUI.optionwidgets.use_original_directory.value = dt.preferences.read(namespace, "use_original_directory", "bool")
+    if not GUI.optionwidgets.output_directory_widget.value then
+        GUI.optionwidgets.use_original_directory.value = true
+    end
+    GUI.optionwidgets.import_to_darktable.value = dt.preferences.read(namespace, "import_to_darktable", "bool")
+    GUI.optionwidgets.copy_exif.value = dt.preferences.read(namespace, "copy_exif", "bool")
 end
 
 local function get_encoding_variant()
@@ -147,9 +178,9 @@ local function assert_settings_correct(encoding_variant)
         end
     end
 
-    if encoding_variant == ENCODING_VARIANT_SDR_AND_GAINMAP then
+    if encoding_variant == ENCODING_VARIANT_SDR_AND_GAINMAP or encoding_variant == ENCODING_VARIANT_SDR_AUTO_GAINMAP then
         if not settings.metadata or not df.check_if_file_exists(settings.metadata) then
-            table.insert(errors, _("metadata.cfg file not found (select one from libultrahdr/examples directory)"))
+            table.insert(errors, _("metadata.cfg file not found (use 'Generate' button)"))
         end
     end
 
@@ -423,25 +454,40 @@ GUI.optionwidgets.output_settings_box = dt.new_widget("box") {
 }
 
 GUI.optionwidgets.metadata_path_label = dt.new_widget("label") {
-    label = _("ultrahdr_app metadata.cfg file")
+    label = _("Gainmap metadata file")
 }
 
 GUI.optionwidgets.metadata_path_widget = dt.new_widget("file_chooser_button") {
-    title = "select libultrahdr metadata path",
+    title = _("Select libultrahdr metadata.cfg file"),
     is_directory = false
+}
+
+GUI.optionwidgets.metadata_file_generate = dt.new_widget("button") {
+    label = _("Generate"),
+    tooltip = _("Generate new metadata file with default values"),
+    clicked_callback = function()
+        local metadata_file = generate_metadata_file()
+        GUI.optionwidgets.metadata_path_widget.value = metadata_file
+    end
+}
+
+GUI.optionwidgets.metadata_path_box2 = dt.new_widget("box") {
+    orientation = "horizontal",
+    GUI.optionwidgets.metadata_path_widget,
+    GUI.optionwidgets.metadata_file_generate
 }
 
 GUI.optionwidgets.metadata_path_box = dt.new_widget("box") {
     orientation = "vertical",
     GUI.optionwidgets.metadata_path_label,
-    GUI.optionwidgets.metadata_path_widget
+    GUI.optionwidgets.metadata_path_box2
 }
 
 GUI.optionwidgets.encoding_variant_combo = dt.new_widget("combobox") {
     label = _("Source images"),
     tooltip = string.format(_([[Select types of images in the selection.
 
-- %s: SDR image paired with a monochromatic gain map image
+- %s: SDR image paired with a gain map image
 - %s: SDR image paired with a JPEG-XL HDR image (10-bit, 'PQ P3 RGB' profile recommended)
 - %s: SDR images only. Gainmaps will be copies of SDR images (the simplest option).
 
@@ -451,17 +497,17 @@ UltraHDR image will be created for each pair of images that:
 
 By default, the first image in a pair is treated as SDR, and the second one stores extra gainmap/HDR data.
 You can force the image into a specific slot by attaching "hdr" / "gainmap" tags.
-]]), _("SDR + monochrome gainmap"), _("SDR + JPEG-XL HDR"), _("SDR (auto gainmap)")),
+]]), _("SDR + gainmap"), _("SDR + JPEG-XL HDR"), _("SDR (auto gainmap)")),
     selected = 0,
     changed_callback = function(self)
         GUI.run.sensitive = self.selected and self.selected > 0
-        if self.selected == ENCODING_VARIANT_SDR_AND_GAINMAP then
+        if self.selected == ENCODING_VARIANT_SDR_AND_GAINMAP or self.selected == ENCODING_VARIANT_SDR_AUTO_GAINMAP then
             GUI.optionwidgets.metadata_path_box.visible = true
         else
             GUI.optionwidgets.metadata_path_box.visible = false
         end
     end,
-    _("SDR + monochrome gainmap"), -- ENCODING_VARIANT_SDR_AND_GAINMAP
+    _("SDR + gainmap"), -- ENCODING_VARIANT_SDR_AND_GAINMAP
     _("SDR + JPEG-XL HDR"), -- ENCODING_VARIANT_SDR_AND_HDR
     _("SDR (auto gainmap)") -- ENCODING_VARIANT_SDR_AUTO_GAINMAP
 }
