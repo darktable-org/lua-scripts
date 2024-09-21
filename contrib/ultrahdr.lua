@@ -310,7 +310,9 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
         update_job_progress()
         -- Copy SDR's EXIF to UltraHDR file
         if settings.copy_exif then
-            execute_cmd(settings.bin.exiftool .. " -tagsfromfile " .. df.sanitize_filename(sdr) .. " -all>all " ..
+            -- Restricting tags to EXIF only, to make sure we won't mess up XMP tags (-all>all).
+            -- This might hapen e.g. when the source files are Adobe gainmap HDRs.
+            execute_cmd(settings.bin.exiftool .. " -tagsfromfile " .. df.sanitize_filename(sdr) .. " -exif " ..
                             df.sanitize_filename(uhdr) .. " -overwrite_original -preserve")
         end
         update_job_progress()
@@ -348,7 +350,9 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
                         df.sanitize_filename(uhdr))
         update_job_progress()
         if settings.copy_exif then
-            execute_cmd(settings.bin.exiftool .. " -tagsfromfile " .. df.sanitize_filename(sdr) .. " -all>all " ..
+            -- Restricting tags to EXIF only, to make sure we won't mess up XMP tags (-all>all).
+            -- This might hapen e.g. when the source files are Adobe gainmap HDRs.
+            execute_cmd(settings.bin.exiftool .. " -tagsfromfile " .. df.sanitize_filename(sdr) .. " -exif " ..
                             df.sanitize_filename(uhdr) .. " -overwrite_original -preserve")
         end
         -- Cleanup
