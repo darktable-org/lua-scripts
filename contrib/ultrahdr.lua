@@ -190,7 +190,14 @@ local function assert_settings_correct(encoding_variant)
     return settings, nil
 end
 
-local function get_stacks(images, encoding_variant)
+local function get_dimensions(image)
+    if image.final_width > 0 then
+        return image.final_width, image.final_height
+    end
+    return image.width, image.height
+end
+
+local function get_stacks(images, encoding_variant, selection_type)
     local stacks = {}
     local extra_image_content_type, extra_image_extension
     if encoding_variant == ENCODING_VARIANT_SDR_AND_GAINMAP then
@@ -239,12 +246,15 @@ local function get_stacks(images, encoding_variant)
         if extra_image_content_type then
             if not v["sdr"] or not v[extra_image_content_type] then
                 stacks[k] = nil
-            elseif (v["sdr"].final_width ~= v[extra_image_content_type].final_width) or
-                (v["sdr"].final_height ~= v[extra_image_content_type].final_height) then
-                stacks[k] = nil
             elseif extra_image_extension and df.get_filetype(v[extra_image_content_type].filename) ~=
                 extra_image_extension then
                 stacks[k] = nil
+            else
+                local sdr_w, sdr_h = get_dimensions(v["sdr"])
+                local extra_w, extra_h = get_dimensions(v[extra_image_content_type])
+                if (sdr_w ~= extra_w) or (sdr_h ~= extra_h) then
+                    stacks[k] = nil
+                end
             end
         end
         if stacks[k] then
@@ -344,9 +354,10 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
                         df.sanitize_filename(images["hdr"].path .. PS .. images["hdr"].filename) ..
                         " -pix_fmt p010le -f rawvideo " .. df.sanitize_filename(extra))
         update_job_progress()
+        local sdr_w, sdr_h = get_dimensions(images["sdr"])
         execute_cmd(settings.bin.ultrahdr_app .. " -m 0 -y " .. df.sanitize_filename(sdr .. ".raw") .. " -p " ..
                         df.sanitize_filename(extra) .. " -a 0 -b 3 -c 1 -C 1 -t 2 -M 1 -s 1 -q 95 -Q 95 -D 1 " .. " -w " ..
-                        tostring(images["sdr"].final_width) .. " -h " .. tostring(images["sdr"].final_height) .. " -z " ..
+                        tostring(sdr_w) .. " -h " .. tostring(sdr_h) .. " -z " ..
                         df.sanitize_filename(uhdr))
         update_job_progress()
         if settings.copy_exif then
