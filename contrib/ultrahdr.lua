@@ -60,6 +60,7 @@ local GUI = {
     optionwidgets = {
         settings_label = {},
         encoding_variant_combo = {},
+        selection_type_combo = {},
         encoding_settings_box = {},
         output_settings_label = {},
         output_settings_box = {},
@@ -96,6 +97,9 @@ local ENCODING_VARIANT_SDR_AND_GAINMAP = 1
 local ENCODING_VARIANT_SDR_AND_HDR = 2
 local ENCODING_VARIANT_SDR_AUTO_GAINMAP = 3
 
+local SELECTION_TYPE_ONE_STACK = 1
+local SELECTION_TYPE_GROUP_BY_FNAME = 2
+
 local function generate_metadata_file()
     local default_metadata_file = [[--maxContentBoost 6.0
 --minContentBoost 1.0
@@ -118,6 +122,7 @@ end
 
 local function save_preferences()
     dt.preferences.write(namespace, "encoding_variant", "integer", GUI.optionwidgets.encoding_variant_combo.selected)
+    dt.preferences.write(namespace, "selection_type", "integer", GUI.optionwidgets.selection_type_combo.selected)
     if GUI.optionwidgets.metadata_path_widget.value then
         dt.preferences.write(namespace, "metadata_path", "string", GUI.optionwidgets.metadata_path_widget.value)
     end
@@ -133,6 +138,9 @@ local function load_preferences()
     -- Since the option #1 is the default, and empty numeric prefs are 0, we can use math.max
     GUI.optionwidgets.encoding_variant_combo.selected = math.max(
         dt.preferences.read(namespace, "encoding_variant", "integer"), ENCODING_VARIANT_SDR_AND_GAINMAP)
+    GUI.optionwidgets.selection_type_combo.selected = math.max(
+        dt.preferences.read(namespace, "selection_type", "integer"), SELECTION_TYPE_ONE_STACK)
+
     GUI.optionwidgets.metadata_path_widget.value = dt.preferences.read(namespace, "metadata_path", "string")
     if not GUI.optionwidgets.metadata_path_widget.value then -- file widgets reset "" value to nil
         GUI.optionwidgets.metadata_path_widget.value = generate_metadata_file()
@@ -146,10 +154,6 @@ local function load_preferences()
     end
     GUI.optionwidgets.import_to_darktable.value = dt.preferences.read(namespace, "import_to_darktable", "bool")
     GUI.optionwidgets.copy_exif.value = dt.preferences.read(namespace, "copy_exif", "bool")
-end
-
-local function get_encoding_variant()
-    return GUI.optionwidgets.encoding_variant_combo.selected
 end
 
 local function assert_settings_correct(encoding_variant)
@@ -210,8 +214,8 @@ local function get_stacks(images, encoding_variant, selection_type)
     end
 
     local tags = nil
-    -- Group images into sdr, extra pairs based on their original filename, ignoring the extension
-    -- Assume that the first encountered image from each filename is an sdr one, unless it has a tag matching the expected extra_image_type, or has the expected extension
+    -- Group images into (sdr [,extra]) stacks
+    -- Assume that the first encountered image from each stack is an sdr one, unless it has a tag matching the expected extra_image_type, or has the expected extension
     for k, v in pairs(images) do
         local is_extra = false
         tags = dt.tags.get_tags(v)
@@ -224,7 +228,12 @@ local function get_stacks(images, encoding_variant, selection_type)
             is_extra = true
         end
         -- We assume every image in the stack is generated from the same source image file
-        local key = df.chop_filetype(v.path .. PS .. v.filename)
+        local key
+        if selection_type == SELECTION_TYPE_GROUP_BY_FNAME then
+            key = df.chop_filetype(v.path .. PS .. v.filename)
+        elseif selection_type == SELECTION_TYPE_ONE_STACK then
+            key = "the_one_and_only"
+        end 
         if stacks[key] == nil then
             stacks[key] = {}
         end
@@ -407,8 +416,9 @@ local function main()
 
     save_preferences()
 
-    local encoding_variant = get_encoding_variant()
-    log.msg(log.info, string.format("using encoding variant %d", encoding_variant))
+    local selection_type = GUI.optionwidgets.selection_type_combo.selected
+    local encoding_variant = GUI.optionwidgets.encoding_variant_combo.selected
+    log.msg(log.info, string.format("using selection type %d, encoding variant %d", selection_type, encoding_variant))
 
     local settings, errors = assert_settings_correct(encoding_variant)
     if not settings then
@@ -417,7 +427,7 @@ local function main()
         return
     end
 
-    local stacks, stack_count = get_stacks(dt.gui.selection(), encoding_variant)
+    local stacks, stack_count = get_stacks(dt.gui.selection(), encoding_variant, selection_type)
     dt.print(string.format(_("Detected %d image stack(s)"), stack_count))
     if stack_count == 0 then
         log.log_level(saved_log_level)
@@ -513,20 +523,17 @@ GUI.optionwidgets.metadata_path_box = dt.new_widget("box") {
 }
 
 GUI.optionwidgets.encoding_variant_combo = dt.new_widget("combobox") {
-    label = _("Source images"),
-    tooltip = string.format(_([[Select types of images in the selection.
+    label = _("Each stack contains"),
+    tooltip = string.format(_([[Select the types of images in each stack.
+This will determine the method used to generate UltraHDR.
 
-- %s: SDR image paired with a gain map image
-- %s: SDR image paired with a JPEG-XL HDR image (10-bit, 'PQ P3 RGB' profile recommended)
+- %s: SDR image paired with a gain map image.
+- %s: SDR image paired with a JPEG-XL HDR image (10-bit, 'PQ P3 RGB' profile recommended).
 - %s: SDR images only. Gainmaps will be copies of SDR images (the simplest option).
 
-UltraHDR image will be created for each pair of images that:
- - have the same underlying image path + filename (ignoring file extension)
- - have the same dimensions
-
-By default, the first image in a pair is treated as SDR, and the second one stores extra gainmap/HDR data.
-You can force the image into a specific slot by attaching "hdr" / "gainmap" tags.
-]]), _("SDR + gainmap"), _("SDR + JPEG-XL HDR"), _("SDR (auto gainmap)")),
+By default, the first image in a stack is treated as SDR, and the second one is a gainmap/HDR.
+You can force the image into a specific stack slot by attaching "hdr" / "gainmap" tags to them.
+]]), _("SDR + gainmap"), _("SDR + JPEG-XL HDR"), _("SDR only")),
     selected = 0,
     changed_callback = function(self)
         GUI.run.sensitive = self.selected and self.selected > 0
@@ -538,11 +545,28 @@ You can force the image into a specific slot by attaching "hdr" / "gainmap" tags
     end,
     _("SDR + gainmap"), -- ENCODING_VARIANT_SDR_AND_GAINMAP
     _("SDR + JPEG-XL HDR"), -- ENCODING_VARIANT_SDR_AND_HDR
-    _("SDR (auto gainmap)") -- ENCODING_VARIANT_SDR_AUTO_GAINMAP
+    _("SDR only") -- ENCODING_VARIANT_SDR_AUTO_GAINMAP
+}
+
+GUI.optionwidgets.selection_type_combo = dt.new_widget("combobox") {
+    label = _("Selection contains"),
+    tooltip = string.format(_([[Select types of images selected in Darktable.
+This determines how the plugin groups images into separate stacks (each stack will produce a single UltraHDR image).
+
+- %s: All selected image(s) belong to one stack. There will be 1 output UltraHDR image.
+- %s: Group images into stacks, using the source image path + filename (ignoring extension).
+  Use this method if the source images for a given stack are Darktable duplicates.
+
+As an added precaution, each image in a stack needs to have the same dimensions.
+]]), _("one stack"), _("multiple stacks (use filename)")),
+    selected = 0,
+    _("one stack"), -- SELECTION_TYPE_ONE_STACK
+    _("multiple stacks (use filename)") -- SELECTION_TYPE_GROUP_BY_FNAME
 }
 
 GUI.optionwidgets.encoding_settings_box = dt.new_widget("box") {
     orientation = "vertical",
+    GUI.optionwidgets.selection_type_combo,
     GUI.optionwidgets.encoding_variant_combo,
     GUI.optionwidgets.metadata_path_box
 }
