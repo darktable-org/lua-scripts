@@ -287,20 +287,28 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
         job.percent = (total_substeps * step + substep) / (total_steps * total_substeps)
     end
 
+    function copy_or_export_jpg(src, dest)
+        if df.get_filetype(src.filename) == "jpg" and not src.is_altered then
+            df.file_copy(src.path .. PS .. src.filename, dest)
+         else
+            local exporter = dt.new_format("jpeg")
+            exporter.quality = 95    
+            exporter:write_image(src, dest)
+         end
+    end
+
     if encoding_variant == ENCODING_VARIANT_SDR_AND_GAINMAP or encoding_variant == ENCODING_VARIANT_SDR_AUTO_GAINMAP then
         total_substeps = 6
-        -- Export both SDR and gainmap to JPEGs
-        local exporter = dt.new_format("jpeg")
-        exporter.quality = 95
+        -- Export/copy both SDR and gainmap to JPEGs
         local sdr = df.create_unique_filename(settings.tmpdir .. PS .. df.chop_filetype(images["sdr"].filename) ..
                                                   ".jpg")
-        exporter:write_image(images["sdr"], sdr)
+        copy_or_export_jpg(images["sdr"], sdr)
         local gainmap
         if encoding_variant == ENCODING_VARIANT_SDR_AUTO_GAINMAP then -- SDR is also a gainmap
             gainmap = sdr
         else
             gainmap = df.create_unique_filename(settings.tmpdir .. PS .. images["gainmap"].filename .. "_gainmap.jpg")
-            exporter:write_image(images["gainmap"], gainmap)
+            copy_or_export_jpg(images["gainmap"], gainmap)
         end
         log.msg(log.debug, string.format(_("Exported files: %s, %s"), sdr, gainmap))
         update_job_progress()
