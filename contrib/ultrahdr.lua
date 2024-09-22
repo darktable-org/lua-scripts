@@ -68,11 +68,12 @@ local GUI = {
         output_directory_widget = {},
         copy_exif = {},
         import_to_darktable = {},
-        metadata_file_generate = {},
-        metadata_path_label = {},
-        metadata_path_widget = {},
-        metadata_path_box = {},
-        metadata_path_box2 = {},
+        min_content_boost = {},
+        max_content_boost = {},
+        hdr_capacity_min = {},
+        hdr_capacity_max = {},
+        metadata_label = {},
+        metadata_box = {},
         edit_executables_button = {},
         executable_path_widget = {}
     },
@@ -100,22 +101,24 @@ local ENCODING_VARIANT_SDR_AUTO_GAINMAP = 3
 local SELECTION_TYPE_ONE_STACK = 1
 local SELECTION_TYPE_GROUP_BY_FNAME = 2
 
-local function generate_metadata_file()
-    local default_metadata_file = [[--maxContentBoost 6.0
---minContentBoost 1.0
+local function generate_metadata_file(settings)
+    local metadata_file_fmt = [[--maxContentBoost %f
+--minContentBoost %f
 --gamma 1.0
 --offsetSdr 0.0
 --offsetHdr 0.0
---hdrCapacityMin 1.0
---hdrCapacityMax 6.0]]
+--hdrCapacityMin %f
+--hdrCapacityMax %f]]
 
-    local filename = dt.configuration.config_dir .. PS .. "ultrahdr_metadata.cfg"
+    local filename = df.create_unique_filename(settings.tmpdir .. PS .. "metadata.cfg")
     local f, err = io.open(filename, "w+")
     if not f then
         dt.print(err)
         return nil
     end
-    f:write(default_metadata_file)
+    local content = string.format(metadata_file_fmt, settings.metadata.max_content_boost,
+        settings.metadata.min_content_boost, settings.metadata.hdr_capacity_min, settings.metadata.hdr_capacity_max)
+    f:write(content)
     f:close()
     return filename
 end
@@ -123,15 +126,25 @@ end
 local function save_preferences()
     dt.preferences.write(namespace, "encoding_variant", "integer", GUI.optionwidgets.encoding_variant_combo.selected)
     dt.preferences.write(namespace, "selection_type", "integer", GUI.optionwidgets.selection_type_combo.selected)
-    if GUI.optionwidgets.metadata_path_widget.value then
-        dt.preferences.write(namespace, "metadata_path", "string", GUI.optionwidgets.metadata_path_widget.value)
-    end
     dt.preferences.write(namespace, "use_original_directory", "bool", GUI.optionwidgets.use_original_directory.value)
     if GUI.optionwidgets.output_directory_widget.value then
         dt.preferences.write(namespace, "output_directory", "string", GUI.optionwidgets.output_directory_widget.value)
     end
     dt.preferences.write(namespace, "import_to_darktable", "bool", GUI.optionwidgets.import_to_darktable.value)
     dt.preferences.write(namespace, "copy_exif", "bool", GUI.optionwidgets.copy_exif.value)
+    if GUI.optionwidgets.min_content_boost.value then
+        dt.preferences.write(namespace, "min_content_boost", "float", GUI.optionwidgets.min_content_boost.value)
+        dt.preferences.write(namespace, "max_content_boost", "float", GUI.optionwidgets.max_content_boost.value)
+        dt.preferences.write(namespace, "hdr_capacity_min", "float", GUI.optionwidgets.hdr_capacity_min.value)
+        dt.preferences.write(namespace, "hdr_capacity_max", "float", GUI.optionwidgets.hdr_capacity_max.value)
+    end
+end
+
+local function default_to(value, default)
+    if value == 0 then
+        return default
+    end
+    return value
 end
 
 local function load_preferences()
@@ -141,12 +154,6 @@ local function load_preferences()
     GUI.optionwidgets.selection_type_combo.selected = math.max(
         dt.preferences.read(namespace, "selection_type", "integer"), SELECTION_TYPE_ONE_STACK)
 
-    GUI.optionwidgets.metadata_path_widget.value = dt.preferences.read(namespace, "metadata_path", "string")
-    if not GUI.optionwidgets.metadata_path_widget.value then -- file widgets reset "" value to nil
-        GUI.optionwidgets.metadata_path_widget.value = generate_metadata_file()
-        -- Avoid regenerating the file if the user only enables the plugin, but never clicks "Generate"
-        dt.preferences.write(namespace, "metadata_path", "string", GUI.optionwidgets.metadata_path_widget.value)
-    end
     GUI.optionwidgets.output_directory_widget.value = dt.preferences.read(namespace, "output_directory", "string")
     GUI.optionwidgets.use_original_directory.value = dt.preferences.read(namespace, "use_original_directory", "bool")
     if not GUI.optionwidgets.output_directory_widget.value then
@@ -154,6 +161,14 @@ local function load_preferences()
     end
     GUI.optionwidgets.import_to_darktable.value = dt.preferences.read(namespace, "import_to_darktable", "bool")
     GUI.optionwidgets.copy_exif.value = dt.preferences.read(namespace, "copy_exif", "bool")
+    GUI.optionwidgets.min_content_boost.value = default_to(dt.preferences.read(namespace, "min_content_boost", "float"),
+        1.0)
+    GUI.optionwidgets.max_content_boost.value = default_to(dt.preferences.read(namespace, "max_content_boost", "float"),
+        6.0)
+    GUI.optionwidgets.hdr_capacity_min.value = default_to(dt.preferences.read(namespace, "hdr_capacity_min", "float"),
+        1.0)
+    GUI.optionwidgets.hdr_capacity_max.value = default_to(dt.preferences.read(namespace, "hdr_capacity_max", "float"),
+        6.0)
 end
 
 local function assert_settings_correct(encoding_variant)
@@ -168,7 +183,12 @@ local function assert_settings_correct(encoding_variant)
         use_original_dir = GUI.optionwidgets.use_original_directory.value,
         import_to_darktable = GUI.optionwidgets.import_to_darktable.value,
         copy_exif = GUI.optionwidgets.copy_exif.value,
-        metadata = GUI.optionwidgets.metadata_path_widget.value,
+        metadata = {
+            min_content_boost = GUI.optionwidgets.min_content_boost.value,
+            max_content_boost = GUI.optionwidgets.max_content_boost.value,
+            hdr_capacity_min = GUI.optionwidgets.hdr_capacity_min.value,
+            hdr_capacity_max = GUI.optionwidgets.hdr_capacity_max.value
+        },
         tmpdir = dt.configuration.tmp_dir
     }
 
@@ -183,8 +203,11 @@ local function assert_settings_correct(encoding_variant)
     end
 
     if encoding_variant == ENCODING_VARIANT_SDR_AND_GAINMAP or encoding_variant == ENCODING_VARIANT_SDR_AUTO_GAINMAP then
-        if not settings.metadata or not df.check_if_file_exists(settings.metadata) then
-            table.insert(errors, _("metadata.cfg file not found (use 'Generate' button)"))
+        if settings.metadata.min_content_boost >= settings.metadata.max_content_boost then
+            table.insert(errors, _("min_content_boost should not be greater than max_content_boost"))
+        end
+        if settings.metadata.hdr_capacity_min >= settings.metadata.hdr_capacity_max then
+            table.insert(errors, _("hdr_capacity_min should not be greater than hdr_capacity_max"))
         end
     end
 
@@ -233,7 +256,7 @@ local function get_stacks(images, encoding_variant, selection_type)
             key = df.chop_filetype(v.path .. PS .. v.filename)
         elseif selection_type == SELECTION_TYPE_ONE_STACK then
             key = "the_one_and_only"
-        end 
+        end
         if stacks[key] == nil then
             stacks[key] = {}
         end
@@ -299,11 +322,11 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
     function copy_or_export_jpg(src, dest)
         if df.get_filetype(src.filename) == "jpg" and not src.is_altered then
             df.file_copy(src.path .. PS .. src.filename, dest)
-         else
+        else
             local exporter = dt.new_format("jpeg")
-            exporter.quality = 95    
+            exporter.quality = 95
             exporter:write_image(src, dest)
-         end
+        end
     end
 
     if encoding_variant == ENCODING_VARIANT_SDR_AND_GAINMAP or encoding_variant == ENCODING_VARIANT_SDR_AUTO_GAINMAP then
@@ -328,11 +351,13 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
             execute_cmd(settings.bin.exiftool .. " -all= " .. df.sanitize_filename(gainmap) .. " -overwrite_original")
         end
         update_job_progress()
+        -- Generate metadata.cfg file
+        local metadata_file = generate_metadata_file(settings)
         -- Merge files
         uhdr = df.chop_filetype(sdr) .. "_ultrahdr.jpg"
 
         execute_cmd(settings.bin.ultrahdr_app .. " -m 0 -i " .. df.sanitize_filename(sdr .. ".noexif") .. " -g " ..
-                        df.sanitize_filename(gainmap) .. " -f " .. df.sanitize_filename(settings.metadata) .. " -z " ..
+                        df.sanitize_filename(gainmap) .. " -f " .. df.sanitize_filename(metadata_file) .. " -z " ..
                         df.sanitize_filename(uhdr))
         update_job_progress()
         -- Copy SDR's EXIF to UltraHDR file
@@ -346,6 +371,7 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
         -- Cleanup 
         os.remove(sdr)
         os.remove(sdr .. ".noexif")
+        os.remove(metadata_file)
         if sdr ~= gainmap then
             os.remove(gainmap)
         end
@@ -374,8 +400,7 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
         local sdr_w, sdr_h = get_dimensions(images["sdr"])
         execute_cmd(settings.bin.ultrahdr_app .. " -m 0 -y " .. df.sanitize_filename(sdr .. ".raw") .. " -p " ..
                         df.sanitize_filename(extra) .. " -a 0 -b 3 -c 1 -C 1 -t 2 -M 1 -s 1 -q 95 -Q 95 -D 1 " .. " -w " ..
-                        tostring(sdr_w) .. " -h " .. tostring(sdr_h) .. " -z " ..
-                        df.sanitize_filename(uhdr))
+                        tostring(sdr_w) .. " -h " .. tostring(sdr_h) .. " -z " .. df.sanitize_filename(uhdr))
         update_job_progress()
         if settings.copy_exif then
             -- Restricting tags to EXIF only, to make sure we won't mess up XMP tags (-all>all).
@@ -492,34 +517,72 @@ GUI.optionwidgets.output_settings_box = dt.new_widget("box") {
     GUI.optionwidgets.copy_exif
 }
 
-GUI.optionwidgets.metadata_path_label = dt.new_widget("label") {
-    label = _("Gainmap metadata file")
+GUI.optionwidgets.metadata_label = dt.new_widget("label") {
+    label = _("Gainmap metadata")
 }
 
-GUI.optionwidgets.metadata_path_widget = dt.new_widget("file_chooser_button") {
-    title = _("Select libultrahdr metadata.cfg file"),
-    is_directory = false
+GUI.optionwidgets.min_content_boost = dt.new_widget("slider") {
+    label = _('Min content boost'),
+    tooltip = _(
+        'How much darker an image can get, when shown on an HDR display, relative to the SDR rendition (linear, SDR = 1.0). Also called "GainMapMin". '),
+    hard_min = 0.9,
+    hard_max = 10,
+    soft_min = 0.9,
+    soft_max = 2,
+    step = 1,
+    digits = 1,
+    reset_callback = function(self)
+        self.value = 1.0
+    end
 }
-
-GUI.optionwidgets.metadata_file_generate = dt.new_widget("button") {
-    label = _("Generate"),
-    tooltip = _("Generate new metadata file with default values"),
-    clicked_callback = function()
-        local metadata_file = generate_metadata_file()
-        GUI.optionwidgets.metadata_path_widget.value = metadata_file
+GUI.optionwidgets.max_content_boost = dt.new_widget("slider") {
+    label = _('Max content boost'),
+    tooltip = _(
+        'How much brighter an image can get, when shown on an HDR display, relative to the SDR rendition (linear, SDR = 1.0). Also called "GainMapMax". \n\nMust not be lower than Min content boost'),
+    hard_min = 1,
+    hard_max = 10,
+    soft_min = 2,
+    soft_max = 10,
+    step = 1,
+    digits = 1,
+    reset_callback = function(self)
+        self.value = 6.0
+    end
+}
+GUI.optionwidgets.hdr_capacity_min = dt.new_widget("slider") {
+    label = _('Min HDR capacity'),
+    tooltip = _('Minimum display boost value for which the gain map is applied at all (linear, SDR = 1.0).'),
+    hard_min = 0.9,
+    hard_max = 10,
+    soft_min = 1,
+    soft_max = 2,
+    step = 1,
+    digits = 1,
+    reset_callback = function(self)
+        self.value = 1.0
+    end
+}
+GUI.optionwidgets.hdr_capacity_max = dt.new_widget("slider") {
+    label = _('Max HDR capacity'),
+    tooltip = _('Maximum display boost value for which the gain map is applied completely (linear, SDR = 1.0).'),
+    hard_min = 1,
+    hard_max = 10,
+    soft_min = 2,
+    soft_max = 10,
+    digits = 1,
+    step = 1,
+    reset_callback = function(self)
+        self.value = 6.0
     end
 }
 
-GUI.optionwidgets.metadata_path_box2 = dt.new_widget("box") {
-    orientation = "horizontal",
-    GUI.optionwidgets.metadata_path_widget,
-    GUI.optionwidgets.metadata_file_generate
-}
-
-GUI.optionwidgets.metadata_path_box = dt.new_widget("box") {
+GUI.optionwidgets.metadata_box = dt.new_widget("box") {
     orientation = "vertical",
-    GUI.optionwidgets.metadata_path_label,
-    GUI.optionwidgets.metadata_path_box2
+    GUI.optionwidgets.metadata_label,
+    GUI.optionwidgets.min_content_boost,
+    GUI.optionwidgets.max_content_boost,
+    GUI.optionwidgets.hdr_capacity_min,
+    GUI.optionwidgets.hdr_capacity_max
 }
 
 GUI.optionwidgets.encoding_variant_combo = dt.new_widget("combobox") {
@@ -538,9 +601,9 @@ You can force the image into a specific stack slot by attaching "hdr" / "gainmap
     changed_callback = function(self)
         GUI.run.sensitive = self.selected and self.selected > 0
         if self.selected == ENCODING_VARIANT_SDR_AND_GAINMAP or self.selected == ENCODING_VARIANT_SDR_AUTO_GAINMAP then
-            GUI.optionwidgets.metadata_path_box.visible = true
+            GUI.optionwidgets.metadata_box.visible = true
         else
-            GUI.optionwidgets.metadata_path_box.visible = false
+            GUI.optionwidgets.metadata_box.visible = false
         end
     end,
     _("SDR + gainmap"), -- ENCODING_VARIANT_SDR_AND_GAINMAP
@@ -568,7 +631,7 @@ GUI.optionwidgets.encoding_settings_box = dt.new_widget("box") {
     orientation = "vertical",
     GUI.optionwidgets.selection_type_combo,
     GUI.optionwidgets.encoding_variant_combo,
-    GUI.optionwidgets.metadata_path_box
+    GUI.optionwidgets.metadata_box
 }
 
 GUI.optionwidgets.executable_path_widget = df.executable_path_widget({"ultrahdr_app", "exiftool", "ffmpeg"})
