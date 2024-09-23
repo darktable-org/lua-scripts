@@ -522,9 +522,9 @@ function dtutils_file.file_copy(fromFile, toFile)
   local result = nil
   -- if cp exists, use it
   if dt.configuration.running_os == "windows" then
-    result = os.execute('copy "' .. fromFile .. '" "' .. toFile .. '"')
+    result = os.execute('copy ' .. dtutils_file.sanitize_filename(fromFile) .. ' ' .. dtutils_file.sanitize_filename(toFile))
   elseif dtutils_file.check_if_bin_exists("cp") then
-    result = os.execute("cp '" .. fromFile .. "' '" .. toFile .. "'")
+    result = os.execute("cp " .. dtutils_file.sanitize_filename(fromFile) .. ' ' .. dtutils_file.sanitize_filename(toFile))
   end
 
   -- if cp was not present, or if cp failed, then a pure lua solution
@@ -575,7 +575,7 @@ function dtutils_file.file_move(fromFile, toFile)
   if not success then
     -- an error occurred, so let's try using the operating system function
     if dtutils_file.check_if_bin_exists("mv") then
-      success = os.execute("mv '" .. fromFile .. "' '" .. toFile .. "'")
+      success = os.execute("mv " .. dtutils_file.sanitize_filename(fromFile) .. ' ' .. dtutils_file.sanitize_filename(toFile))
     end
     -- if the mv didn't exist or succeed, then...
     if not success then
