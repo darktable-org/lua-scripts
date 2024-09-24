@@ -1,6 +1,6 @@
 --[[
 
-  UltraHDR storage for darktable
+  UltraHDR image generation for darktable
 
   copyright (c) 2024  Krzysztof Kotowicz
 
@@ -20,7 +20,7 @@
 ]] --[[
 
 ULTRAHDR
-Generate UltraHDR JPG images from various combinations of source files (SDR, HDR, gainmap).
+Generate UltraHDR JPEG images from various combinations of source files (SDR, HDR, gainmap).
 
 https://developer.android.com/media/platform/hdr-image-format
 
@@ -34,6 +34,7 @@ ADDITIONAL SOFTWARE NEEDED FOR THIS SCRIPT
 USAGE
 * require this file from your main luarc config file
 * set binary tool paths
+* Use UltraHDR module to generate UltraHDR images from selection
 
 ]] local dt = require "darktable"
 local du = require "lib/dtutils"
@@ -564,16 +565,16 @@ GUI.optionwidgets.settings_label = dt.new_widget("section_label") {
 }
 
 GUI.optionwidgets.output_settings_label = dt.new_widget("section_label") {
-    label = _("Output")
+    label = _("output")
 }
 
 GUI.optionwidgets.output_directory_widget = dt.new_widget("file_chooser_button") {
-    title = _("Select directory to write UltraHDR image files to"),
+    title = _("select directory to write UltraHDR image files to"),
     is_directory = true
 }
 
 GUI.optionwidgets.use_original_directory = dt.new_widget("check_button") {
-    label = _("Export to original directory"),
+    label = _("export to original directory"),
     tooltip = _("Write UltraHDR images to the same directory as their original images"),
     clicked_callback = function(self)
         GUI.optionwidgets.output_directory_widget.sensitive = not self.value
@@ -581,12 +582,12 @@ GUI.optionwidgets.use_original_directory = dt.new_widget("check_button") {
 }
 
 GUI.optionwidgets.import_to_darktable = dt.new_widget("check_button") {
-    label = _("Import UltraHDRs to Darktable"),
+    label = _("import UltraHDRs to library"),
     tooltip = _("Import UltraHDR images to Darktable library after generating, with an 'ultrahdr' tag attached.")
 }
 
 GUI.optionwidgets.copy_exif = dt.new_widget("check_button") {
-    label = _("Copy EXIF data from SDR file(s)"),
+    label = _("copy EXIF data"),
     tooltip = _("Copy EXIF data into UltraHDR file(s) from their SDR sources.")
 }
 
@@ -600,11 +601,11 @@ GUI.optionwidgets.output_settings_box = dt.new_widget("box") {
 }
 
 GUI.optionwidgets.metadata_label = dt.new_widget("label") {
-    label = _("Gainmap metadata")
+    label = _("gainmap metadata")
 }
 
 GUI.optionwidgets.min_content_boost = dt.new_widget("slider") {
-    label = _('Min content boost'),
+    label = _('min content boost'),
     tooltip = _(
         'How much darker an image can get, when shown on an HDR display, relative to the SDR rendition (linear, SDR = 1.0). Also called "GainMapMin". '),
     hard_min = 0.9,
@@ -618,7 +619,7 @@ GUI.optionwidgets.min_content_boost = dt.new_widget("slider") {
     end
 }
 GUI.optionwidgets.max_content_boost = dt.new_widget("slider") {
-    label = _('Max content boost'),
+    label = _('max content boost'),
     tooltip = _(
         'How much brighter an image can get, when shown on an HDR display, relative to the SDR rendition (linear, SDR = 1.0). Also called "GainMapMax". \n\nMust not be lower than Min content boost'),
     hard_min = 1,
@@ -632,7 +633,7 @@ GUI.optionwidgets.max_content_boost = dt.new_widget("slider") {
     end
 }
 GUI.optionwidgets.hdr_capacity_min = dt.new_widget("slider") {
-    label = _('Min HDR capacity'),
+    label = _('min HDR capacity'),
     tooltip = _('Minimum display boost value for which the gain map is applied at all (linear, SDR = 1.0).'),
     hard_min = 0.9,
     hard_max = 10,
@@ -645,7 +646,7 @@ GUI.optionwidgets.hdr_capacity_min = dt.new_widget("slider") {
     end
 }
 GUI.optionwidgets.hdr_capacity_max = dt.new_widget("slider") {
-    label = _('Max HDR capacity'),
+    label = _('max HDR capacity'),
     tooltip = _('Maximum display boost value for which the gain map is applied completely (linear, SDR = 1.0).'),
     hard_min = 1,
     hard_max = 10,
@@ -668,7 +669,7 @@ GUI.optionwidgets.metadata_box = dt.new_widget("box") {
 }
 
 GUI.optionwidgets.encoding_variant_combo = dt.new_widget("combobox") {
-    label = _("Each stack contains"),
+    label = _("each stack contains"),
     tooltip = string.format(_([[Select the types of images in each stack.
 This will determine the method used to generate UltraHDR.
 
@@ -694,7 +695,7 @@ You can force the image into a specific stack slot by attaching "hdr" / "gainmap
 }
 
 GUI.optionwidgets.selection_type_combo = dt.new_widget("combobox") {
-    label = _("Selection contains"),
+    label = _("selection contains"),
     tooltip = string.format(_([[Select types of images selected in Darktable.
 This determines how the plugin groups images into separate stacks (each stack will produce a single UltraHDR image).
 
@@ -710,7 +711,7 @@ As an added precaution, each image in a stack needs to have the same dimensions.
 }
 
 GUI.optionwidgets.quality_widget = dt.new_widget("slider") {
-    label = _('Quality'),
+    label = _('quality'),
     tooltip = _('Quality of the output UltraHDR JPEG file'),
     hard_min = 0,
     hard_max = 100,
@@ -735,7 +736,7 @@ GUI.optionwidgets.executable_path_widget = df.executable_path_widget({"ultrahdr_
 GUI.optionwidgets.executable_path_widget.visible = false
 
 GUI.optionwidgets.edit_executables_button = dt.new_widget("button") {
-    label = _("Show / hide executables"),
+    label = _("show / hide executables"),
     tooltip = _("Show / hide settings for executable files required for the plugin functionality"),
     clicked_callback = function()
         GUI.optionwidgets.executable_path_widget.visible = not GUI.optionwidgets.executable_path_widget.visible
@@ -752,7 +753,7 @@ GUI.options = dt.new_widget("box") {
 }
 
 GUI.run = dt.new_widget("button") {
-    label = _("Generate UltraHDR"),
+    label = _("generate UltraHDR"),
     tooltip = _("Generate UltraHDR image(s) from selection"),
     clicked_callback = main
 }
