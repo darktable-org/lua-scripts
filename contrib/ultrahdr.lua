@@ -75,7 +75,8 @@ local GUI = {
         metadata_label = {},
         metadata_box = {},
         edit_executables_button = {},
-        executable_path_widget = {}
+        executable_path_widget = {},
+        quality_widget = {}
     },
     options = {},
     run = {}
@@ -100,6 +101,10 @@ local ENCODING_VARIANT_SDR_AUTO_GAINMAP = 3
 
 local SELECTION_TYPE_ONE_STACK = 1
 local SELECTION_TYPE_GROUP_BY_FNAME = 2
+
+-- Values are defined in darktable/src/common/colorspaces.h
+local DT_COLORSPACE_PQ_P3 = 24
+local DT_COLORSPACE_DISPLAY_P3 = 26
 
 local function generate_metadata_file(settings)
     local metadata_file_fmt = [[--maxContentBoost %f
@@ -138,6 +143,7 @@ local function save_preferences()
         dt.preferences.write(namespace, "hdr_capacity_min", "float", GUI.optionwidgets.hdr_capacity_min.value)
         dt.preferences.write(namespace, "hdr_capacity_max", "float", GUI.optionwidgets.hdr_capacity_max.value)
     end
+    dt.preferences.write(namespace, "quality", "integer", GUI.optionwidgets.quality_widget.value)
 end
 
 local function default_to(value, default)
@@ -169,6 +175,30 @@ local function load_preferences()
         1.0)
     GUI.optionwidgets.hdr_capacity_max.value = default_to(dt.preferences.read(namespace, "hdr_capacity_max", "float"),
         6.0)
+    GUI.optionwidgets.quality_widget.value = default_to(dt.preferences.read(namespace, "quality", "integer"), 95)
+end
+
+-- Changes the combobox selection blindly until a paired config value is set.
+-- Workaround for https://github.com/darktable-org/lua-scripts/issues/522
+local function set_combobox(path, instance, config_name, new_config_value)
+
+    local pref = dt.preferences.read("darktable", config_name, "integer")
+    if pref == new_config_value then
+        return new_config_value
+    end
+
+    dt.gui.action(path, 0, "selection", "first", 1.0)
+    local limit, i = 30, 0 -- in case there is no matching config value in the first n entries of a combobox.
+    while i < limit do
+        i = i + 1
+        dt.gui.action(path, 0, "selection", "next", 1.0)
+        dt.control.sleep(10)
+        if dt.preferences.read("darktable", config_name, "integer") == new_config_value then
+            log.msg(log.debug, string.format(_("Changed %s from %d to %d"), config_name, pref, new_config_value))
+            return pref
+        end
+    end
+    log.msg(log.error, string.format(_("Could not change %s from %d to %d"), config_name, pref, new_config_value))
 end
 
 local function assert_settings_correct(encoding_variant)
@@ -189,6 +219,7 @@ local function assert_settings_correct(encoding_variant)
             hdr_capacity_min = GUI.optionwidgets.hdr_capacity_min.value,
             hdr_capacity_max = GUI.optionwidgets.hdr_capacity_max.value
         },
+        quality = GUI.optionwidgets.quality_widget.value,
         tmpdir = dt.configuration.tmp_dir
     }
 
@@ -226,11 +257,10 @@ end
 
 local function get_stacks(images, encoding_variant, selection_type)
     local stacks = {}
-    local extra_image_content_type, extra_image_extension
+    local extra_image_content_type
     if encoding_variant == ENCODING_VARIANT_SDR_AND_GAINMAP then
         extra_image_content_type = "gainmap"
     elseif encoding_variant == ENCODING_VARIANT_SDR_AND_HDR then
-        extra_image_extension = "jxl"
         extra_image_content_type = "hdr"
     elseif encoding_variant == ENCODING_VARIANT_SDR_AUTO_GAINMAP then
         extra_image_content_type = nil
@@ -278,9 +308,6 @@ local function get_stacks(images, encoding_variant, selection_type)
         if extra_image_content_type then
             if not v["sdr"] or not v[extra_image_content_type] then
                 stacks[k] = nil
-            elseif extra_image_extension and df.get_filetype(v[extra_image_content_type].filename) ~=
-                extra_image_extension then
-                stacks[k] = nil
             else
                 local sdr_w, sdr_h = get_dimensions(v["sdr"])
                 local extra_w, extra_h = get_dimensions(v[extra_image_content_type])
@@ -309,6 +336,7 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
     local total_substeps
     local substep = 0
     local uhdr
+    local errors = {}
 
     function update_job_progress()
         substep = substep + 1
@@ -319,28 +347,56 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
         job.percent = (total_substeps * step + substep) / (total_steps * total_substeps)
     end
 
-    function copy_or_export_jpg(src, dest)
-        if df.get_filetype(src.filename) == "jpg" and not src.is_altered then
-            df.file_copy(src.path .. PS .. src.filename, dest)
+    function copy_or_export(src_image, dest, format, colorspace, props)
+        if df.get_filetype(src_image.filename) == df.get_filetype(dest) and not src_image.is_altered then
+            return df.file_copy(src_image.path .. PS .. src_image.filename, dest)
         else
-            local exporter = dt.new_format("jpeg")
-            exporter.quality = 95
-            exporter:write_image(src, dest)
+            local prev = set_combobox("lib/export/profile", 0, "plugins/lighttable/export/icctype", colorspace)
+            if not prev then
+                return false
+            end
+            local exporter = dt.new_format(format)
+            for k, v in pairs(props) do
+                exporter[k] = v
+            end
+            local ok = not exporter:write_image(src_image, dest)
+            if prev then
+                set_combobox("lib/export/profile", 0, "plugins/lighttable/export/icctype", prev)
+            end
+            return ok
         end
+        return true
     end
 
     if encoding_variant == ENCODING_VARIANT_SDR_AND_GAINMAP or encoding_variant == ENCODING_VARIANT_SDR_AUTO_GAINMAP then
         total_substeps = 6
+        local ok
         -- Export/copy both SDR and gainmap to JPEGs
         local sdr = df.create_unique_filename(settings.tmpdir .. PS .. df.chop_filetype(images["sdr"].filename) ..
                                                   ".jpg")
-        copy_or_export_jpg(images["sdr"], sdr)
+        ok = copy_or_export(images["sdr"], sdr, "jpeg", DT_COLORSPACE_DISPLAY_P3, {
+            quality = settings.quality
+        })
+        if not ok then
+            os.remove(sdr)
+            table.insert(errors, string.format(_("Error exporting %s to %s"), images["sdr"].filename, "jpeg"))
+            return false, errors
+        end
+
         local gainmap
         if encoding_variant == ENCODING_VARIANT_SDR_AUTO_GAINMAP then -- SDR is also a gainmap
             gainmap = sdr
         else
             gainmap = df.create_unique_filename(settings.tmpdir .. PS .. images["gainmap"].filename .. "_gainmap.jpg")
-            copy_or_export_jpg(images["gainmap"], gainmap)
+            ok = copy_or_export(images["gainmap"], gainmap, "jpeg", DT_COLORSPACE_DISPLAY_P3, {
+                quality = settings.quality
+            })
+            if not ok then
+                os.remove(sdr)
+                os.remove(sdr)
+                table.insert(errors, string.format(_("Error exporting %s to %s"), images["gainmap"].filename, "jpeg"))
+                return false, errors
+            end
         end
         log.msg(log.debug, string.format(_("Exported files: %s, %s"), sdr, gainmap))
         update_job_progress()
@@ -377,30 +433,54 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
         end
         update_job_progress()
     elseif encoding_variant == ENCODING_VARIANT_SDR_AND_HDR then
-        total_substeps = 5
+        local ok
+        total_substeps = 6
         -- https://discuss.pixls.us/t/manual-creation-of-ultrahdr-images/45004/20
-        -- Step 1: Export SDR to PNG (HDR is already a JPEG-XL)
-        local exporter = dt.new_format("png")
-        exporter.bpp = 8
+        -- Step 1: Export HDR to JPEG-XL with DT_COLORSPACE_PQ_P3
+        local hdr = df.create_unique_filename(settings.tmpdir .. PS .. df.chop_filetype(images["hdr"].filename) ..
+                                                  ".jxl")
+        ok = copy_or_export(images["hdr"], hdr, "jpegxl", DT_COLORSPACE_PQ_P3, {
+            bpp = 10,
+            quality = 100 -- lossless
+        })
+        if not ok then
+            os.remove(hdr)
+            table.insert(errors, string.format(_("Error exporting %s to %s"), images["hdr"].filename, "jxl"))
+            return false, errors
+        end
+        update_job_progress()
+        -- Step 2: Export SDR to PNG
         local sdr = df.create_unique_filename(settings.tmpdir .. PS .. df.chop_filetype(images["sdr"].filename) ..
                                                   ".png")
-        exporter:write_image(images["sdr"], sdr)
+        ok = copy_or_export(images["sdr"], sdr, "png", DT_COLORSPACE_DISPLAY_P3, {
+            bpp = 8
+        })
+        if not ok then
+            os.remove(hdr)
+            os.remove(sdr)
+            table.insert(errors, string.format(_("Error exporting %s to %s"), images["sdr"].filename, "png"))
+            return false, errors
+        end
         uhdr = df.chop_filetype(sdr) .. "_ultrahdr.jpg"
 
         update_job_progress()
-        local extra = df.create_unique_filename(settings.tmpdir .. PS .. images["hdr"].filename .. ".raw")
-
-        -- Step 3: Generate libultrahdr RAW images 
-        execute_cmd(settings.bin.ffmpeg .. " -i " .. df.sanitize_filename(sdr) .. " -pix_fmt rgba -f rawvideo " ..
-                        df.sanitize_filename(sdr .. ".raw"))
-        execute_cmd(settings.bin.ffmpeg .. " -i " ..
-                        df.sanitize_filename(images["hdr"].path .. PS .. images["hdr"].filename) ..
-                        " -pix_fmt p010le -f rawvideo " .. df.sanitize_filename(extra))
-        update_job_progress()
+        -- Step 3: Generate libultrahdr RAW images
         local sdr_w, sdr_h = get_dimensions(images["sdr"])
+        local resize_cmd = ""
+        if sdr_h % 2 + sdr_w % 2 > 0 then -- needs resizing to even dimensions.
+            resize_cmd = string.format(" -vf 'crop=%d:%d:0:0' ", sdr_w - sdr_w % 2, sdr_h - sdr_h % 2)
+        end
+        
+        execute_cmd(settings.bin.ffmpeg .. " -i " .. df.sanitize_filename(sdr) .. resize_cmd .. " -pix_fmt rgba -f rawvideo " ..
+                        df.sanitize_filename(sdr .. ".raw"))
+        execute_cmd(settings.bin.ffmpeg .. " -i " .. df.sanitize_filename(hdr) .. resize_cmd .. " -pix_fmt p010le -f rawvideo " ..
+                        df.sanitize_filename(hdr .. ".raw"))
+        update_job_progress()
         execute_cmd(settings.bin.ultrahdr_app .. " -m 0 -y " .. df.sanitize_filename(sdr .. ".raw") .. " -p " ..
-                        df.sanitize_filename(extra) .. " -a 0 -b 3 -c 1 -C 1 -t 2 -M 1 -s 1 -q 95 -Q 95 -D 1 " .. " -w " ..
-                        tostring(sdr_w) .. " -h " .. tostring(sdr_h) .. " -z " .. df.sanitize_filename(uhdr))
+                        df.sanitize_filename(hdr .. ".raw") ..
+                        string.format(" -a 0 -b 3 -c 1 -C 1 -t 2 -M 1 -s 1 -q %d -Q %d -D 1 ", settings.quality,
+                settings.quality) .. " -w " .. tostring(sdr_w - sdr_w % 2) .. " -h " .. tostring(sdr_h - sdr_h % 2) .. " -z " ..
+                        df.sanitize_filename(uhdr))
         update_job_progress()
         if settings.copy_exif then
             -- Restricting tags to EXIF only, to make sure we won't mess up XMP tags (-all>all).
@@ -409,9 +489,10 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
                             df.sanitize_filename(uhdr) .. " -overwrite_original -preserve")
         end
         -- Cleanup
+        os.remove(hdr)
         os.remove(sdr)
+        os.remove(hdr .. ".raw")
         os.remove(sdr .. ".raw")
-        os.remove(extra)
         update_job_progress()
     end
 
@@ -433,12 +514,10 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
     log.msg(log.info, msg)
     dt.print(msg)
     update_job_progress()
+    return true, nil
 end
 
 local function main()
-    local saved_log_level = log.log_level()
-    log.log_level(log.info)
-
     save_preferences()
 
     local selection_type = GUI.optionwidgets.selection_type_combo.selected
@@ -447,21 +526,25 @@ local function main()
 
     local settings, errors = assert_settings_correct(encoding_variant)
     if not settings then
-        dt.print(string.format(_("Export settings are incorrect, exiting:\n\n%s"), table.concat(errors, "\n")))
-        log.log_level(saved_log_level)
+        dt.print(string.format(_("Export settings are incorrect, exiting:\n\n- %s"), table.concat(errors, "\n- ")))
         return
     end
 
     local stacks, stack_count = get_stacks(dt.gui.selection(), encoding_variant, selection_type)
     dt.print(string.format(_("Detected %d image stack(s)"), stack_count))
     if stack_count == 0 then
-        log.log_level(saved_log_level)
         return
     end
     job = dt.gui.create_job(_("Generating UltraHDR images"), true, stop_job)
     local count = 0
+    local msg
     for i, v in pairs(stacks) do
-        generate_ultrahdr(encoding_variant, v, settings, count, stack_count)
+        local ok, errors = generate_ultrahdr(encoding_variant, v, settings, count, stack_count)
+        if not ok then
+            dt.print(string.format(_("Errors generating images:\n\n- %s"), table.concat(errors, "\n- ")))
+            job.valid = false
+            return
+        end
         count = count + 1
         -- sleep for a short moment to give stop_job callback function a chance to run
         dt.control.sleep(10)
@@ -471,10 +554,9 @@ local function main()
         job.valid = false
     end
 
-    local msg = string.format(_("Generated %d UltraHDR image(s)."), count)
+    msg = string.format(_("Generated %d UltraHDR image(s)."), count)
     log.msg(log.info, msg)
     dt.print(msg)
-    log.log_level(saved_log_level)
 end
 
 GUI.optionwidgets.settings_label = dt.new_widget("section_label") {
@@ -591,12 +673,12 @@ GUI.optionwidgets.encoding_variant_combo = dt.new_widget("combobox") {
 This will determine the method used to generate UltraHDR.
 
 - %s: SDR image paired with a gain map image.
-- %s: SDR image paired with a JPEG-XL HDR image (10-bit, 'PQ P3 RGB' profile recommended).
-- %s: SDR images only. Gainmaps will be copies of SDR images (the simplest option).
+- %s: SDR image paired with an HDR image.
+- %s: Each stack consists of a single SDR image. Gainmaps will be copies of SDR images.
 
 By default, the first image in a stack is treated as SDR, and the second one is a gainmap/HDR.
-You can force the image into a specific stack slot by attaching "hdr" / "gainmap" tags to them.
-]]), _("SDR + gainmap"), _("SDR + JPEG-XL HDR"), _("SDR only")),
+You can force the image into a specific stack slot by attaching "hdr" / "gainmap" tags to it.
+]]), _("SDR + gainmap"), _("SDR + HDR"), _("SDR only")),
     selected = 0,
     changed_callback = function(self)
         GUI.run.sensitive = self.selected and self.selected > 0
@@ -607,7 +689,7 @@ You can force the image into a specific stack slot by attaching "hdr" / "gainmap
         end
     end,
     _("SDR + gainmap"), -- ENCODING_VARIANT_SDR_AND_GAINMAP
-    _("SDR + JPEG-XL HDR"), -- ENCODING_VARIANT_SDR_AND_HDR
+    _("SDR + HDR"), -- ENCODING_VARIANT_SDR_AND_HDR
     _("SDR only") -- ENCODING_VARIANT_SDR_AUTO_GAINMAP
 }
 
@@ -627,10 +709,25 @@ As an added precaution, each image in a stack needs to have the same dimensions.
     _("multiple stacks (use filename)") -- SELECTION_TYPE_GROUP_BY_FNAME
 }
 
+GUI.optionwidgets.quality_widget = dt.new_widget("slider") {
+    label = _('Quality'),
+    tooltip = _('Quality of the output UltraHDR JPEG file'),
+    hard_min = 0,
+    hard_max = 100,
+    soft_min = 0,
+    soft_max = 100,
+    step = 1,
+    digits = 0,
+    reset_callback = function(self)
+        self.value = 95
+    end
+}
+
 GUI.optionwidgets.encoding_settings_box = dt.new_widget("box") {
     orientation = "vertical",
     GUI.optionwidgets.selection_type_combo,
     GUI.optionwidgets.encoding_variant_combo,
+    GUI.optionwidgets.quality_widget,
     GUI.optionwidgets.metadata_box
 }
 
@@ -656,10 +753,7 @@ GUI.options = dt.new_widget("box") {
 
 GUI.run = dt.new_widget("button") {
     label = _("Generate UltraHDR"),
-    tooltip = _([[Generate UltraHDR image(s) from selection
-
-Global options in the export module apply to the SDR image. Make sure that a proper color 'profile' setting is used (e.g. Display P3)
-]]),
+    tooltip = _("Generate UltraHDR image(s) from selection"),
     clicked_callback = main
 }
 
