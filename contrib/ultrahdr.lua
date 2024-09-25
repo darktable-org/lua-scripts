@@ -328,16 +328,23 @@ local function stop_job(job)
     job.valid = false
 end
 
-local function execute_cmd(cmd)
-    log.msg(log.debug, cmd)
-    return dtsys.external_command(cmd)
-end
-
 local function generate_ultrahdr(encoding_variant, images, settings, step, total_steps)
     local total_substeps
     local substep = 0
     local uhdr
     local errors = {}
+    local remove_files = {}
+    local ok
+    local cmd
+
+    local function execute_cmd(cmd, errormsg)
+        log.msg(log.debug, cmd)
+        local code = dtsys.external_command(cmd)
+        if errormsg and code > 0 then
+            table.insert(errors, errormsg)
+        end
+        return code == 0
+    end
 
     function update_job_progress()
         substep = substep + 1
@@ -374,19 +381,25 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
         return true
     end
 
+    function cleanup()
+        for _, v in pairs(remove_files) do
+            os.remove(v)
+        end
+        return false
+    end
+
     if encoding_variant == ENCODING_VARIANT_SDR_AND_GAINMAP or encoding_variant == ENCODING_VARIANT_SDR_AUTO_GAINMAP then
-        total_substeps = 6
-        local ok
+        total_substeps = 5
         -- Export/copy both SDR and gainmap to JPEGs
         local sdr = df.create_unique_filename(settings.tmpdir .. PS .. df.chop_filetype(images["sdr"].filename) ..
                                                   ".jpg")
+        table.insert(remove_files, sdr)
         ok = copy_or_export(images["sdr"], sdr, "jpeg", DT_COLORSPACE_DISPLAY_P3, {
             quality = settings.quality
         })
         if not ok then
-            os.remove(sdr)
             table.insert(errors, string.format(_("Error exporting %s to %s"), images["sdr"].filename, "jpeg"))
-            return false, errors
+            return cleanup(), errors
         end
 
         local gainmap
@@ -394,52 +407,56 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
             gainmap = sdr
         else
             gainmap = df.create_unique_filename(settings.tmpdir .. PS .. images["gainmap"].filename .. "_gainmap.jpg")
+            table.insert(remove_files, gainmap)
             ok = copy_or_export(images["gainmap"], gainmap, "jpeg", DT_COLORSPACE_DISPLAY_P3, {
                 quality = settings.quality
             })
             if not ok then
-                os.remove(sdr)
-                os.remove(sdr)
                 table.insert(errors, string.format(_("Error exporting %s to %s"), images["gainmap"].filename, "jpeg"))
-                return false, errors
+                return cleanup(), errors
             end
         end
         log.msg(log.debug, string.format(_("Exported files: %s, %s"), sdr, gainmap))
         update_job_progress()
         -- Strip EXIFs
-        execute_cmd(settings.bin.exiftool .. " -all= " .. df.sanitize_filename(sdr) .. " -o " ..
-                        df.sanitize_filename(sdr .. ".noexif"))
+        table.insert(remove_files, sdr .. ".noexif")
+        cmd = settings.bin.exiftool .. " -all= " .. df.sanitize_filename(sdr) .. " -o " ..
+                  df.sanitize_filename(sdr .. ".noexif")
+        if not execute_cmd(cmd, string.format(_("Error stripping EXIF from %s"), sdr)) then
+            return cleanup(), errors
+        end
         if sdr ~= gainmap then
-            execute_cmd(settings.bin.exiftool .. " -all= " .. df.sanitize_filename(gainmap) .. " -overwrite_original")
+            if not execute_cmd(settings.bin.exiftool .. " -all= " .. df.sanitize_filename(gainmap) ..
+                                   " -overwrite_original", string.format(_("Error stripping EXIF from %s"), gainmap)) then
+                return cleanup(), errors
+            end
         end
         update_job_progress()
         -- Generate metadata.cfg file
         local metadata_file = generate_metadata_file(settings)
+        table.insert(remove_files, metadata_file)
         -- Merge files
         uhdr = df.chop_filetype(sdr) .. "_ultrahdr.jpg"
-
-        execute_cmd(settings.bin.ultrahdr_app .. " -m 0 -i " .. df.sanitize_filename(sdr .. ".noexif") .. " -g " ..
-                        df.sanitize_filename(gainmap) .. " -f " .. df.sanitize_filename(metadata_file) .. " -z " ..
-                        df.sanitize_filename(uhdr))
+        table.insert(remove_files, uhdr)
+        cmd = settings.bin.ultrahdr_app .. " -m 0 -i " .. df.sanitize_filename(sdr .. ".noexif") .. " -g " ..
+                  df.sanitize_filename(gainmap) .. " -f " .. df.sanitize_filename(metadata_file) .. " -z " ..
+                  df.sanitize_filename(uhdr)
+        if not execute_cmd(cmd, string.format(_("Error merging UltraHDR to %s"), uhdr)) then
+            return cleanup(), errors
+        end
         update_job_progress()
         -- Copy SDR's EXIF to UltraHDR file
         if settings.copy_exif then
             -- Restricting tags to EXIF only, to make sure we won't mess up XMP tags (-all>all).
             -- This might hapen e.g. when the source files are Adobe gainmap HDRs.
-            execute_cmd(settings.bin.exiftool .. " -tagsfromfile " .. df.sanitize_filename(sdr) .. " -exif " ..
-                            df.sanitize_filename(uhdr) .. " -overwrite_original -preserve")
-        end
-        update_job_progress()
-        -- Cleanup 
-        os.remove(sdr)
-        os.remove(sdr .. ".noexif")
-        os.remove(metadata_file)
-        if sdr ~= gainmap then
-            os.remove(gainmap)
+            cmd = settings.bin.exiftool .. " -tagsfromfile " .. df.sanitize_filename(sdr) .. " -exif " ..
+                      df.sanitize_filename(uhdr) .. " -overwrite_original -preserve"
+            if not execute_cmd(cmd, string.format(_("Error adding EXIF to %s"), uhdr)) then
+                return cleanup(), errors
+            end
         end
         update_job_progress()
     elseif encoding_variant == ENCODING_VARIANT_SDR_AND_HDR then
-        local ok
         total_substeps = 6
         -- https://discuss.pixls.us/t/manual-creation-of-ultrahdr-images/45004/20
         -- Step 1: Export HDR to JPEG-XL with DT_COLORSPACE_PQ_P3
@@ -448,28 +465,26 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
         ok = copy_or_export(images["hdr"], hdr, "jpegxl", DT_COLORSPACE_PQ_P3, {
             bpp = 10,
             quality = 100, -- lossless
-            effort = 1, -- we don't care about the size, the faile is temporary.
+            effort = 1 -- we don't care about the size, the faile is temporary.
         })
         if not ok then
-            os.remove(hdr)
             table.insert(errors, string.format(_("Error exporting %s to %s"), images["hdr"].filename, "jxl"))
-            return false, errors
+            return cleanup(), errors
         end
         update_job_progress()
         -- Step 2: Export SDR to PNG
         local sdr = df.create_unique_filename(settings.tmpdir .. PS .. df.chop_filetype(images["sdr"].filename) ..
                                                   ".png")
+        table.insert(remove_files, sdr)
         ok = copy_or_export(images["sdr"], sdr, "png", DT_COLORSPACE_DISPLAY_P3, {
             bpp = 8
         })
         if not ok then
-            os.remove(hdr)
-            os.remove(sdr)
             table.insert(errors, string.format(_("Error exporting %s to %s"), images["sdr"].filename, "png"))
-            return false, errors
+            return cleanup(), errors
         end
         uhdr = df.chop_filetype(sdr) .. "_ultrahdr.jpg"
-
+        table.insert(remove_files, uhdr)
         update_job_progress()
         -- Step 3: Generate libultrahdr RAW images
         local sdr_w, sdr_h = get_dimensions(images["sdr"])
@@ -477,35 +492,48 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
         if sdr_h % 2 + sdr_w % 2 > 0 then -- needs resizing to even dimensions.
             resize_cmd = string.format(" -vf 'crop=%d:%d:0:0' ", sdr_w - sdr_w % 2, sdr_h - sdr_h % 2)
         end
-        
-        execute_cmd(settings.bin.ffmpeg .. " -i " .. df.sanitize_filename(sdr) .. resize_cmd .. " -pix_fmt rgba -f rawvideo " ..
-                        df.sanitize_filename(sdr .. ".raw"))
-        execute_cmd(settings.bin.ffmpeg .. " -i " .. df.sanitize_filename(hdr) .. resize_cmd .. " -pix_fmt p010le -f rawvideo " ..
-                        df.sanitize_filename(hdr .. ".raw"))
+        table.insert(remove_files, sdr .. ".raw")
+        table.insert(remove_files, hdr .. ".raw")
+        cmd =
+            settings.bin.ffmpeg .. " -i " .. df.sanitize_filename(sdr) .. resize_cmd .. " -pix_fmt rgba -f rawvideo " ..
+                df.sanitize_filename(sdr .. ".raw")
+        if not execute_cmd(cmd, string.format(_("Error generating %s"), sdr .. ".raw")) then
+            return cleanup(), errors
+        end
+        cmd = settings.bin.ffmpeg .. " -i " .. df.sanitize_filename(hdr) .. resize_cmd ..
+                  " -pix_fmt p010le -f rawvideo " .. df.sanitize_filename(hdr .. ".raw")
+        if not execute_cmd(cmd, string.format(_("Error generating %s"), hdr .. ".raw")) then
+            return cleanup(), errors
+        end
         update_job_progress()
-        execute_cmd(settings.bin.ultrahdr_app .. " -m 0 -y " .. df.sanitize_filename(sdr .. ".raw") .. " -p " ..
-                        df.sanitize_filename(hdr .. ".raw") ..
-                        string.format(" -a 0 -b 3 -c 1 -C 1 -t 2 -M 0 -s 1 -q %d -Q %d -D 1 ", settings.quality,
-                settings.quality) .. " -w " .. tostring(sdr_w - sdr_w % 2) .. " -h " .. tostring(sdr_h - sdr_h % 2) .. " -z " ..
-                        df.sanitize_filename(uhdr))
+        cmd = settings.bin.ultrahdr_app .. " -m 0 -y " .. df.sanitize_filename(sdr .. ".raw") .. " -p " ..
+                  df.sanitize_filename(hdr .. ".raw") ..
+                  string.format(" -a 0 -b 3 -c 1 -C 1 -t 2 -M 0 -s 1 -q %d -Q %d -D 1 ", settings.quality,
+                settings.quality) .. " -w " .. tostring(sdr_w - sdr_w % 2) .. " -h " .. tostring(sdr_h - sdr_h % 2) ..
+                  " -z " .. df.sanitize_filename(uhdr)
+        if not execute_cmd(cmd, string.format(_("Error merging %s"), uhdr)) then
+            return cleanup(), errors
+        end
         update_job_progress()
         if settings.copy_exif then
             -- Restricting tags to EXIF only, to make sure we won't mess up XMP tags (-all>all).
             -- This might hapen e.g. when the source files are Adobe gainmap HDRs.
-            execute_cmd(settings.bin.exiftool .. " -tagsfromfile " .. df.sanitize_filename(sdr) .. " -exif " ..
-                            df.sanitize_filename(uhdr) .. " -overwrite_original -preserve")
+            cmd = settings.bin.exiftool .. " -tagsfromfile " .. df.sanitize_filename(sdr) .. " -exif " ..
+                      df.sanitize_filename(uhdr) .. " -overwrite_original -preserve"
+            if not execute_cmd(cmd, string.format(_("Error adding EXIF to %s"), uhdr)) then
+                return cleanup(), errors
+            end
         end
-        -- Cleanup
-        os.remove(hdr)
-        os.remove(sdr)
-        os.remove(hdr .. ".raw")
-        os.remove(sdr .. ".raw")
         update_job_progress()
     end
 
     local output_dir = settings.use_original_dir and images["sdr"].path or settings.output
     local output_file = df.create_unique_filename(output_dir .. PS .. df.get_filename(uhdr))
-    df.file_move(uhdr, output_file)
+    ok = df.file_move(uhdr, output_file)
+    if not ok then
+        table.insert(errors, string.format(_("Error generating UltraHDR for %s"), images["sdr"].filename))
+        return cleanup(), errors
+    end
     if settings.import_to_darktable then
         local img = dt.database.import(output_file)
         -- Add "ultrahdr" tag to the imported image
@@ -516,11 +544,11 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
         end
         dt.tags.attach(tagnr, img)
     end
-
+    cleanup()
+    update_job_progress()
     local msg = string.format(_("Generated %s."), df.get_filename(output_file))
     log.msg(log.info, msg)
     dt.print(msg)
-    update_job_progress()
     return true, nil
 end
 
