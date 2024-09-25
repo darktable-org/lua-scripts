@@ -479,7 +479,7 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
         update_job_progress()
         execute_cmd(settings.bin.ultrahdr_app .. " -m 0 -y " .. df.sanitize_filename(sdr .. ".raw") .. " -p " ..
                         df.sanitize_filename(hdr .. ".raw") ..
-                        string.format(" -a 0 -b 3 -c 1 -C 1 -t 2 -M 1 -s 1 -q %d -Q %d -D 1 ", settings.quality,
+                        string.format(" -a 0 -b 3 -c 1 -C 1 -t 2 -M 0 -s 1 -q %d -Q %d -D 1 ", settings.quality,
                 settings.quality) .. " -w " .. tostring(sdr_w - sdr_w % 2) .. " -h " .. tostring(sdr_h - sdr_h % 2) .. " -z " ..
                         df.sanitize_filename(uhdr))
         update_job_progress()
