@@ -442,7 +442,8 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
                                                   ".jxl")
         ok = copy_or_export(images["hdr"], hdr, "jpegxl", DT_COLORSPACE_PQ_P3, {
             bpp = 10,
-            quality = 100 -- lossless
+            quality = 100, -- lossless
+            effort = 1, -- we don't care about the size, the faile is temporary.
         })
         if not ok then
             os.remove(hdr)
