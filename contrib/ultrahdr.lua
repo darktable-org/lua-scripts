@@ -46,8 +46,8 @@ local gettext = dt.gettext.gettext
 
 local namespace = "module_ultrahdr"
 
--- works with darktable API version from 5.0.0 on
-du.check_min_api_version("7.0.0", "ultrahdr")
+-- works with darktable API version from 4.8.0 on
+du.check_min_api_version("9.3.0", "ultrahdr")
 
 dt.gettext.bindtextdomain(namespace, dt.configuration.config_dir .. "/lua/locale/")
 
@@ -360,7 +360,12 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
             for k, v in pairs(props) do
                 exporter[k] = v
             end
-            local ok = not exporter:write_image(src_image, dest)
+            local ok = exporter:write_image(src_image, dest)
+            if dt.configuration.api_version_string == "9.3.0" then
+                -- Workaround for https://github.com/darktable-org/darktable/issues/17528
+                ok = not ok
+            end
+
             if prev then
                 set_combobox("lib/export/profile", 0, "plugins/lighttable/export/icctype", prev)
             end
