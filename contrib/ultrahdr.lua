@@ -617,7 +617,7 @@ GUI.optionwidgets.use_original_directory = dt.new_widget("check_button") {
 
 GUI.optionwidgets.import_to_darktable = dt.new_widget("check_button") {
     label = _("import UltraHDRs to library"),
-    tooltip = _("Import UltraHDR images to Darktable library after generating, with an 'ultrahdr' tag attached.")
+    tooltip = _("Import UltraHDR images to darktable library after generating, with an 'ultrahdr' tag attached.")
 }
 
 GUI.optionwidgets.copy_exif = dt.new_widget("check_button") {
@@ -730,12 +730,12 @@ You can force the image into a specific stack slot by attaching "hdr" / "gainmap
 
 GUI.optionwidgets.selection_type_combo = dt.new_widget("combobox") {
     label = _("selection contains"),
-    tooltip = string.format(_([[Select types of images selected in Darktable.
+    tooltip = string.format(_([[Select types of images selected in darktable.
 This determines how the plugin groups images into separate stacks (each stack will produce a single UltraHDR image).
 
 - %s: All selected image(s) belong to one stack. There will be 1 output UltraHDR image.
 - %s: Group images into stacks, using the source image path + filename (ignoring extension).
-  Use this method if the source images for a given stack are Darktable duplicates.
+  Use this method if the source images for a given stack are darktable duplicates.
 
 As an added precaution, each image in a stack needs to have the same dimensions.
 ]]), _("one stack"), _("multiple stacks (use filename)")),
