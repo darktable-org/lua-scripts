@@ -221,7 +221,8 @@ local function assert_settings_correct(encoding_variant)
             hdr_capacity_max = GUI.optionwidgets.hdr_capacity_max.value
         },
         quality = GUI.optionwidgets.quality_widget.value,
-        tmpdir = dt.configuration.tmp_dir
+        tmpdir = dt.configuration.tmp_dir,
+        skip_cleanup = false -- keep temporary files around, for debugging.
     }
 
     if not settings.use_original_dir and (not settings.output or not df.check_if_file_exists(settings.output)) then
@@ -328,6 +329,16 @@ local function stop_job(job)
     job.valid = false
 end
 
+local function file_size(path)
+    local f, err = io.open(path, "r")
+    if not f then
+        return 0
+    end
+    local size = f:seek("end")
+    f:close()
+    return size
+end
+
 local function generate_ultrahdr(encoding_variant, images, settings, step, total_steps)
     local total_substeps
     local substep = 0
@@ -382,6 +393,9 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
     end
 
     function cleanup()
+        if settings.skip_cleanup then
+            return false
+        end
         for _, v in pairs(remove_files) do
             os.remove(v)
         end
@@ -462,6 +476,7 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
         -- Step 1: Export HDR to JPEG-XL with DT_COLORSPACE_PQ_P3
         local hdr = df.create_unique_filename(settings.tmpdir .. PS .. df.chop_filetype(images["hdr"].filename) ..
                                                   ".jxl")
+        table.insert(remove_files, hdr)
         ok = copy_or_export(images["hdr"], hdr, "jpegxl", DT_COLORSPACE_PQ_P3, {
             bpp = 10,
             quality = 100, -- lossless
@@ -487,27 +502,34 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
         table.insert(remove_files, uhdr)
         update_job_progress()
         -- Step 3: Generate libultrahdr RAW images
+        local sdr_raw, hdr_raw = sdr .. ".raw", hdr .. ".raw"
+        table.insert(remove_files, sdr_raw)
+        table.insert(remove_files, hdr_raw)
         local sdr_w, sdr_h = get_dimensions(images["sdr"])
         local resize_cmd = ""
         if sdr_h % 2 + sdr_w % 2 > 0 then -- needs resizing to even dimensions.
             resize_cmd = string.format(" -vf 'crop=%d:%d:0:0' ", sdr_w - sdr_w % 2, sdr_h - sdr_h % 2)
         end
-        table.insert(remove_files, sdr .. ".raw")
-        table.insert(remove_files, hdr .. ".raw")
+        local size_in_px = (sdr_w - sdr_w % 2) * (sdr_h - sdr_h % 2)
         cmd =
             settings.bin.ffmpeg .. " -i " .. df.sanitize_filename(sdr) .. resize_cmd .. " -pix_fmt rgba -f rawvideo " ..
-                df.sanitize_filename(sdr .. ".raw")
-        if not execute_cmd(cmd, string.format(_("Error generating %s"), sdr .. ".raw")) then
+                df.sanitize_filename(sdr_raw)
+        if not execute_cmd(cmd, string.format(_("Error generating %s"), sdr_raw)) then
             return cleanup(), errors
         end
         cmd = settings.bin.ffmpeg .. " -i " .. df.sanitize_filename(hdr) .. resize_cmd ..
-                  " -pix_fmt p010le -f rawvideo " .. df.sanitize_filename(hdr .. ".raw")
-        if not execute_cmd(cmd, string.format(_("Error generating %s"), hdr .. ".raw")) then
+                  " -pix_fmt p010le -f rawvideo " .. df.sanitize_filename(hdr_raw)
+        if not execute_cmd(cmd, string.format(_("Error generating %s"), hdr_raw)) then
+            return cleanup(), errors
+        end
+        -- sanity check for file sizes (sometimes dt exports different size images if the files were never opened in darktable view)
+        if file_size(sdr_raw) ~= size_in_px * 4 or file_size(hdr_raw) ~= size_in_px & 3 then
+            table.insert(errors, string.format(_("Wrong raw image dimensions: %s, expected %dx%d. Try opening the image in darktable mode first."), images["sdr"].filename, sdr_w, sdr_h))
             return cleanup(), errors
         end
         update_job_progress()
-        cmd = settings.bin.ultrahdr_app .. " -m 0 -y " .. df.sanitize_filename(sdr .. ".raw") .. " -p " ..
-                  df.sanitize_filename(hdr .. ".raw") ..
+        cmd = settings.bin.ultrahdr_app .. " -m 0 -y " .. df.sanitize_filename(sdr_raw) .. " -p " ..
+                  df.sanitize_filename(hdr_raw) ..
                   string.format(" -a 0 -b 3 -c 1 -C 1 -t 2 -M 0 -s 1 -q %d -Q %d -D 1 ", settings.quality,
                 settings.quality) .. " -w " .. tostring(sdr_w - sdr_w % 2) .. " -h " .. tostring(sdr_h - sdr_h % 2) ..
                   " -z " .. df.sanitize_filename(uhdr)
@@ -566,17 +588,18 @@ local function main()
     end
 
     local stacks, stack_count = get_stacks(dt.gui.selection(), encoding_variant, selection_type)
-    dt.print(string.format(_("Detected %d image stack(s)"), stack_count))
     if stack_count == 0 then
+        dt.print(string.format(_("No image stacks detected.\n\nMake sure that the image pairs have the same widths and heights."), stack_count))
         return
     end
+    dt.print(string.format(_("Detected %d image stack(s)"), stack_count))
     job = dt.gui.create_job(_("Generating UltraHDR images"), true, stop_job)
     local count = 0
     local msg
     for i, v in pairs(stacks) do
         local ok, errors = generate_ultrahdr(encoding_variant, v, settings, count, stack_count)
         if not ok then
-            dt.print(string.format(_("Errors generating images:\n\n- %s"), table.concat(errors, "\n- ")))
+            dt.print(string.format(_("Generating UltraHDR images failed:\n\n- %s"), table.concat(errors, "\n- ")))
             job.valid = false
             return
         end
