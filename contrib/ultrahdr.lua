@@ -20,7 +20,7 @@
 ]] --[[
 
 ULTRAHDR
-Generate UltraHDR JPEG images from various combinations of source files (SDR, HDR, gainmap).
+Generate UltraHDR JPEG images from various combinations of source files (SDR, HDR, gain map).
 
 https://developer.android.com/media/platform/hdr-image-format
 
@@ -658,7 +658,7 @@ GUI.optionwidgets.output_settings_box = dt.new_widget("box") {
 }
 
 GUI.optionwidgets.metadata_label = dt.new_widget("label") {
-    label = _("gainmap metadata")
+    label = _("gain map metadata")
 }
 
 GUI.optionwidgets.min_content_boost = dt.new_widget("slider") {
@@ -732,11 +732,11 @@ This will determine the method used to generate UltraHDR.
 
 - %s: SDR image paired with a gain map image.
 - %s: SDR image paired with an HDR image.
-- %s: Each stack consists of a single SDR image. Gainmaps will be copies of SDR images.
+- %s: Each stack consists of a single SDR image. Gain maps will be copies of SDR images.
 
-By default, the first image in a stack is treated as SDR, and the second one is a gainmap/HDR.
+By default, the first image in a stack is treated as SDR, and the second one is a gain map/HDR.
 You can force the image into a specific stack slot by attaching "hdr" / "gainmap" tags to it.
-]]), _("SDR + gainmap"), _("SDR + HDR"), _("SDR only")),
+]]), _("SDR + gain map"), _("SDR + HDR"), _("SDR only")),
     selected = 0,
     changed_callback = function(self)
         GUI.run.sensitive = self.selected and self.selected > 0
@@ -746,7 +746,7 @@ You can force the image into a specific stack slot by attaching "hdr" / "gainmap
             GUI.optionwidgets.metadata_box.visible = false
         end
     end,
-    _("SDR + gainmap"), -- ENCODING_VARIANT_SDR_AND_GAINMAP
+    _("SDR + gain map"), -- ENCODING_VARIANT_SDR_AND_GAINMAP
     _("SDR + HDR"), -- ENCODING_VARIANT_SDR_AND_HDR
     _("SDR only") -- ENCODING_VARIANT_SDR_AUTO_GAINMAP
 }
