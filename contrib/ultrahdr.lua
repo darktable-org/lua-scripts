@@ -77,7 +77,8 @@ local GUI = {
         metadata_box = {},
         edit_executables_button = {},
         executable_path_widget = {},
-        quality_widget = {}
+        quality_widget = {},
+        gainmap_downsampling_widget = {},
     },
     options = {},
     run = {}
@@ -145,6 +146,7 @@ local function save_preferences()
         dt.preferences.write(namespace, "hdr_capacity_max", "float", GUI.optionwidgets.hdr_capacity_max.value)
     end
     dt.preferences.write(namespace, "quality", "integer", GUI.optionwidgets.quality_widget.value)
+    dt.preferences.write(namespace, "gainmap_downsampling", "integer", GUI.optionwidgets.gainmap_downsampling_widget.value)
 end
 
 local function default_to(value, default)
@@ -177,6 +179,7 @@ local function load_preferences()
     GUI.optionwidgets.hdr_capacity_max.value = default_to(dt.preferences.read(namespace, "hdr_capacity_max", "float"),
         6.0)
     GUI.optionwidgets.quality_widget.value = default_to(dt.preferences.read(namespace, "quality", "integer"), 95)
+    GUI.optionwidgets.gainmap_downsampling_widget.value = default_to(dt.preferences.read(namespace, "gainmap_downsampling", "integer"), 0)
 end
 
 -- Changes the combobox selection blindly until a paired config value is set.
@@ -221,6 +224,7 @@ local function assert_settings_correct(encoding_variant)
             hdr_capacity_max = GUI.optionwidgets.hdr_capacity_max.value
         },
         quality = GUI.optionwidgets.quality_widget.value,
+        downsample = 2^GUI.optionwidgets.gainmap_downsampling_widget.value,
         tmpdir = dt.configuration.tmp_dir,
         skip_cleanup = false -- keep temporary files around, for debugging.
     }
@@ -531,7 +535,7 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
         cmd = settings.bin.ultrahdr_app .. " -m 0 -y " .. df.sanitize_filename(sdr_raw) .. " -p " ..
                   df.sanitize_filename(hdr_raw) ..
                   string.format(" -a 0 -b 3 -c 1 -C 1 -t 2 -M 0 -s 1 -q %d -Q %d -D 1 ", settings.quality,
-                settings.quality) .. " -w " .. tostring(sdr_w - sdr_w % 2) .. " -h " .. tostring(sdr_h - sdr_h % 2) ..
+                settings.quality) .. string.format(" -s %d ", settings.downsample) .. " -w " .. tostring(sdr_w - sdr_w % 2) .. " -h " .. tostring(sdr_h - sdr_h % 2) ..
                   " -z " .. df.sanitize_filename(uhdr)
         if not execute_cmd(cmd, string.format(_("Error merging %s"), uhdr)) then
             return cleanup(), errors
@@ -742,8 +746,10 @@ You can force the image into a specific stack slot by attaching "hdr" / "gainmap
         GUI.run.sensitive = self.selected and self.selected > 0
         if self.selected == ENCODING_VARIANT_SDR_AND_GAINMAP or self.selected == ENCODING_VARIANT_SDR_AUTO_GAINMAP then
             GUI.optionwidgets.metadata_box.visible = true
+            GUI.optionwidgets.gainmap_downsampling_widget.visible = false
         else
             GUI.optionwidgets.metadata_box.visible = false
+            GUI.optionwidgets.gainmap_downsampling_widget.visible = true
         end
     end,
     _("SDR + gain map"), -- ENCODING_VARIANT_SDR_AND_GAINMAP
@@ -781,11 +787,26 @@ GUI.optionwidgets.quality_widget = dt.new_widget("slider") {
     end
 }
 
+GUI.optionwidgets.gainmap_downsampling_widget = dt.new_widget("slider") {
+    label = _('gain map downsampling steps'),
+    tooltip = _('Exponent (2^x) of the gain map downsampling factor.\nDownsampling reduces the file size, at the expense of quality.\n\n0 = don\'t downsample the gain map, 7 = maximum downsampling (128x)'),
+    hard_min = 0,
+    hard_max = 7,
+    soft_min = 0,
+    soft_max = 7,
+    step = 1,
+    digits = 0,
+    reset_callback = function(self)
+        self.value = 0
+    end
+}
+
 GUI.optionwidgets.encoding_settings_box = dt.new_widget("box") {
     orientation = "vertical",
     GUI.optionwidgets.selection_type_combo,
     GUI.optionwidgets.encoding_variant_combo,
     GUI.optionwidgets.quality_widget,
+    GUI.optionwidgets.gainmap_downsampling_widget,
     GUI.optionwidgets.metadata_box
 }
 
