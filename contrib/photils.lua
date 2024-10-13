@@ -393,7 +393,7 @@ end
 local function install_module()
   if not PHOTILS.module_installed then
     dt.register_lib(MODULE_NAME,
-        _("photils autotagger"),
+        _("photils auto-tagger"),
         true,
         true,
         PHOTILS.plugin_display_views,

@@ -448,7 +448,7 @@ local function finalize_export(storage, images_table, extra_data)
       dt.print_error(filename, file.filename)
       df.file_move(filename, tmp_dir .. PS .. i .. extra_data["img_ext"])
     end
-    dt.print(_("Start video building..."))
+    dt.print(_("start video building..."))
     local result, path = export(extra_data)
     if result ~= 0 then 
       dt.print(_("ERROR: cannot build image, see console for more info")) 
