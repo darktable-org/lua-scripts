@@ -293,7 +293,7 @@ local function create_geoJSON_file(storage, image_table, extra_data)
     file:write(geoJSON_file)
     file:close()
 
-    dt.print(string.format(_("%s file created in %s", "geoJSON", exportDirectory)))
+    dt.print(string.format(_("%s file created in %s"), "geoJSON", exportDirectory))
 
 -- Open the file with the standard programm
     if ( dt.preferences.read("geoJSON_export","OpengeoJSONFile","bool") == true ) then
