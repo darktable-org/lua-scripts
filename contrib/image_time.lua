@@ -116,8 +116,6 @@ img_time.event_registered = false
 
 du.check_min_api_version("7.0.0", "image_time") 
 
-dt.gettext.bindtextdomain("image_time", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end
@@ -195,7 +193,7 @@ end
 
 local function synchronize_time(images)
   local sign = 1
-  if img_time.sdir.value == "subtract" then
+  if img_time.sdir.value == _("subtract") then
     sign = -1
   end
   synchronize_times(images, tonumber(img_time.diff_entry.text) * sign)
@@ -511,7 +509,7 @@ img_time.stack = dt.new_widget("stack"){
   dt.new_widget("box"){
     orientation = "vertical",
     dt.new_widget("label"){label = _("set time")},
-    dt.new_widget("section_label"){label = _("date: ")},
+    dt.new_widget("section_label"){label = _("date:")},
     img_time.sdy,
     img_time.smo,
     img_time.syr,

@@ -36,8 +36,6 @@ local gettext = dt.gettext.gettext
 
 du.check_min_api_version("2.0.0", "harmonic_armature_guide") 
 
-dt.gettext.bindtextdomain("harmonic_armature_guide", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
   return gettext(msgid)
 end

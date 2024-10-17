@@ -56,8 +56,6 @@ local gettext = dt.gettext.gettext
 --Check API version
 du.check_min_api_version("7.0.0", "OpenInExplorer") 
 
-dt.gettext.bindtextdomain("OpenInExplorer", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end

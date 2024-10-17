@@ -74,8 +74,6 @@ local gimp_widget = nil
 
 du.check_min_api_version("7.0.0", "gimp") 
 
-dt.gettext.bindtextdomain("gimp", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end

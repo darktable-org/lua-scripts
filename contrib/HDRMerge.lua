@@ -54,8 +54,6 @@ du.check_min_api_version("7.0.0", "HDRmerge")
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("HDRMerge", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end
@@ -218,7 +216,7 @@ local function main()
   PreCall({HDRM}) --check if furst run then check if install OK
   if HDRM.install_error then
     dt.print_error('HDRMerge install issue')
-    dt.print(_('HDRMerge install issue, please ensure the binary path is proper'))
+    dt.print(_('HDRMerge install issue, please ensure the binary path is correct'))
     return
   end
   images = dt.gui.selection() --get selected images
@@ -416,14 +414,14 @@ GUI.Target.copy_tags = dt.new_widget('check_button'){
 temp = dt.preferences.read(mod, 'active_add_tags', 'string')
 if temp == '' then temp = nil end 
 GUI.Target.add_tags = dt.new_widget('entry'){
-  tooltip = _('additional tags to be added on import, seperate with commas, all spaces will be removed'),
+  tooltip = _('additional tags to be added on import, separate with commas, all spaces will be removed'),
   text = temp,
-  placeholder = _('enter tags, seperated by commas'),
+  placeholder = _('enter tags, separated by commas'),
   editable = true
 }
 GUI.run = dt.new_widget('button'){
   label = _('merge'),
-  tooltip =_('run HDRMerge with the above specified settings'),
+  tooltip =_('run HDRMerge with the above settings'),
   clicked_callback = function() main() end
 }
 GUI.exes.HDRMerge = dt.new_widget('file_chooser_button'){

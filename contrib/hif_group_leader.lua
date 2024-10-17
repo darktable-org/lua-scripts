@@ -64,8 +64,6 @@ du.check_min_api_version("7.0.0", MODULE)
 
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("hif_group_leader", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end
@@ -188,7 +186,7 @@ dt.register_event(MODULE .. "_collect", "shortcut",
     local images = dt.collection
     make_existing_hif_group_leader(images)
   end,
-  _("make hif group leader for collection")
+  string.format(_("make hif group leader for %s", _("collection")))
 )
 
 dt.register_event(MODULE .. "_select", "shortcut",
@@ -196,7 +194,7 @@ dt.register_event(MODULE .. "_select", "shortcut",
     local images = dt.gui.selection()
     make_existing_hif_group_leader(images)
   end,
-  _("make hif group leader for selection")
+  string.format(_("make hif group leader for %s", _("selection")))
 )
 
 return script_data

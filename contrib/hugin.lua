@@ -56,8 +56,6 @@ local PQ = dt.configuration.running_os == "windows" and '"' or "'"
 -- works with darktable API version from 5.0.0 on
 du.check_min_api_version("7.0.0", "hugin") 
 
-dt.gettext.bindtextdomain("hugin", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
   return gettext(msgid)
 end
@@ -85,7 +83,7 @@ end
 
 local function show_status(storage, image, format, filename,
   number, total, high_quality, extra_data)
-  dt.print("exporting to hugin: "..tostring(number).."/"..tostring(total))
+  dt.print(string.format(_("exporting to hugin: %d / $d"), number, total))
 end
 
 local function create_panorama(storage, image_table, extra_data) --finalize
@@ -146,7 +144,7 @@ local function create_panorama(storage, image_table, extra_data) --finalize
   end
 
   if first_file == nil then
-    dt.print("no file selected")
+    dt.print(_("no file selected"))
     return
   end
 
