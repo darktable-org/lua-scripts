@@ -557,6 +557,7 @@ local PLACEHOLDERS = {"ROLL.NAME",
                       "MONTH.SHORT",
                       "DAY", 
                       "HOUR", 
+                      "HOUR.AMPM",                  -- Not Implemented
                       "MINUTE", 
                       "SECOND", 
                       "MSEC",
@@ -567,6 +568,7 @@ local PLACEHOLDERS = {"ROLL.NAME",
                       "EXIF.MONTH.SHORT",
                       "EXIF.DAY",
                       "EXIF.HOUR", 
+                      "EXIF.HOUR.AMPM",            -- Not Implemented
                       "EXIF.MINUTE", 
                       "EXIF.SECOND", 
                       "EXIF.MSEC",
@@ -575,12 +577,23 @@ local PLACEHOLDERS = {"ROLL.NAME",
                       "EXIF.ISO",
                       "EXIF.EXPOSURE",
                       "EXIF.EXPOSURE.BIAS",
+                      "EXIF.EXPOSURE.PROGRAM",    -- Not Implemented
                       "EXIF.APERTURE",
                       "EXIF.CROP.FACTOR",
                       "EXIF.FOCAL.LENGTH",
                       "EXIF.FOCAL.LENGTH.EQUIV",  -- Not Implemented
                       "EXIF.FOCUS.DISTANCE",
-                      "IMAGE.EXIF",               -- Not Implemented
+                      "EXIF.MAKER", 
+                      "EXIF.MODEL", 
+                      "EXIF.WHTIEBALANCE",         -- Not Implemented
+                      "EXIF.METERING",             -- Not Implemented
+                      "EXIF.LENS",
+                      "EXIF.FLASH.ICON",           -- Not Implemented
+                      "EXIF.FLASH",                -- Not Implemented
+                      "GPS.LONGITUDE",             -- Not Implemented
+                      "GPS.LATITUDE",              -- Not Implemented
+                      "GPS.ELEVATION",             -- Not Implemented
+                      "GPS.LOCATION.ICON",         -- Not Implemented
                       "LONGITUDE",
                       "LATITUDE",
                       "ELEVATION",
@@ -589,9 +602,6 @@ local PLACEHOLDERS = {"ROLL.NAME",
                       "RATING.ICONS",             -- Not Implemented
                       "LABELS",
                       "LABELS.ICONS",             -- Not Implemented 
-                      "MAKER", 
-                      "MODEL", 
-                      "LENS",
                       "TITLE",
                       "DESCRIPTION",
                       "CREATOR", 
@@ -692,7 +702,7 @@ end
 
 -- build the argument substitution list from each image
 
-function dtutils_string.build_substitution_list(image, sequence, variable_string, username, pic_folder, home, desktop)
+function dtutils_string.build_substitute_list(image, sequence, variable_string, username, pic_folder, home, desktop)
   local old_log_level = log.log_level()
   log.log_level(dtutils_string.log_level)
 
@@ -702,6 +712,8 @@ function dtutils_string.build_substitution_list(image, sequence, variable_string
   if dt.configuration.api_version_string < "9.1.0" then
     is_api_9_1 = false 
   end
+
+  local is_api_9_4 = dt.configuration.api_version_string >= "9.4.0" and true or false
 
   local datetime = os.date("*t")
   local long_month = os.date("%B")
@@ -753,6 +765,7 @@ function dtutils_string.build_substitution_list(image, sequence, variable_string
                         short_month,                           -- MONTH.SHORT
                         string.format("%02d", datetime.day),   -- DAY
                         string.format("%02d", datetime.hour),  -- HOUR
+                        "",                                    -- HOUR.AMPM
                         string.format("%02d", datetime.min),   -- MINUTE
                         string.format("%02d", datetime.sec),   -- SECOND
                         0,                                     -- MSEC
@@ -763,6 +776,7 @@ function dtutils_string.build_substitution_list(image, sequence, variable_string
                         os.date("%b", exiftime2systime(image.exif_datetime_taken)), -- EXIF.MONTH.SHORT
                         eday,                                  -- EXIF.DAY
                         ehour,                                 -- EXIF.HOUR
+                        "",                                    -- EXIF.HOUR.AMPM
                         emin,                                  -- EXIF.MINUTE
                         esec,                                  -- EXIF.SECOND
                         emsec,                                 -- EXIF.MSEC
@@ -771,12 +785,23 @@ function dtutils_string.build_substitution_list(image, sequence, variable_string
                         string.format("%d", image.exif_iso),   -- EXIF.ISO
                         string.format("%.0f", 1./image.exif_exposure), -- EXIF.EXPOSURE
                         image.exif_exposure_bias,              -- EXIF.EXPOSURE.BIAS
+                        "",                                    -- EXIF.EXPOSURE.PROGRAM
                         string.format("%.01f", image.exif_aperture), -- EXIF.APERTURE
                         string.format("%.01f", image.exif_crop),-- EXIF.CROP_FACTOR
                         string.format("%.0f", image.exif_focal_length), -- EXIF.FOCAL.LENGTH
                         string.format("%.0f", image.exif_focal_length * image.exif_crop), -- EXIF.FOCAL.LENGTH.EQUIV
                         image.exif_focus_distance,             -- EXIF.FOCUS.DISTANCE
-                        "",                                    -- IMAGE.EXIF
+                        image.exif_maker,                      -- EXIF.MAKER
+                        image.exif_model,                      -- EXIF.MODEL
+                        is_api_9_4 and image.exif_whitebalance or "", -- EXIF.WHITEBALANCE
+                        is_api_9_4 and image.exif_metering_mode or "", -- EXIF.METERING
+                        image.exif_lens,                       -- LENS
+                        "",                                    -- EXIF.FLASH.ICON
+                        is_api_9_4 and image.exif_flash or "", -- EXIF.FLASH
+                        "",                                    -- GPS.LONGITUDE
+                        "",                                    -- GPS.LATITUDE
+                        "",                                    -- GPS.ELEVATION
+                        "",                                    -- GPS.LOCATION.ICON
                         image.longitude or "",                 -- LONGITUDE
                         image.latitude or "",                  -- LATITUDE
                         image.elevation or "",                 -- ELEVATION
@@ -785,9 +810,6 @@ function dtutils_string.build_substitution_list(image, sequence, variable_string
                         "",                                    -- RATING.ICONS - wont be implemented
                         labels,                                -- LABELS
                         "",                                    -- LABELS.ICONS - wont be implemented
-                        image.exif_maker,                      -- MAKER
-                        image.exif_model,                      -- MODEL
-                        image.exif_lens,                       -- LENS
                         image.title,                           -- TITLE
                         image.description,                     -- DESCRIPTION
                         image.creator,                         -- CREATOR
@@ -834,84 +856,96 @@ dtutils_string.libdoc.functions["get_substitution_tooltip"] = {
 }
 
 function dtutils_string.get_substitution_tooltip()
-  return  string.format("$(ROLL.NAME) - %s\n", _("film roll of the input image")) .. 
-          string.format("$(FILE.FOLDER) - %s\n", _("folder containing the input image")) .. 
-          string.format("$(FILE.NAME) - %s\n", _("basename of the input image")) ..
-          string.format("$(FILE.EXTENSION) - %s\n", _("extension of the input image")) .. 
-          string.format("$(ID) - %s\n", _("the image id")) .. 
-          string.format("$(VERSION) - %s\n", _("the duplicate version number")) .. 
-          string.format("$(VERSION.IF.MULTI) - %s\n", _("same as $(VERSION) but null string if only one version exists")) ..
-          string.format("$(VERSION.NAME) - %s\n", _("version name from metadata")) ..
-          string.format("$(DARKTABLE.VERSION) - %s\n", _("the version of the running darktable instance")) ..
-          --string.format("$(DARKTABLE.NAME) - %s\n", _("")) ..           -- Not Implemented
-          string.format("$(SEQUENCE[n,m]) - %s\n", _("a sequence number within an export job with n digits and starting with m\nparameters are optional, default is [4,1]")) ..
-          string.format("$(WIDTH.SENSOR) - %s\n", _("width of RAW data in pixels before RAW crop")) ..
-          string.format("$(HEIGHT.SENSOR) - %s\n", _("height of RAW data in pixels before RAW crop")) ..
-          string.format("$(WIDTH.RAW) - %s\n", _("width of RAW data in pixels after RAW crop")) ..
-          string.format("$(HEIGHT.RAW) - %s\n", _("height of RAW data in pixels after RAW crop")) ..
-          string.format("$(WIDTH.CROP) - %s\n", _("image width in pixels at the end of the pixelpipe, but before export resize")) ..
-          string.format("$(HEIGHT.CROP) - %s\n", _("image height in pixels at the end of the pixelpipe, but before export resize")) ..
-          string.format("$(WIDTH.EXPORT) - %s\n", _("image width in pixels at the end of the pixelpipe and after export resize")) ..
-          string.format("$(HEIGHT.EXPORT) - %s\n", _("image height in pixels at the end of the pixelpipe and after export resize")) ..
-          --string.format("$(WIDTH.MAX) - %s\n", _("")) ..                -- Not Implemented
-          --string.format("$(HEIGHT.MAX) - %s\n", _("")) ..               -- Not Implemented
-          string.format("$(YEAR) - %s\n", _("current year")) .. 
-          string.format("$(YEAR.SHORT) - %s\n", _("current two digit year")) ..
-          string.format("$(MONTH) - %s\n", _("current numeric (1-12) month")) .. 
-          string.format("$(MONTH.LONG) - %s\n", _("full current month name")) ..
-          string.format("$(MONTH.SHORT) - %s\n", _("abbreviated current month name")) ..
-          string.format("$(DAY) - %s\n", _("current day")) .. 
-          string.format("$(HOUR) - %s\n", _("current hour")) .. 
-          string.format("$(MINUTE) - %s\n", _("current minute")) .. 
-          string.format("$(SECOND) - %s\n", _("current second")) .. 
-          string.format("$(MSEC) - %s\n", _("current millisecond")) ..
-          string.format("$(EXIF.YEAR) - EXIF %s\n", _("year")) .. 
-          string.format("$(EXIF.YEAR.SHORT) - EXIF %s\n", _("year, two-digit version")) ..
-          string.format("$(EXIF.MONTH) - EXIF %s\n", _("month, numeric")) .. 
-          string.format("$(EXIF.MONTH.LONG) - EXIF %s\n", _("month, full name")) ..
-          string.format("$(EXIF.MONTH.SHORT) - EXIF %s\n", _("month, abbreviated name")) ..
-          string.format("$(EXIF.DAY) - EXIF %s\n", _("day")) ..
-          string.format("$(EXIF.HOUR) - EXIF %s\n", _("hour")) .. 
-          string.format("$(EXIF.MINUTE) - EXIF %s\n", _("minute")) .. 
-          string.format("$(EXIF.SECOND) - EXIF %s\n", _("second")) .. 
-          string.format("$(EXIF.MSEC) - EXIF %s\n", _("millisecond")) ..
-          --string.format("$(EXIF.DATE.REGIONAL) - %s\n", _("")) ..       -- Not Implemented
-          --string.format("$(EXIF.TIME.REGIONAL) - %s\n", _("")) ..       -- Not Implemented
-          string.format("$(EXIF.ISO) - EXIF ISO %s\n", _("value")) ..
-          string.format("$(EXIF.EXPOSURE) - EXIF %s\n", _("exposure")) ..
-          string.format("$(EXIF.EXPOSURE.BIAS) - EXIF %s\n", _("exposure bias")) ..
-          string.format("$(EXIF.APERTURE) - EXIF %s\n", _("aperture")) ..
-          string.format("$(EXIF.CROP.FACTOR) - EXIF %s\n", _("crop factor")) ..
-          string.format("$(EXIF.FOCAL.LENGTH) - EXIF %s\n", _("focal length")) ..
-          string.format("$(EXIF.FOCAL.LENGTH.EQUIV) - EXIF 35mm %s\n", _("equivalent focal length")) ..  -- Not Implemented
-          string.format("$(EXIF.FOCUS.DISTANCE) - EXIF %s\n", _("focus distance")) ..
-          --string.format("$(IMAGE.EXIF) - %s\n", _("")) ..               -- Not Implemented
-          string.format("$(LONGITUDE) - %s\n", _("longitude")) ..
-          string.format("$(LATITUDE) - %s\n", _("latitude")) ..
-          string.format("$(ELEVATION) - %s\n", _("elevation")) ..
-          --string.format("$(GPS.LOCATION) - %s\n", _("")) ..             -- Not Implemented
-          string.format("$(STARS) - %s\n", _("star rating")) .. 
-          --string.format("$(RATING.ICONS) - %s\n", _("")) ..             -- Not Implemented
-          string.format("$(LABELS) - %s\n", _("colorlabels")) ..
-          --string.format("$(LABELS.ICONS) - %s\n", _("")) ..             -- Not Implemented 
-          string.format("$(MAKER) - %s\n", _("camera maker")) .. 
-          string.format("$(MODEL) - %s\n", _("camera model")) .. 
-          string.format("$(LENS) - %s\n", _("lens")) ..
-          string.format("$(TITLE) - %s\n", _("title from metadata")) ..
-          string.format("$(DESCRIPTION) - %s\n", _("description from metadata")) ..
-          string.format("$(CREATOR) - %s\n", _("creator from metadata")) .. 
-          string.format("$(PUBLISHER) - %s\n", _("publisher from metadata")) .. 
-          string.format("$(RIGHTS) - %s\n", _("rights from metadata")) .. 
-          --string.format("$(TAGS) - %s\n", _("")) ..                     -- Not Implemented
-          string.format("$(CATEGORY[n,category]) - %s\n", _("tag name of level n [0,9] of selected category (or tag)")) ..
-          --string.format("$(SIDECAR.TXT) - %s\n", _("")) ..              -- Not Implemented
-          string.format("$(FOLDER.PICTURES) - %s\n", _("pictures folder")) ..
-          string.format("$(FOLDER.HOME) - %s\n", _("home folder")) .. 
-          string.format("$(FOLDER.DESKTOP) - %s\n", _("desktop folder")) ..
-          --string.format("$(OPENCL.ACTIVATED) - %s\n", _("")) ..         -- Not Implemented
-          string.format("$(USERNAME) - %s\n", _("user name defined by OS"))
-          --string.format("$(NL) - %s\n", _("")) ..                       -- Not Implemented
-          --string.format("$(JOBCODE) - %s", _(""))                   -- Not Implemented
+
+  return table.concat({
+          _("$(ROLL.NAME) - roll of the input image"),
+          _("$(FILE.FOLDER) - folder containing the input image"),
+          _("$(FILE.NAME) - basename of the input image"),
+          _("$(FILE.EXTENSION) - extension of the input image"),
+          _("$(ID) - image ID"),
+          _("$(VERSION) - duplicate version"),
+          _("$(VERSION.IF_MULTI) - same as $(VERSION) but null string if only one version exists"),
+          _("$(VERSION.NAME) - version name from metadata"),
+          _("$(DARKTABLE.VERSION) - current darktable version"),
+          -- _("$(DARKTABLE.NAME) - darktable name"),  -- not implemented
+          _("$(SEQUENCE[n,m]) - sequence number, n: number of digits, m: start number"),
+          _("$(WIDTH.SENSOR) - image sensor width"),
+          _("$(HEIGHT.SENSOR) - image sensor height"),
+          _("$(WIDTH.RAW) - RAW image width"),
+          _("$(HEIGHT.RAW) - RAW image height"),
+          _("$(WIDTH.CROP) - image width after crop"),
+          _("$(HEIGHT.CROP) - image height after crop"),
+          _("$(WIDTH.EXPORT) - exported image width"),
+          _("$(HEIGHT.EXPORT) - exported image height"),
+          -- _("$(WIDTH.MAX) - maximum image export width"),  -- not implemented
+          -- _("$(HEIGHT.MAX) - maximum image export height"),  -- not implemented
+          _("$(YEAR) - year"),
+          _("$(YEAR.SHORT) - year without century"),
+          _("$(MONTH) - month"),
+          _("$(MONTH.LONG) - full month name according to the current locale"),
+          _("$(MONTH.SHORT) - abbreviated month name according to the current locale"),
+          _("$(DAY) - day"),
+          _("$(HOUR) - hour"),
+          -- _("$(HOUR.AMPM) - hour, 12-hour clock"),  -- not implemented
+          _("$(MINUTE) - minute"),
+          _("$(SECOND) - second"),
+          _("$(MSEC) - millisecond"),
+          _("$(EXIF.YEAR) - EXIF year"),
+          _("$(EXIF.YEAR.SHORT) - EXIF year without century"),
+          _("$(EXIF.MONTH) - EXIF month"),
+          _("$(EXIF.MONTH.LONG) - full EXIF month name according to the current locale"),
+          _("$(EXIF.MONTH.SHORT) - abbreviated EXIF month name according to the current locale"),
+          _("$(EXIF.DAY) - EXIF day"),
+          _("$(EXIF.HOUR) - EXIF hour"),
+          -- _("$(EXIF.HOUR.AMPM) - EXIF hour, 12-hour clock") ..  "\n" .. -- not implemented
+          _("$(EXIF.MINUTE) - EXIF minute"),
+          _("$(EXIF.SECOND) - EXIF second"),
+          _("$(EXIF.MSEC) - EXIF millisecond"),
+          -- _("$(EXIF.DATE.REGIONAL) - localized EXIF date"),  -- not implemented
+          -- _("$(EXIF.TIME.REGIONAL) - localized EXIF time"),  -- not implemented
+          _("$(EXIF.ISO) - ISO value"),
+          _("$(EXIF.EXPOSURE) - EXIF exposure"),
+          _("$(EXIF.EXPOSURE.BIAS) - EXIF exposure bias"),
+          -- _("$(EXIF.EXPOSURE.PROGRAM) - EXIF exposure program"),  -- not implemented
+          _("$(EXIF.APERTURE) - EXIF aperture"),
+          _("$(EXIF.CROP_FACTOR) - EXIF crop factor"),
+          _("$(EXIF.FOCAL.LENGTH) - EXIF focal length"),
+          _("$(EXIF.FOCAL.LENGTH.EQUIV) - EXIF 35 mm equivalent focal length"),
+          _("$(EXIF.FOCUS.DISTANCE) - EXIF focal distance"),
+          _("$(EXIF.MAKER) - camera maker") ..
+          _("$(EXIF.MODEL) - camera model") ..
+          _("$(EXIF.WHITEBALANCE) - EXIF selected white balance") ..  -- not implemented
+          _("$(EXIF.METERING) - EXIF exposure metering mode") ..  -- not implemented
+          _("$(EXIF.LENS) - lens") ..
+          -- _("$(EXIF.FLASH.ICON) - icon indicating whether flash was used") ..  -- not implemented
+          _("$(EXIF.FLASH) - was flash used (yes/no/--)") ..  -- not implemented
+          -- _("$(GPS.LONGITUDE) - longitude"),-- not implemented
+          -- _("$(GPS.LATITUDE) - latitude"),-- not implemented
+          -- _("$(GPS.ELEVATION) - elevation"),-- not implemented
+          -- _("$(GPS.LOCATION.ICON) - icon indicating whether GPS location is known"),-- not implemented
+          _("$(LONGITUDE) - longitude"),
+          _("$(LATITUDE) - latitude"),
+          _("$(ELEVATION) - elevation"),
+          _("$(STARS) - star rating as number (-1 for rejected)"),
+          -- _("$(RATING.ICONS) - star/reject rating in icon form"),-- not implemented
+          _("$(LABELS) - color labels as text"),
+          -- _("$(LABELS.ICONS) - color labels as icons"),-- not implemented
+          _("$(TITLE) - title from metadata"),
+          _("$(DESCRIPTION) - description from metadata"),
+          _("$(CREATOR) - creator from metadata"),
+          _("$(PUBLISHER) - publisher from metadata"),
+          _("$(RIGHTS) - rights from metadata"),
+          --_("$(TAGS) - tags as set in metadata settings"),
+          _("$(CATEGORY[n,category]) - subtag of level n in hierarchical tags"),
+          _("$(SIDECAR_TXT) - contents of .txt sidecar file, if present"),
+          _("$(FOLDER.PICTURES) - pictures folder"),
+          _("$(FOLDER.HOME) - home folder"),
+          _("$(FOLDER.DESKTOP) - desktop folder"),
+          -- _("$(OPENCL.ACTIVATED) - whether OpenCL is activated"),
+          _("$(USERNAME) - login name"),
+          -- _("$(NL) - newline"),
+          -- _("$(JOBCODE) - job code for import"),
+          ""}, "\n")
 end
 
 -- handle different versions of names
@@ -947,6 +981,7 @@ local function treat(var_string)
   if string.match(var_string, "CATEGORY%d") or string.match(var_string, "CATEGORY%[") then
     log.msg(log.info, "substituting for " .. var_string)
     ret_val = substitutes[var_string]
+    if not ret_val then ret_val = ""
     log.msg(log.info, "ret_val is " .. ret_val)
 
   elseif string.match(var_string, "SEQUENCE%[") then
