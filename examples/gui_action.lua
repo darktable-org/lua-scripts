@@ -114,7 +114,7 @@ dt.register_lib(
         clicked_callback = function(_)
           local sp = NaN
           if wg.check.value then sp = wg.speed.text end
-          wg.return_value.text = dt.gui.action(wg.action.text, wg.instance.value, wg.element.text, wg.effect.text, sp)
+          wg.return_value.text = dt.gui.action(wg.action.text, tonumber(wg.instance.value), wg.element.text, wg.effect.text, tonumber(sp))
         end
       },
       dt.new_widget("box")
