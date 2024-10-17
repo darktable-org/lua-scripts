@@ -981,7 +981,7 @@ local function treat(var_string)
   if string.match(var_string, "CATEGORY%d") or string.match(var_string, "CATEGORY%[") then
     log.msg(log.info, "substituting for " .. var_string)
     ret_val = substitutes[var_string]
-    if not ret_val then ret_val = ""
+    if not ret_val then ret_val = "" end
     log.msg(log.info, "ret_val is " .. ret_val)
 
   elseif string.match(var_string, "SEQUENCE%[") then
