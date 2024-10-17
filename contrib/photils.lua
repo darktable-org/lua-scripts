@@ -45,7 +45,6 @@ local MODULE_NAME = "photils"
 du.check_min_api_version("7.0.0", MODULE_NAME) 
 
 local gettext = dt.gettext.gettext
-dt.gettext.bindtextdomain("photils", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
     return gettext(msgid)
@@ -339,7 +338,7 @@ function PHOTILS.on_tags_clicked()
         end
 
         if #PHOTILS.tags == 0 then
-            local msg = string.format(_("no tags where found"), MODULE_NAME)
+            local msg = string.format(_("no tags were found"), MODULE_NAME)
             GUI.warning_label.label = msg
             GUI.stack.active = GUI.error_view
             return
@@ -394,7 +393,7 @@ end
 local function install_module()
   if not PHOTILS.module_installed then
     dt.register_lib(MODULE_NAME,
-        "photils autotagger",
+        _("photils auto-tagger"),
         true,
         true,
         PHOTILS.plugin_display_views,

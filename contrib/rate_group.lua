@@ -46,8 +46,6 @@ du.check_min_api_version("7.0.0", "rate_group")
 
 local gettext = dt.gettext.gettext
 
-dt.gettext.bindtextdomain("rate_group", dt.configuration.config_dir .."/lua/locale/")
-
 local function _(msgid)
     return gettext(msgid)
 end
