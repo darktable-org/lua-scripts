@@ -56,10 +56,10 @@ local dtsys = require "lib/dtutils.system"
 local log = require "lib/dtutils.log"
 local debug = require "darktable.debug"
 
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 local function _(msgid)
-    return gettext.dgettext("script_manager", msgid)
+    return gettext(msgid)
 end
 
 -- api check

@@ -76,12 +76,13 @@ local darktable = require("darktable")
 local dtutils = require("lib/dtutils")
 local dtutils_file = require("lib/dtutils.file")
 local dtutils_system = require("lib/dtutils.system")
+local gettext = darktable.gettext.gettext
 
 local LIB_ID = "transfer_hierarchy"
 dtutils.check_min_api_version("7.0.0", LIB_ID) 
 
 local function _(msgid)
-    return darktable.gettext.gettext(msgid)
+    return gettext(msgid)
 end
 
 -- return data structure for script_manager
