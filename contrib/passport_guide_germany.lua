@@ -40,13 +40,13 @@ USAGE
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 du.check_min_api_version("2.0.0", "passport_guide_germany") 
 
 -- Tell gettext where to find the .mo file translating messages for a particular domain
 local function _(msgid)
-  return gettext.dgettext("passport_guide_germany", msgid)
+  return gettext(msgid)
 end
 
 local script_data = {}

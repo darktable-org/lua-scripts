@@ -64,7 +64,7 @@ du.check_min_api_version("7.0.0", MODULE)   -- choose the minimum version that c
 local gettext = dt.gettext.gettext
 
 local function _(msgid)
-    return gettext(MODULE, msgid)
+    return gettext(msgid)
 end
 
 

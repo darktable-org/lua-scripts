@@ -25,12 +25,12 @@ For each source folder, a separate <trk> is generated in the gpx file.
 local dt = require "darktable"
 local df = require "lib/dtutils.file"
 local dl = require "lib/dtutils"
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 dl.check_min_api_version("7.0.0", "gpx_export") 
 
 local function _(msgid)
-  return gettext.dgettext("gpx_export", msgid)
+  return gettext(msgid)
 end
 
 -- return data structure for script_manager

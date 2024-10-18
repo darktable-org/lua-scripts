@@ -43,10 +43,10 @@ du.check_min_api_version("7.0.0", "AutoGrouper")
 
 local MOD = 'autogrouper'
 
-local gettext = dt.gettext
+local gettext = dt.gettext.gettext
 
 local function _(msgid)
-  return gettext.gettext(msgid)
+  return gettext(msgid)
 end
 
 -- return data structure for script_manager

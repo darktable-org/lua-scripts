@@ -3,11 +3,12 @@ local dtutils_string = {}
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local log = require "lib/dtutils.log"
+local gettext = dt.gettext.gettext
 
 local DEFAULT_LOG_LEVEL = log.error
 
 local function _(msg)
-  return dt.gettext.gettext(msg)
+  return gettext(msg)
 end
 
 dtutils_string.log_level = DEFAULT_LOG_LEVEL
