@@ -1006,7 +1006,7 @@ local function paginate(direction)
     last = first + sm.page_status.num_buttons - 1
   end
 
-  sm.widgets.page_status.label = _(string.format("page %d of %d", cur_page, max_pages))
+  sm.widgets.page_status.label = string.format(_("page %d of %d"), cur_page, max_pages)
 
   populate_buttons(folder, first, last)
 
