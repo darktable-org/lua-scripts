@@ -405,8 +405,8 @@ local function get_script_metadata(script)
 
   log.msg(log.debug, "processing metatdata for " .. script)
 
-  local description = nil
-  local metadata = nil
+  local metadata_block = nil
+  local metadata = {}
 
   f = io.open(LUA_DIR .. PS .. script .. ".lua")
   if f then
@@ -414,20 +414,19 @@ local function get_script_metadata(script)
     local content = f:read("*all")
     f:close()
     -- grab the script_data.metadata table
-    description = string.match(content, "script_data%.metadata = %{\r?\n(.-)\r?\n%}")
+    metadata_block = string.match(content, "script_data%.metadata = %{\r?\n(.-)\r?\n%}")
   else
     log.msg(log.error, "cant read from " .. script)
   end
 
-  if description then
-    metadata = ""
-    -- format it into a string block for display
-    local lines = du.split(description, "\n")
+  if metadata_block then
+    -- break up the lines into key value pairs
+    local lines = du.split(metadata_block, "\n")
     log.msg(log.debug, "got " .. #lines .. " lines")
-    local first = 1
     for i = 1, #lines do
       log.msg(log.debug, "splitting line " .. lines[i])
       local parts = du.split(lines[i], " = ")
+      parts[1] = string_trim(parts[1])
       log.msg(log.debug, "got value " .. parts[1] .. " and data " .. parts[2])
       if string.match(parts[2], "%_%(") then
         parts[2] = _(string_dequote(string_dei18n(parts[2])))
@@ -437,14 +436,15 @@ local function get_script_metadata(script)
       if string.match(parts[2], ",$") then
         parts[2] = string_chop(parts[2])
       end
-      metadata = metadata .. string.format("%s%-10s\t%s", first and "" or "\n", parts[1], parts[2])
-      first = nil
+      log.msg(log.debug, "parts 1 is " .. parts[1] .. " and parts 2 is " .. parts[2])
+      metadata[parts[1]] = parts[2]
+      log.msg(log.debug, "metadata " .. parts[1] .. " is " .. metadata[parts[1]])
     end
-    log.msg(log.debug, "script data is \n" .. metadata)
+    log.msg(log.debug, "script data found for " .. metadata["name"])
   end
 
   restore_log_level(old_log_level)
-  return metadata
+  return metadata_block and metadata or nil
 end
 
 local function get_script_doc(script)
@@ -910,11 +910,11 @@ local function populate_buttons(folder, first, last)
     end
 
     button.image = POWER_ICON
-    label.label = script.name
+    label.label = script.metadata and script.metadata.name or script.name
     label.name = "pb_label"
     button.ellipsize = "end"
     button.sensitive = true
-    label.tooltip = script.metadata and script.metadata or script.doc
+    label.tooltip = script.metadata and script.metadata.purpose or script.doc
 
     button.clicked_callback = function (this)
       local cb_script = script
