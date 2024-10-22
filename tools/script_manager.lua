@@ -132,6 +132,7 @@ sm.event_registered = false
 
 sm.widgets = {}
 sm.folders = {}
+sm.translated_folders = {}
 
 -- set log level for functions
 
@@ -364,8 +365,9 @@ end
 local function string_trim(str)
   local old_log_level = set_log_level(sm.log_level)
 
-  local result = string.gsub(str, "^%s+", "")
-  result = string.gsub(result, "%s+$", "")
+  local result = string.gsub(str, "^%s+", "") -- trim leading spaces
+  result = string.gsub(result, "%s+$", "")    -- trim trailing spaces
+  result = string.gsub(result, ",?%s+%-%-.+$", "") -- trim trailing comma and comments
 
   restore_log_level(old_log_level)
   return result
@@ -387,11 +389,42 @@ end
 -- script handling
 ------------------
 
+local function is_folder_known(folder_table, name)
+  local match = false
+
+  for _, folder_name in ipairs(folder_table) do
+    if name == folder_name then
+      match = true
+    end
+  end
+
+  return match
+end
+
+local function find_translated_name(folder)
+  local translated_name = nil
+
+  if folder == "contrib" then
+    translated_name = _("contributed")
+  elseif folder == "examples" then
+    translated_name = _("examples")
+  elseif folder == "official" then
+    translated_name = _("official")
+  elseif folder == "tools" then
+    translated_name = _("tools")
+  else
+    translated_name = _(folder) -- in case we get lucky and the string got translated elsewhere
+  end
+
+  return translated_name
+end
+
 local function add_script_folder(folder)
   local old_log_level = set_log_level(sm.log_level)
 
-  if #sm.folders == 0 or not string.match(du.join(sm.folders, " "), ds.sanitize_lua(folder)) then
+  if #sm.folders == 0 or not is_folder_known(sm.folders, folder) then
     table.insert(sm.folders, folder)
+    table.insert(sm.translated_folders, find_translated_name(folder))
     sm.scripts[folder] = {}
     log.msg(log.debug, "created folder " .. folder)
   end
@@ -427,6 +460,7 @@ local function get_script_metadata(script)
       log.msg(log.debug, "splitting line " .. lines[i])
       local parts = du.split(lines[i], " = ")
       parts[1] = string_trim(parts[1])
+      parts[2] = string_trim(parts[2])
       log.msg(log.debug, "got value " .. parts[1] .. " and data " .. parts[2])
       if string.match(parts[2], "%_%(") then
         parts[2] = _(string_dequote(string_dei18n(parts[2])))
@@ -1378,10 +1412,10 @@ sm.widgets.folder_selector = dt.new_widget("combobox"){
   changed_callback = function(self)
     if sm.run then
       pref_write("folder_selector", "integer", self.selected)
-      change_folder(self.value)
+      change_folder(sm.folders[self.selected])
     end
   end,
-  table.unpack(sm.folders),
+  table.unpack(sm.translated_folders),
 }
 
 -- a script "button" consists of:
