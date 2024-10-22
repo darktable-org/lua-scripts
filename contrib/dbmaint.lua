@@ -80,7 +80,7 @@ script_data.restart = nil           -- how to restart the (lib) script after it'
 script_data.show = nil              -- only required for libs since the destroy_method only hides them
 
 script_data.metadata = {
-  name = "dbmaint",
+  name = _("db maintenance"),
   purpose = _("perform database maintenance"),
   author = "Bill Ferguson <wpferguson@gamil.com>",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/dbmaint/"

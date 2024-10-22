@@ -90,7 +90,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "transfer_hierarchy",
+  name = _("transfer hierarchy"),
   purpose = _("allows the moving or copying of images from one directory tree to another, while preserving the existing hierarchy"),
   author = "August Schwerdfeger (august@schwerdfeger.name)",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/transfer_hierarchy"

@@ -74,7 +74,7 @@ dt.gui.libs.select.register_selection(
 local script_data = {}
 
 script_data.metadata = {
-  name = "select_non_existing",
+  name = _("select non existing"),
   purpose = _("enable selection of non-existing images"),
   author = "Dirk Dittmar",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/select_non_existing"

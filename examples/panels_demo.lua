@@ -146,7 +146,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "panels_demo",
+  name = _("panels demo"),
   purpose = _("example demonstrating how to contol panel visibility"),
   author = "Bill Ferguson <wpferguson@gmail.com>",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/panels_demo"

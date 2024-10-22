@@ -44,7 +44,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "delete_long_tags",
+  name = _("delete long tags"),
   purpose = _("delete all tags longer than a set length"),
   author = "Tobias Ellinghaus",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/delete_long_tags"

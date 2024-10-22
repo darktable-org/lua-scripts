@@ -62,7 +62,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "get_libdoc",
+  name = _("get library docs"),
   purpose = _("retrieve and print the documentation to the console"),
   author = "Bill Ferguson <wpferguson@gmail.com>",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/tools/get_libdoc"

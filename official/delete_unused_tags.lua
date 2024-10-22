@@ -48,7 +48,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "delete_unused_tags",
+  name = _("delete unused tags"),
   purpose = _("delete unused tags"),
   author = "Tobias Ellinghaus",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/delete_unused_tags"

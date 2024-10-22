@@ -44,7 +44,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "image_path_in_ui",
+  name = _("image path in UI"),
   purpose = _("print the image path in the UI"),
   author = "Jérémy Rosen",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/image_path_in_ui"

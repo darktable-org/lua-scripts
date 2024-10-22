@@ -66,7 +66,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "x-touch",
+  name = _("x-touch"),
   purpose = _("example of how to control an x-touch midi device"),
   author = "Diederik ter Rahe",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/x-touch"

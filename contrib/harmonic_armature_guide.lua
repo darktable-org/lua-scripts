@@ -43,7 +43,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "harmonic_armature_guide",
+  name = _("harmonic armature guide"),
   purpose = _("harmonic artmature guide"),
   author = "Hubert Kowalski",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/harmonic_armature_guide"

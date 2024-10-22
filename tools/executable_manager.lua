@@ -46,7 +46,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "executable_manager",
+  name = _("executable manager"),
   purpose = _("manage the list of external executables used by the lua scripts"),
   author = "Bill Ferguson <wpferguson@gmail.com>",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/tools/executable_manager"

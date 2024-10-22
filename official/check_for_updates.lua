@@ -45,7 +45,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "check_for_updates",
+  name = _("check for updates"),
   purpose = _("check for newer darktable releases"),
   author = "Tobias Ellinghaus",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/check_for_updates"

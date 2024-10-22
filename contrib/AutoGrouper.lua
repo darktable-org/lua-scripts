@@ -54,7 +54,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "AutoGrouper",
+  name = _("auto group"),
   purpose = _("automatically group images by time interval"),
   author = "Kevin Ertel",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/AutoGrouper/"

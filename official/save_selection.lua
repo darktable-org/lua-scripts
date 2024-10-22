@@ -49,7 +49,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "save_selection",
+  name = _("save selection"),
   purpose = _("shortcuts providing multiple selection buffers"),
   author = "Jérémy Rosen",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/save_selection"

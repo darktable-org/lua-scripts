@@ -52,7 +52,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "enfuse",
+  name = _("enfuse"),
   purpose = _("exposure blend images"),
   author = "Tobias Ellinghaus",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/enfuse"

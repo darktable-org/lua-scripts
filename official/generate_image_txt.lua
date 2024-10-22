@@ -51,7 +51,7 @@ du.check_min_api_version("7.0.0", "generate_image_txt")
 local script_data = {}
 
 script_data.metadata = {
-  name = "generate_image_txt",
+  name = _("generate image text"),
   purpose = _("overlay metadata on the selected image(s)"),
   author = "Tobias Ellinghaus",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/generate_image_txt"

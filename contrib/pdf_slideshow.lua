@@ -60,7 +60,7 @@ du.check_min_api_version("7.0.0", "pdf_slideshow")
 local script_data = {}
 
 script_data.metadata = {
-  name = "pdf_slideshow",
+  name = _("PDF slideshow"),
   purpose = _("generates a PDF slideshow (via Latex) containing all selected images one per slide"),
   author = "Pascal Obry",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/pdf_slideshow"

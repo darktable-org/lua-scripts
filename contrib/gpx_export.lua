@@ -38,7 +38,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "gpx_export",
+  name = _("gpx export"),
   purpose = _("export gpx information to a file"),
   author = "Jannis_V",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/gpx_export"

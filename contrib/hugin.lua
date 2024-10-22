@@ -65,7 +65,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "hugin",
+  name = _("hugin"),
   purpose = _("stitch images into a panorama"),
   author = "Wolfgang Goetz",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/hugin"

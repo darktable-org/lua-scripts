@@ -54,7 +54,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "autostyle",
+  name = _("auto style"),
   purpose = _("automatically apply a style based on image EXIF tag"),
   author = "Marc Cousin <cousinmarc@gmail.com>",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/autostyle/"

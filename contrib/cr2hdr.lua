@@ -48,7 +48,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "cr2hdr",
+  name = _("cr2hdr"),
   purpose = _("process Magic Lantern dual ISO images"),
   author = "Till Theato <theato@ttill.de>",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/cr2hdr"

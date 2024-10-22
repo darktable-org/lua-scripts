@@ -33,7 +33,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "select_untagged",
+  name = _("select untagged"),
   purpose = _("enable selection of untagged images"),
   author = "Jannis_V",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/select_untagged"

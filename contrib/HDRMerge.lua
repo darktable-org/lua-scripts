@@ -63,7 +63,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "HDRmerge",
+  name = _("HDR merge"),
   purpose = _("merge bracketed images into an HDR DNG image"),
   author = "Kevin Ertel",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/HDRmerge"

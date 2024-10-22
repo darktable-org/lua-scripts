@@ -40,7 +40,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "copy_paste_metadata",
+  name = _("copy paste metadata"),
   purpose = _("adds keyboard shortcuts and buttons to copy/paste metadata between images"),
   author = "Tobias Ellinghaus",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/copy_paste_metadata"

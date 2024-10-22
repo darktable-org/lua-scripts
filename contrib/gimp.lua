@@ -83,7 +83,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "gimp",
+  name = _("edit with GIMP"),
   purpose = _("export and edit with GIMP"),
   author = "Bill Ferguson <wpferguson@gmail.com>",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/gimp"

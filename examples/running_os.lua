@@ -52,7 +52,7 @@ dt.print(string.format(_("you are running: %s"), dt.configuration.running_os))
 local script_data = {}
 
 script_data.metadata = {
-  name = "running_os",
+  name = _("running OS"),
   purpose = _("example of how to determine the operating system being used"),
   author = "Tobias Jakobs",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/running_os"

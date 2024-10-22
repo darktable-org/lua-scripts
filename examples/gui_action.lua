@@ -15,7 +15,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "gui_action",
+  name = _("gui action"),
   purpose = _("example of how to use darktable.gui.action() calls"),
   author = "Diederik ter Rahe",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/gui_action"

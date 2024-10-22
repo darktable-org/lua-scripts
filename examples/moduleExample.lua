@@ -47,7 +47,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "moduleExample",
+  name = ("module example"),
   purpose = _("example of how to create a lighttable module"),
   author = "Tobias Jakobs",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/moduleExample"

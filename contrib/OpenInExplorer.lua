@@ -65,7 +65,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "OpenInExplorer",
+  name = _("open in explorer"),
   purpose = _("open a selected file in the system file manager"),
   author = "Kevin Ertel",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/OpenInExplorer"

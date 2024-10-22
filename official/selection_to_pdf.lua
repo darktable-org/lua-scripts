@@ -49,7 +49,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "selection_to_pdf",
+  name = _("selection to PDF"),
   purpose = _("generate a pdf file of selected images"),
   author = "Jérémy Rosen & Pascal Obry",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/selection_to_pdf"

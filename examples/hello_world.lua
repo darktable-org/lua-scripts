@@ -53,7 +53,7 @@ dt.print(_("hello, world"))
 local script_data = {}
 
 script_data.metadata = {
-  name = "hello_world",
+  name = _("hello world"),
   purpose = _("example of how to print a message to the screen"),
   author = "Tobias Ellinghaus",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/hello_world"

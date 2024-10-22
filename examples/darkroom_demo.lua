@@ -117,7 +117,7 @@ dt.gui.current_view(current_view)
 local script_data = {}
 
 script_data.metadata = {
-  name = "darkroom_demo",
+  name = _("darkroom demo"),
   purpose = _("example demonstrating how to control image display in darkroom mode"),
   author = "Bill Ferguson <wpferguson@gmail.com>",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/darkroom_demo"
