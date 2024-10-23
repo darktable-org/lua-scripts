@@ -72,7 +72,7 @@ local function install_module()
   if not enf.module_installed then
     dt.register_lib(
       "enfuse",                                                                    -- plugin name
-      "enfuse",                                                                    -- name
+      _("enfuse"),                                                                    -- name
       true,                                                                        -- expandable
       false,                                                                       -- resetable
       {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},   -- containers
@@ -135,7 +135,7 @@ if enfuse_installed then
   if version < "4.2" then
     exposure_mu = dt.new_widget("slider")
     {
-      label = "exposure mu",
+      label = _("exposure mu"),
       tooltip = _("center also known as mean of gaussian weighting function (0 <= mean <= 1); default: 0.5"),
       hard_min = 0,
       hard_max = 1,
@@ -144,7 +144,7 @@ if enfuse_installed then
   else
     exposure_mu = dt.new_widget("slider")
     {
-      label = "exposure optimum",
+      label = _("exposure optimum"),
       tooltip = _("optimum exposure value, usually the maximum of the weighting function (0 <= optimum <=1); default 0.5"),
       hard_min = 0,
       hard_max = 1,
@@ -154,7 +154,7 @@ if enfuse_installed then
     
   local depth = dt.new_widget("combobox")
   {
-    label = "depth",
+    label = _("depth"),
     tooltip = _("the number of bits per channel of the output image"),
     value = dt.preferences.read("enfuse", "depth", "integer"),
     changed_callback = function(w) dt.preferences.write("enfuse", "depth", "integer", w.selected) end,
@@ -163,7 +163,7 @@ if enfuse_installed then
 
   local blend_colorspace = dt.new_widget("combobox")
   {
-    label = "blend colorspace",
+    label = _("blend colorspace"),
     tooltip = _("force blending in selected colorspace"),
     changed_callback = function(w) dt.preferences.write("enfuse", "blend_colorspace", "string", w.selected) end,
     "", "identity", "ciecam"
