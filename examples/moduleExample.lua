@@ -75,7 +75,7 @@ local function install_module()
     -- https://www.darktable.org/lua-api/index.html#darktable_register_lib
     dt.register_lib(
       "exampleModule",     -- Module name
-      "exampleModule",     -- name
+      _("example module"),     -- name
       true,                -- expandable
       false,               -- resetable
       {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},   -- containers
