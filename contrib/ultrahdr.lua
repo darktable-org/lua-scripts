@@ -484,7 +484,7 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
         ok = copy_or_export(images["hdr"], hdr, "jpegxl", DT_COLORSPACE_PQ_P3, {
             bpp = 10,
             quality = 100, -- lossless
-            effort = 1 -- we don't care about the size, the faile is temporary.
+            effort = 1 -- we don't care about the size, the file is temporary.
         })
         if not ok then
             table.insert(errors, string.format(_("Error exporting %s to %s"), images["hdr"].filename, "jxl"))
@@ -527,8 +527,8 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
             return cleanup(), errors
         end
         -- sanity check for file sizes (sometimes dt exports different size images if the files were never opened in darktable view)
-        if file_size(sdr_raw) ~= size_in_px * 4 or file_size(hdr_raw) ~= size_in_px & 3 then
-            table.insert(errors, string.format(_("Wrong raw image dimensions: %s, expected %dx%d. Try opening the image in darktable mode first."), images["sdr"].filename, sdr_w, sdr_h))
+        if file_size(sdr_raw) ~= size_in_px * 4 or file_size(hdr_raw) ~= size_in_px * 3 then
+            table.insert(errors, string.format(_("Wrong raw image resolution: %s, expected %dx%d. Try opening the image in darktable mode first."), images["sdr"].filename, sdr_w, sdr_h))
             return cleanup(), errors
         end
         update_job_progress()
@@ -766,7 +766,7 @@ This determines how the plugin groups images into separate stacks (each stack wi
 - %s: Group images into stacks, using the source image path + filename (ignoring extension).
   Use this method if the source images for a given stack are darktable duplicates.
 
-As an added precaution, each image in a stack needs to have the same dimensions.
+As an added precaution, each image in a stack needs to have the same resolution.
 ]]), _("one stack"), _("multiple stacks (use filename)")),
     selected = 0,
     _("one stack"), -- SELECTION_TYPE_ONE_STACK
@@ -789,7 +789,7 @@ GUI.optionwidgets.quality_widget = dt.new_widget("slider") {
 
 GUI.optionwidgets.gainmap_downsampling_widget = dt.new_widget("slider") {
     label = _('gain map downsampling steps'),
-    tooltip = _('Exponent (2^x) of the gain map downsampling factor.\nDownsampling reduces the file size, at the expense of quality.\n\n0 = don\'t downsample the gain map, 7 = maximum downsampling (128x)'),
+    tooltip = _('Exponent (2^x) of the gain map downsampling factor.\nDownsampling reduces the gain map resolution.\n\n0 = don\'t downsample the gain map, 7 = maximum downsampling (128x)'),
     hard_min = 0,
     hard_max = 7,
     soft_min = 0,
