@@ -50,7 +50,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "video_ffmpeg",
+  name = _("video ffmpeg"),
   purpose = _("timelapse video plugin based on ffmpeg"),
   author = "Dominik Markiewicz",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contib/video_ffmpeg"

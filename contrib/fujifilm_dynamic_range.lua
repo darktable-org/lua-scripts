@@ -74,7 +74,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "fujifilm_dynamic_range",
+  name = _("fujifilm dynamic range"),
   purpose = _("compensate for Fujifilm raw files made using \"dynamic range\""),
   author = "Dan Torop <dant@pnym.net>",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/fujifilm_dynamic_range"

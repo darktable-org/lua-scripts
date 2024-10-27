@@ -63,7 +63,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "face_recognition",
+  name = _("face recognition"),
   purpose = _("use facial recognition to tag images"),
   author = "Sebastian Witt",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/face_recognition"

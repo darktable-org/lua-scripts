@@ -88,7 +88,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "get_lib_manpages",
+  name = _("get library man pages"),
   purpose = _("output the internal library documentation as man pages"),
   author = "Bill Ferguson <wpferguson@gmail.com>",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/tools/get_lib_manpages"

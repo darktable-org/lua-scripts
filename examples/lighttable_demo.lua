@@ -218,7 +218,7 @@ current_sort_order = dt.gui.libs.filter.sort_order(current_sort_order)
 local script_data = {}
 
 script_data.metadata = {
-  name = "lighttable_demo",
+  name = _("lighttable demo"),
   purpose = _("example demonstrating how to control lighttable display modes"),
   author = "Bill Ferguson <wpferguson@gmail.com>",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/lighttable_demo"

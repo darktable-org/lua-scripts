@@ -260,7 +260,7 @@ dt.register_event(
 local script_data = {}
 
 script_data.metadata = {
-  name = "multi_os",
+  name = _("multi OS"),
   purpose = _("example module thet runs on different operating systems"),
   author = "Bill Ferguson <wpferguson@gmail.com>",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/multi_os"

@@ -42,7 +42,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "geoToolbox",
+  name = _("geo toolbox"),
   purpose = _("geodata tools"),
   author = "Tobias Jakobs",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/geoToolbox"

@@ -53,7 +53,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "copy_attach_detach_tags",
+  name = _("copy attach detach tags"),
   purpose = _("shortcuts to copy, paste, replace, or remove tags from images"),
   author = "Christian Kanzian",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/copy_attach_detach_tags"

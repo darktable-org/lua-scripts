@@ -87,7 +87,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "ext_editor",
+  name = _("external editors"),
   purpose = _("edit images with external editors"),
   author = "Marco Carrarini, marco.carrarini@gmail.com",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/ext_editor"

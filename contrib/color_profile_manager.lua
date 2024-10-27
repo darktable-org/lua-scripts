@@ -363,7 +363,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "color_profile_manager",
+  name = _("color profile manager"),
   purpose = _("manage external darktable color profiles"),
   author = "Bill Ferguson <wpferguson@gmail.com>",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/color_profile_manager"

@@ -125,7 +125,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "image_time",
+  name = _("image time"),
   purpose = _("synchronize image time for images shot with different cameras or adjust or set image time"),
   author = "Bill Ferguson <wpferguson@gmail.com>",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/image_time"

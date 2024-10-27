@@ -62,7 +62,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "CollectHelper",
+  name = _("collection helper"),
   purpose = _("add collection helper buttons"),
   author = "Kevin Ertel",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/CollectHelper/"

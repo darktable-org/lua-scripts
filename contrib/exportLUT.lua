@@ -44,7 +44,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "exportLUT",
+  name = _("export LUT"),
   purpose = _("export a style as a LUT"),
   author = "Noah Clarke",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/exportLUT"

@@ -40,7 +40,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "slideshowMusic",
+  name = _("slideshow music"),
   purpose = _("play music during a slideshow"),
   author = "Tobias Jakobs",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/slideshowMusic"

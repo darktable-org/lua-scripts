@@ -63,7 +63,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "LabelsToTags",
+  name = _("labels to tags"),
   purpose = _("allows the mass-application of tags using color labels and ratings as a guide"),
   author = "August Schwerdfeger (august@schwerdfeger.name)",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/LabelsToTags"

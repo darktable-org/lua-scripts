@@ -77,7 +77,7 @@ local function _(msgid)
 local script_data = {}
 
 script_data.metadata = {
-  name = "RL_out_sharp",
+  name = _("RL output sharpening"),
   purpose = _("Richardson-Lucy output sharpening using GMic"),
   author = "Marco Carrarini <marco.carrarini@gmail.com>",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/RL_out_sharp"

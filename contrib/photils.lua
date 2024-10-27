@@ -55,7 +55,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "photils",
+  name = _("photils"),
   purpose = _("suggest tags based on image classification"),
   author = "Tobias Scheck",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/photils"

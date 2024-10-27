@@ -60,7 +60,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "quicktag",
+  name = _("quick tag"),
   purpose = _("use buttons to quickly apply tags assigned to them"),
   author = "Christian Kanzian",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/quicktag"

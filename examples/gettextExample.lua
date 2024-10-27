@@ -86,7 +86,7 @@ dt.print_error(_("hello world!"))
 local script_data = {}
 
 script_data.metadata = {
-  name = "gettextExample",
+  name = _("gettext example"),
   purpose = _("example of how translations works"),
   author = "Tobias Jakobs",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/gettextExample"

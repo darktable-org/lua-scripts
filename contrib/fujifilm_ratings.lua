@@ -40,7 +40,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "fujifilm_ratings",
+  name = _("fujifilm ratings"),
   purpose = _("import Fujifilm in-camera ratings"),
   author = "Ben Mendis <ben.mendis@gmail.com>",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/fujifilm_ratings"

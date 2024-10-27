@@ -82,7 +82,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "image_stack",
+  name = _("image stack"),
   purpose = _("process a stack of images"),
   author = "Bill Ferguson <wpferguson@gmail.com>",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/image_stack"

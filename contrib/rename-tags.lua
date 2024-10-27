@@ -47,7 +47,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "rename-tags",
+  name = _("rename tags"),
   purpose = _("rename an existing tag"),
   author = "Sebastian Witt (se.witt@gmx.net)",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/rename-tags"

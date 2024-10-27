@@ -47,7 +47,7 @@ dt.print("API " .. _("version") .. ": " .. result)
 local script_data = {}
 
 script_data.metadata = {
-  name = "api_version",
+  name = _("APIversion"),
   purpose = _("display api_version example"),
   author = "Tobias Jakobs",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/api_version"

@@ -41,7 +41,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "import_filter_manager",
+  name = _("import filter manager"),
   purpose = _("manage import filters"),
   author = "Tobias Ellinghaus",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/import_filter_manager"

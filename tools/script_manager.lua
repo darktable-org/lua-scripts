@@ -132,6 +132,7 @@ sm.event_registered = false
 
 sm.widgets = {}
 sm.folders = {}
+sm.translated_folders = {}
 
 -- set log level for functions
 
@@ -364,8 +365,9 @@ end
 local function string_trim(str)
   local old_log_level = set_log_level(sm.log_level)
 
-  local result = string.gsub(str, "^%s+", "")
-  result = string.gsub(result, "%s+$", "")
+  local result = string.gsub(str, "^%s+", "") -- trim leading spaces
+  result = string.gsub(result, "%s+$", "")    -- trim trailing spaces
+  result = string.gsub(result, ",?%s+%-%-.+$", "") -- trim trailing comma and comments
 
   restore_log_level(old_log_level)
   return result
@@ -387,11 +389,42 @@ end
 -- script handling
 ------------------
 
+local function is_folder_known(folder_table, name)
+  local match = false
+
+  for _, folder_name in ipairs(folder_table) do
+    if name == folder_name then
+      match = true
+    end
+  end
+
+  return match
+end
+
+local function find_translated_name(folder)
+  local translated_name = nil
+
+  if folder == "contrib" then
+    translated_name = _("contributed")
+  elseif folder == "examples" then
+    translated_name = _("examples")
+  elseif folder == "official" then
+    translated_name = _("official")
+  elseif folder == "tools" then
+    translated_name = _("tools")
+  else
+    translated_name = _(folder) -- in case we get lucky and the string got translated elsewhere
+  end
+
+  return translated_name
+end
+
 local function add_script_folder(folder)
   local old_log_level = set_log_level(sm.log_level)
 
-  if #sm.folders == 0 or not string.match(du.join(sm.folders, " "), ds.sanitize_lua(folder)) then
+  if #sm.folders == 0 or not is_folder_known(sm.folders, folder) then
     table.insert(sm.folders, folder)
+    table.insert(sm.translated_folders, find_translated_name(folder))
     sm.scripts[folder] = {}
     log.msg(log.debug, "created folder " .. folder)
   end
@@ -405,8 +438,8 @@ local function get_script_metadata(script)
 
   log.msg(log.debug, "processing metatdata for " .. script)
 
-  local description = nil
-  local metadata = nil
+  local metadata_block = nil
+  local metadata = {}
 
   f = io.open(LUA_DIR .. PS .. script .. ".lua")
   if f then
@@ -414,20 +447,20 @@ local function get_script_metadata(script)
     local content = f:read("*all")
     f:close()
     -- grab the script_data.metadata table
-    description = string.match(content, "script_data%.metadata = %{\r?\n(.-)\r?\n%}")
+    metadata_block = string.match(content, "script_data%.metadata = %{\r?\n(.-)\r?\n%}")
   else
     log.msg(log.error, "cant read from " .. script)
   end
 
-  if description then
-    metadata = ""
-    -- format it into a string block for display
-    local lines = du.split(description, "\n")
+  if metadata_block then
+    -- break up the lines into key value pairs
+    local lines = du.split(metadata_block, "\n")
     log.msg(log.debug, "got " .. #lines .. " lines")
-    local first = 1
     for i = 1, #lines do
       log.msg(log.debug, "splitting line " .. lines[i])
       local parts = du.split(lines[i], " = ")
+      parts[1] = string_trim(parts[1])
+      parts[2] = string_trim(parts[2])
       log.msg(log.debug, "got value " .. parts[1] .. " and data " .. parts[2])
       if string.match(parts[2], "%_%(") then
         parts[2] = _(string_dequote(string_dei18n(parts[2])))
@@ -437,14 +470,15 @@ local function get_script_metadata(script)
       if string.match(parts[2], ",$") then
         parts[2] = string_chop(parts[2])
       end
-      metadata = metadata .. string.format("%s%-10s\t%s", first and "" or "\n", parts[1], parts[2])
-      first = nil
+      log.msg(log.debug, "parts 1 is " .. parts[1] .. " and parts 2 is " .. parts[2])
+      metadata[parts[1]] = parts[2]
+      log.msg(log.debug, "metadata " .. parts[1] .. " is " .. metadata[parts[1]])
     end
-    log.msg(log.debug, "script data is \n" .. metadata)
+    log.msg(log.debug, "script data found for " .. metadata["name"])
   end
 
   restore_log_level(old_log_level)
-  return metadata
+  return metadata_block and metadata or nil
 end
 
 local function get_script_doc(script)
@@ -910,11 +944,11 @@ local function populate_buttons(folder, first, last)
     end
 
     button.image = POWER_ICON
-    label.label = script.name
+    label.label = script.metadata and script.metadata.name or script.name
     label.name = "pb_label"
     button.ellipsize = "end"
     button.sensitive = true
-    label.tooltip = script.metadata and script.metadata or script.doc
+    label.tooltip = script.metadata and script.metadata.purpose or script.doc
 
     button.clicked_callback = function (this)
       local cb_script = script
@@ -1006,7 +1040,7 @@ local function paginate(direction)
     last = first + sm.page_status.num_buttons - 1
   end
 
-  sm.widgets.page_status.label = _(string.format("page %d of %d", cur_page, max_pages))
+  sm.widgets.page_status.label = string.format(_("page %d of %d"), cur_page, max_pages)
 
   populate_buttons(folder, first, last)
 
@@ -1378,10 +1412,10 @@ sm.widgets.folder_selector = dt.new_widget("combobox"){
   changed_callback = function(self)
     if sm.run then
       pref_write("folder_selector", "integer", self.selected)
-      change_folder(self.value)
+      change_folder(sm.folders[self.selected])
     end
   end,
-  table.unpack(sm.folders),
+  table.unpack(sm.translated_folders),
 }
 
 -- a script "button" consists of:

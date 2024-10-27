@@ -54,7 +54,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "kml_export",
+  name = _("kml export"),
   purpose = _("export KML/KMZ data to a file"),
   author = "Tobias Jakobs",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/kml_export"

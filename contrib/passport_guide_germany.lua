@@ -52,7 +52,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "passport_guide_germany",
+  name = _("passport guide Germany"),
   purpose = _("guides for cropping passport and ID card (\"Personalausweis\") photos based on the \"Passbild-Schablone\" from the German Federal Ministry of the Interior and Community"),
   author = "menschmachine",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/passport_guide_germany"

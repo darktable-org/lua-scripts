@@ -76,7 +76,7 @@ script_data.restart = nil           -- how to restart the (lib) script after it'
 script_data.show = nil              -- only required for libs since the destroy_method only hides them
 
 script_data.metadata = {
-  name = "auto_snapshot",            -- name of script
+  name = _("auto snapshot"),            -- name of script
   purpose = _("automatically take a snapshot when an image is loaded in darkroom"),   -- purpose of script
   author = "Bill Ferguson <wpferguson@gamil.com>",          -- your name and optionally e-mail address
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/auto_snapshot/"                   -- URL to help/documentation

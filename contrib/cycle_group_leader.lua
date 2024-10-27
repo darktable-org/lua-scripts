@@ -71,7 +71,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "cycle_group_leader",
+  name = _("cycle group leader"),
   purpose = _("change image group leader"),
   author = "Bill Ferguson <wpferguson@gmail.com>",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/cycle_group_leader"

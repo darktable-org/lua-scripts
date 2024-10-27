@@ -48,7 +48,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "passport_guide",
+  name = _("passport guide"),
   purpose = _("guides for cropping passport photos"),
   author = "Kåre Hampf",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/passport_guide"

@@ -58,7 +58,7 @@ dt.print_log("print log")
 local script_data = {}
 
 script_data.metadata = {
-  name = "printExamples",
+  name = _("print examples"),
   purpose = _("example showing the different types of printing messages"),
   author = "Tobias Jakobs",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/printExamples"

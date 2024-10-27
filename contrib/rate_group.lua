@@ -55,7 +55,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "rate_group",
+  name = _("rate group"),
   purpose = _("rate all images in a group"),
   author = "Dom H (dom@hxy.io)",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/rate_group"

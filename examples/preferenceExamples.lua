@@ -35,7 +35,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "preferenceExamples",
+  name = _("preference examples"),
   purpose = _("example to show the different preference types that are possible"),
   author = "Tobias Jakobs",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/preferenceExamples"

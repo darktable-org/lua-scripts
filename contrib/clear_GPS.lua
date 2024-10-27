@@ -50,7 +50,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "clear_GPS",
+  name = _("clear GPS info"),
   purpose = _("remove GPS data from selected image(s)"),
   author = "Bill Ferguson <wpferguson@gmail.com>",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/clear_gps/"

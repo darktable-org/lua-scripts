@@ -51,7 +51,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "change_group_leader",
+  name = _("change group leader"),
   purpose = _("automatically change the leader of raw+jpg paired image groups"),
   author = "Bill Ferguson <wpferguson@gmail.com>",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/change_group_leader"

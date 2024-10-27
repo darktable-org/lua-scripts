@@ -49,7 +49,7 @@ end
 local script_data = {}
 
 script_data.metadata = {
-  name = "geoJSON_export",
+  name = _("geoJSON export"),
   purpose = _("export a geoJSON file from geo data"),
   author = "Tobias Jakobs",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/geoJSON_export"
