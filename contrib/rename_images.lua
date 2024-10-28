@@ -141,7 +141,7 @@ local function do_rename(images)
       for i, image in ipairs(images) do
         if job.valid then
           job.percent = i / #images
-          ds.build_substitution_list(image, i, pattern, USER, PICTURES, HOME, DESKTOP)
+          ds.build_substitute_list(image, i, pattern, USER, PICTURES, HOME, DESKTOP)
           local new_name = ds.substitute_list(pattern)
           if new_name == -1 then
             dt.print(_("unable to do variable substitution, exiting..."))
