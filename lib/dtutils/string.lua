@@ -306,12 +306,12 @@ end
 local function _should_be_sanitized(str)
   local old_log_level = log.log_level()
   local result = false
-  local SAFE_POSIX_FILENAME_CHARS <const> = "[^%w/._%-]+"
-  local SAFE_WIN_FILENAME_CHARS <const> = "[^%w\\._%-:]+"
+  local UNSAFE_POSIX_FILENAME_CHARS <const> = "[^%w/._%-]+"
+  local UNSAFE_WIN_FILENAME_CHARS <const> = "[^%w\\._%-:]+"
 
-  local pattern = SAFE_POSIX_FILENAME_CHARS
+  local pattern = UNSAFE_POSIX_FILENAME_CHARS
   if dt.configuration.running_os == "windows" then
-    pattern = SAFE_WIN_FILENAME_CHARS
+    pattern = UNSAFE_WIN_FILENAME_CHARS
   end
 
   log.log_level(dtutils_string.log_level)
