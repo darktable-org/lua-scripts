@@ -309,9 +309,9 @@ local function _should_be_sanitized(str)
   local SAFE_POSIX_FILENAME_CHARS <const> = "[^%w/._%-]+"
   local SAFE_WIN_FILENAME_CHARS <const> = "[^%w\\._%-:]+"
 
-  local pattern = SAFE_POSIX_STRING_CHARS
+  local pattern = SAFE_POSIX_FILENAME_CHARS
   if dt.configuration.running_os == "windows" then
-    pattern = SAFE_WIN_STRING_CHARS
+    pattern = SAFE_WIN_FILENAME_CHARS
   end
 
   log.log_level(dtutils_string.log_level)
