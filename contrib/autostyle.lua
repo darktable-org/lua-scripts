@@ -53,6 +53,8 @@ end
 
 local script_data = {}
 
+local have_not_printed_config_message = true
+
 script_data.metadata = {
   name = _("auto style"),
   purpose = _("automatically apply a style based on image EXIF tag"),
@@ -101,56 +103,62 @@ end
 local function autostyle_apply_one_image (image)
 
   local pref = darktable.preferences.read("autostyle", "exif_tag", "string")
+
+  if pref and string.len(pref) >= 6 then
   -- We need the tag, the value and the style_name provided from the configuration string
-  local tag, value, style_name = string.match(pref, "(%g+)%s*=%s*(%g+)%s*=>%s*(%g+)")
+    local tag, value, style_name = string.match(pref, "(%g+)%s*=%s*(%g+)%s*=>%s*(%g+)")
 
-  -- check they all exist (correct syntax)
-  if (not tag) then
-	  darktable.print(string.format(_("EXIF tag not found in %s"), pref))
-	  return 0
-  end
-  if (not value) then
-	  darktable.print(string.format(_("value to match not found in %s"), pref))
-	  return 0
-  end
-  if (not style_name) then
-	  darktable.print(string.format(_("style name not found in %s"), pref))
-	  return 0
-  end
-  if not filelib.check_if_bin_exists("exiftool") then
-	  darktable.print(_("can't find exiftool"))
-    return 0
-  end
-	
-	
-  -- First find the style (we have its name)
-  local styles = darktable.styles
-  local style
-  for _, s in ipairs(styles) do
-	  if s.name == style_name then
-		  style = s
-	  end
-  end
-  if (not style) then
-	  darktable.print(string.format(_("style not found for autostyle: %s"), style_name))
-    return 0
-  end
+    -- check they all exist (correct syntax)
+    if (not tag) then
+  	  darktable.print(string.format(_("EXIF tag not found in %s"), pref))
+  	  return 0
+    end
+    if (not value) then
+  	  darktable.print(string.format(_("value to match not found in %s"), pref))
+  	  return 0
+    end
+    if (not style_name) then
+  	  darktable.print(string.format(_("style name not found in %s"), pref))
+  	  return 0
+    end
+    if not filelib.check_if_bin_exists("exiftool") then
+  	  darktable.print(_("can't find exiftool"))
+      return 0
+    end
+  	
+  	
+    -- First find the style (we have its name)
+    local styles = darktable.styles
+    local style
+    for _, s in ipairs(styles) do
+  	  if s.name == style_name then
+  		  style = s
+  	  end
+    end
+    if (not style) then
+  	  darktable.print(string.format(_("style not found for autostyle: %s"), style_name))
+      return 0
+    end
 
-  -- Apply the style to image, if it is tagged
-  local ok, auto_dr_attr = pcall(exiftool_attribute, image.path .. '/' .. image.filename,tag)
-  --darktable.print_error("dr_attr:" .. auto_dr_attr)
-  -- If the lookup fails, stop here
-  if (not ok) then
-    darktable.print(string.format(_("couldn't get attribute %s from exiftool's output"), auto_dr_attr))
-    return 0
-  end
-  if auto_dr_attr == value then
-	  darktable.print_log("Image " .. image.filename .. ": autostyle automatically applied " .. pref)
-	  darktable.styles.apply(style,image)
-	  return 1
-  else
-	  darktable.print_log("Image " .. image.filename .. ": autostyle not applied, exif tag " .. pref  .. " not matched: " .. auto_dr_attr)
-	  return 0
+    -- Apply the style to image, if it is tagged
+    local ok, auto_dr_attr = pcall(exiftool_attribute, image.path .. '/' .. image.filename,tag)
+    --darktable.print_error("dr_attr:" .. auto_dr_attr)
+    -- If the lookup fails, stop here
+    if (not ok) then
+      darktable.print(string.format(_("couldn't get attribute %s from exiftool's output"), auto_dr_attr))
+      return 0
+    end
+    if auto_dr_attr == value then
+  	  darktable.print_log("Image " .. image.filename .. ": autostyle automatically applied " .. pref)
+  	  darktable.styles.apply(style,image)
+  	  return 1
+    else
+  	  darktable.print_log("Image " .. image.filename .. ": autostyle not applied, exif tag " .. pref  .. " not matched: " .. auto_dr_attr)
+  	  return 0
+    end
+  elseif have_not_printed_config_message then
+    have_not_printed_config_message = false
+    darktable.print(string.format(_("%s is not configured, please configure the preference in Lua options"), script_data.metadata.name))
   end
 end 
 
@@ -180,7 +188,9 @@ end
 darktable.register_event("autostyle", "shortcut", autostyle_apply,
        _("apply your chosen style from exiftool tags"))
 
-darktable.preferences.register("autostyle", "exif_tag", "string", "Autostyle: EXIF_tag=value=>style", _("apply a style automatically if an EXIF tag matches value, find the tag with exiftool"), "")
+darktable.preferences.register("autostyle", "exif_tag", "string", 
+                              string.format("%s: EXIF_tag=value=>style", script_data.metadata.name),
+                              _("apply a style automatically if an EXIF tag matches value, find the tag with exiftool"), "")
 
 darktable.register_event("autostyle", "post-import-image",
   autostyle_apply_one_image_event)
