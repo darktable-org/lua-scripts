@@ -812,7 +812,7 @@ dtutils_file.libdoc.functions["mkdir"] = {
 function dtutils_file.mkdir(path)
   if not dtutils_file.check_if_file_exists(path) then
     local mkdir_cmd = dt.configuration.running_os == "windows" and "mkdir" or "mkdir -p"
-    return dsys.external_command(mkdir_cmd.." "..path)
+    return dsys.external_command(mkdir_cmd.." "..dtutils_file.sanitize_filename(path))
   else
     return 0
   end
@@ -837,7 +837,7 @@ dtutils_file.libdoc.functions["rmdir"] = {
 
 function dtutils_file.rmdir(path)
   local rm_cmd = dt.configuration.running_os == "windows" and "rmdir /S /Q" or "rm -r"
-  return dsys.external_command(rm_cmd.." "..path)
+  return dsys.external_command(rm_cmd.." "..dtutils_file.sanitize_filename(path))
 end
 
 dtutils_file.libdoc.functions["create_tmp_file"] = {
