@@ -186,7 +186,7 @@ dt.register_event(MODULE .. "_collect", "shortcut",
     local images = dt.collection
     make_existing_hif_group_leader(images)
   end,
-  string.format(_("make hif group leader for %s", _("collection")))
+  _("make hif group leader for collection")
 )
 
 dt.register_event(MODULE .. "_select", "shortcut",
@@ -194,7 +194,7 @@ dt.register_event(MODULE .. "_select", "shortcut",
     local images = dt.gui.selection()
     make_existing_hif_group_leader(images)
   end,
-  string.format(_("make hif group leader for %s", _("selection")))
+  _("make hif group leader for selection")
 )
 
 return script_data
