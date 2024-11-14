@@ -374,7 +374,7 @@ dtutils.libdoc.functions["deprecated"] = {
 
     du.deprecated(script_name, removal_string)
       script_name - name of the script being deprecated
-      removal_strubg - a string explaining when the script will be removed]],
+      removal_string - a string explaining when the script will be removed]],
   Description = [[deprecated prints an error message saying the script is deprecated and when it will be removed]],
   Return_Value = [[]],
   Limitations = [[]],
@@ -391,5 +391,40 @@ function dtutils.deprecated(script_name, removal_string)
   dt.print_error("WARNING: " .. script_name .. " is deprecated and will be removed in " .. removal_string)
 end
 
+dtutils.libdoc.functions["gen_uuid"] = {
+  Name = [[gen_uuid]],
+  Synopsis = [[generate a UUID string]],
+  Usage = [[local du = require "lib/dtutils"
+
+    uuid = du.gen_uuid(case)
+      case - "upper" or "lower" to specify the case of the UUID string]],
+  Description = [[gen_uuid prints an error message saying the script is gen_uuid and when it will be removed]],
+  Return_Value = [[uuid - string - a hexidecimal string representing the UUID in the requested case]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[]],
+  Reference = [[https://gist.github.com/jrus/3197011]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils.gen_uuid(case)
+  local template = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+
+  -- seed with os.time in seconds and add an extra degree of random for multiple calls in the same second
+  math.randomseed(os.time(), math.random(0, 65536))
+    
+  local uuid = string.gsub(template, '[xy]', function (c)
+      local v = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
+      return string.format('%x', v)
+    end
+  )
+
+  if case and case == "upper" then
+    uuid = string.upper(uuid)
+  end
+
+  return uuid
+end
 
 return dtutils
