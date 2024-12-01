@@ -64,7 +64,7 @@ local CS <const> = dt.configuration.running_os == "windows" and "&" or ";"
 -- A P I  C H E C K
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
-du.check_min_api_version("9.4.0", MODULE)   -- styles use filmic V7 which appeared in darktable 4.4
+du.check_min_api_version("9.4.0", MODULE)   -- camera styles added to darktable 5.0
 
 
 -- - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -477,7 +477,9 @@ dt.register_event(MODULE, "shortcut",
 
 dt.register_event(MODULE, "post-import-image",
   function(event, image)
-    table.insert(acs.imported_images, image)
+    if image.is_raw then
+      table.insert(acs.imported_images, image)
+    end
   end
 )
 
