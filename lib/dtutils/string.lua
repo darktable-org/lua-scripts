@@ -748,7 +748,7 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
 
   local replacements = {image.film.path,                       -- ROLL.NAME
                         image.path,                            -- FILE.FOLDER
-                        image.filename,                        -- FILE.NAME
+                        dtutils_string.get_basename(image.filename),-- FILE.NAME
                         dtutils_string.get_filetype(image.filename),-- FILE.EXTENSION
                         image.id,                              -- ID
                         image.duplicate_index,                 -- VERSION
