@@ -746,7 +746,7 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
 
   local version_multi = #image:get_group_members() > 1 and image.version or ""
 
-  local replacements = {image.film.path,                       -- ROLL.NAME
+  local replacements = {dtutils_string.get_basename(image.film.path),-- ROLL.NAME
                         image.path,                            -- FILE.FOLDER
                         dtutils_string.get_basename(image.filename),-- FILE.NAME
                         dtutils_string.get_filetype(image.filename),-- FILE.EXTENSION
