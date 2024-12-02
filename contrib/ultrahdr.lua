@@ -39,6 +39,7 @@ USAGE
 ]] local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+local ds = require "lib/dtutils.string"
 local log = require "lib/dtutils.log"
 local dtsys = require "lib/dtutils.system"
 local dd = require "lib/dtutils.debug"
@@ -65,8 +66,9 @@ local GUI = {
         encoding_settings_box = {},
         output_settings_label = {},
         output_settings_box = {},
-        use_original_directory = {},
-        output_directory_widget = {},
+        output_filepath_label = {},
+        output_filepath_widget = {},
+        overwrite_on_conflict = {},
         copy_exif = {},
         import_to_darktable = {},
         min_content_boost = {},
@@ -110,6 +112,12 @@ local SELECTION_TYPE_GROUP_BY_FNAME = 2
 local DT_COLORSPACE_PQ_P3 = 24
 local DT_COLORSPACE_DISPLAY_P3 = 26
 
+-- 1-based position of a colorspace in export profile combobox.
+local COLORSPACE_TO_GUI_ACTION = {
+    [DT_COLORSPACE_PQ_P3] = 9,
+    [DT_COLORSPACE_DISPLAY_P3] = 11
+}
+
 local function generate_metadata_file(settings)
     local metadata_file_fmt = [[--maxContentBoost %f
 --minContentBoost %f
@@ -135,10 +143,8 @@ end
 local function save_preferences()
     dt.preferences.write(namespace, "encoding_variant", "integer", GUI.optionwidgets.encoding_variant_combo.selected)
     dt.preferences.write(namespace, "selection_type", "integer", GUI.optionwidgets.selection_type_combo.selected)
-    dt.preferences.write(namespace, "use_original_directory", "bool", GUI.optionwidgets.use_original_directory.value)
-    if GUI.optionwidgets.output_directory_widget.value then
-        dt.preferences.write(namespace, "output_directory", "string", GUI.optionwidgets.output_directory_widget.value)
-    end
+    dt.preferences.write(namespace, "output_filepath_pattern", "string", GUI.optionwidgets.output_filepath_widget.text)
+    dt.preferences.write(namespace, "overwrite_on_conflict", "bool", GUI.optionwidgets.overwrite_on_conflict.value)
     dt.preferences.write(namespace, "import_to_darktable", "bool", GUI.optionwidgets.import_to_darktable.value)
     dt.preferences.write(namespace, "copy_exif", "bool", GUI.optionwidgets.copy_exif.value)
     if GUI.optionwidgets.min_content_boost.value then
@@ -151,7 +157,7 @@ local function save_preferences()
     dt.preferences.write(namespace, "gainmap_downsampling", "integer",
         GUI.optionwidgets.gainmap_downsampling_widget.value)
     dt.preferences.write(namespace, "target_display_peak_nits", "integer",
-        (GUI.optionwidgets.target_display_peak_nits_widget.value+0.5)//1)
+        (GUI.optionwidgets.target_display_peak_nits_widget.value + 0.5) // 1)
 
 end
 
@@ -169,11 +175,8 @@ local function load_preferences()
     GUI.optionwidgets.selection_type_combo.selected = math.max(
         dt.preferences.read(namespace, "selection_type", "integer"), SELECTION_TYPE_ONE_STACK)
 
-    GUI.optionwidgets.output_directory_widget.value = dt.preferences.read(namespace, "output_directory", "string")
-    GUI.optionwidgets.use_original_directory.value = dt.preferences.read(namespace, "use_original_directory", "bool")
-    if not GUI.optionwidgets.output_directory_widget.value then
-        GUI.optionwidgets.use_original_directory.value = true
-    end
+    GUI.optionwidgets.output_filepath_widget.text = dt.preferences.read(namespace, "output_filepath_pattern", "string")
+    GUI.optionwidgets.overwrite_on_conflict.value = dt.preferences.read(namespace, "overwrite_on_conflict", "bool")
     GUI.optionwidgets.import_to_darktable.value = dt.preferences.read(namespace, "import_to_darktable", "bool")
     GUI.optionwidgets.copy_exif.value = dt.preferences.read(namespace, "copy_exif", "bool")
     GUI.optionwidgets.min_content_boost.value = default_to(dt.preferences.read(namespace, "min_content_boost", "float"),
@@ -191,10 +194,25 @@ local function load_preferences()
         dt.preferences.read(namespace, "gainmap_downsampling", "integer"), 0)
 end
 
+local function set_profile(colorspace)
+    local set_directly = true
+
+    if set_directly then
+        -- New method, with hardcoded export profile values.
+        local old = dt.gui.action("lib/export/profile", 0, "selection", "", "") * -1
+        local new = COLORSPACE_TO_GUI_ACTION[colorspace] or colorspace
+        log.msg(log.debug, string.format("%d %d %d %d", colorspace, new, old, new - old))
+        dt.gui.action("lib/export/profile", 0, "selection", "next", new - old)
+        return old
+    else
+        -- Old method, timing-dependent
+        return set_combobox("lib/export/profile", 0, "plugins/lighttable/export/icctype", colorspace)
+    end
+end
+
 -- Changes the combobox selection blindly until a paired config value is set.
 -- Workaround for https://github.com/darktable-org/lua-scripts/issues/522
 local function set_combobox(path, instance, config_name, new_config_value)
-
     local pref = dt.preferences.read("darktable", config_name, "integer")
     if pref == new_config_value then
         return new_config_value
@@ -223,8 +241,8 @@ local function assert_settings_correct(encoding_variant)
             exiftool = df.check_if_bin_exists("exiftool"),
             ffmpeg = df.check_if_bin_exists("ffmpeg")
         },
-        output = GUI.optionwidgets.output_directory_widget.value,
-        use_original_dir = GUI.optionwidgets.use_original_directory.value,
+        overwrite_on_conflict = GUI.optionwidgets.overwrite_on_conflict.value,
+        output_filepath_pattern = GUI.optionwidgets.output_filepath_widget.text,
         import_to_darktable = GUI.optionwidgets.import_to_darktable.value,
         copy_exif = GUI.optionwidgets.copy_exif.value,
         metadata = {
@@ -234,15 +252,12 @@ local function assert_settings_correct(encoding_variant)
             hdr_capacity_max = GUI.optionwidgets.hdr_capacity_max.value
         },
         quality = GUI.optionwidgets.quality_widget.value,
-        target_display_peak_nits = (GUI.optionwidgets.target_display_peak_nits_widget.value+0.5)//1,
+        target_display_peak_nits = (GUI.optionwidgets.target_display_peak_nits_widget.value + 0.5) // 1,
         downsample = 2 ^ GUI.optionwidgets.gainmap_downsampling_widget.value,
         tmpdir = dt.configuration.tmp_dir,
-        skip_cleanup = false -- keep temporary files around, for debugging.
+        skip_cleanup = false, -- keep temporary files around, for debugging.
+        force_export = true -- if false, will copy source files instead of exporting if the file extension matches the format expectation.
     }
-
-    if not settings.use_original_dir and (not settings.output or not df.check_if_file_exists(settings.output)) then
-        table.insert(errors, string.format(_("output directory (%s) not found"), settings.output))
-    end
 
     for k, v in pairs(settings.bin) do
         if not v then
@@ -387,10 +402,11 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
     end
 
     function copy_or_export(src_image, dest, format, colorspace, props)
-        if df.get_filetype(src_image.filename) == df.get_filetype(dest) and not src_image.is_altered then
+        if not settings.force_export and df.get_filetype(src_image.filename) == df.get_filetype(dest) and
+            not src_image.is_altered then
             return df.file_copy(src_image.path .. PS .. src_image.filename, dest)
         else
-            local prev = set_combobox("lib/export/profile", 0, "plugins/lighttable/export/icctype", colorspace)
+            local prev = set_profile(colorspace)
             if not prev then
                 return false
             end
@@ -405,7 +421,7 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
             end
 
             if prev then
-                set_combobox("lib/export/profile", 0, "plugins/lighttable/export/icctype", prev)
+                set_profile(prev)
             end
             return ok
         end
@@ -655,8 +671,10 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
         update_job_progress()
     end
 
-    local output_dir = settings.use_original_dir and best_source_image.path or settings.output
-    local output_file = df.create_unique_filename(output_dir .. PS .. df.get_filename(uhdr))
+    local output_file = ds.substitute(best_source_image, step + 1, settings.output_filepath_pattern) .. ".jpg"
+    if not settings.overwrite_on_conflict then
+        output_file = df.create_unique_filename(output_file)
+    end
     ok = df.file_move(uhdr, output_file)
     if not ok then
         table.insert(errors, string.format(_("Error generating UltraHDR for %s"), best_source_image.filename))
@@ -733,17 +751,20 @@ GUI.optionwidgets.output_settings_label = dt.new_widget("section_label") {
     label = _("output")
 }
 
-GUI.optionwidgets.output_directory_widget = dt.new_widget("file_chooser_button") {
-    title = _("select directory to write UltraHDR image files to"),
-    is_directory = true
+GUI.optionwidgets.output_filepath_label = dt.new_widget("label") {
+    label = _("file path pattern"),
+    tooltip = ds.get_substitution_tooltip()
 }
 
-GUI.optionwidgets.use_original_directory = dt.new_widget("check_button") {
-    label = _("export to original directory"),
-    tooltip = _("Write UltraHDR images to the same directory as their original images"),
-    clicked_callback = function(self)
-        GUI.optionwidgets.output_directory_widget.sensitive = not self.value
-    end
+GUI.optionwidgets.output_filepath_widget = dt.new_widget("entry") {
+    tooltip = ds.get_substitution_tooltip(),
+    placeholder = _("e.g. $(FILE_FOLDER)/$(FILE_NAME)_ultrahdr")
+}
+
+GUI.optionwidgets.overwrite_on_conflict = dt.new_widget("check_button") {
+    label = _("overwrite if exists"),
+    tooltip = _(
+        "If the output file already exists, overwrite it. If unchecked, a unique filename will be created instead.")
 }
 
 GUI.optionwidgets.import_to_darktable = dt.new_widget("check_button") {
@@ -759,8 +780,9 @@ GUI.optionwidgets.copy_exif = dt.new_widget("check_button") {
 GUI.optionwidgets.output_settings_box = dt.new_widget("box") {
     orientation = "vertical",
     GUI.optionwidgets.output_settings_label,
-    GUI.optionwidgets.use_original_directory,
-    GUI.optionwidgets.output_directory_widget,
+    GUI.optionwidgets.output_filepath_label,
+    GUI.optionwidgets.output_filepath_widget,
+    GUI.optionwidgets.overwrite_on_conflict,
     GUI.optionwidgets.import_to_darktable,
     GUI.optionwidgets.copy_exif
 }
@@ -845,7 +867,9 @@ This will determine the method used to generate UltraHDR.
 
 By default, the first image in a stack is treated as SDR, and the second one is a gain map/HDR.
 You can force the image into a specific stack slot by attaching "hdr" / "gainmap" tags to it.
-]]), _("SDR + gain map"), _("SDR + HDR"), _("SDR only"), _("HDR only")),
+
+For HDR source images, apply a log2(203 nits/10000 nits) = -5.62 EV exposure correction
+before generating UltraHDR.]]), _("SDR + gain map"), _("SDR + HDR"), _("SDR only"), _("HDR only")),
     selected = 0,
     changed_callback = function(self)
         GUI.run.sensitive = self.selected and self.selected > 0
