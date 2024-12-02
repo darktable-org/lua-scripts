@@ -744,11 +744,11 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
       string.match(image.exif_datetime_taken, "(%d+):(%d+):(%d+) (%d+):(%d+):(%d+)$")
   end
 
-  local version_multi = #image:get_group_members() > 1 and image.version or ""
+  local version_multi = #image:get_group_members() > 1 and image.duplicate_index or ""
 
-  local replacements = {image.film.path,                       -- ROLL.NAME
+  local replacements = {dtutils_string.get_basename(image.film.path),-- ROLL.NAME
                         image.path,                            -- FILE.FOLDER
-                        image.filename,                        -- FILE.NAME
+                        dtutils_string.get_basename(image.filename),-- FILE.NAME
                         dtutils_string.get_filetype(image.filename),-- FILE.EXTENSION
                         image.id,                              -- ID
                         image.duplicate_index,                 -- VERSION
