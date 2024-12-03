@@ -47,6 +47,8 @@ local gettext = dt.gettext.gettext
 
 local namespace = "module_ultrahdr"
 
+local LOG_LEVEL = log.info
+
 -- works with darktable API version from 4.8.0 on
 du.check_min_api_version("9.3.0", "ultrahdr")
 
@@ -118,7 +120,19 @@ local COLORSPACE_TO_GUI_ACTION = {
     [DT_COLORSPACE_DISPLAY_P3] = 11
 }
 
+
+local function set_log_level(level)
+    local old_log_level = log.log_level()
+    log.log_level(level)
+    return old_log_level
+end
+  
+local function restore_log_level(level)
+    log.log_level(level)
+end
+
 local function generate_metadata_file(settings)
+    local old_log_level = set_log_level(LOG_LEVEL)
     local metadata_file_fmt = [[--maxContentBoost %f
 --minContentBoost %f
 --gamma 1.0
@@ -137,10 +151,12 @@ local function generate_metadata_file(settings)
         settings.metadata.min_content_boost, settings.metadata.hdr_capacity_min, settings.metadata.hdr_capacity_max)
     f:write(content)
     f:close()
+    restore_log_level(old_log_level)
     return filename
 end
 
 local function save_preferences()
+    local old_log_level = set_log_level(LOG_LEVEL)    
     dt.preferences.write(namespace, "encoding_variant", "integer", GUI.optionwidgets.encoding_variant_combo.selected)
     dt.preferences.write(namespace, "selection_type", "integer", GUI.optionwidgets.selection_type_combo.selected)
     dt.preferences.write(namespace, "output_filepath_pattern", "string", GUI.optionwidgets.output_filepath_widget.text)
@@ -158,7 +174,7 @@ local function save_preferences()
         GUI.optionwidgets.gainmap_downsampling_widget.value)
     dt.preferences.write(namespace, "target_display_peak_nits", "integer",
         (GUI.optionwidgets.target_display_peak_nits_widget.value + 0.5) // 1)
-
+    restore_log_level(old_log_level)
 end
 
 local function default_to(value, default)
@@ -169,6 +185,7 @@ local function default_to(value, default)
 end
 
 local function load_preferences()
+    local old_log_level = set_log_level(LOG_LEVEL)
     -- Since the option #1 is the default, and empty numeric prefs are 0, we can use math.max
     GUI.optionwidgets.encoding_variant_combo.selected = math.max(
         dt.preferences.read(namespace, "encoding_variant", "integer"), ENCODING_VARIANT_SDR_AND_GAINMAP)
@@ -192,6 +209,7 @@ local function load_preferences()
         dt.preferences.read(namespace, "target_display_peak_nits", "integer"), 10000)
     GUI.optionwidgets.gainmap_downsampling_widget.value = default_to(
         dt.preferences.read(namespace, "gainmap_downsampling", "integer"), 0)
+    restore_log_level(old_log_level)
 end
 
 local function set_profile(colorspace)
@@ -201,7 +219,7 @@ local function set_profile(colorspace)
         -- New method, with hardcoded export profile values.
         local old = dt.gui.action("lib/export/profile", 0, "selection", "", "") * -1
         local new = COLORSPACE_TO_GUI_ACTION[colorspace] or colorspace
-        log.msg(log.debug, string.format("%d %d %d %d", colorspace, new, old, new - old))
+        log.msg(log.debug, string.format("Changing export profile from %d to %d", old, new))
         dt.gui.action("lib/export/profile", 0, "selection", "next", new - old)
         return old
     else
@@ -213,6 +231,7 @@ end
 -- Changes the combobox selection blindly until a paired config value is set.
 -- Workaround for https://github.com/darktable-org/lua-scripts/issues/522
 local function set_combobox(path, instance, config_name, new_config_value)
+    local old_log_level = set_log_level(LOG_LEVEL)
     local pref = dt.preferences.read("darktable", config_name, "integer")
     if pref == new_config_value then
         return new_config_value
@@ -231,9 +250,11 @@ local function set_combobox(path, instance, config_name, new_config_value)
         end
     end
     log.msg(log.error, string.format(_("Could not change %s from %d to %d"), config_name, pref, new_config_value))
+    restore_log_level(old_log_level)
 end
 
 local function assert_settings_correct(encoding_variant)
+    local old_log_level = set_log_level(LOG_LEVEL)
     local errors = {}
     local settings = {
         bin = {
@@ -273,7 +294,7 @@ local function assert_settings_correct(encoding_variant)
             table.insert(errors, _("hdr_capacity_min should not be greater than hdr_capacity_max"))
         end
     end
-
+    restore_log_level(old_log_level)
     if #errors > 0 then
         return nil, errors
     end
@@ -288,6 +309,7 @@ local function get_dimensions(image)
 end
 
 local function get_stacks(images, encoding_variant, selection_type)
+    local old_log_level = set_log_level(LOG_LEVEL)
     local stacks = {}
     local primary = "sdr"
     local extra
@@ -356,6 +378,7 @@ local function get_stacks(images, encoding_variant, selection_type)
             count = count + 1
         end
     end
+    restore_log_level(old_log_level)
     return stacks, count
 end
 
@@ -374,6 +397,7 @@ local function file_size(path)
 end
 
 local function generate_ultrahdr(encoding_variant, images, settings, step, total_steps)
+    local old_log_level = set_log_level(LOG_LEVEL)
     local total_substeps
     local substep = 0
     local best_source_image
@@ -402,6 +426,8 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
     end
 
     function copy_or_export(src_image, dest, format, colorspace, props)
+        -- Workaround for https://github.com/darktable-org/darktable/issues/17528        
+        local needs_workaround = dt.configuration.api_version_string == "9.3.0" or dt.configuration.api_version_string == "9.4.0"
         if not settings.force_export and df.get_filetype(src_image.filename) == df.get_filetype(dest) and
             not src_image.is_altered then
             return df.file_copy(src_image.path .. PS .. src_image.filename, dest)
@@ -415,11 +441,10 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
                 exporter[k] = v
             end
             local ok = exporter:write_image(src_image, dest)
-            if dt.configuration.api_version_string == "9.3.0" then
-                -- Workaround for https://github.com/darktable-org/darktable/issues/17528
+            if needs_workaround then
                 ok = not ok
             end
-
+            log.msg(log.info, string.format("Exporting %s to %s (format: %s): %s", src_image.filename, dest, format, ok))
             if prev then
                 set_profile(prev)
             end
@@ -695,10 +720,12 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
     local msg = string.format(_("Generated %s."), df.get_filename(output_file))
     log.msg(log.info, msg)
     dt.print(msg)
+    restore_log_level(old_log_level)
     return true, nil
 end
 
 local function main()
+    local old_log_level = set_log_level(LOG_LEVEL)
     save_preferences()
 
     local selection_type = GUI.optionwidgets.selection_type_combo.selected
@@ -741,6 +768,7 @@ local function main()
     msg = string.format(_("Generated %d UltraHDR image(s)."), count)
     log.msg(log.info, msg)
     dt.print(msg)
+    restore_log_level(old_log_level)
 end
 
 GUI.optionwidgets.settings_label = dt.new_widget("section_label") {
