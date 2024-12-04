@@ -427,7 +427,7 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
 
     function copy_or_export(src_image, dest, format, colorspace, props)
         -- Workaround for https://github.com/darktable-org/darktable/issues/17528        
-        local needs_workaround = dt.configuration.api_version_string == "9.3.0" or dt.configuration.api_version_string == "9.4.0"
+        local needs_workaround = dt.configuration.api_version_string == "9.3.0"
         if not settings.force_export and df.get_filetype(src_image.filename) == df.get_filetype(dest) and
             not src_image.is_altered then
             return df.file_copy(src_image.path .. PS .. src_image.filename, dest)
