@@ -48,6 +48,7 @@ dbmaint|Yes|LMW|find and remove database entries for missing film rolls and imag
 [exportLUT](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/exportlut)|Yes|LMW|Create a LUT from a style and export it
 [ext_editor](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/ext_editor)|No|LW|Export pictures to collection and edit them with up to nine user-defined external editors
 [face_recognition](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/face_recognition)|No|LM|Identify and tag images using facial recognition
+[fujifilm_auto_settings](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/fujifilm_auto_settings)|No|LMW|Apply fujifilm film emulations on import. [See here](https://bastibe.de/2022-05-04-customizing-darktable-for-fujifilm-cameras.html) for more information.
 [fujifilm_dynamic_range](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/fujifilm_dynamic_range)|No|LMW|Correct fujifilm exposure based on exposure bias camera setting
 [fujifilm_ratings](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/fujifilm_ratings)|No|LM|Support importing Fujifilm ratings
 [geoJSON_export](https://darktable-org.github.io/luadocs/lua.scripts.manual/scripts/contrib/geojson_export)|No|L|Create a geo JSON script with thumbnails for use in ...
