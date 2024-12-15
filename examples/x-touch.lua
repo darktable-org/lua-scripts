@@ -48,6 +48,7 @@ midi:A-1=iop/colorzones;focus
 midi:A#-1=iop/toneequal;focus
 midi:B-1=iop/colorbalancergb;focus
 midi:C0=iop/channelmixerrgb;focus
+midi:C#0=iop/colorequal;focus
 ]]
 
 local dt = require "darktable"
@@ -119,6 +120,18 @@ for k = 1,8 do
                     "magenta" }
         element = e[k]
                 
+      -- try if colorequalizer module is focused; if so select element of graph
+      elseif dt.gui.action("iop/colorequal", "focus") ~= 0 then
+        local e = { "red",
+                    "orange",
+                    "yellow",
+                    "green",
+                    "cyan",
+                    "blue",
+                    "lavender",
+                    "magenta" }
+        which = "iop/colorequal/graph"
+        element = e[k]
                 
       -- if the sigmoid rgb primaries is focused, 
       -- check sliders
