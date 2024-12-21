@@ -700,6 +700,8 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
     if not settings.overwrite_on_conflict then
         output_file = df.create_unique_filename(output_file)
     end
+    local output_path = ds.get_path(output_file)
+    df.mkdir(output_path)
     ok = df.file_move(uhdr, output_file)
     if not ok then
         table.insert(errors, string.format(_("Error generating UltraHDR for %s"), best_source_image.filename))
