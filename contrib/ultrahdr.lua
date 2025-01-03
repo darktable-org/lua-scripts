@@ -45,14 +45,12 @@ local dtsys = require "lib/dtutils.system"
 local dd = require "lib/dtutils.debug"
 local gettext = dt.gettext.gettext
 
-local namespace = "module_ultrahdr"
+local namespace <const> = "ultrahdr"
 
-local LOG_LEVEL = log.info
+local LOG_LEVEL <const> = log.info
 
 -- works with darktable API version from 4.8.0 on
 du.check_min_api_version("9.3.0", "ultrahdr")
-
-dt.gettext.bindtextdomain(namespace, dt.configuration.config_dir .. "/lua/locale/")
 
 local function _(msgid)
     return gettext(msgid)
@@ -96,31 +94,32 @@ flags.module_installed = false -- keep track of whether the module is module_ins
 local script_data = {}
 
 script_data.metadata = {
-    name = "ultrahdr",
+    name = _("UltraHDR"),
     purpose = _("generate UltraHDR images"),
     author = "Krzysztof Kotowicz"
 }
 
-local PS = dt.configuration.running_os == "windows" and "\\" or "/"
-local ENCODING_VARIANT_SDR_AND_GAINMAP = 1
-local ENCODING_VARIANT_SDR_AND_HDR = 2
-local ENCODING_VARIANT_SDR_AUTO_GAINMAP = 3
-local ENCODING_VARIANT_HDR_ONLY = 4
+local PS <const> = dt.configuration.running_os == "windows" and "\\" or "/"
 
-local SELECTION_TYPE_ONE_STACK = 1
-local SELECTION_TYPE_GROUP_BY_FNAME = 2
+local ENCODING_VARIANT_SDR_AND_GAINMAP <const> = 1
+local ENCODING_VARIANT_SDR_AND_HDR <const> = 2
+local ENCODING_VARIANT_SDR_AUTO_GAINMAP <const> = 3
+local ENCODING_VARIANT_HDR_ONLY <const> = 4
+
+local SELECTION_TYPE_ONE_STACK <const> = 1
+local SELECTION_TYPE_GROUP_BY_FNAME <const> = 2
 
 -- Values are defined in darktable/src/common/colorspaces.h
-local DT_COLORSPACE_PQ_P3 = 24
-local DT_COLORSPACE_DISPLAY_P3 = 26
+local DT_COLORSPACE_PQ_P3 <const> = 24
+local DT_COLORSPACE_DISPLAY_P3 <const> = 26
 
 -- 1-based position of a colorspace in export profile combobox.
-local COLORSPACE_TO_GUI_ACTION = {
+local COLORSPACE_TO_GUI_ACTION <const> = {
     [DT_COLORSPACE_PQ_P3] = 9,
     [DT_COLORSPACE_DISPLAY_P3] = 11
 }
 
-local UI_SLEEP_MS = 50 -- How many ms to sleep after UI action.
+local UI_SLEEP_MS <const> = 50 -- How many ms to sleep after UI action.
 
 local function set_log_level(level)
     local old_log_level = log.log_level()
@@ -179,7 +178,7 @@ local function save_preferences()
 end
 
 local function default_to(value, default)
-    if value == 0 then
+    if value == 0 or value == "" then
         return default
     end
     return value
@@ -193,7 +192,8 @@ local function load_preferences()
     GUI.optionwidgets.selection_type_combo.selected = math.max(
         dt.preferences.read(namespace, "selection_type", "integer"), SELECTION_TYPE_ONE_STACK)
 
-    GUI.optionwidgets.output_filepath_widget.text = dt.preferences.read(namespace, "output_filepath_pattern", "string")
+    GUI.optionwidgets.output_filepath_widget.text = default_to(dt.preferences.read(namespace, "output_filepath_pattern", "string"),
+        "$(FILE_FOLDER)/$(FILE_NAME)_ultrahdr")
     GUI.optionwidgets.overwrite_on_conflict.value = dt.preferences.read(namespace, "overwrite_on_conflict", "bool")
     GUI.optionwidgets.import_to_darktable.value = dt.preferences.read(namespace, "import_to_darktable", "bool")
     GUI.optionwidgets.copy_exif.value = dt.preferences.read(namespace, "copy_exif", "bool")
@@ -247,11 +247,11 @@ local function set_combobox(path, instance, config_name, new_config_value)
         dt.gui.action(path, 0, "selection", "next", 1.0)
         dt.control.sleep(UI_SLEEP_MS)
         if dt.preferences.read("darktable", config_name, "integer") == new_config_value then
-            log.msg(log.debug, string.format(_("Changed %s from %d to %d"), config_name, pref, new_config_value))
+            log.msg(log.debug, string.format("Changed %s from %d to %d", config_name, pref, new_config_value))
             return pref
         end
     end
-    log.msg(log.error, string.format(_("Could not change %s from %d to %d"), config_name, pref, new_config_value))
+    log.msg(log.error, string.format("Could not change %s from %d to %d", config_name, pref, new_config_value))
     restore_log_level(old_log_level)
 end
 
@@ -494,7 +494,7 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
                 return cleanup(), errors
             end
         end
-        log.msg(log.debug, string.format(_("Exported files: %s, %s"), sdr, gainmap))
+        log.msg(log.debug, string.format("Exported files: %s, %s", sdr, gainmap))
         update_job_progress()
         -- Strip EXIFs
         table.insert(remove_files, sdr .. ".noexif")
@@ -721,9 +721,8 @@ local function generate_ultrahdr(encoding_variant, images, settings, step, total
     end
     cleanup()
     update_job_progress()
-    local msg = string.format(_("Generated %s."), df.get_filename(output_file))
-    log.msg(log.info, msg)
-    dt.print(msg)
+    log.msg(log.info, string.format("Generated %s.", df.get_filename(output_file)))
+    dt.print(string.format(_("Generated %s."), df.get_filename(output_file)))
     restore_log_level(old_log_level)
     return true, nil
 end
@@ -769,9 +768,8 @@ local function main()
         job.valid = false
     end
 
-    msg = string.format(_("Generated %d UltraHDR image(s)."), count)
-    log.msg(log.info, msg)
-    dt.print(msg)
+    log.msg(log.info, string.format("Generated %d UltraHDR image(s).", count))
+    dt.print(string.format(_("Generated %d UltraHDR image(s)."), count))
     restore_log_level(old_log_level)
 end
 
