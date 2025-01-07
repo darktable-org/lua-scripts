@@ -132,10 +132,11 @@ local function main(on_collection)
   for i, image in ipairs(images) do
     if i == 1 then 
       prev_image = image
+      image:make_group_leader()
     elseif string.match(image.exif_datetime_taken, '[%d]') ~= nil then --make sure current image has a timestamp, if so check if it is within the user specified gap value and add to group
       local curr_image = image
       if GetTimeDiff(curr_image, prev_image) <= GUI.gap.value then
-        images[i]:group_with(images[i-1])
+        images[i]:group_with(images[i-1].group_leader)
       end
       prev_image = curr_image
     end
