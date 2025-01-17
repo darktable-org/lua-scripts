@@ -86,14 +86,13 @@ function dtutils_system.windows_command(command)
   local file = io.open(fname, "w")
   if file then
     dt.print_log("opened file")
-    command = string.gsub(command, "%%", "%%%%") -- escape % from windows shell
     file:write("@echo off\n")
     file:write('for /f "tokens=2 delims=:." %%x in (\'chcp\') do set cp=%%x\n')
     file:write("chcp 65001>nul\n") -- change the encoding of the terminal to handle non-english characters in path
     file:write("\n")
     file:write(command .. "\n")
     file:write("\n") 
-    file:write("chcp %%cp%%>nul\n")
+    file:write("chcp %cp%>nul\n")
     file:close()
 
     result = dt.control.execute(fname)
