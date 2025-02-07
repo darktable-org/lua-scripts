@@ -52,7 +52,9 @@ local log = require "lib/dtutils.log"
 local MODULE <const> = "apply_camera_style"
 local DEFAULT_LOG_LEVEL <const> = log.info
 local TMP_DIR <const> = dt.configuration.tmp_dir
-local STYLE_PREFIX <const> = "_l10n_darktable camera styles|"
+local STYLE_PREFIX <const> = "_l10n_darktable|_l10n_camera styles|"
+local MAKER = 3
+local STYLE = 4
 
 -- path separator
 local PS <const> = dt.configuration.running_os == "windows" and "\\" or "/"
@@ -222,25 +224,25 @@ local function get_camera_styles()
       log.msg(log.debug, "got " .. style.name)
 
       local parts = du.split(style.name, "|")
-      parts[2] = string.lower(parts[2])
-      log.msg(log.debug, "maker is " .. parts[2])
+      parts[MAKER] = string.lower(parts[MAKER])
+      log.msg(log.debug, "maker is " .. parts[MAKER])
 
-      if not acs.styles[parts[2]] then
-        acs.styles[parts[2]] = {}
-        acs.styles[parts[2]]["styles"] = {}
-        acs.styles[parts[2]]["patterns"] = {}
+      if not acs.styles[parts[MAKER]] then
+        acs.styles[parts[MAKER]] = {}
+        acs.styles[parts[MAKER]]["styles"] = {}
+        acs.styles[parts[MAKER]]["patterns"] = {}
       end
-      if parts[3] then
-        if not string.match(parts[3], "]") then
-          table.insert(acs.styles[parts[2]].styles, style)
+      if parts[STYLE] then
+        if not string.match(parts[STYLE], "]") then
+          table.insert(acs.styles[parts[MAKER]].styles, style)
           local processed_pattern = process_pattern(parts[#parts])
-          table.insert(acs.styles[parts[2]].patterns, processed_pattern)
+          table.insert(acs.styles[parts[MAKER]].patterns, processed_pattern)
           log.msg(log.debug, "pattern for " .. style.name .. " is " .. processed_pattern)
         else
-          local processed_patterns = process_set(parts[3])
+          local processed_patterns = process_set(parts[STYLE])
           for _, pat in ipairs(processed_patterns) do
-            table.insert(acs.styles[parts[2]].styles, style)
-            table.insert(acs.styles[parts[2]].patterns, pat)
+            table.insert(acs.styles[parts[MAKER]].styles, style)
+            table.insert(acs.styles[parts[MAKER]].patterns, pat)
             log.msg(log.debug, "pattern for " .. style.name .. " is " .. pat)
           end
         end
