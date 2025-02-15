@@ -162,6 +162,7 @@ local function process_pattern(pattern)
   else
     pattern = string.gsub(pattern, "?", ".")
   end
+  pattern = string.gsub(pattern, " ", " ?")
   -- escape dashes
   pattern = string.gsub(pattern, "%-", "%%-")
   -- until we end up with a set, I'll defer set processing, i.e. [...]
