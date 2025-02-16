@@ -178,6 +178,7 @@ sm.log_level = DEFAULT_LOG_LEVEL
 ]]
 
 sm.scripts = {}
+sm.start_queue = {}
 sm.page_status = {}
 sm.page_status.num_buttons = DEFAULT_BUTTONS_PER_PAGE
 sm.page_status.buttons_created = 0
@@ -595,6 +596,17 @@ local function deactivate(script)
   restore_log_level(old_log_level)
 end
 
+local function start_scripts()
+  for _, script in ipairs(sm.start_queue) do
+    activate(script)
+  end
+  sm.start_queue = {}
+end
+
+local function queue_script_to_start(script)
+  table.insert(sm.start_queue, script)
+end
+
 local function add_script_name(name, path, folder)
   local old_log_level = set_log_level(sm.log_level)
 
@@ -614,7 +626,7 @@ local function add_script_name(name, path, folder)
   table.insert(sm.scripts[folder], script)
 
   if pref_read(script.script_name, "bool") then
-    activate(script)
+    queue_script_to_start(script)
   else
     pref_write(script.script_name, "bool", false)
   end
@@ -821,6 +833,7 @@ local function scan_repositories()
     end
   end
 
+  start_scripts()
   update_script_update_choices()
 
   restore_log_level(old_log_level)
