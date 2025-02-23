@@ -61,7 +61,7 @@ dtutils.libdoc.functions["check_min_api_version"] = {
 
 function dtutils.check_min_api_version(min_api, script_name)
   local current_api = dt.configuration.api_version_string
-  if min_api > current_api then
+  if dtutils.compare_versions(min_api, current_api) > 0 then
     dt.print_error("This application is written for lua api version " .. min_api .. " or later.")
     dt.print_error("The current lua api version is " .. current_api)
     dt.print("ERROR: " .. script_name .. " failed to load. Lua API version " .. min_api .. " or later required.")
@@ -96,7 +96,7 @@ dtutils.libdoc.functions["check_max_api_version"] = {
 
 function dtutils.check_max_api_version(max_api, script_name)
   local current_api = dt.configuration.api_version_string
-  if current_api > max_api then
+  if dtutils.compare_versions(current_api, max_api) > 0 then
     dt.print_error("This application is written for lua api version " .. max_api .. " or earlier.")
     dt.print_error("The current lua api version is " .. current_api)
     dt.print("ERROR: " .. script_name .. " failed to load. Lua API version " .. max_api .. " or earlier required.")
@@ -425,6 +425,43 @@ function dtutils.gen_uuid(case)
   end
 
   return uuid
+end
+
+dtutils.libdoc.functions["compare_versions"] = {
+  Name = [[compare_versions]],
+  Synopsis = [[compare two version strings]],
+  Usage = [[local du = require "lib/dtutils"
+
+    local result = du.compare_versions(version1, version2)
+      version1 - string - the first version string to compare (example: "5.0.0")
+      version2 - string - the second version string to compare (example: "5.1.0")]],
+  Description = [[compare_versions compares two version strings and returns 1 if version1 is greater,
+    -1 if version2 is greater, and 0 if they are equal.]],
+  Return_Value = [[result - 1 if version1 is greater, -1 if version2 is greater, 0 if they are equal.]],
+  Limitations = [[]],
+  Example = [[compare_versions("5.0.0", "5.1.0") returns -1]],
+  See_Also = [[]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
+
+function dtutils.compare_versions(version1, version2)
+  local v1 = {}
+  for num in version1:gmatch("%d+") do table.insert(v1, tonumber(num)) end
+  local v2 = {}
+  for num in version2:gmatch("%d+") do table.insert(v2, tonumber(num)) end
+
+  for i = 1, math.max(#v1, #v2) do
+    local num1 = v1[i] or 0
+    local num2 = v2[i] or 0
+    if num1 > num2 then
+      return 1
+    elseif num1 < num2 then
+      return -1
+    end
+  end
+  return 0
 end
 
 return dtutils
