@@ -106,7 +106,7 @@ local function autostyle_apply_one_image (image)
 
   if pref and string.len(pref) >= 6 then
   -- We need the tag, the value and the style_name provided from the configuration string
-    local tag, value, style_name = string.match(pref, "(%g+)%s*=%s*(%g+)%s*=>%s*(%g+)")
+    local tag, value, style_name = string.match(pref, "(%g+)%s*=%s*([%g ]-)%s*=>%s*(%g+)")
 
     -- check they all exist (correct syntax)
     if (not tag) then
