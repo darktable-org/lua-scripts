@@ -115,6 +115,20 @@ local namespace = dbmaint
 -- F U N C T I O N S
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
+-------------------
+-- helper functions
+-------------------
+
+local function set_log_level(level)
+  local old_log_level = log.log_level()
+  log.log_level(level)
+  return old_log_level
+end
+
+local function restore_log_level(level)
+  log.log_level(level)
+end
+
 local function scan_film_rolls()
   local missing_films = {}
 
@@ -128,19 +142,21 @@ local function scan_film_rolls()
 end
 
 local function scan_images(film)
+  local old_log_level = set_log_level(DEFAULT_LOG_LEVEL)
   local missing_images = {}
 
   if film then
     for i = 1, #film  do
       local image = film[i]
-      log.log_msg(log.debug, "checking " .. image.filename)
+      log.msg(log.debug, "checking " .. image.filename)
       if not df.check_if_file_exists(image.path .. PS .. image.filename) then
-        log.log_msg(log.info, image.filename .. " not found")
+        log.msg(log.info, image.filename .. " not found")
         table.insert(missing_images, image)
       end
     end
   end
 
+  restore_log_level(old_log_level)
   return missing_images
 end
 
@@ -207,6 +223,8 @@ dbmaint.scan_button = dt.new_widget("button"){
   clicked_callback = function(this)
     local found = nil
     local found_text = ""
+    local old_log_level = set_log_level(DEFAULT_LOG_LEVEL)
+    log.msg(log.debug, "Button clicked")
     if dbmaint.chooser.selected == 1 then -- film rolls
       found = scan_film_rolls()
       if #found > 0 then
@@ -216,7 +234,7 @@ dbmaint.scan_button = dt.new_widget("button"){
         end
       end
     else
-      log.log_msg(log.debug, "checking path " .. dt.collection[1].path .. " for missing files")
+      log.msg(log.debug, "checking path " .. dt.collection[1].path .. " for missing files")
       found = scan_images(dt.collection[1].film)
       if #found > 0 then
         for _, image in ipairs(found) do
@@ -225,10 +243,14 @@ dbmaint.scan_button = dt.new_widget("button"){
       end
     end
     if #found > 0 then
+      log.msg(log.debug, "found " .. #found .. " missing items")
       dbmaint.list_widget.text = found_text
       dbmaint.found = found
       dbmaint.remove_button.sensitive = true
+    else
+      log.msg(log.debug, "no missing items found")
     end
+    restore_log_level(old_log_level)
   end,
   reset_callback = function(this)
     dbmaint.found = nil
