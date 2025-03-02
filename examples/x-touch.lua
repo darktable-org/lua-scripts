@@ -49,6 +49,8 @@ midi:A#-1=iop/toneequal;focus
 midi:B-1=iop/colorbalancergb;focus
 midi:C0=iop/channelmixerrgb;focus
 midi:C#0=iop/colorequal;focus
+midi:D0=iop/colorequal/page;previous
+midi:D#0=iop/colorequal/page;next
 ]]
 
 local dt = require "darktable"
