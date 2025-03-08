@@ -599,6 +599,13 @@ end
 local function start_scripts()
   for _, script in ipairs(sm.start_queue) do
     activate(script)
+    for i = 1, sm.page_status.num_buttons do
+      local name = script.metadata and script.metadata.name or script.name
+      if sm.widgets.labels[i].label == name then
+        sm.widgets.buttons[i].name = "pb_on"
+        break
+      end
+    end
   end
   sm.start_queue = {}
 end
@@ -833,7 +840,6 @@ local function scan_repositories()
     end
   end
 
-  start_scripts()
   update_script_update_choices()
 
   restore_log_level(old_log_level)
@@ -1224,6 +1230,7 @@ local function install_module()
   log.msg(log.debug, "set run to true, loading preferences")
   load_preferences()
   scan_repositories()
+  start_scripts()
 
   restore_log_level(old_log_level)
 end
