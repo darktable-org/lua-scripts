@@ -167,7 +167,7 @@ local function get_first_coordinate()
   first_elevation = ''
   first_image_date = 0
 
-  for _,image in ipairs(sel_images) do
+  for jj,image in ipairs(sel_images) do
     if not image then
       first_have_data = false
     else
@@ -206,7 +206,7 @@ local function get_second_coordinate()
   second_elevation = ''
   second_image_date = 0
 
-  for _,image in ipairs(sel_images) do
+  for jj,image in ipairs(sel_images) do
     if not image then
       second_have_data = false
     else
@@ -242,7 +242,7 @@ local calc_in_between_slider = dt.new_widget("slider")
 --ToDo: this needs more love
 local function calc_in_between()
   local sel_images = dt.gui.action_images
-  for _,image in ipairs(sel_images) do
+  for jj,image in ipairs(sel_images) do
     if image then
       image_date = make_time_stamp(image.exif_datetime_taken)
       if (first_have_data and second_have_data) then
@@ -289,7 +289,7 @@ local function copy_gps()
   copy_gps_longitude = ''
   copy_gps_elevation = ''
 
-  for _,image in ipairs(sel_images) do
+  for jj,image in ipairs(sel_images) do
     if not image then
       copy_gps_have_data = false
     else
@@ -316,7 +316,7 @@ end
 local function paste_gps(image)
   local sel_images = dt.gui.action_images
 
-  for _,image in ipairs(sel_images) do
+  for jj,image in ipairs(sel_images) do
     if (label_copy_gps_lat.value) then
       image.latitude = copy_gps_latitude
     end
@@ -343,7 +343,7 @@ local function open_location_in_gnome_maps()
   local i = 0;
 
   -- Use the first image with geo information
-  for _,image in ipairs(sel_images) do
+  for jj,image in ipairs(sel_images) do
     if ((image.longitude and image.latitude) and
         (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
        ) then
@@ -386,7 +386,7 @@ local function reverse_geocode()
   local i = 0;
 
   -- Use the first image with geo information
-  for _,image in ipairs(sel_images) do
+  for jj,image in ipairs(sel_images) do
     if ((image.longitude and image.latitude) and
         (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
        ) then
@@ -461,7 +461,7 @@ local function calc_distance()
 
     local sel_images = dt.gui.selection()
 
-    for _,image in ipairs(sel_images) do
+    for jj,image in ipairs(sel_images) do
       if ((image.longitude and image.latitude) and
             (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
            ) then
@@ -545,7 +545,7 @@ local function altitude_profile()
     local elevationAdd = 0;
 
     local sel_images = dt.gui.action_images
-    for _,image in ipairs(sel_images) do
+    for jj,image in ipairs(sel_images) do
       if ((not isnan(image.longitude) and not isnan(image.latitude) and not isnan(image.elevation) and image.elevation) and
             (image.longitude ~= 0 and image.latitude ~= 90) -- Sometimes the north-pole but most likely just wrong data
            ) then
