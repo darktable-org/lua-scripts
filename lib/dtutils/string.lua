@@ -877,7 +877,7 @@ function dtutils_string.get_substitution_tooltip()
           _("$(VERSION.NAME) - version name from metadata"),
           _("$(DARKTABLE.VERSION) - current darktable version"),
           -- _("$(DARKTABLE.NAME) - darktable name"),  -- not implemented
-          _("$(SEQUENCE[m,n]) - sequence number, m: start number, n: number of digits"),
+          _("$(SEQUENCE[n,m]) - sequence number, n: number of digits, m: start number"),
           _("$(WIDTH.SENSOR) - image sensor width"),
           _("$(HEIGHT.SENSOR) - image sensor height"),
           _("$(WIDTH.RAW) - RAW image width"),
