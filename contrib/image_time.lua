@@ -154,12 +154,12 @@ local function systime2exiftime(systime)
 end
 
 local function vars2exiftime(year, month, day, hour, min, sec)
-  local y = tonumber(year) and string.format("%4d", year) or "    "
-  local mo = tonumber(month) and string.format("%02d", month) or "  "
-  local d = tonumber(day) and string.format("%02d", day) or "  "
-  local h = tonumber(hour) and string.format("%02d", hour) or "  "
-  local m = tonumber(min) and string.format("%02d", min) or "  "
-  local s = tonumber(sec) and string.format("%02d", sec) or "  "
+  local y = tonumber(year) and string.format("%4d", year) or "0000"
+  local mo = tonumber(month) and string.format("%02d", month) or "00"
+  local d = tonumber(day) and string.format("%02d", day) or "00"
+  local h = tonumber(hour) and string.format("%02d", hour) or "00"
+  local m = tonumber(min) and string.format("%02d", min) or "00"
+  local s = tonumber(sec) and string.format("%02d", sec) or "00"
  return(y .. ":" .. mo .. ":" .. d .. " " .. h .. ":" .. m .. ":" .. s)
 end
 
