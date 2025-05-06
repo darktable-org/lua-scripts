@@ -70,6 +70,7 @@ local checkbox_copy_gps_lat = dt.new_widget("check_button")
 }
 local entry_gps_lat = dt.new_widget("entry")
 {
+  tooltip = _("latitude (editable)"),
   placeholder = _("latitude")
 }
 local checkbox_copy_gps_lon = dt.new_widget("check_button")
@@ -78,6 +79,7 @@ local checkbox_copy_gps_lon = dt.new_widget("check_button")
 }
 local entry_gps_lon = dt.new_widget("entry")
 {
+  tooltip = _("longitude (editable)"),
   placeholder = _("longitude")
 }
 local checkbox_copy_gps_ele = dt.new_widget("check_button")
@@ -86,6 +88,7 @@ local checkbox_copy_gps_ele = dt.new_widget("check_button")
 }
 local entry_gps_ele = dt.new_widget("entry")
 {
+  tooltip = _("elevation (editable)"),
   placeholder = _("elevation")
 }
 -- </GUI>
@@ -690,8 +693,8 @@ gT.widget = dt.new_widget("box")
     },
     dt.new_widget("button")
     {
-      label = _("paste GPS data"),
-      tooltip = _("paste GPS data"),
+      label = _("apply GPS data to image"),
+      tooltip = _("apply GPS data to image"),
       clicked_callback = paste_gps
     },
     separator2,--------------------------------------------------------
