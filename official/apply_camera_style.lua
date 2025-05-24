@@ -60,6 +60,9 @@ local PS <const> = dt.configuration.running_os == "windows" and "\\" or "/"
 -- command separator
 local CS <const> = dt.configuration.running_os == "windows" and "&" or ";"
 
+-- tag name for changed images
+local changed_tag_name = "darktable|changed"
+
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- A P I  C H E C K
 -- - - - - - - - - - - - - - - - - - - - - - - - 
@@ -313,7 +316,7 @@ local function normalize_maker(maker)
   return maker
 end
 
-local function has_style_tag(image, tag_name)
+local function has_tag(image, tag_name)
 
   local log_level = set_log_level(acs.log_level)
 
@@ -387,11 +390,19 @@ local function apply_style_to_images(images)
       for i, pattern in ipairs(acs.styles[maker].patterns) do
         if string.match(model, pattern) or 
            (i == #acs.styles[maker].patterns and string.match(pattern, "generic")) then
-          local tag_name = "darktable|style|" .. acs.styles[maker].styles[i].name
-          if not has_style_tag(image, tag_name) then
+          local style_tag_name = "darktable|style|" .. acs.styles[maker].styles[i].name
+          if not has_tag(image, style_tag_name) then
+            local already_changed = has_tag(image, changed_tag_name)
             image:apply_style(acs.styles[maker].styles[i])
             no_match = false
             log.msg(log.info, "applied style " .. acs.styles[maker].styles[i].name .. " to " .. image.filename)
+            if not already_changed then
+              local ct = dt.tags.find(changed_tag_name)
+              if ct then
+                log.msg(log.debug, "detaching tag " .. changed_tag_name .. " from image " .. image.filename)
+                image:detach_tag(ct)
+              end
+            end
           end
           log.log_level(loglevel)
           break
