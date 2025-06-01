@@ -1,6 +1,6 @@
 --[[
 
-    auto_tag_modified.lua - automatically take a snapshot when an image is loaded in darkroom
+    auto_tag_modified.lua - automatically tag an image when it has been manually modified in darkroom
 
     Copyright (C) 2025 Michael Reiger <michael@rauschpfeife.net>, modeled after auto_snapshot.lua by Bill Ferguson <wpferguson@gamil.com>.
 
