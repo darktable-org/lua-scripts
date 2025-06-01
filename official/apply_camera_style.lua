@@ -166,6 +166,8 @@ local function process_pattern(pattern)
   end
   -- escape dashes
   pattern = string.gsub(pattern, "%-", "%%-")
+  -- make spaces optional
+  pattern = string.gsub(pattern, " ", " ?")
   -- until we end up with a set, I'll defer set processing, i.e. [...]
   -- anchor the pattern to ensure we don't short match
   pattern = "^" .. pattern .. "$"
