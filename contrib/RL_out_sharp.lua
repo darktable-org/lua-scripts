@@ -106,7 +106,7 @@ local function preserve_metadata(original, sharpened)
   if exiftool then
     dtsys.external_command("exiftool -overwrite_original_in_place -tagsFromFile " .. original .. " " .. sharpened)
   else
-    dt.print_log(MODULE .. " exiftool not found,  metadata not preserved")
+    dt.print_log(MODULE_NAME .. " exiftool not found,  metadata not preserved")
   end
 end
 
