@@ -734,15 +734,32 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
 
   local labels = get_colorlabels(image)
 
-  local eyear, emon, eday, ehour, emin, esec, emsec
+  local datetime_taken = ""
+  local use_millisecs = false
   if dt.preferences.read("darktable", "lighttable/ui/milliseconds", "bool") and is_api_9_1 then
+    use_millisecs = true
+  end
+
+  if image.exif_datetime_taken and image.exif_datetime_taken ~= "" then
+    datetime_taken = image.exif_datetime_taken
+  else
+    if use_millisecs then
+      datetime_taken = "0000:00:00 00:00:00.0"
+    else
+      datetime_taken = "0000:00:00 00:00:00"
+    end
+  end
+
+  local eyear, emon, eday, ehour, emin, esec, emsec
+  if use_millisecs then
     eyear, emon, eday, ehour, emin, esec, emsec = 
-      string.match(image.exif_datetime_taken, "(%d+):(%d+):(%d+) (%d+):(%d+):(%d+)%.(%d+)$")
+      string.match(datetime_taken, "(%d+):(%d+):(%d+) (%d+):(%d+):(%d+)%.(%d+)$")
   else
     emsec = "0"
     eyear, emon, eday, ehour, emin, esec = 
-      string.match(image.exif_datetime_taken, "(%d+):(%d+):(%d+) (%d+):(%d+):(%d+)$")
+      string.match(datetime_taken, "(%d+):(%d+):(%d+) (%d+):(%d+):(%d+)$")
   end
+
 
   local version_multi = #image:get_group_members() > 1 and image.duplicate_index or ""
 
@@ -781,8 +798,8 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
                         eyear,                                 -- EXIF.YEAR
                         string.sub(eyear, 3),                  -- EXIF.YEAR.SHORT
                         emon,                                  -- EXIF.MONTH
-                        os.date("%B", exiftime2systime(image.exif_datetime_taken)), -- EXIF.MONTH.LONG
-                        os.date("%b", exiftime2systime(image.exif_datetime_taken)), -- EXIF.MONTH.SHORT
+                        os.date("%B", exiftime2systime(datetime_taken)), -- EXIF.MONTH.LONG
+                        os.date("%b", exiftime2systime(datetime_taken)), -- EXIF.MONTH.SHORT
                         eday,                                  -- EXIF.DAY
                         ehour,                                 -- EXIF.HOUR
                         "",                                    -- EXIF.HOUR.AMPM
