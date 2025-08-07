@@ -1,6 +1,7 @@
 --[[
     This file is part of darktable,
     copyright (c) 2016 Tobias Jakobs
+    copyright (c) 2025 Balázs Dura-Kovács
 
     darktable is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -63,20 +64,32 @@ gT.event_registered = false
 local labelDistance = dt.new_widget("label")
 labelDistance.label = _("distance:")
 
-local label_copy_gps_lat = dt.new_widget("check_button")
+local checkbox_copy_gps_lat = dt.new_widget("check_button")
 {
-  label = _("latitude: "),
   value = true
 }
-local label_copy_gps_lon = dt.new_widget("check_button")
+local entry_gps_lat = dt.new_widget("entry")
 {
-  label = _("longitude: "),
+  tooltip = _("latitude (editable)"),
+  placeholder = _("latitude")
+}
+local checkbox_copy_gps_lon = dt.new_widget("check_button")
+{
   value = true
 }
-local label_copy_gps_ele = dt.new_widget("check_button")
+local entry_gps_lon = dt.new_widget("entry")
 {
-  label = _("elevation: "),
+  tooltip = _("longitude (editable)"),
+  placeholder = _("longitude")
+}
+local checkbox_copy_gps_ele = dt.new_widget("check_button")
+{
   value = true
+}
+local entry_gps_ele = dt.new_widget("entry")
+{
+  tooltip = _("elevation (editable)"),
+  placeholder = _("elevation")
 }
 -- </GUI>
 
@@ -294,20 +307,20 @@ local function copy_gps()
       copy_gps_have_data = false
     else
       copy_gps_have_data = true
-      if (image.latitude and label_copy_gps_lat.value) then
+      if (image.latitude and checkbox_copy_gps_lat.value) then
         copy_gps_latitude = image.latitude
       end
-      if (image.longitude and label_copy_gps_lon.value) then
+      if (image.longitude and checkbox_copy_gps_lon.value) then
           copy_gps_longitude = image.longitude
       end
-      if (image.elevation and label_copy_gps_ele.value) then
+      if (image.elevation and checkbox_copy_gps_ele.value) then
           copy_gps_elevation = image.elevation
       end
     end
 
-    label_copy_gps_lat.label = _("latitude: ") .. copy_gps_latitude
-    label_copy_gps_lon.label = _("longitude: ") .. copy_gps_longitude
-    label_copy_gps_ele.label = _("elevation: ") .. copy_gps_elevation
+    entry_gps_lat.text = copy_gps_latitude
+    entry_gps_lon.text = copy_gps_longitude
+    entry_gps_ele.text = copy_gps_elevation
 
     return
   end
@@ -317,14 +330,14 @@ local function paste_gps(image)
   local sel_images = dt.gui.action_images
 
   for jj,image in ipairs(sel_images) do
-    if (label_copy_gps_lat.value) then
-      image.latitude = copy_gps_latitude
+    if (checkbox_copy_gps_lat.value) then
+      image.latitude = entry_gps_lat.text
     end
-    if (label_copy_gps_lon.value) then
-      image.longitude = copy_gps_longitude
+    if (checkbox_copy_gps_lon.value) then
+      image.longitude = entry_gps_lon.text
     end
-    if (label_copy_gps_ele.value) then
-      image.elevation = copy_gps_elevation
+    if (checkbox_copy_gps_ele.value) then
+      image.elevation = entry_gps_ele.text
     end
   end
 end
@@ -663,13 +676,25 @@ gT.widget = dt.new_widget("box")
       tooltip = _("copy GPS data"),
       clicked_callback = copy_gps
     },
-    label_copy_gps_lat,
-    label_copy_gps_lon,
-    label_copy_gps_ele,
+    dt.new_widget("box"){
+      orientation = "horizontal",
+      checkbox_copy_gps_lat,
+      entry_gps_lat
+    },
+    dt.new_widget("box"){
+      orientation = "horizontal",
+      checkbox_copy_gps_lon,
+      entry_gps_lon
+    },
+    dt.new_widget("box"){
+      orientation = "horizontal",
+      checkbox_copy_gps_ele,
+      entry_gps_ele
+    },
     dt.new_widget("button")
     {
-      label = _("paste GPS data"),
-      tooltip = _("paste GPS data"),
+      label = _("apply GPS data to image"),
+      tooltip = _("apply GPS data to image"),
       clicked_callback = paste_gps
     },
     separator2,--------------------------------------------------------
