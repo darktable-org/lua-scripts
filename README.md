@@ -178,7 +178,7 @@ If you don't have %LOCALAPPDATA%\darktable you have to start dartable at least o
 
 When darktable starts it looks for a file name `~/.config/darktable/luarc` (`%LOCALAPPDATA%\darktable\luarc` for windows) and reads it to see which scripts to include. The file is a plain text file with entries of the form `require "<directory>/<name>"` where directory is the directory containing the scripts, from the above list, and name is the name from the above list. To include GIMP the line would be `require "contrib/gimp"`.
 
-The recommended way to enable and disable specific scripts is using the script manager module.  To use script manager do the following:
+The recommended way to enable and disable specific scripts is using the [script manager](https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/tools/script_manager/) module.  To use script manager do the following:
 
 ### Linux or MacOS
 
