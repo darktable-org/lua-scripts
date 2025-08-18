@@ -36,6 +36,7 @@ Name|Standalone|OS   |Purpose
 ----|:--------:|:---:|-------
 [AutoGrouper](https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/autogrouper)|Yes|LMW|Group images together by time
 [autostyle](https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/autostyle)|Yes|LMW|Automatically apply styles on import
+[auto_tag_modified](https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/auto_tag_modified)|Yes|LMW|Automatically tag images which have been manually modified in the darkroom
 change_group_leader|Yes|LMW|Change which image leads group
 [clear_GPS](https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/clear_gps)|Yes|LMW|Reset GPS information for selected images
 [CollectHelper](https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/collecthelper)|Yes|LMW|Add buttons to selected images module to manipulate the collection
