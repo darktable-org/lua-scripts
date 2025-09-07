@@ -219,7 +219,7 @@ local function main()
     dt.print(_('HDRMerge install issue, please ensure the binary path is correct'))
     return
   end
-  images = dt.gui.selection() --get selected images
+  images = dt.gui.action_images --get selected images
   if #images < 2 then --ensure enough images selected
     dt.print(_('not enough images selected, select at least 2 images to merge'))
     return
