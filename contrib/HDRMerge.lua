@@ -138,23 +138,20 @@ local function InRange(test, low, high) --tests if test value is within range of
   end
 end
 
-local function GetFileName(full_path) --Parses a full path (path/filename_identifier.extension) into individual parts
---[[Input: Folder1/Folder2/Folder3/Img_0001.CR2
+local function FileNameParts(filename_ext) --Parses a filename (filename_identifier.extension) into individual parts
+--[[Input: Img_0001.CR2
     
   Returns:
-  path: Folder1/Folder2/Folder3/
   filename: Img_0001
   identifier: 0001
-  extension: .CR2
   
   EX:
-  path_1, file_1, id_1, ext_1 = GetFileName(full_path_1)
+  file_1, id_1 = FileNameParts(im_filename)
   ]]
-  local path = string.match(full_path, '.*[\\/]')
-  local filename = string.gsub(string.match(full_path, '[%w-_]*%.') , '%.' , '' ) 
-  local identifier = string.match(filename, '%d*$')
-  local extension = string.match(full_path, '%.%w*')
-  return path, filename, identifier, extension
+  local ext_idx = string.find(filename_ext, '%.[^%.]*$')
+  local filename = string.sub(filename_ext, 1, ext_idx and ext_idx - 1 or nil)
+  local identifier = string.match(filename, '%d*$') or ''
+  return filename, identifier
 end
 
 local function CleanSpaces(text) --removes spaces from the front and back of passed in text
@@ -222,25 +219,28 @@ local function DoBatch(prog_table, images, output_arg)
   -- Copy program arguments
   for k, v in pairs(prog_table) do prog[k] = v end
   local out_path = ''
-  local smallest_id = math.huge
+  local smallest_id_n = math.huge
   local smallest_name = ''
-  local largest_id  = 0
+  local largest_id_n = -1
+  local largest_id = ''
   local source_raw = {}
   local image_files = {}
   for _,image in ipairs(images) do --loop to concat the images string, also track the image indexes for use in creating the final image name (eg; IMG_1034-1037.dng)
     if not image.is_hdr then
-      num_images = num_images + 1
       local curr_image = image.path..os_path_seperator..image.filename
       table.insert(image_files, df.sanitize_filename(curr_image))
-      _unused, source_name, source_id = GetFileName(image.filename)
-      source_id = tonumber(source_id) or 0
-      if source_id < smallest_id then 
+      source_name, source_id = FileNameParts(image.filename)
+      local source_id_n = tonumber(source_id) or 0
+      if source_id_n < smallest_id_n then 
         out_path = image.path
-        smallest_id = source_id
+        smallest_id_n = source_id_n
         smallest_name = source_name
         source_raw = image
       end
-      if source_id > largest_id then largest_id = source_id end
+      if source_id_n > largest_id_n then
+          largest_id = source_id
+          largest_id_n = source_id_n
+      end
     end
   end
   if #image_files < 2 then
