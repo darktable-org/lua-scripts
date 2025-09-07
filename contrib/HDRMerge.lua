@@ -34,9 +34,12 @@ Additional tags or style can be applied on auto import as well, if you desire.
 Base Options:
 Select your desired BPS (bits per sample and Embedded Preview Size. 
 
-Batch Options:
+Batch Mode Options:
 Select if you want to run in batch mode or not
 Select the gap, in seconds, between images for auto grouping in batch mode
+
+Group Mode Options:
+The HDR image will be placed back in its group. Select if you want it to become the group leader.
 
 See HDRMerge manual for further detail: http://jcelaya.github.io/hdrmerge/documentation/2014/07/11/user-manual.html
 
@@ -208,61 +211,55 @@ end
 local function UpdateActivePreference() --sliders & entry boxes do not have a click/changed callback, so their values must be saved to the active preference
   temp = GUI.HDR.gap.value
   dt.preferences.write(mod, 'active_gap', 'integer', temp)
+  temp = GUI.HDR.make_group_leader.value
+  dt.preferences.write(mod, 'active_make_group_leader', 'bool', temp)
   temp = GUI.Target.add_tags.text
   dt.preferences.write(mod, 'active_add_tags', 'string', temp)
 end
 
-local function main()
-  PreCall({HDRM}) --check if furst run then check if install OK
-  if HDRM.install_error then
-    dt.print_error('HDRMerge install issue')
-    dt.print(_('HDRMerge install issue, please ensure the binary path is correct'))
-    return
-  end
-  images = dt.gui.action_images --get selected images
-  if #images < 2 then --ensure enough images selected
-    dt.print(_('not enough images selected, select at least 2 images to merge'))
-    return
-  end
-  
-  UpdateActivePreference() --save current gui elements to active preference so those values will be pre-loaded at next startup
-  
-  --create image string and output path
-  HDRM.images_string = ''
+local function DoBatch(prog_table, images, output_arg)
+  local prog = {}
+  -- Copy program arguments
+  for k, v in pairs(prog_table) do prog[k] = v end
   local out_path = ''
   local smallest_id = math.huge
   local smallest_name = ''
   local largest_id  = 0
   local source_raw = {}
-  for _,image in pairs(images) do --loop to concat the images string, also track the image indexes for use in creating the final image name (eg; IMG_1034-1037.dng)
-    local curr_image = image.path..os_path_seperator..image.filename
-    HDRM.images_string = HDRM.images_string..df.sanitize_filename(curr_image)..' '
-    out_path = image.path
-    _unused, source_name, source_id = GetFileName(image.filename)
-    source_id = tonumber(source_id) or 0
-    if source_id < smallest_id then 
-      smallest_id = source_id
-      smallest_name = source_name
-      source_raw = image
+  local image_files = {}
+  for _,image in ipairs(images) do --loop to concat the images string, also track the image indexes for use in creating the final image name (eg; IMG_1034-1037.dng)
+    if not image.is_hdr then
+      num_images = num_images + 1
+      local curr_image = image.path..os_path_seperator..image.filename
+      table.insert(image_files, df.sanitize_filename(curr_image))
+      _unused, source_name, source_id = GetFileName(image.filename)
+      source_id = tonumber(source_id) or 0
+      if source_id < smallest_id then 
+        out_path = image.path
+        smallest_id = source_id
+        smallest_name = source_name
+        source_raw = image
+      end
+      if source_id > largest_id then largest_id = source_id end
     end
-    if source_id > largest_id then largest_id = source_id end
   end
-  out_path = out_path..os_path_seperator..smallest_name..'-'..largest_id..'.dng'
-  out_path = df.create_unique_filename(out_path)
-  
-  --create argument string
-  HDRM.arg_string = HDRM.args.bps.text..GUI.HDR.bps.value..' '..HDRM.args.size.text..GUI.HDR.size.value..' '
-  if GUI.HDR.batch.value then 
-    HDRM.arg_string = HDRM.arg_string..HDRM.args.batch.text..HDRM.args.gap.text..math.floor(GUI.HDR.gap.value)..' -a'
-  else
-    HDRM.arg_string = HDRM.arg_string..'-o '..df.sanitize_filename(out_path)
+  if #image_files < 2 then
+    dt.print(_("not enough images in group, skipping"))
+    return
+  end
+  prog.images_string = table.concat(image_files, ' ')
+  if output_arg then
+    out_path = out_path..os_path_seperator..smallest_name..'-'..largest_id..'.dng'
+    out_path = df.create_unique_filename(out_path)
+    prog.arg_string = prog.arg_string..'-o '..df.sanitize_filename(out_path)
   end
   
   -- create run command and execute
-  local run_cmd = BuildExecuteCmd(HDRM)
+  local run_cmd = BuildExecuteCmd(prog)
+  dt.print_log('running HDRMerge: '..run_cmd)
   resp = dsys.external_command(run_cmd)
   
-  if resp == 0 and not GUI.HDR.batch.value then
+  if resp == 0 and output_arg then
     local imported = dt.database.import(out_path) -- import the new file
     if GUI.Target.style.selected > 1 then -- apply selected style
       local set_style = styles[GUI.Target.style.selected - 1]
@@ -283,11 +280,65 @@ local function main()
       end
     end
     dt.print(_('HDRMerge completed successfully'))
-  else
+    return imported
+  elseif resp == 0 then
+    dt.print(_('HDRMerge completed successfully'))
+    return nil  -- TODO: can detect created files?
+  elseif resp ~= 0 then
     dt.print_error('HDRMerge failed')
     dt.print(_('HDRMerge failed'))
   end
+end
 
+local function main()
+  PreCall({HDRM}) --check if furst run then check if install OK
+  if HDRM.install_error then
+    dt.print_error('HDRMerge install issue')
+    dt.print(_('HDRMerge install issue, please ensure the binary path is correct'))
+    return
+  end
+  images = dt.gui.action_images --get selected images
+  if #images < 2 then --ensure enough images selected
+    dt.print(_('not enough images selected, select at least 2 images to merge'))
+    return
+  end
+  
+  UpdateActivePreference() --save current gui elements to active preference so those values will be pre-loaded at next startup
+  
+  --create argument string
+  HDRM.arg_string = HDRM.args.bps.text..GUI.HDR.bps.value..' '..HDRM.args.size.text..GUI.HDR.size.value..' '
+  if GUI.HDR.mode.selected == 2 then 
+  end
+
+  -- do mode operation
+  if GUI.HDR.mode.selected == 1 then
+    doBatch(HDRM, images, true)
+  elseif GUI.HDR.mode.selected == 2 then
+    HDRM.arg_string = HDRM.arg_string..HDRM.args.batch.text..HDRM.args.gap.text..math.floor(GUI.HDR.gap.value)..' -a'
+    dBatch(HDRM, images, false)
+  elseif GUI.HDR.mode.selected == 3 then
+    local by_group = {}
+    for _, im in ipairs(images) do
+      local leader = im.group_leader
+      if not by_group[leader] then by_group[leader] = {} end
+      table.insert(by_group[leader], im)
+    end
+    for leader, group in pairs(by_group) do
+      local imported = DoBatch(HDRM, group, true)
+      if imported then
+        imported:group_with(leader)
+
+        if GUI.HDR.make_group_leader.value then
+          imported:make_group_leader()
+        end
+      end
+      if dt.gui.libs.global_toolbox.grouping then
+        -- Toggle off & on to update the view
+        dt.gui.libs.global_toolbox.grouping = false
+        dt.gui.libs.global_toolbox.grouping = true
+      end
+    end
+  end
 end
 
 local function install_module()
@@ -353,21 +404,12 @@ GUI.HDR.size = dt.new_widget('combobox'){
     dt.preferences.write(mod, 'active_size_ind', 'integer', self.selected)
   end
 } 
-GUI.HDR.batch = dt.new_widget('check_button'){
-  label = _('batch mode'),
-  value = dt.preferences.read(mod, 'active_batch', 'bool'),
-  tooltip = _('enable batch mode operation \nNOTE: resultant files will NOT be auto-imported'),
-  clicked_callback = function(self)
-    dt.preferences.write(mod, 'active_batch', 'bool', self.value)
-    GUI.HDR.gap.sensitive = self.value
-  end,
-  reset_callback = function(self) self.value = false end
-}
+
 temp = dt.preferences.read(mod, 'active_gap', 'integer')
 if not InRange(temp, 1, 3600) then temp = 3 end
 GUI.HDR.gap = dt.new_widget('slider'){
   label = _('batch gap [sec.]'),
-  tooltip = _('gap, in seconds, between batch mode groups'),
+  tooltip = _('gap, in seconds, between batch mode images within group'),
   soft_min = 1,
   soft_max = 30,
   hard_min = 1,
@@ -380,6 +422,44 @@ GUI.HDR.gap = dt.new_widget('slider'){
     self.value = 3
   end
 }
+
+GUI.HDR.make_group_leader = dt.new_widget('check_button'){
+  label = _('make group leader'),
+  tooltip = _('make new image the group leader'),
+  value = dt.preferences.read(mod, 'active_make_group_leader', 'bool')
+}
+temp = dt.preferences.read(mod, 'active_mode', 'integer')
+if not InRange(temp, 1, 3) then
+  if dt.preferences.read(mod, 'active_batch', 'bool') then
+    temp = 2
+  else
+    temp = 1
+  end
+end
+GUI.HDR.opts = dt.new_widget('stack'){
+  dt.new_widget('box'),
+  GUI.HDR.gap,
+  GUI.HDR.make_group_leader,
+  active = temp
+}
+GUI.HDR.mode = dt.new_widget('combobox'){
+  label = _('mode'),
+  tooltip = _([[Operating mode:
+  all: merge all images into a single image
+  batch: group images into sets by comparing creation time. Images will NOT be auto-imported
+  groups: merge images according to image grouping]]),
+  value = temp,
+  changed_callback = function(self)
+    dt.preferences.write(mod, 'active_mode', 'integer', self.selected)
+    GUI.HDR.opts.active = self.selected
+  end,
+  reset_callback = function(self) self.selected = 1 end,
+  _('all'),
+  _('batch'),
+  _('groups')
+}
+
+
 local lbl_import = dt.new_widget('section_label'){
   label = _('import options')
 }
@@ -439,8 +519,8 @@ GUI.options = dt.new_widget('box'){
   lbl_hdr,
   GUI.HDR.bps,
   GUI.HDR.size,
-  GUI.HDR.batch,
-  GUI.HDR.gap,
+  GUI.HDR.mode,
+  GUI.HDR.opts,
   lbl_import,
   GUI.Target.style,
   GUI.Target.copy_tags,
