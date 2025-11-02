@@ -1011,7 +1011,7 @@ local function treat(var_string)
     log.msg(log.info, "ret_val is " .. ret_val)
 
   elseif string.match(var_string, "SEQUENCE%[") then
-    local width, start = string.match(var_string, "(%d+),(%d)")
+    local width, start = string.match(var_string, "(%d+),(%d+)")
     local seq_val = tonumber(substitutes[var])
     local pat = "%0" .. width .. "d"
     substitutes[var_string] = string.format(pat, start + (seq_val - 1))
