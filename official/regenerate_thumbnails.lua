@@ -181,6 +181,9 @@ local function generate_thumbnails(images)
     image:drop_cache()
     image:generate_cache(true, 1, 3)
     if has_job then
+      if not rt.job.valid then
+        return
+      end
       if count % 10 == 0 then
         rt.job.percent = count / #images
       end
