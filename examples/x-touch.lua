@@ -51,6 +51,10 @@ midi:C0=iop/channelmixerrgb;focus
 midi:C#0=iop/colorequal;focus
 midi:D0=iop/colorequal/page;previous
 midi:D#0=iop/colorequal/page;next
+
+USAGE:
+To add a new module, simply add an entry to MODULE_PROFILES below.
+Get action paths from darktable's shortcut interface.
 ]]
 
 local dt = require "darktable"
@@ -66,69 +70,158 @@ end
 -- Constants
 local NUM_KNOBS = 8
 local NAN = 0/0
+local darkroom_view = dt.gui.views.darkroom
 
--- Configuration tables
-local MASK_PROPERTIES = {
-  "opacity", "size", "feather", "hardness", 
-  "rotation", "curvature", "compression"
-}
+-- ============================================================================
+-- USER CONFIGURATION
+-- ============================================================================
 
-local COLOR_ELEMENTS = {
+-- Module Profiles: Define behavior when each module has focus
+-- Structure: [module_name] = { knob1_action, knob2_action, ... }
+local MODULE_PROFILES = {
+  
+  -- Color Zones: Control individual color channels
   colorzones = {
-    "red", "orange", "yellow", "green", 
-    "aqua", "blue", "purple", "magenta"
+    {"iop/colorzones/graph", "red"},
+    {"iop/colorzones/graph", "orange"},
+    {"iop/colorzones/graph", "yellow"},
+    {"iop/colorzones/graph", "green"},
+    {"iop/colorzones/graph", "aqua"},
+    {"iop/colorzones/graph", "blue"},
+    {"iop/colorzones/graph", "purple"},
+    {"iop/colorzones/graph", "magenta"}
   },
+  
+  -- Color Equalizer: Control color channels
   colorequal = {
-    "red", "orange", "yellow", "green", 
-    "cyan", "blue", "lavender", "magenta"
-  }
-}
-
-local MODULE_CONFIGS = {
+    {"iop/colorequal/graph", "red"},
+    {"iop/colorequal/graph", "orange"},
+    {"iop/colorequal/graph", "yellow"},
+    {"iop/colorequal/graph", "green"},
+    {"iop/colorequal/graph", "cyan"},
+    {"iop/colorequal/graph", "blue"},
+    {"iop/colorequal/graph", "lavender"},
+    {"iop/colorequal/graph", "magenta"}
+  },
+  
+  -- Sigmoid: Control primary color adjustments
   sigmoid = {
-    "red attenuation", "red rotation", 
-    "green attenuation", "green rotation", 
-    "blue attenuation", "blue rotation", 
-    "recover purity"
+    {"iop/sigmoid/primaries/red attenuation"},
+    {"iop/sigmoid/primaries/red rotation"},
+    {"iop/sigmoid/primaries/green attenuation"},
+    {"iop/sigmoid/primaries/green rotation"},
+    {"iop/sigmoid/primaries/blue attenuation"},
+    {"iop/sigmoid/primaries/blue rotation"},
+    {"iop/sigmoid/primaries/recover purity"}
   },
+  
+  -- Color Calibration (Primaries)
   primaries = {
-    "red hue", "red purity", "green hue", "green purity",
-    "blue hue", "blue purity", "tint hue", "tint purity"
+    {"iop/primaries/red hue"},
+    {"iop/primaries/red purity"},
+    {"iop/primaries/green hue"},
+    {"iop/primaries/green purity"},
+    {"iop/primaries/blue hue"},
+    {"iop/primaries/blue purity"},
+    {"iop/primaries/tint hue"},
+    {"iop/primaries/tint purity"}
   },
+  
+  -- AgX
   agx = {
-    "white relative exposure",
-    "black relative exposure",
-    "curve/pivot input shift",
-    "curve/pivot target output",
-    "curve/contrast",
-    "curve/toe power",
-    "curve/shoulder power",
-    "curve/curve y gamma"
-  }
+    {"iop/agx/white relative exposure"},
+    {"iop/agx/black relative exposure"},
+    {"iop/agx/curve/pivot input shift"},
+    {"iop/agx/curve/pivot target output"},
+    {"iop/agx/curve/contrast"},
+    {"iop/agx/curve/toe power"},
+    {"iop/agx/curve/shoulder power"},
+    {"iop/agx/curve/curve y gamma"}
+  },
+  
+  -- Tone Equalizer: Control EV bands 
+  -- For 8 knobs, using offsets -8 to get bands
+  toneequal = {
+    {"iop/toneequal/simple/-8 EV"},
+    {"iop/toneequal/simple/-7 EV"},
+    {"iop/toneequal/simple/-6 EV"},
+    {"iop/toneequal/simple/-5 EV"},
+    {"iop/toneequal/simple/-4 EV"},
+    {"iop/toneequal/simple/-3 EV"},
+    {"iop/toneequal/simple/-2 EV"},
+    {"iop/toneequal/simple/-1 EV"}
+  },
+  
+  -- Color Balance RGB: Selected controls
+  colorbalancergb = {
+    nil,  -- Knob 1: unused --> default
+    {"iop/colorbalancergb/global vibrance"},
+    {"iop/colorbalancergb/contrast"},
+    {"iop/colorbalancergb/global chroma"},
+    {"iop/colorbalancergb/global saturation"},
+    {"iop/colorbalancergb/global brilliance"},
+    nil,  -- Knob 7: --> default
+    nil   -- Knob 8: --> default
+  },
+  
+  -- Channel Mixer RGB (Color Calibration): Tab control and sliders
+  channelmixerrgb = {
+    nil,  -- Knob 1-4: --> default
+    nil,
+    nil,
+    nil,
+    {"iop/channelmixerrgb/page", "CAT", "tab"},  -- Knob 5: Tab selector
+    {"iop/focus/sliders", "1st"},                 -- Knob 6: First slider
+    {"iop/focus/sliders", "2nd"},                 -- Knob 7: Second slider
+    {"iop/focus/sliders", "3rd"}                  -- Knob 8: Third slider
+  },
+    
 }
 
 local DEFAULT_MAPPINGS = {
-  "iop/exposure/exposure",
-  "iop/filmicrgb/white relative exposure",
-  "iop/filmicrgb/black relative exposure",
-  "iop/filmicrgb/contrast",
-  "iop/crop/left",
-  "iop/crop/right",
-  "iop/crop/top",
-  "iop/crop/bottom"
+  {"iop/exposure/exposure"},
+  {"iop/filmicrgb/white relative exposure"},
+  {"iop/filmicrgb/black relative exposure"},
+  {"iop/filmicrgb/contrast"},
+  {"iop/crop/left"},
+  {"iop/crop/right"},
+  {"iop/crop/top"},
+  {"iop/crop/bottom"}
 }
+-- Mask properties: Always checked first, regardless of module focus
+local MASK_PROPERTIES = {
+  {"lib/masks/properties/opacity"},
+  {"lib/masks/properties/size"},
+  {"lib/masks/properties/feather"},
+  {"lib/masks/properties/hardness"},
+  {"lib/masks/properties/rotation"},
+  {"lib/masks/properties/curvature"},
+  {"lib/masks/properties/compression"}
+}
+
+-- Priority order for checking module focus (most commonly used first)
+local MODULE_CHECK_ORDER = {
+  "toneequal",
+  "colorequal",
+  "colorbalancergb",
+  "agx",
+  "sigmoid",
+  "primaries",
+  "channelmixerrgb",
+  "colorzones"
+}
+
+-- ============================================================================
+-- CORE LOGIC - No need to edit below unless changing architecture
+-- ============================================================================
 
 -- Helper functions
 local function is_in_darkroom()
-  return dt.gui.current_view() == dt.gui.views.darkroom
+  return dt.gui.current_view() == darkroom_view
 end
 
 local function is_valid(value)
   return value == value  -- NaN check
-end
-
-local function is_module_focused(module_name)
-  return dt.gui.action("iop/" .. module_name, "focus") ~= 0
 end
 
 local function translate_tab_effect(effect)
@@ -141,156 +234,84 @@ local function translate_tab_effect(effect)
   end
 end
 
--- Handler functions for different module types
-local function handle_mask_properties(knob_idx, element, effect, size)
+-- Execute an action configuration
+local function execute_action(action_config, element, effect, size)
+  if not action_config then
+    return nil
+  end
+  
+  local path = action_config[1]
+  local elem = action_config[2] or element
+  local action_type = action_config[3]
+  
+  -- Handle special action types
+  if action_type == "tab" then
+    effect = translate_tab_effect(effect)
+  end
+  
+  return dt.gui.action(path, elem, effect, size)
+end
+
+-- Try mask properties first
+local function try_mask_properties(knob_idx, element, effect, size)
   if knob_idx >= NUM_KNOBS then 
     return NAN 
   end
   
-  local property = MASK_PROPERTIES[knob_idx]
-  local value = dt.gui.action("lib/masks/properties/" .. property, 
-                               element, effect, size)
+  local mask_action = MASK_PROPERTIES[knob_idx]
+  if not mask_action then
+    return NAN
+  end
+  
+  local value = execute_action(mask_action, element, effect, size)
   return value
-end
-
-local function handle_color_module(module_name, knob_idx, element, effect, size)
-  local elements = COLOR_ELEMENTS[module_name]
-  if not elements then 
-    return nil 
-  end
-  
-  return dt.gui.action("iop/" .. module_name .. "/graph", 
-                       elements[knob_idx], effect, size)
-end
-
-local function handle_sigmoid(knob_idx, element, effect, size)
-  if knob_idx >= NUM_KNOBS then 
-    return nil 
-  end
-  
-  local slider = MODULE_CONFIGS.sigmoid[knob_idx]
-  return dt.gui.action("iop/sigmoid/primaries/" .. slider, 
-                       element, effect, size)
-end
-
-local function handle_primaries(knob_idx, element, effect, size)
-  local slider = MODULE_CONFIGS.primaries[knob_idx]
-  return dt.gui.action("iop/primaries/" .. slider, 
-                       element, effect, size)
-end
-
-local function handle_agx(knob_idx, element, effect, size)
-  local slider = MODULE_CONFIGS.agx[knob_idx]
-  return dt.gui.action("iop/agx/" .. slider, 
-                       element, effect, size)
-end
-
-local function handle_tone_equalizer(knob_idx, element, effect, size)
-  return dt.gui.action("iop/toneequal/simple/" .. (knob_idx - 9) .. " EV", 
-                       element, effect, size)
-end
-
-local function handle_channel_mixer(knob_idx, element, effect, size)
-  if knob_idx < 5 then 
-    return nil 
-  end
-  
-  if knob_idx == 5 then
-    -- Tab selection
-    return dt.gui.action("iop/channelmixerrgb/page", 
-                        "CAT", 
-                        translate_tab_effect(effect), 
-                        size)
-  else
-    -- Color sliders
-    local positions = {"1st", "2nd", "3rd"}
-    return dt.gui.action("iop/focus/sliders", 
-                        positions[knob_idx - 5], 
-                        effect, size)
-  end
-end
-
-local function handle_color_balance_contrast(knob_idx, element, effect, size)
-  if knob_idx ~= 4 then 
-    return nil 
-  end
-  return dt.gui.action("iop/colorbalancergb/contrast", 
-                       element, effect, size)
-end
-
-local function handle_default_mapping(knob_idx, element, effect, size)
-  local mapping = DEFAULT_MAPPINGS[knob_idx]
-  return dt.gui.action(mapping, element, effect, size)
 end
 
 -- Main knob handler
 local function handle_knob_action(knob_idx, element, effect, size)
+  -- Early exit for non-darkroom view
   if not is_in_darkroom() then
     return NAN
   end
   
-  -- Try mask properties first
-  local mask_value = handle_mask_properties(knob_idx, element, effect, size)
+  -- Try mask properties first (no focus check needed)
+  local mask_value = try_mask_properties(knob_idx, element, effect, size)
   if is_valid(mask_value) then
     return mask_value
   end
   
-  -- Try color modules
-  if is_module_focused("colorzones") then
-    return handle_color_module("colorzones", knob_idx, element, effect, size)
-  end
-  
-  if is_module_focused("colorequal") then
-    return handle_color_module("colorequal", knob_idx, element, effect, size)
-  end
-  
-  -- Try sigmoid module
-  if is_module_focused("sigmoid") then
-    local result = handle_sigmoid(knob_idx, element, effect, size)
-    if result then 
-      return result 
+  -- Check focused modules in priority order
+  for _, module_name in ipairs(MODULE_CHECK_ORDER) do
+    local focus_status = dt.gui.action("iop/" .. module_name, "focus")
+    
+    if focus_status ~= 0 then
+      -- Module has focus, get its profile
+      local profile = MODULE_PROFILES[module_name]
+      
+      if profile then
+        local action_config = profile[knob_idx]
+        
+        -- If profile has explicit mapping for this knob, use it
+        if action_config then
+          local result = execute_action(action_config, element, effect, size)
+          if result then
+            return result
+          end
+        else
+          -- Profile exists but this knob is nil -> use default
+          -- This avoids checking other modules when we know the focused one
+          local default_action = DEFAULT_MAPPINGS[knob_idx]
+          return execute_action(default_action, element, effect, size) or NAN
+        end
+      end
+      
+      -- If no profile exists for this module, continue checking others
     end
   end
   
-  -- Try primaries module
-  if is_module_focused("primaries") then
-    local result = handle_primaries(knob_idx, element, effect, size)
-    if result then 
-      return result 
-    end
-  end
-  
-  -- Try agx module
-  if is_module_focused("agx") then
-    local result = handle_agx(knob_idx, element, effect, size)
-    if result then 
-      return result 
-    end
-  end
-  
-  -- Try tone equalizer
-  if is_module_focused("toneequal") then
-    return handle_tone_equalizer(knob_idx, element, effect, size)
-  end
-  
-  -- Try channel mixer (color calibration)
-  if is_module_focused("channelmixerrgb") then
-    local result = handle_channel_mixer(knob_idx, element, effect, size)
-    if result then 
-      return result 
-    end
-  end
-  
-  -- Try color balance contrast
-  if is_module_focused("colorbalancergb") then
-    local result = handle_color_balance_contrast(knob_idx, element, effect, size)
-    if result then 
-      return result 
-    end
-  end
-  
-  -- Fall back to default mapping
-  return handle_default_mapping(knob_idx, element, effect, size)
+  -- No module has focus or no profile matched, fall back to default
+  local default_action = DEFAULT_MAPPINGS[knob_idx]
+  return execute_action(default_action, element, effect, size) or NAN
 end
 
 -- Setup mimic sliders
@@ -308,8 +329,8 @@ end
 local script_data = {
   metadata = {
     name = _("x-touch"),
-    purpose = _("example of how to control an x-touch midi device"),
-    author = "Diederik ter Rahe",
+    purpose = _("data-driven x-touch midi controller configuration"),
+    author = "Diederik ter Rahe (modified)",
     help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/x-touch"
   },
   destroy = function() end,
