@@ -131,11 +131,11 @@ local MODULE_PROFILES = {
   agx = {
     {"iop/agx/white relative exposure"},
     {"iop/agx/black relative exposure"},
-    {"iop/agx/curve/pivot input shift"},
+    {"iop/agx/curve/pivot relative exposure"},
     {"iop/agx/curve/pivot target output"},
     {"iop/agx/curve/contrast"},
-    {"iop/agx/curve/toe power"},
     {"iop/agx/curve/shoulder power"},
+    {"iop/agx/curve/toe power"},
     {"iop/agx/curve/curve y gamma"}
   },
   
