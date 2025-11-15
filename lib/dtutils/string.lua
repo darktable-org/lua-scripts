@@ -770,7 +770,7 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
                         image.id,                              -- ID
                         image.duplicate_index,                 -- VERSION
                         version_multi,                         -- VERSION.IF_MULTI
-                        image.version_name,                    -- VERSION.NAME
+                        image.version_name and image.version_name or "", -- VERSION.NAME
                         dt.configuration.version,              -- DARKTABLE.VERSION
                         "",                                    -- DARKTABLE.NAME
                         string.format("%04d", sequence),       -- SEQUENCE
@@ -836,11 +836,11 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
                         "",                                    -- RATING.ICONS - wont be implemented
                         labels,                                -- LABELS
                         "",                                    -- LABELS.ICONS - wont be implemented
-                        image.title,                           -- TITLE
-                        image.description,                     -- DESCRIPTION
-                        image.creator,                         -- CREATOR
-                        image.publisher,                       -- PUBLISHER
-                        image.rights,                          -- RIGHTS
+                        image.title and image.title or "",     -- TITLE
+                        image.description and image.description or "", -- DESCRIPTION
+                        image.creator and image.creator or "",  -- CREATOR
+                        image.publisher and image.publisher or "", -- PUBLISHER
+                        image.rights and image.rights or "",   -- RIGHTS
                         "",                                    -- TAGS - wont be implemented
                         "",                                    -- SIDECAR.TXT - wont be implemented
                         pictures_folder,                       -- FOLDER.PICTURES
