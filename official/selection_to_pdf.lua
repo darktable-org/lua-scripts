@@ -44,6 +44,10 @@ local function _(msg)
   return gettext(msg)
 end
 
+local NIX_OPEN <const> = "xdg-open "
+local MAC_OPEN <const> = "open "
+local WIN_OPEN <const> = "start "
+
 -- return data structure for script_manager
 
 local script_data = {}
@@ -63,8 +67,8 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 dt.preferences.register
    ("selection_to_pdf","Open with","string",
     _("a pdf viewer"),
-    _("can be an absolute pathname or the tool may be in the PATH"),
-    "xdg-open")
+    _("can be an absolute pathname or the tool may be in the PATH\nif not specified the system default will be used to open the pdf"),
+    "")
 
 local title_widget = dt.new_widget("entry") {
     placeholder = _("title")
@@ -115,8 +119,9 @@ local function thumbnail(latexfile,i,image,file)
   --  fact is that latex will get confused if the filename has multiple dots.
   --  so \includegraphics{file.01.jpg} wont work. We need to output the filename
   --  and extention separated, e.g: \includegraphics{{file.01}.jpg}
-  local filenoext=string.gsub(file, "(.*)(%..*)", "%1")
-  local ext=string.gsub(file, "(.*)(%..*)", "%2")
+
+  local filenoext = string.gsub(file, "(.*)(%..*)", "%1")
+  local ext = string.gsub(file, "(.*)(%..*)", "%2")
   my_write(latexfile,"\\begin{minipage}[b]{"..width.."\\textwidth}\n")
   my_write(latexfile,"\\includegraphics[width=\\textwidth]{{"..filenoext.."}"..ext.."}\\newline\n")
   my_write(latexfile,"\\centering{"..i..": \\verb|"..title.."|}\n")
@@ -138,7 +143,7 @@ dt.register_storage("export_pdf", _("export thumbnails to pdf"),
     end
     local thumbs_per_line = no_of_thumbs_widget.value
     thumbs_per_line = tonumber(thumbs_per_line)
-    width = (1/thumbs_per_line) - 0.01
+    width = (1 / thumbs_per_line) - 0.01
 
     local preamble = [[
     \documentclass[a4paper,10pt]{article}
@@ -148,31 +153,31 @@ dt.register_storage("export_pdf", _("export thumbnails to pdf"),
     \usepackage{geometry}
     \geometry{a4paper,left=5mm,right=5mm, top=5mm, bottom=5mm}
     \begin{document}
-    {\Large\bfseries ]]..my_title..[[} \\
+    {\Large\bfseries ]] .. my_title .. [[} \\
     \bigskip\bigskip
     ]]
 
     local errmsg
     local latexfile
-    latexfile,errmsg=io.open(filename,"w")
+    latexfile,errmsg = io.open(filename, "w")
     if not latexfile then
         error(errmsg)
       end
-      my_write(latexfile,preamble)
+      my_write(latexfile, preamble)
       local i = 1
-      for img,file in pairs(image_table) do
-         thumbnail(latexfile,i,img,file)
+      for img, file in pairs(image_table) do
+         thumbnail(latexfile, i, img, file)
          if i % thumbs_per_line == 0  then
-            my_write(latexfile,"\n\\bigskip\n")
+            my_write(latexfile, "\n\\bigskip\n")
          end
-         i = i+1
+         i = i + 1
       end
       my_write(latexfile,ending)
       latexfile:close()
 
       -- convert to PDF
-      local dir=string.gsub(filename, "(.*/)(.*)", "%1")
-      local locfile=string.gsub(filename, "(.*/)(.*)", "%2")
+      local dir = string.gsub(filename, "(.*/)(.*)", "%1")
+      local locfile = string.gsub(filename, "(.*/)(.*)", "%2")
       local command = "pdflatex -halt-on-error -output-directory "..dir.." "..locfile
       local result = dt.control.execute(command)
       if result ~= 0 then
@@ -181,9 +186,18 @@ dt.register_storage("export_pdf", _("export thumbnails to pdf"),
       end
 
       -- open the PDF
-      local pdffile=string.gsub(filename, ".tex", ".pdf")
+      local pdffile = string.gsub(filename, ".tex", ".pdf")
       command = dt.preferences.read("selection_to_pdf","Open with","string")
-      command = command.." "..pdffile
+      if command == "" then
+        if dt.configuration.running_os == "windows" then
+          command = WIN_OPEN
+        elseif dt.configuration.running_os == "macos" then
+          command = MAC_OPEN
+        else
+          command = NIX_OPEN
+        end
+      end
+      command = command .. " " .. pdffile
       local result = dt.control.execute(command)
       if result ~= 0 then
         dt.print(_("problem running pdf viewer")) -- this one is probably usefull to the user
