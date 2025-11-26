@@ -79,6 +79,7 @@ passport_guide_germany|Yes|LMW|Add passport cropping guide for German passports 
 [slideshowMusic](https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/slideshowMusic)|No|L|Play music during a slideshow
 [transfer_hierarchy](https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/transfer_hierarchy)|Yes|LMW|Image move/copy preserving directory hierarchy
 [video_ffmpeg](https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/video_ffmpeg)|No|LMW|Export video from darktable
+website_gallery_export|No|LMW|Export a website gallery for selected images
 
 ### Example Scripts
 
