@@ -24,13 +24,12 @@ const slides = {
 const prevArrow = document.getElementById('prevArrow');
 const nextArrow = document.getElementById('nextArrow');
 
-// State management
 let mouseTimer = null;
 let startX = 0;
 let startY = 0;
-let isDragging = false;
+let isDragging = false; // For swipe navigation
 let isZoomed = false;
-let isPanning = false;
+let isPanning = false; // Panning in zoomed state
 let hasPanned = false;
 let translateX = 0;
 let translateY = 0;
@@ -57,14 +56,6 @@ function updateBoundaries() {
     // Calculate the actual scaled dimensions based on the base (pre-zoom) size
     scaledWidth = baseWidth * currentScale;
     scaledHeight = baseHeight * currentScale;
-    console.log('Boundaries:', {
-        containerRect,
-        scaledWidth,
-        scaledHeight,
-        baseWidth,
-        baseHeight,
-        currentScale
-    });
 }
 
 function limitPanning(proposedX, proposedY) {
@@ -115,15 +106,6 @@ function limitPanning(proposedX, proposedY) {
         // Image shorter than original - center it
         constrainedY = (baseHeight - scaledHeight) / 2;
     }
-
-    console.log('limitPanning:', {
-        proposed: { x: proposedX, y: proposedY },
-        constrained: { x: constrainedX, y: constrainedY },
-        limits: { minX, maxX, minY, maxY },
-        baseOffset: { x: baseOffsetX, y: baseOffsetY },
-        baseSize: { w: baseWidth, h: baseHeight },
-        scaledSize: { w: scaledWidth, h: scaledHeight }
-    });
 
     return {
         x: constrainedX,
@@ -299,22 +281,6 @@ async function handleTouchEnd(e) {
     }
 }
 
-function handleMouseMove() {
-    if (isZoomed) return;
-
-    prevArrow.classList.add('visible');
-    nextArrow.classList.add('visible');
-
-    if (mouseTimer) {
-        clearTimeout(mouseTimer);
-    }
-
-    mouseTimer = setTimeout(() => {
-        prevArrow.classList.remove('visible');
-        nextArrow.classList.remove('visible');
-    }, 1000);
-}
-
 function handleKeyDown(e) {
     if (isZoomed) return;
 
@@ -341,9 +307,6 @@ container.addEventListener('touchstart', handleTouchStart);
 container.addEventListener('touchmove', handleTouchMove);
 container.addEventListener('touchend', handleTouchEnd);
 container.addEventListener('click', handleZoom);
-
-// make nav arrows visible
-document.addEventListener('mousemove', handleMouseMove);
 
 document.addEventListener('keydown', handleKeyDown);
 prevArrow.addEventListener('click', showPreviousImage);
@@ -417,8 +380,5 @@ container.addEventListener('touchmove', function(e) {
 container.addEventListener('touchend', function(e) {
     if (isPanning) {
         isPanning = false;
-        if (!hasPanned) {
-            handleZoomTap(e.changedTouches[0]);
-        }
     }
 });
