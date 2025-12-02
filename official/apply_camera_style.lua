@@ -34,12 +34,17 @@
     Bill Ferguson <wpferguson@gmail.com>
 
     CHANGES
+
+    20251202 - fixed pattern matching bugs affecting Canon EOS R? series
+               styles and styles being applied twice if images are reimported
+
+               Added more debugging statements to pattern matching functions
 ]]
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
 -- local df = require "lib/dtutils.file"
--- local ds = require "lib/dtutils.string"
+local ds = require "lib/dtutils.string"
 -- local dtsys = require "lib/dtutils.system"
 local log = require "lib/dtutils.log"
 -- local debug = require "darktable.debug"
@@ -50,7 +55,7 @@ local log = require "lib/dtutils.log"
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
 local MODULE <const> = "apply_camera_style"
-local DEFAULT_LOG_LEVEL <const> = log.info
+local DEFAULT_LOG_LEVEL <const> = log.warn
 local TMP_DIR <const> = dt.configuration.tmp_dir
 local STYLE_PREFIX <const> = "_l10n_darktable|_l10n_camera styles|"
 local MAKER = 3
@@ -154,24 +159,32 @@ local function process_pattern(pattern)
 
   local log_level = set_log_level(acs.log_level)
 
+  log.msg(log.debug, "input pattern is " .. pattern)
+
   pattern = string.lower(pattern)
+  log.msg(log.debug, "lower case pattern is " .. pattern)
   -- strip off series
   pattern = string.gsub(pattern, " series$", "?")
+  log.msg(log.debug, "series stripped off pattern is " .. pattern)
   -- match a character
-  if string.match(pattern, "?$") then
+  if string.match(pattern, "r%?%?$") then
     -- handle EOS R case
-    pattern = string.gsub(pattern, "?", ".?")
+    pattern = string.gsub(pattern, "%?%?", ".?")
+    log.msg(log.debug, "matched EOS R pattern is " .. pattern)
   else
     pattern = string.gsub(pattern, "?", ".")
+    log.msg(log.debug, "didn't match EOS R pattern is " .. pattern)
   end
-  pattern = string.gsub(pattern, " ", " ?")
   -- escape dashes
   pattern = string.gsub(pattern, "%-", "%%-")
+  log.msg(log.debug, "escape dashes conditional pattern is " .. pattern)
   -- make spaces optional
   pattern = string.gsub(pattern, " ", " ?")
   -- until we end up with a set, I'll defer set processing, i.e. [...]
+  --log.msg(log.debug, "make spaces conditional again? pattern is " .. pattern)
   -- anchor the pattern to ensure we don't short match
   pattern = "^" .. pattern .. "$"
+  log.msg(log.debug, "anchored pattern is " .. pattern)
 
   restore_log_level(log_level)
 
@@ -326,9 +339,11 @@ local function has_style_tag(image, tag_name)
   log.msg(log.debug, "looking for tag " .. tag_name)
 
   for _, tag in ipairs(image:get_tags()) do
-    log.msg(log.debug, "checking against " .. tag.name)
-    if tag.name == tag_name then
-      log.msg(log.debug, "matched tag " .. tag_name)
+    log.msg(log.debug, "got attached tag " .. tag.name)
+    local cleaned_tag_name = string.gsub(tag_name, "_l10n_", "")
+    log.msg(log.debug, "checking against " .. cleaned_tag_name)
+    if ds.sanitize_lua(tag.name) == cleaned_tag_name then
+      log.msg(log.debug, "matched tag " .. cleaned_tag_name)
       result = true
     end
   end
@@ -358,7 +373,7 @@ local function mangle_model(model)
     model = string.gsub(model, "eos 1200d", "eos rebel t5")
     model = string.gsub(model, "eos 1300d", "eos rebel t6")
     model = string.gsub(model, "eos 2000d", "eos rebel t7")
-    log.msg(log.debug, "mandle model returning " .. model)
+    log.msg(log.debug, "mangle model returning " .. model)
   end
 
   restore_log_level(log_level)
@@ -389,14 +404,15 @@ local function apply_style_to_images(images)
     if acs.styles[maker] then
       local no_match = true
       for i, pattern in ipairs(acs.styles[maker].patterns) do
+        log.msg(log.debug, "pattern is " .. pattern)
         if string.match(model, pattern) or 
            (i == #acs.styles[maker].patterns and string.match(pattern, "generic")) then
           local tag_name = "darktable|style|" .. acs.styles[maker].styles[i].name
           if not has_style_tag(image, tag_name) then
             image:apply_style(acs.styles[maker].styles[i])
-            no_match = false
             log.msg(log.info, "applied style " .. acs.styles[maker].styles[i].name .. " to " .. image.filename)
           end
+          no_match = false
           log.log_level(loglevel)
           break
         end
