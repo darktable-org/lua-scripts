@@ -549,6 +549,7 @@ local PLACEHOLDERS = {"ROLL.NAME",
                       "VERSION.IF.MULTI",
                       "VERSION.NAME",
                       "DARKTABLE.VERSION",
+                      "Xmp.darktable.version",
                       "DARKTABLE.NAME",           -- Not Implemented
                       "SEQUENCE",
                       "WIDTH.SENSOR",
@@ -614,10 +615,15 @@ local PLACEHOLDERS = {"ROLL.NAME",
                       "LABELS",
                       "LABELS.ICONS",             -- Not Implemented 
                       "TITLE",
+                      "Xmp.dc.title",
                       "DESCRIPTION",
+                      "Xmp.dc.description",
                       "CREATOR", 
+                      "Xmp.dc.creator",
                       "PUBLISHER", 
+                      "Xmp.dc.publisher",
                       "RIGHTS", 
+                      "Xmp.dc.rights",
                       "TAGS",                     -- Not Implemented
                       "SIDECAR.TXT",              -- Not Implemented
                       "FOLDER.PICTURES",
@@ -776,6 +782,7 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
                         version_multi,                         -- VERSION.IF_MULTI
                         image.version_name and image.version_name or "", -- VERSION.NAME
                         dt.configuration.version,              -- DARKTABLE.VERSION
+                        dt.configuration.version,              -- Xmp.darktable.version
                         "",                                    -- DARKTABLE.NAME
                         string.format("%04d", sequence),       -- SEQUENCE
                         image.width,                           -- WIDTH.SENSOR
@@ -841,10 +848,15 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
                         labels,                                -- LABELS
                         "",                                    -- LABELS.ICONS - wont be implemented
                         image.title and image.title or "",     -- TITLE
+                        image.title and image.title or "",     -- Xmp.dc.title
                         image.description and image.description or "", -- DESCRIPTION
+                        image.description and image.description or "", -- Xmp.dc.description
                         image.creator and image.creator or "",  -- CREATOR
+                        image.creator and image.creator or "",  -- Xmp.dc.creator
                         image.publisher and image.publisher or "", -- PUBLISHER
+                        image.publisher and image.publisher or "", -- Xmp.dc.publisher
                         image.rights and image.rights or "",   -- RIGHTS
+                        image.rights and image.rights or "",   -- Xmp.dc.rights
                         "",                                    -- TAGS - wont be implemented
                         "",                                    -- SIDECAR.TXT - wont be implemented
                         pictures_folder,                       -- FOLDER.PICTURES
@@ -894,11 +906,12 @@ function dtutils_string.get_substitution_tooltip()
           _("$(FILE.EXTENSION) - extension of the input image"),
           _("$(ID) - image ID"),
           _("$(IMAGE.ID) - image ID"),
-          _("$(IMAGE.ID.NEXT) - next image ID to be assigned on import")
+          _("$(IMAGE.ID.NEXT) - next image ID to be assigned on import"),
           _("$(VERSION) - duplicate version"),
           _("$(VERSION.IF_MULTI) - same as $(VERSION) but null string if only one version exists"),
           _("$(VERSION.NAME) - version name from metadata"),
           _("$(DARKTABLE.VERSION) - current darktable version"),
+          _("$(Xmp.darktable.version) - current darktable version"),
           -- _("$(DARKTABLE.NAME) - darktable name"),  -- not implemented
           _("$(SEQUENCE[n,m]) - sequence number, n: number of digits, m: start number"),
           _("$(WIDTH.SENSOR) - image sensor width"),
@@ -963,10 +976,15 @@ function dtutils_string.get_substitution_tooltip()
           _("$(LABELS) - color labels as text"),
           -- _("$(LABELS.ICONS) - color labels as icons"),-- not implemented
           _("$(TITLE) - title from metadata"),
+          _("$(Xmp.dc.title) - title from metadata"),
           _("$(DESCRIPTION) - description from metadata"),
+          _("$(Xmp.dc.description) - description from metadata"),
           _("$(CREATOR) - creator from metadata"),
+          _("$(Xmp.dc.creator) - creator from metadata"),
           _("$(PUBLISHER) - publisher from metadata"),
+          _("$(Xmp.dc.publisher) - publisher from metadata"),
           _("$(RIGHTS) - rights from metadata"),
+          _("$(Xmp.dc.rights) - rights from metadata"),
           --_("$(TAGS) - tags as set in metadata settings"),
           _("$(CATEGORY[n,category]) - subtag of level n in hierarchical tags"),
           _("$(SIDECAR_TXT) - contents of .txt sidecar file, if present"),
