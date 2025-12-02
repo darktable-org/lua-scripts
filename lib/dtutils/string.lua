@@ -542,7 +542,9 @@ local PLACEHOLDERS = {"ROLL.NAME",
                       "FILE.FOLDER", 
                       "FILE.NAME",
                       "FILE.EXTENSION", 
-                      "ID", 
+                      "ID",
+                      "IMAGE.ID",
+                      "IMAGE.ID.NEXT",
                       "VERSION", 
                       "VERSION.IF.MULTI",
                       "VERSION.NAME",
@@ -768,6 +770,8 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
                         dtutils_string.get_basename(image.filename),-- FILE.NAME
                         dtutils_string.get_filetype(image.filename),-- FILE.EXTENSION
                         image.id,                              -- ID
+                        image.id,                              -- IMAGE.ID
+                        dt.database[#dt.database].id + 1,      -- IMAGE.ID.NEXT
                         image.duplicate_index,                 -- VERSION
                         version_multi,                         -- VERSION.IF_MULTI
                         image.version_name and image.version_name or "", -- VERSION.NAME
@@ -889,6 +893,8 @@ function dtutils_string.get_substitution_tooltip()
           _("$(FILE.NAME) - basename of the input image"),
           _("$(FILE.EXTENSION) - extension of the input image"),
           _("$(ID) - image ID"),
+          _("$(IMAGE.ID) - image ID"),
+          _("$(IMAGE.ID.NEXT) - next image ID to be assigned on import")
           _("$(VERSION) - duplicate version"),
           _("$(VERSION.IF_MULTI) - same as $(VERSION) but null string if only one version exists"),
           _("$(VERSION.NAME) - version name from metadata"),
