@@ -1299,6 +1299,49 @@ function dtutils_string.substitute(image, sequence, variable_string, username, p
   return str
 end
 
+dtutils_string.libdoc.functions["format_exposure"] = {
+  Name = [[format_exposure]],
+  Synopsis = [[format exif_exposure from dt_lua_image_t to an exposure time]],
+  Usage = [[local ds = require "lib/dtutils.string"
+    ds.format_exposure(image.exif_exposure)
+      image.exif_exposure - dt_lua_image_t exif exposure field
+  Description = [[format_exposure takes the EXIF exposure field and formats it into an exposure string]],
+  Return_Value = [[result - string - the EXIF exposure formatted as an exposure string]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[https://docs.darktable.org/usermanual/4.6/en/special-topics/variables/]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
 
+local function _nearbyintf(v)
+  return math.floor(v + .5)
+end
+
+function dtutils_string.format_exposure(exif_exposure)
+  result = nil
+
+  if exif_exposure > 1.0 then
+    if _nearbyintf(exif_exposure) == exif_exposure then
+      result = string.format("%.0f″", exif_exposure)
+    else
+      result = string.format("%.1f″", exif_exposure)
+    end
+  -- catch everything below 0.3 seconds
+  elseif exif_exposure < 0.2 then
+    result = string.format("1/%.0f", 1.0 / exif_exposure)
+  -- catch 1/2, 1/3, ...
+  elseif _nearbyintf(1.0 / exif_exposure) == (1.0 / exif_exposure) then
+    result = string.format("1/%.0f", 1.0 / exif_exposure)
+  -- catch 1/1.3, 1/1.6, ...
+  elseif (10 * _nearbyintf(10.0 / exif_exposure)) == _nearbyintf(100.0 / exif_exposure) then
+    result = string.format("1/%.1f", 1.0 / exif_exposure)
+  else
+    result = string.format("%.1f″", exif_exposure)
+  end
+
+  return result
+end
 
 return dtutils_string
