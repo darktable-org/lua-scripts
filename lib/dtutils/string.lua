@@ -660,6 +660,37 @@ local function get_colorlabels(image)
   return labels 
 end
 
+-- handle the ROLL.NAME[n] case
+
+local function build_rollname_substitution_list(image, variable_string)
+  local old_log_level = log.log_level()
+  log.log_level(dtutils_string.log_level)
+
+  for match in string.gmatch(variable_string, "%$%(.-%)?%)") do -- grab each complete variable 
+    log.msg(log.info, "match is " .. match)
+
+    local var = string.match(match, "%$%((.-%)?)%)")  -- strip of the leading $( and trailing )
+    log.msg(log.info, "var is " .. var)
+
+    if string.match(var, "ROLL.NAME") then
+      local element = "1"
+
+      if string.match(var, "ROLL.NAME%[") then
+        element = string.match(var, "%[(%d)%]")
+      end
+
+      local path = du.split(image.film.path, dt.configuration.running_os ~= "windows" and "/" or "\\")
+      if element > #path then
+        substitutes["ROLL.NAME"]  = ""
+        log.msg(log.warn, "ROLL.NAME element requested was more than number of elements in film roll")
+      else
+        substitutes["ROLL.NAME"] = path[(#path + 1) - tonumber(element)]
+      end
+      return
+    end
+  end
+end
+
 -- find the $CATEGORYn and $CATEGORY[n,m] requests and add them to the substitute list
 
 local function build_category_substitution_list(image, variable_string)
@@ -878,6 +909,7 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
   -- do category substitutions separately
 
   build_category_substitution_list(image, variable_string)
+  build_rollname_substitution_list(image, variable_string)
 
   log.log_level(old_log_level)
 end
