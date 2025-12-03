@@ -680,7 +680,8 @@ local function build_rollname_substitution_list(image, variable_string)
       end
 
       local path = du.split(image.film.path, dt.configuration.running_os ~= "windows" and "/" or "\\")
-      if element > #path then
+      
+      if tonumber(element) > #path then
         substitutes["ROLL.NAME"]  = ""
         log.msg(log.warn, "ROLL.NAME element requested was more than number of elements in film roll")
       else
