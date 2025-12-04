@@ -672,22 +672,21 @@ local function build_rollname_substitution_list(image, variable_string)
     local var = string.match(match, "%$%((.-%)?)%)")  -- strip of the leading $( and trailing )
     log.msg(log.info, "var is " .. var)
 
-    if string.match(var, "ROLL.NAME") then
-      local element = "1"
+    local element = nil
 
-      if string.match(var, "ROLL.NAME%[") then
-        element = string.match(var, "%[(%d)%]")
-      end
+    if string.match(var, "ROLL.NAME%[") then
+      element = string.match(var, "%[(%d)%]")
 
       local path = du.split(image.film.path, dt.configuration.running_os ~= "windows" and "/" or "\\")
+
+      element = tonumber(element) + 1 -- add one because c arrays are 0 based and lua are 1 based
       
-      if tonumber(element) > #path then
-        substitutes["ROLL.NAME"]  = ""
+      if element > #path then
         log.msg(log.warn, "ROLL.NAME element requested was more than number of elements in film roll")
+        substitutes[var] = ""
       else
-        substitutes["ROLL.NAME"] = path[(#path + 1) - tonumber(element)]
+        substitutes[var] = path[(#path + 1) - element]
       end
-      return
     end
   end
 end
@@ -1063,6 +1062,11 @@ local function treat(var_string)
 
   if string.match(var_string, "CATEGORY%d") or string.match(var_string, "CATEGORY%[") then
     log.msg(log.info, "substituting for " .. var_string)
+    ret_val = substitutes[var_string]
+    if not ret_val then ret_val = "" end
+    log.msg(log.info, "ret_val is " .. ret_val)
+
+  elseif string.match(var_string, "ROLL.NAME%[") then
     ret_val = substitutes[var_string]
     if not ret_val then ret_val = "" end
     log.msg(log.info, "ret_val is " .. ret_val)
