@@ -256,6 +256,22 @@ local function initialize(storage, img_format, images, high_quality, extra_data)
     extra_data["sizes"] = {};
 end
 
-dt.register_storage("module_webgallery", "website gallery (new)", show_status, build_gallery, nil, initialize, gallery_widget)
+local supported_formats = { "jpg", "tif", "png", "webp" }
+
+local formats_lut = {}
+for key,format in pairs(supported_formats) do
+   formats_lut[format] = true
+end
+
+function check_supported(storage, format)
+   extension = format.extension
+   if formats_lut[extension] == true then
+      return true
+   else
+      return false
+   end
+end
+
+dt.register_storage("module_webgallery", "website gallery (new)", show_status, build_gallery, check_supported, initialize, gallery_widget)
 
 return script_data
