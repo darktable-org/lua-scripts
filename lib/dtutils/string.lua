@@ -542,11 +542,14 @@ local PLACEHOLDERS = {"ROLL.NAME",
                       "FILE.FOLDER", 
                       "FILE.NAME",
                       "FILE.EXTENSION", 
-                      "ID", 
+                      "ID",
+                      "IMAGE.ID",
+                      "IMAGE.ID.NEXT",
                       "VERSION", 
                       "VERSION.IF.MULTI",
                       "VERSION.NAME",
                       "DARKTABLE.VERSION",
+                      "Xmp.darktable.version",
                       "DARKTABLE.NAME",           -- Not Implemented
                       "SEQUENCE",
                       "WIDTH.SENSOR",
@@ -612,10 +615,15 @@ local PLACEHOLDERS = {"ROLL.NAME",
                       "LABELS",
                       "LABELS.ICONS",             -- Not Implemented 
                       "TITLE",
+                      "Xmp.dc.title",
                       "DESCRIPTION",
+                      "Xmp.dc.description",
                       "CREATOR", 
+                      "Xmp.dc.creator",
                       "PUBLISHER", 
+                      "Xmp.dc.publisher",
                       "RIGHTS", 
+                      "Xmp.dc.rights",
                       "TAGS",                     -- Not Implemented
                       "SIDECAR.TXT",              -- Not Implemented
                       "FOLDER.PICTURES",
@@ -650,6 +658,37 @@ local function get_colorlabels(image)
   log.log_level(old_log_level)
 
   return labels 
+end
+
+-- handle the ROLL.NAME[n] case
+
+local function build_rollname_substitution_list(image, variable_string)
+  local old_log_level = log.log_level()
+  log.log_level(dtutils_string.log_level)
+
+  for match in string.gmatch(variable_string, "%$%(.-%)?%)") do -- grab each complete variable 
+    log.msg(log.info, "match is " .. match)
+
+    local var = string.match(match, "%$%((.-%)?)%)")  -- strip of the leading $( and trailing )
+    log.msg(log.info, "var is " .. var)
+
+    local element = nil
+
+    if string.match(var, "ROLL.NAME%[") then
+      element = string.match(var, "%[(%d)%]")
+
+      local path = du.split(image.film.path, dt.configuration.running_os ~= "windows" and "/" or "\\")
+
+      element = tonumber(element) + 1 -- add one because c arrays are 0 based and lua are 1 based
+      
+      if element > #path then
+        log.msg(log.warn, "ROLL.NAME element requested was more than number of elements in film roll")
+        substitutes[var] = ""
+      else
+        substitutes[var] = path[(#path + 1) - element]
+      end
+    end
+  end
 end
 
 -- find the $CATEGORYn and $CATEGORY[n,m] requests and add them to the substitute list
@@ -768,10 +807,13 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
                         dtutils_string.get_basename(image.filename),-- FILE.NAME
                         dtutils_string.get_filetype(image.filename),-- FILE.EXTENSION
                         image.id,                              -- ID
+                        image.id,                              -- IMAGE.ID
+                        dt.database[#dt.database].id + 1,      -- IMAGE.ID.NEXT
                         image.duplicate_index,                 -- VERSION
                         version_multi,                         -- VERSION.IF_MULTI
                         image.version_name and image.version_name or "", -- VERSION.NAME
                         dt.configuration.version,              -- DARKTABLE.VERSION
+                        dt.configuration.version,              -- Xmp.darktable.version
                         "",                                    -- DARKTABLE.NAME
                         string.format("%04d", sequence),       -- SEQUENCE
                         image.width,                           -- WIDTH.SENSOR
@@ -837,10 +879,15 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
                         labels,                                -- LABELS
                         "",                                    -- LABELS.ICONS - wont be implemented
                         image.title and image.title or "",     -- TITLE
+                        image.title and image.title or "",     -- Xmp.dc.title
                         image.description and image.description or "", -- DESCRIPTION
+                        image.description and image.description or "", -- Xmp.dc.description
                         image.creator and image.creator or "",  -- CREATOR
+                        image.creator and image.creator or "",  -- Xmp.dc.creator
                         image.publisher and image.publisher or "", -- PUBLISHER
+                        image.publisher and image.publisher or "", -- Xmp.dc.publisher
                         image.rights and image.rights or "",   -- RIGHTS
+                        image.rights and image.rights or "",   -- Xmp.dc.rights
                         "",                                    -- TAGS - wont be implemented
                         "",                                    -- SIDECAR.TXT - wont be implemented
                         pictures_folder,                       -- FOLDER.PICTURES
@@ -862,6 +909,7 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
   -- do category substitutions separately
 
   build_category_substitution_list(image, variable_string)
+  build_rollname_substitution_list(image, variable_string)
 
   log.log_level(old_log_level)
 end
@@ -889,10 +937,13 @@ function dtutils_string.get_substitution_tooltip()
           _("$(FILE.NAME) - basename of the input image"),
           _("$(FILE.EXTENSION) - extension of the input image"),
           _("$(ID) - image ID"),
+          _("$(IMAGE.ID) - image ID"),
+          _("$(IMAGE.ID.NEXT) - next image ID to be assigned on import"),
           _("$(VERSION) - duplicate version"),
           _("$(VERSION.IF_MULTI) - same as $(VERSION) but null string if only one version exists"),
           _("$(VERSION.NAME) - version name from metadata"),
           _("$(DARKTABLE.VERSION) - current darktable version"),
+          _("$(Xmp.darktable.version) - current darktable version"),
           -- _("$(DARKTABLE.NAME) - darktable name"),  -- not implemented
           _("$(SEQUENCE[n,m]) - sequence number, n: number of digits, m: start number"),
           _("$(WIDTH.SENSOR) - image sensor width"),
@@ -957,10 +1008,15 @@ function dtutils_string.get_substitution_tooltip()
           _("$(LABELS) - color labels as text"),
           -- _("$(LABELS.ICONS) - color labels as icons"),-- not implemented
           _("$(TITLE) - title from metadata"),
+          _("$(Xmp.dc.title) - title from metadata"),
           _("$(DESCRIPTION) - description from metadata"),
+          _("$(Xmp.dc.description) - description from metadata"),
           _("$(CREATOR) - creator from metadata"),
+          _("$(Xmp.dc.creator) - creator from metadata"),
           _("$(PUBLISHER) - publisher from metadata"),
+          _("$(Xmp.dc.publisher) - publisher from metadata"),
           _("$(RIGHTS) - rights from metadata"),
+          _("$(Xmp.dc.rights) - rights from metadata"),
           --_("$(TAGS) - tags as set in metadata settings"),
           _("$(CATEGORY[n,category]) - subtag of level n in hierarchical tags"),
           _("$(SIDECAR_TXT) - contents of .txt sidecar file, if present"),
@@ -1006,6 +1062,11 @@ local function treat(var_string)
 
   if string.match(var_string, "CATEGORY%d") or string.match(var_string, "CATEGORY%[") then
     log.msg(log.info, "substituting for " .. var_string)
+    ret_val = substitutes[var_string]
+    if not ret_val then ret_val = "" end
+    log.msg(log.info, "ret_val is " .. ret_val)
+
+  elseif string.match(var_string, "ROLL.NAME%[") then
     ret_val = substitutes[var_string]
     if not ret_val then ret_val = "" end
     log.msg(log.info, "ret_val is " .. ret_val)
@@ -1243,6 +1304,49 @@ function dtutils_string.substitute(image, sequence, variable_string, username, p
   return str
 end
 
+dtutils_string.libdoc.functions["format_exposure"] = {
+  Name = [[format_exposure]],
+  Synopsis = [[format exif_exposure from dt_lua_image_t to an exposure time]],
+  Usage = [[local ds = require "lib/dtutils.string"
+    ds.format_exposure(image.exif_exposure)
+      image.exif_exposure - dt_lua_image_t exif exposure field
+  Description = [[format_exposure takes the EXIF exposure field and formats it into an exposure string]],
+  Return_Value = [[result - string - the EXIF exposure formatted as an exposure string]],
+  Limitations = [[]],
+  Example = [[]],
+  See_Also = [[https://docs.darktable.org/usermanual/4.6/en/special-topics/variables/]],
+  Reference = [[]],
+  License = [[]],
+  Copyright = [[]],
+}
 
+local function _nearbyintf(v)
+  return math.floor(v + .5)
+end
+
+function dtutils_string.format_exposure(exif_exposure)
+  result = nil
+
+  if exif_exposure > 1.0 then
+    if _nearbyintf(exif_exposure) == exif_exposure then
+      result = string.format("%.0f″", exif_exposure)
+    else
+      result = string.format("%.1f″", exif_exposure)
+    end
+  -- catch everything below 0.3 seconds
+  elseif exif_exposure < 0.2 then
+    result = string.format("1/%.0f", 1.0 / exif_exposure)
+  -- catch 1/2, 1/3, ...
+  elseif _nearbyintf(1.0 / exif_exposure) == (1.0 / exif_exposure) then
+    result = string.format("1/%.0f", 1.0 / exif_exposure)
+  -- catch 1/1.3, 1/1.6, ...
+  elseif (10 * _nearbyintf(10.0 / exif_exposure)) == _nearbyintf(100.0 / exif_exposure) then
+    result = string.format("1/%.1f", 1.0 / exif_exposure)
+  else
+    result = string.format("%.1f″", exif_exposure)
+  end
+
+  return result
+end
 
 return dtutils_string
