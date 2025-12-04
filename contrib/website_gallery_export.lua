@@ -19,7 +19,6 @@
 --[[
    TODO:
    - Lua: remove images dir if already existent
-   - Lua: implement "supported" callback to limit export to suited file formats
    - Lua: translations
 ]]
 
