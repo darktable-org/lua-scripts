@@ -328,7 +328,7 @@ local function export2collection(storage, image_table, extra_data)
 
     -- create unique filename
     new_name = image.path..PS..df.get_filename(temp_name)
-    new_name = df.create_unique_filename(new_name)
+    new_name = df.sanitize_filename(df.create_unique_filename(new_name))
 
     -- move image to collection folder, check result, return if error
     move_success = df.file_move(temp_name, new_name)
