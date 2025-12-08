@@ -74,7 +74,6 @@ function escape_js_string(str)
 end
 
 local function export_thumbnail(image, filename)
-    dt.print("export thumbnail image "..filename)
     exporter = dt.new_format("jpeg")
     exporter.quality = 90
     exporter.max_height = 512
@@ -108,14 +107,21 @@ function exiftool_get_image_dimensions(filename)
     end
 end
 
+local function stop_job(job)
+  job.valid = false
+end
+
 local function fill_gallery_table(images_ordered, images_table, title, dest_dir, sizes, exiftool)
     dest_dir = dest_dir.."/images"
     local gallery_data = { name = escape_js_string(title) }
 
     local images = {}
     local index = 1
+    local job = dt.gui.create_job("exporting thumbnail images", true, stop_job)
+
     for i, image in pairs(images_ordered) do
         local filename = images_table[image]
+        dt.print("exporting thumbnail image "..index.."/"..#images_ordered)
         write_image(image, dest_dir, filename)
 
         if exiftool then
@@ -129,9 +135,11 @@ local function fill_gallery_table(images_ordered, images_table, title, dest_dir,
                         width = width, height = height }
 
         images[index] = entry
+        job.percent = index / #images_ordered
         index = index + 1
     end
 
+    stop_job(job)
     gallery_data.images = images
     return gallery_data
 end
@@ -175,7 +183,7 @@ local function copy_static_files(dest_dir)
         "index.html",
         "gallery.css",
         "modal.css",
-	"modal.js",
+        "modal.js",
         "gallery.js",
         "fullscreen.js"
     }
