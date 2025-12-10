@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const img = document.createElement('img');
         img.className = 'thumb';
-        img.src = imageObj.filename.replace(/images\/(.*)$/i, 'images/thumb_$1');
+        img.src = imageObj.filename.replace(/images\/(.*)$/i, 'thumbnails/thumb_$1');
         img.alt = imageObj.filename;
         img.addEventListener('click', function (e) { e.stopPropagation(); showModal(e); });
 

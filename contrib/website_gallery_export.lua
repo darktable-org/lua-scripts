@@ -86,8 +86,8 @@ local function export_thumbnail(image, filename)
 end
 
 local function write_image(image, dest_dir, filename)
-    df.file_move(filename, dest_dir.."/"..get_file_name(filename))
-    export_thumbnail(image, dest_dir.."/thumb_"..get_file_name(filename))
+    df.file_move(filename, dest_dir.."/images/"..get_file_name(filename))
+    export_thumbnail(image, dest_dir.."/thumbnails/thumb_"..get_file_name(filename))
 end
 
 function exiftool_get_image_dimensions(filename)
@@ -116,7 +116,6 @@ local function stop_job(job)
 end
 
 local function fill_gallery_table(images_ordered, images_table, title, dest_dir, sizes, exiftool)
-    dest_dir = dest_dir.."/images"
     local gallery_data = { name = escape_js_string(title) }
 
     local images = {}
@@ -129,7 +128,7 @@ local function fill_gallery_table(images_ordered, images_table, title, dest_dir,
         write_image(image, dest_dir, filename)
 
         if exiftool then
-            width, height = exiftool_get_image_dimensions(dest_dir.."/"..get_file_name(filename))
+            width, height = exiftool_get_image_dimensions(dest_dir.."/images/"..get_file_name(filename))
         else
             width = sizes[index].width
             height = sizes[index].height
@@ -171,7 +170,7 @@ local function write_javascript_file(gallery_table, dest_dir)
     dt.print(_("write JavaScript file"))
     javascript_object = generate_javascript_gallery_object(gallery_table)
 
-    local fileOut, errr = io.open(dest_dir.."/images.js", 'w+')
+    local fileOut, errr = io.open(dest_dir.."/js/images.js", 'w+')
     if fileOut then
         fileOut:write(javascript_object)
     else
@@ -181,17 +180,17 @@ local function write_javascript_file(gallery_table, dest_dir)
 end
 
 local function copy_static_files(dest_dir)
-    dt.print(_("copy static gallery files"))
     gfsrc = dt.configuration.config_dir.."/lua/data/website_gallery"
-    gfiles = {
+    local gfiles = {
         "index.html",
-        "gallery.css",
-        "modal.css",
-        "modal.js",
-        "gallery.js",
-        "fullscreen.js"
+        "css/gallery.css",
+        "css/modal.css",
+        "js/gallery.js",
+        "js/modal.js",
+        "js/fullscreen.js"
     }
 
+    dt.print(_("copy static gallery files"))
     for _, file in ipairs(gfiles) do
         df.file_copy(gfsrc.."/"..file, dest_dir.."/"..file)
     end
@@ -201,6 +200,9 @@ local function build_gallery(storage, images_table, extra_data)
     local dest_dir = dest_dir_widget.value
     df.mkdir(dest_dir)
     df.mkdir(dest_dir.."/images")
+    df.mkdir(dest_dir.."/thumbnails")
+    df.mkdir(dest_dir.."/css")
+    df.mkdir(dest_dir.."/js")
 
     local images_ordered = extra_data["images"] -- process images in the correct order
     local sizes = extra_data["sizes"]
