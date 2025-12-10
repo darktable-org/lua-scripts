@@ -28,6 +28,10 @@ local df = require "lib/dtutils.file"
 local temp = dt.preferences.read('web_gallery', 'title', 'string')
 if temp == nil then temp = 'Darktable gallery' end
 
+local function _(msgid)
+  return dt.gettext.gettext(msgid)
+end
+
 local title_widget = dt.new_widget("entry")
 {
    text = temp
@@ -38,8 +42,8 @@ if temp == nil then temp = '' end
 
 local dest_dir_widget = dt.new_widget("file_chooser_button")
 {
-   title = "select output folder",
-   tooltip = "select output folder",
+   title = _("select output folder"),
+   tooltip = _("select output folder"),
    value = temp,
    is_directory = true,
    changed_callback = function(this) dt.preferences.write('web_gallery', 'destination_dir', 'string', this.value) end
@@ -48,9 +52,9 @@ local dest_dir_widget = dt.new_widget("file_chooser_button")
 local gallery_widget = dt.new_widget("box")
 {
     orientation=vertical,
-    dt.new_widget("label"){label = "gallery title"},
+    dt.new_widget("label"){label = _("gallery title")},
     title_widget,
-    dt.new_widget("label"){label = "destination directory"},
+    dt.new_widget("label"){label = _("destination directory")},
     dest_dir_widget
 }
 
@@ -117,11 +121,11 @@ local function fill_gallery_table(images_ordered, images_table, title, dest_dir,
 
     local images = {}
     local index = 1
-    local job = dt.gui.create_job("exporting thumbnail images", true, stop_job)
+    local job = dt.gui.create_job(_("exporting thumbnail images"), true, stop_job)
 
     for i, image in pairs(images_ordered) do
         local filename = images_table[image]
-        dt.print("exporting thumbnail image "..index.."/"..#images_ordered)
+        dt.print(_("exporting thumbnail image ")..index.."/"..#images_ordered)
         write_image(image, dest_dir, filename)
 
         if exiftool then
@@ -164,7 +168,7 @@ local function generate_javascript_gallery_object(gallery)
 end
 
 local function write_javascript_file(gallery_table, dest_dir)
-    dt.print("write JavaScript file")
+    dt.print(_("write JavaScript file"))
     javascript_object = generate_javascript_gallery_object(gallery_table)
 
     local fileOut, errr = io.open(dest_dir.."/images.js", 'w+')
@@ -177,7 +181,7 @@ local function write_javascript_file(gallery_table, dest_dir)
 end
 
 local function copy_static_files(dest_dir)
-    dt.print("copy static gallery files")
+    dt.print(_("copy static gallery files"))
     gfsrc = dt.configuration.config_dir.."/lua/data/website_gallery"
     gfiles = {
         "index.html",
@@ -200,7 +204,7 @@ local function build_gallery(storage, images_table, extra_data)
 
     local images_ordered = extra_data["images"] -- process images in the correct order
     local sizes = extra_data["sizes"]
-    local title = "Darktable export"
+    local title = _("Darktable export")
     if title_widget.text ~= "" then
         title = title_widget.text
     end
@@ -231,7 +235,7 @@ script_data.destroy = destroy
 
 local function show_status(storage, image, format, filename,
   number, total, high_quality, extra_data)
-    dt.print(string.format("export image %i/%i", number, total))
+    dt.print(string.format(_("export image").."%i/%i", number, total))
     aspect = image.aspect_ratio
     -- calculate the size of the exported image and store it in extra_data
     -- to make it available in the finalize function
