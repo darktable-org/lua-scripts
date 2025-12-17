@@ -20,15 +20,6 @@
     padding: 0;
     box-sizing: border-box;
 }
-body {
-    margin: 0;
-    padding: 0;
-    width: 100vw;
-    height: 100vh;
-    background: #000;
-    display: flex;
-    flex-direction: column;
-}
 
 .viewer {
     position: relative;
@@ -39,10 +30,20 @@ body {
     display: none;
 }
 
+.navgrid {
+  display: grid;
+}
+
+.nav {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  z-index: 1001;
+}
+
 .slider {
     position: relative;
     width: 100vw;
-    height: 95vh;
     touch-action: none;
     overflow: hidden;
 }
@@ -69,8 +70,6 @@ body {
     will-change: contents;
     overflow: hidden;
     position: relative;
-    padding: 0;
-    margin: 0;
     touch-action: none;
     object-fit: contain;
 }
@@ -80,8 +79,6 @@ body {
     max-height: 100%;
     width: auto;
     height: auto;
-    padding: 0;
-    margin: 0;
     display: block;
     transform-origin: 0 0;
     cursor: zoom-in;
@@ -98,15 +95,3 @@ body {
     transition: transform 0.2s ease-out;
 }
 
-.nav-bar {
-    width: 100vw;
-    height: 5vh;
-    background: #333;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    padding-left: 20px;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-    font-size: 16px;
-}
