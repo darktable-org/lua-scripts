@@ -35,6 +35,7 @@
 }
 
 .nav {
+  height: var(--navigation-bar-height);
   justify-content: center;
   align-items: center;
   display: flex;
@@ -42,6 +43,7 @@
 }
 
 .slider {
+    height: calc(100vh - var(--navigation-bar-height));
     position: relative;
     width: 100vw;
     touch-action: none;

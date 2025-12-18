@@ -35,14 +35,13 @@ body {
     box-shadow: 0 1vw 4vw 1vw rgba(0,0,0,0.6);
 }
 
-.nav {
-  height: 5vh;
-  background-color: rgba(60,60,60, 0.4);
-  color: #ccc;
+.viewer {
+    --navigation-bar-height: 5vh;
 }
 
-.slider {
-    height: 95vh; /* remaining vh after nav vh */
+.nav {
+  background-color: rgba(60,60,60, 0.4);
+  color: #ccc;
 }
 
 .navgrid {
