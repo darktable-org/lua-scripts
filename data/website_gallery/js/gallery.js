@@ -58,7 +58,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const width = parseInt(imageObj.width);
         const height = parseInt(imageObj.height);
-        const aspect = height / width;
         const sum = width + height;
         const scalefactor = sum / (framesize * 2.0);
         frame.style.width = (width / scalefactor) + 'vw';

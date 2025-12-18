@@ -24,7 +24,6 @@ const slides = {
 const prevArrow = document.getElementById('prevArrow');
 const nextArrow = document.getElementById('nextArrow');
 
-let mouseTimer = null;
 let startX = 0;
 let startY = 0;
 let isDragging = false; // For swipe navigation
@@ -34,13 +33,9 @@ let hasPanned = false;
 let translateX = 0;
 let translateY = 0;
 let currentScale = 1;
-let minX = 0;
-let minY = 0;
-let containerRect, imgRect;
 let img;
 
 let baseWidth, baseHeight;  // Image dimensions before zoom
-let baseOffsetX, baseOffsetY;  // Image position offset before zoom (due to centering)
 
 let scaledWidth, scaledHeight;
 
@@ -59,28 +54,6 @@ function updateBoundaries() {
 }
 
 function limitPanning(proposedX, proposedY) {
-    // With transform-origin: 0 0 and transform: translate(tx, ty) scale(s)
-    //
-    // Before zoom:
-    // - Image element positioned at (baseOffsetX, baseOffsetY) in container
-    // - Image size is (baseWidth, baseHeight)
-    //
-    // After transform is applied:
-    // - First, scale happens around origin (0,0) of the element: element becomes (baseWidth*s, baseHeight*s)
-    // - Then translate by (tx, ty) moves the whole element
-    // - Final position in viewport: element's top-left is at (baseOffsetX + tx, baseOffsetY + ty)
-    // - Element's bottom-right is at (baseOffsetX + tx + scaledWidth, baseOffsetY + ty + scaledHeight)
-    //
-    // We want the image content edges to stay within the container while allowing original borders:
-    // - Left constraint: baseOffsetX + tx >= baseOffsetX  =>  tx >= 0
-    // - Right constraint: baseOffsetX + tx + scaledWidth <= containerWidth - (containerWidth - baseOffsetX - baseWidth)
-    //                     baseOffsetX + tx + scaledWidth <= baseOffsetX + baseWidth
-    //                     tx <= baseWidth - scaledWidth
-    // - Top constraint: baseOffsetY + ty >= baseOffsetY  =>  ty >= 0
-    // - Bottom constraint: baseOffsetY + ty + scaledHeight <= baseOffsetY + baseHeight
-    //                      ty <= baseHeight - scaledHeight
-
-    // Calculate limits
     const maxX = 0;
     const minX = baseWidth - scaledWidth;
 
@@ -147,8 +120,6 @@ function handleZoom(e) {
         // Store the base (pre-zoom) dimensions and offset
         baseWidth = rect.width;
         baseHeight = rect.height;
-        baseOffsetX = rect.left;
-        baseOffsetY = rect.top;
 
         // Calculate the scale for 1:1 pixel zoom
         currentScale = img.naturalWidth / rect.width;
