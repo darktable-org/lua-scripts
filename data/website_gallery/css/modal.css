@@ -1,0 +1,99 @@
+/*
+    copyright (c) 2025 Tino Mettler
+
+    darktable is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    darktable is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this software.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.viewer {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    touch-action: none;
+    overflow: hidden;
+    display: none;
+}
+
+.navgrid {
+  display: grid;
+}
+
+.nav {
+  height: var(--navigation-bar-height);
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  z-index: 1001;
+}
+
+.slider {
+    height: calc(100vh - var(--navigation-bar-height));
+    position: relative;
+    width: 100vw;
+    touch-action: none;
+    overflow: hidden;
+}
+
+.slide-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 300%;
+    height: 100%;
+    display: flex;
+    transform: translateX(-33.333%);
+    transition: transform 0.3s ease-out;
+    will-change: transform;
+}
+
+.slide {
+    width: 33.333%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #000;
+    will-change: contents;
+    overflow: hidden;
+    position: relative;
+    touch-action: none;
+    object-fit: contain;
+}
+
+.slide img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    display: block;
+    transform-origin: 0 0;
+    cursor: zoom-in;
+    object-fit: contain;
+}
+
+.slide.zoomed img {
+    cursor: zoom-out;
+    max-width: none;
+    max-height: none;
+}
+
+.slide img.zooming {
+    transition: transform 0.2s ease-out;
+}
+
