@@ -223,8 +223,8 @@ end
 local script_data = {}
 
 script_data.metadata = {
-    name = "website gallery (new)",
-    purpose = "create a web gallery from exported images",
+    name = _("website gallery (new)"),
+    purpose = _("create a web gallery from exported images"),
     author = "Tino Mettler <tino+darktable@tikei.de>",
     help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/TODO"
 }
