@@ -25,6 +25,8 @@
 local dt = require "darktable"
 local df = require "lib/dtutils.file"
 
+local PS <const> = dt.configuration.running_os == "windows" and "\\" or "/"
+
 local temp = dt.preferences.read('web_gallery', 'title', 'string')
 if temp == nil then temp = 'Darktable gallery' end
 
@@ -59,7 +61,7 @@ local gallery_widget = dt.new_widget("box")
 }
 
 local function get_file_name(file)
-    return file:match("[^/]*.$")
+    return file:match("[^" .. PS .. "]*.$")
 end
 
 function escape_js_string(str)
@@ -86,8 +88,8 @@ local function export_thumbnail(image, filename)
 end
 
 local function write_image(image, dest_dir, filename)
-    df.file_move(filename, dest_dir.."/images/"..get_file_name(filename))
-    export_thumbnail(image, dest_dir.."/thumbnails/thumb_"..get_file_name(filename))
+    df.file_move(filename, dest_dir.. PS .. "images" .. PS .. get_file_name(filename))
+    export_thumbnail(image, dest_dir .. PS .. "thumbnails" .. PS .. "thumb_" .. get_file_name(filename))
 end
 
 function exiftool_get_image_dimensions(filename)
@@ -123,18 +125,18 @@ local function fill_gallery_table(images_ordered, images_table, title, dest_dir,
     local job = dt.gui.create_job(_("exporting thumbnail images"), true, stop_job)
 
     for i, image in pairs(images_ordered) do
-        local filename = images_table[image]
-        dt.print(_("exporting thumbnail image ")..index.."/"..#images_ordered)
+        local filename = df.sanitize_filename(images_table[image])
+        dt.print(_("export thumbnail image ") .. index .. "/" .. #images_ordered)
         write_image(image, dest_dir, filename)
 
         if exiftool then
-            width, height = exiftool_get_image_dimensions(dest_dir.."/images/"..get_file_name(filename))
+            width, height = exiftool_get_image_dimensions(df.sanitize_filename(dest_dir .. PS .. "images" .. PS .. get_file_name(filename)))
         else
             width = sizes[index].width
             height = sizes[index].height
         end
 
-        local entry = { filename = "images/"..get_file_name(escape_js_string(filename)),
+        local entry = { filename = "images" .. PS .. get_file_name(filename),
                         width = width, height = height }
 
         images[index] = entry
@@ -170,7 +172,7 @@ local function write_javascript_file(gallery_table, dest_dir)
     dt.print(_("write JavaScript file"))
     javascript_object = generate_javascript_gallery_object(gallery_table)
 
-    local fileOut, errr = io.open(dest_dir.."/js/images.js", 'w+')
+    local fileOut, errr = io.open(dest_dir .. PS .. "js" .. PS .. "images.js", 'w+')
     if fileOut then
         fileOut:write(javascript_object)
     else
@@ -180,29 +182,31 @@ local function write_javascript_file(gallery_table, dest_dir)
 end
 
 local function copy_static_files(dest_dir)
-    gfsrc = dt.configuration.config_dir.."/lua/data/website_gallery"
+
+    gfsrc = dt.configuration.config_dir .. PS .. "lua" .. PS .. "data" .. PS .. "website_gallery"
     local gfiles = {
         "index.html",
-        "css/gallery.css",
-        "css/modal.css",
-        "js/gallery.js",
-        "js/modal.js",
-        "js/fullscreen.js"
+        "css" .. PS .. "gallery.css",
+        "css" .. PS .. "modal.css",
+        "css" .. PS .. "style.css",
+        "js" .. PS .. "gallery.js",
+        "js" .. PS .. "modal.js",
+        "js" .. PS .. "fullscreen.js"
     }
 
     dt.print(_("copy static gallery files"))
     for _, file in ipairs(gfiles) do
-        df.file_copy(gfsrc.."/"..file, dest_dir.."/"..file)
+        df.file_copy(gfsrc .. PS .. file, dest_dir .. PS .. file)
     end
 end
 
 local function build_gallery(storage, images_table, extra_data)
     local dest_dir = dest_dir_widget.value
-    df.mkdir(dest_dir)
-    df.mkdir(dest_dir.."/images")
-    df.mkdir(dest_dir.."/thumbnails")
-    df.mkdir(dest_dir.."/css")
-    df.mkdir(dest_dir.."/js")
+    df.mkdir(df.sanitize_filename(dest_dir))
+    df.mkdir(df.sanitize_filename(dest_dir .. PS .. "images"))
+    df.mkdir(df.sanitize_filename(dest_dir .. PS .. "thumbnails"))
+    df.mkdir(df.sanitize_filename(dest_dir .. PS .. "css"))
+    df.mkdir(df.sanitize_filename(dest_dir .. PS .. "js"))
 
     local images_ordered = extra_data["images"] -- process images in the correct order
     local sizes = extra_data["sizes"]
@@ -237,7 +241,7 @@ script_data.destroy = destroy
 
 local function show_status(storage, image, format, filename,
   number, total, high_quality, extra_data)
-    dt.print(string.format(_("export image").."%i/%i", number, total))
+    dt.print(string.format(_("export image ").."%i/%i", number, total))
     aspect = image.aspect_ratio
     -- calculate the size of the exported image and store it in extra_data
     -- to make it available in the finalize function
