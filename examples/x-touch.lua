@@ -330,7 +330,7 @@ local script_data = {
   metadata = {
     name = _("x-touch"),
     purpose = _("data-driven x-touch midi controller configuration"),
-    author = "Diederik ter Rahe (modified)",
+    author = "Martin Straeten",
     help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/x-touch"
   },
   destroy = function() end,
