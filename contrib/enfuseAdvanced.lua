@@ -288,7 +288,13 @@ local function GetArgsFromPreference(prog_table, prefix) --for each arg in a pro
         local temp = dt.preferences.read(mod, prefix..argument, arg_data.style)
         if arg_data.style == 'bool' and temp then
             prog_table.arg_string = prog_table.arg_string..arg_data.text..' '
-        elseif arg_data.style == 'integer' or arg_data.style == 'string' then
+        elseif arg_data.style == 'integer' then
+            prog_table.arg_string = prog_table.arg_string..arg_data.text..temp..' '
+        elseif arg_data.style == 'string' then
+            if dt.configuration.running_os == "windows" then
+                --escape % with %% as % means env var on windows and call will fail otherwise
+                temp = string.gsub(temp, "%%", "%%%%")
+            end
             prog_table.arg_string = prog_table.arg_string..arg_data.text..temp..' '
         elseif arg_data.style == 'float' then
             temp = string.sub(tostring(temp),1,3)
@@ -345,7 +351,7 @@ local function UpdateENFargs(image_table, prefix) --updates the Enfuse arguments
     end
     ENF.arg_string = ENF.arg_string..' --depth='..GUI.Target.depth.value..' '
     if GUI.Target.format.value == 'tif' then ENF.arg_string = ENF.arg_string..'--compression='..GUI.Target.compression_level_tif.value..' '
-    elseif GUI.Target.format.value == 'jpg' then ENF.arg_string = ENF.arg_string..'--compression='..GUI.Target.compression_level_jpg.value..' '
+    elseif GUI.Target.format.value == 'jpg' then ENF.arg_string = ENF.arg_string..'--compression='..tostring(math.floor(GUI.Target.compression_level_jpg.value))..' '
     end
     if not GUI.Target.source_location.value then out_path = GUI.Target.output_directory.value end
     out_name = smallest_name..'-'..largest_id
@@ -492,6 +498,7 @@ local function main(storage, image_table, extra_data)
             remove_temp_files(images_to_remove)
             dt.print_error(ENF.name..' failed')
             dt.print(string.format(_("%s failed"), ENF.name))
+            job.valid = false
             return
         end
         
