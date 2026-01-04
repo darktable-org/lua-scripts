@@ -90,8 +90,8 @@ function dtutils_system.windows_command(command)
     file:write('for /f "tokens=2 delims=:." %%x in (\'chcp\') do set cp=%%x\n')
     file:write("chcp 65001>nul\n") -- change the encoding of the terminal to handle non-english characters in path
     file:write("\n")
-    file:write("set COMMAND_RC=%ERRORLEVEL%")
     file:write(command .. "\n")
+    file:write("set COMMAND_RC=%ERRORLEVEL%")
     file:write("\n") 
     file:write("chcp %cp%>nul\n")
     file:write("exit /b %COMMAND_RC%") -- otherwise, when the real command fails, script will still return "good" error code of chcp
