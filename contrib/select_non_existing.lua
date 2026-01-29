@@ -20,14 +20,19 @@ Enable selection of non-existing images in the the currently worked on images, e
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
+local ds = require "lib/dtutils.string"
+local log = require "lib/dtutils.log"
 
 -- module name
-local MODULE = "select_non_existing"
+local MODULE <const> = "select_non_existing"
 
 du.check_min_api_version("9.1.0", MODULE)
 
 -- figure out the path separator
-local PS = dt.configuration.running_os == "windows" and  "\\"  or  "/"
+local PS <const> = dt.configuration.running_os == "windows" and  "\\"  or  "/"
+local DEFAULT_LOG_LEVEL <const> = log.info
+
+log.log_level(DEFAULT_LOG_LEVEL)
 
 local gettext = dt.gettext.gettext
 
@@ -39,26 +44,61 @@ local function stop_job(job)
     job.valid = false
 end
 
-local function select_nonexisting_images(event, images)
-    local selection = {}
+local function get_file_list(dir)
+  log.log_level(DEFAULT_LOG_LEVEL)
+  local file_list = {}
+  local cmd = nil
+  log.msg(log.debug, "called get_file_list with " .. dir)
 
-    local job = dt.gui.create_job(_("select non existing images"), true, stop_job)
-    for key,image in ipairs(images) do
-        if(job.valid) then
-            job.percent = (key - 1)/#images
-            local filepath = image.path..PS..image.filename
-            local file_exists = df.test_file(filepath, "e")
-            dt.print_log(filepath.." exists? => "..tostring(file_exists))
-            if (not file_exists) then
-                table.insert(selection, image)
-            end
-        else
-            break
+  if dt.configuration.running_os == "windows" then
+    cmd = "forfiles /P " .. ds.sanitize(dir) .. " /M * /C \"cmd /c echo @file\""
+  else
+    cmd = "cd " .. ds.sanitize(dir) ..";ls -1"
+  end
+  log.msg(log.info, "cmd is " .. cmd)
+
+  local p = io.popen(cmd)
+  if p then
+    for line in p:lines() do
+      if line:len() > 4 then
+        if not string.match(line, "xmp$") and not string.match(line, "XMP$") then
+          line = line:gsub("\"", "")
+          file_list[line] = true
         end
-    end    
-    stop_job(job)
-    
-    return selection
+      end
+    end
+    p:close()
+  end
+
+  return file_list
+end
+
+local function select_nonexisting_images(event, images)
+  log.log_level(DEFAULT_LOG_LEVEL)
+  local selection = {}
+  local known_files = {}
+
+  local job = dt.gui.create_job(_("select non existing images"), true, stop_job)
+  for key,image in ipairs(images) do
+    if(job.valid) then
+      if not known_files[image.path] then
+        known_files[image.path] = get_file_list(image.path)
+      end
+      if key % 10 == 0 then
+        job.percent = key/#images
+      end
+      local file_exists = known_files[image.path][image.filename]
+      log.msg(log.debug, image.path .. PS .. image.filename .." exists? => "..tostring(file_exists))
+      if (not file_exists) then
+        table.insert(selection, image)
+      end
+    else
+      break
+    end
+  end    
+  stop_job(job)
+  
+  return selection
 end
 
 local function destroy()
