@@ -264,10 +264,6 @@ function PHOTILS.get_tags(image, with_export)
     local out_arg = df.sanitize_filename(tmp_file)
     local executable = photils_installed
 
-    if dt.configuration.running_os == "macos" then
-        executable =  executable .. "/Contents/MacOS/photils-cli"
-    end
-
     if with_export then
         dt.print_log("use export to for prediction")
         local export_file = df.create_tmp_file()
