@@ -96,6 +96,11 @@ local function stop_job(job)
   job.valid = false
 end
 
+local function reset_callback()
+  rename.widgets.pattern.text = ""
+  dt.preferences.write(MODULE_NAME, "pattern", "string", rename.widgets.pattern.text)
+end
+
 local function install_module()
   if not rename.module_installed then
     dt.register_lib(
@@ -105,6 +110,9 @@ local function install_module()
       true,
       {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER",700}},
       dt.new_widget("box"){
+        reset_callback = function (self) 
+          reset_callback()
+        end,
         orientation = "vertical",
         rename.widgets.pattern,
         rename.widgets.button,
@@ -185,9 +193,6 @@ local function do_rename(images)
   end
 end
 
-local function reset_callback()
-  rename.widgets.pattern.text = ""
-end
 
 -- - - - - - - - - - - - - - - - - - - - - - - -
 -- W I D G E T S
