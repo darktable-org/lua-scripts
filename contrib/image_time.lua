@@ -211,7 +211,6 @@ local function year_month2months(year, month)
 end
 
 local function months2year_month(months)
-  dt.print_log("months is " .. months)
   local year = math.floor(months / 12)
   local month = months - (year * 12)
 
@@ -224,7 +223,7 @@ local function get_image_taken_time(image)
 
   local exiv2 = df.check_if_bin_exists("exiv2")
   if exiv2 then
-    p = io.popen(exiv2 .. " -K Exif.Image.DateTime " .. image.path .. PS .. image.filename)
+    p = io.popen(exiv2 .. " -K Exif.Image.DateTime " .. df.sanitize_filename(image.path .. PS .. image.filename))
     if p then
       for line in p:lines() do
         if string.match(line, "Exif.Image.DateTime") then
@@ -263,7 +262,7 @@ end
 
 local function _get_nix_image_file_creation_time(image)
   local datetime = nil
-  local p = io.popen("ls -lL --time-style=full-iso " .. image.path .. PS .. image.filename)
+  local p = io.popen("ls -lL --time-style=full-iso " .. df.sanitize_filename(image.path .. PS .. image.filename))
   if p then
     for line in p:lines() do
       if string.match(line, ds.sanitize_lua(image.filename)) then
