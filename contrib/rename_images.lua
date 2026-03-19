@@ -196,6 +196,7 @@ rename.widgets.pattern = dt.new_widget("entry"){
   text = "",
   reset_callback = function(self)
     self.text = ""
+    dt.preferences.write(MODULE_NAME, "pattern", "string", self.text)
   end
 }
 
