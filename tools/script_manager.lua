@@ -1636,7 +1636,7 @@ script_manager_running_script = nil
 -- D A R K T A B L E  I N T E G R A T I O N 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
-if dt.gui.current_view().id == "lighttable" then
+if dt.gui.current_view().id == "lighttable" darktable_gui_safe then
   install_module()
 else
   if not sm.event_registered then
