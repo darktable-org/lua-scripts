@@ -185,9 +185,6 @@ local function do_rename(images)
   end
 end
 
-local function reset_callback()
-  rename.widgets.pattern.text = ""
-end
 
 -- - - - - - - - - - - - - - - - - - - - - - - -
 -- W I D G E T S
@@ -196,7 +193,11 @@ end
 rename.widgets.pattern = dt.new_widget("entry"){
   tooltip = ds.get_substitution_tooltip(),
   placeholder = _("enter pattern") .. "$(FILE_FOLDER)/$(FILE_NAME)",
-  text = ""
+  text = "",
+  reset_callback = function(self)
+    self.text = ""
+    dt.preferences.write(MODULE_NAME, "pattern", "string", self.text)
+  end
 }
 
 local pattern_pref = dt.preferences.read(MODULE_NAME, "pattern", "string")
