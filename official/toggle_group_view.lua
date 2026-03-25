@@ -160,7 +160,7 @@ local function reset()
 end
 
 local function set_button_sensitive(images)
-  if #images > 0 and #dt.gui.action_images[1]:get_group_members() > 1 then
+  if images and #images > 0 and #dt.gui.action_images[1]:get_group_members() > 1 then
     dt.gui.libs.image.set_sensitive(MODULE, true)
   else
     dt.gui.libs.image.set_sensitive(MODULE, false)
