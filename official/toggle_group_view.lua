@@ -159,12 +159,21 @@ local function reset()
   dt.gui.libs.collect.filter(collection_rules)
 end
 
+local function set_button_sensitive(images)
+  if #images > 0 and #dt.gui.action_images[1]:get_group_members() > 1 then
+    dt.gui.libs.image.set_sensitive(MODULE, true)
+  else
+    dt.gui.libs.image.set_sensitive(MODULE, false)
+  end
+end
+
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- D A R K T A B L E  I N T E G R A T I O N 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
 local function destroy()
   dt.gui.libs.destroy_action(MODULE, "toggle group view")
+  dt.destroy_event(MODULE, "selection_changed")
   -- leave the shortcut so it doesn't need to be reassigned
   -- the next time this module starts
 end
@@ -203,4 +212,15 @@ dt.register_event(
   "toggle group view for selected image"
 )
 
+dt.register_event(MODULE, "selection-changed",
+  function(event)
+    set_button_sensitive(dt.gui.selection())
+  end
+)
+
+dt.register_event(MODULE, "image-group-information-changed",
+  function(event, reason, image, other_image)
+    set_button_sensitive(dt.gui.selection())
+  end
+)
 return script_data
