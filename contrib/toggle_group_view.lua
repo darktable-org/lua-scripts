@@ -172,7 +172,7 @@ end
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
 local function destroy()
-  dt.gui.libs.destroy_action(MODULE, "toggle group view")
+  dt.gui.libs.image.destroy_action(MODULE, "toggle group view")
   dt.destroy_event(MODULE, "selection_changed")
   -- leave the shortcut so it doesn't need to be reassigned
   -- the next time this module starts
@@ -212,15 +212,21 @@ dt.register_event(
   "toggle group view for selected image"
 )
 
+-- check the number of groups and ...
 dt.register_event(MODULE, "selection-changed",
   function(event)
     set_button_sensitive(dt.gui.selection())
   end
 )
 
+-- it's a delete event just countdown instead of trying to keep track of
+-- the selection and once I reach 0 do the set sensitive
 dt.register_event(MODULE, "image-group-information-changed",
   function(event, reason, image, other_image)
-    set_button_sensitive(dt.gui.selection())
+    local images = dt.gui.selection()
+    if images then
+      set_button_sensitive(images)
+    end
   end
 )
 return script_data
