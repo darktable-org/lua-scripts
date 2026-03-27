@@ -91,7 +91,7 @@ script_data.metadata = {
   name = "select_raw_non_raw",            -- name of script
   purpose = _("select raw or non raw files from collection"),   -- purpose of script
   author = "Bill Ferguson <wpferguson@gmail.com>",          -- your name and optionally e-mail address
-  help = "https://docs.darktable.org/lua/stable/official/select_raw_non_raw" -- URL to help/documentation
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/select_raw_non_raw" -- URL to help/documentation
 }
 
 
