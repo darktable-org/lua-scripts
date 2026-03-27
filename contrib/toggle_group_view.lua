@@ -92,7 +92,7 @@ script_data.metadata = {
   name = "toggle_group_view",            -- name of script
   purpose = _("toggle only group visible in lighttable"),   -- purpose of script
   author = "Bill Ferguson <wpferguson.com>",          -- your name and optionally e-mail address
-  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/toggle_group_view/"  -- URL to help/documentation
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/toggle_group_view/"  -- URL to help/documentation
 }
 
 
