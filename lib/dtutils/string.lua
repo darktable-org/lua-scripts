@@ -773,8 +773,8 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
 
   local labels = get_colorlabels(image)
 
-  local datetime_taken = ""
   local emon_long, emon_short
+  local eyear, emon, eday, ehour, emin, esec, emsec
   local use_millisecs = false
   if dt.preferences.read("darktable", "lighttable/ui/milliseconds", "bool") and is_api_9_1 then
     use_millisecs = true
@@ -784,26 +784,17 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
     datetime_taken = image.exif_datetime_taken
     emon_long = os.date("%B", exiftime2systime(datetime_taken))
     emon_short = os.date("%b", exiftime2systime(datetime_taken))
-  else
     if use_millisecs then
-      datetime_taken = "0000:00:00 00:00:00.0"
+      eyear, emon, eday, ehour, emin, esec, emsec = 
+        string.match(datetime_taken, "(%d+):(%d+):(%d+) (%d+):(%d+):(%d+)%.(%d+)$")
     else
-      datetime_taken = "0000:00:00 00:00:00"
-    end
-    emon_long = _("unknown")
-    emon_short = "???"
-  end
-
-  local eyear, emon, eday, ehour, emin, esec, emsec
-  if use_millisecs then
-    eyear, emon, eday, ehour, emin, esec, emsec = 
-      string.match(datetime_taken, "(%d+):(%d+):(%d+) (%d+):(%d+):(%d+)%.(%d+)$")
+      emsec = "0"
+      eyear, emon, eday, ehour, emin, esec = 
+        string.match(datetime_taken, "(%d+):(%d+):(%d+) (%d+):(%d+):(%d+)$")
+    end    
   else
-    emsec = "0"
-    eyear, emon, eday, ehour, emin, esec = 
-      string.match(datetime_taken, "(%d+):(%d+):(%d+) (%d+):(%d+):(%d+)$")
+    emon_long, emon_short, eyear, emon, eday, ehour, emin, esec, emsec = ""
   end
-
 
   local version_multi = #image:get_group_members() > 1 and image.duplicate_index or ""
 
@@ -843,7 +834,7 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
                         string.format("%02d", datetime.sec),   -- SECOND
                         0,                                     -- MSEC
                         eyear,                                 -- EXIF.YEAR
-                        string.sub(eyear, 3),                  -- EXIF.YEAR.SHORT
+                        (eyear ~= nil) and string.sub(eyear, 3) or "", -- EXIF.YEAR.SHORT
                         emon,                                  -- EXIF.MONTH
                         emon_long,                             -- EXIF.MONTH.LONG
                         emon_short,                            -- EXIF.MONTH.SHORT
