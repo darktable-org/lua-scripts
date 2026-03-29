@@ -793,6 +793,7 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
         string.match(datetime_taken, "(%d+):(%d+):(%d+) (%d+):(%d+):(%d+)$")
     end    
   else
+    log.msg(log.warn, "no capture datetime found in EXIF data")
     emon_long, emon_short, eyear, emon, eday, ehour, emin, esec, emsec = ""
   end
 
