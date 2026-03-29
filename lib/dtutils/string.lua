@@ -774,6 +774,7 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
   local labels = get_colorlabels(image)
 
   local datetime_taken = ""
+  local emon_long, emon_short
   local use_millisecs = false
   if dt.preferences.read("darktable", "lighttable/ui/milliseconds", "bool") and is_api_9_1 then
     use_millisecs = true
@@ -781,12 +782,16 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
 
   if image.exif_datetime_taken and image.exif_datetime_taken ~= "" then
     datetime_taken = image.exif_datetime_taken
+    emon_long = os.date("%B", exiftime2systime(datetime_taken))
+    emon_short = os.date("%b", exiftime2systime(datetime_taken))
   else
     if use_millisecs then
       datetime_taken = "0000:00:00 00:00:00.0"
     else
       datetime_taken = "0000:00:00 00:00:00"
     end
+    emon_long = _("unknown")
+    emon_short = "???"
   end
 
   local eyear, emon, eday, ehour, emin, esec, emsec
@@ -840,8 +845,8 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
                         eyear,                                 -- EXIF.YEAR
                         string.sub(eyear, 3),                  -- EXIF.YEAR.SHORT
                         emon,                                  -- EXIF.MONTH
-                        os.date("%B", exiftime2systime(datetime_taken)), -- EXIF.MONTH.LONG
-                        os.date("%b", exiftime2systime(datetime_taken)), -- EXIF.MONTH.SHORT
+                        emon_long,                             -- EXIF.MONTH.LONG
+                        emon_short,                            -- EXIF.MONTH.SHORT
                         eday,                                  -- EXIF.DAY
                         ehour,                                 -- EXIF.HOUR
                         "",                                    -- EXIF.HOUR.AMPM
