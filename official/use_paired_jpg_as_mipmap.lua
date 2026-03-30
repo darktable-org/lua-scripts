@@ -175,11 +175,11 @@ end
 local function pref_read(name, pref_type)
   local old_log_level = set_log_level(namespace.log_level)
 
-  log.msg(log.debug, "name is " .. name .. " and type is " .. pref_type)
+  log.msg(log.debug, MODULE .. ": name is " .. name .. " and type is " .. pref_type)
 
   local val = dt.preferences.read(MODULE, name, pref_type)
 
-  log.msg(log.debug, "read value " .. tostring(val))
+  log.msg(log.debug, MODULE .. ": read value " .. tostring(val))
 
   restore_log_level(old_log_level)
   return val
@@ -188,7 +188,7 @@ end
 local function pref_write(name, pref_type, value)
   local old_log_level = set_log_level(namespace.log_level)
 
-  log.msg(log.debug, "writing value " .. tostring(value) .. " for name " .. name)
+  log.msg(log.debug, MODULE .. ": writing value " .. tostring(value) .. " for name " .. name)
 
   dt.preferences.write(MODULE, name, pref_type, value)
 
@@ -201,6 +201,7 @@ local function refresh_collection()
 end
 
 local function get_mipmap_dir()
+  local old_log_level = set_log_level(pmg.log_level)
   local mipmap_dir = nil
   local cachedir = dt.configuration.cache_dir
 
@@ -215,11 +216,13 @@ local function get_mipmap_dir()
     for line in p:lines() do
       if line:len() > 4 then
         mipmap_dir = cachedir .. PS .. line
+        log.msg(log.info, MODULE .. ": mipmap_dir is " .. mipmap_dir)
       end
     end
     p:close()
   end
 
+  restore_log_level(old_log_level)
   return mipmap_dir
 end
 
@@ -228,6 +231,7 @@ local function stop_job(job)
 end
 
 local function process_images(images, count)
+  local old_log_level = set_log_level(pmg.log_level)
   
   -- if dt.collection is equal to count there are no
   -- RAW+JPEG pairs
@@ -242,7 +246,7 @@ local function process_images(images, count)
   local mipmap_dir = get_mipmap_dir() .. PS .. MAX_MIPMAP_SIZE .. PS
 
   local rc = df.mkdir(mipmap_dir)
-  dt.print_log("rc from mkdir is " .. rc)
+  log.msg(log.debug, MODULE .. ": rc from mkdir is " .. rc)
 
   for k,v in pairs(images) do
     if job.valid then
@@ -251,9 +255,16 @@ local function process_images(images, count)
         local fname = v["jpg"].path .. PS .. v["jpg"].filename
         df.file_copy(fname, mipmap_dir .. raw_image_id .. ".jpg")
         if not pmj.keep_jpgs then
+          log.msg(log.debug, MODULE .. ": removing jpg")
           v["jpg"]:delete()
-          os.remove(v["jpg"].path .. PS .. v["jpg"].filename)
-          os.remove(v["jpg"].path .. PS .. v["jpg"].filename .. ".xmp")
+          local success, msg = os.remove(v["jpg"].path .. PS .. v["jpg"].filename)
+          if not success then
+            log.msg(log.warn, MODULE .. ": unable to remove jpg - reason: " .. msg)
+          end
+          success, msg = os.remove(v["jpg"].path .. PS .. v["jpg"].filename .. ".xmp")
+          if not success then
+            log.msg(log.warn, MODULE .. ": unable to remove jpg xmp - reason: " .. msg)
+          end
         end
         -- v["raw"]:generate_cache(true, 6, 6)
         processed_count = processed_count + 1
