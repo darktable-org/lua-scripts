@@ -277,7 +277,7 @@ local function process_images(images, count)
   if not pmj.keep_jpgs then
     refresh_collection()
   end
-  dt.util.message(MODULE, "responsive_cache", "build cache")
+  dt.util.message(MODULE, "broadcast", "finished")
 end
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
