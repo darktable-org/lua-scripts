@@ -201,7 +201,7 @@ local function refresh_collection()
 end
 
 local function get_mipmap_dir()
-  local old_log_level = set_log_level(pmg.log_level)
+  local old_log_level = set_log_level(pmj.log_level)
   local mipmap_dir = nil
   local cachedir = dt.configuration.cache_dir
 
@@ -231,7 +231,7 @@ local function stop_job(job)
 end
 
 local function process_images(images, count)
-  local old_log_level = set_log_level(pmg.log_level)
+  local old_log_level = set_log_level(pmj.log_level)
   
   -- if dt.collection is equal to count there are no
   -- RAW+JPEG pairs
