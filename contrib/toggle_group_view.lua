@@ -92,7 +92,7 @@ script_data.metadata = {
   name = "toggle_group_view",            -- name of script
   purpose = _("toggle only group visible in lighttable"),   -- purpose of script
   author = "Bill Ferguson <wpferguson.com>",          -- your name and optionally e-mail address
-  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/toggle_group_view/"  -- URL to help/documentation
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/toggle_group_view/"  -- URL to help/documentation
 }
 
 
@@ -115,10 +115,47 @@ local toggle_group_view = {}
 local group_active = false
 local filmroll = ""
 local collection_rules = {}
+local hover_active = true
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- F U N C T I O N S
 -- - - - - - - - - - - - - - - - - - - - - - - - 
+
+local function is_group_member(image)
+  if image then
+    if #image:get_group_members() > 1 then
+      return true
+    else
+      return false
+    end
+  end
+end
+
+local function is_group_displayed()
+  local rules = dt.gui.libs.collect.filter()
+  if rules[1].item == "DT_COLLECTION_PROP_GROUP_ID" then
+    local rule = dt.gui.libs.collect.new_rule()
+
+    rule.mode = "DT_LIB_COLLECT_MODE_AND"
+    rule.data = dt.collection[1].path
+    rule.item = "DT_COLLECTION_PROP_FILMROLL"
+
+    table.insert(collection_rules, rule)
+    group_active = true
+  end
+end
+
+local function set_button_sensitive(image)
+  if image then
+    if is_group_member(image) then
+      dt.gui.libs.image.set_sensitive(MODULE, true)
+    else
+      dt.gui.libs.image.set_sensitive(MODULE, false)
+    end
+  elseif #dt.gui.action_images == 0 then
+    dt.gui.libs.image.set_sensitive(MODULE, false)
+  end
+end
 
 local function add_collection_rule(rule_string)
 
@@ -131,9 +168,7 @@ local function add_collection_rule(rule_string)
   table.insert(collection_rules, rule)
 end
 
-local function show_group()
-
-  local img = dt.gui.action_images[1]  -- if you hover over an image and press a keyboard shortcut, it will get returned in dt.gui.action_images
+local function show_group(image)
 
   local collection_rule_string = ""
 
@@ -141,7 +176,7 @@ local function show_group()
 
   collection_rules = {}
 
-  local group_id = img.group_leader
+  local group_id = image.group_leader
 
   local rule = dt.gui.libs.collect.new_rule()
 
@@ -155,25 +190,58 @@ local function show_group()
   collection_rules = dt.gui.libs.collect.filter(collection_rules)
 end
 
-local function reset()
+local function reset(image)
   dt.gui.libs.collect.filter(collection_rules)
-end
-
-local function set_button_sensitive(images)
-  if images and #images > 0 and #dt.gui.action_images[1]:get_group_members() > 1 then
-    dt.gui.libs.image.set_sensitive(MODULE, true)
+  if image then
+    dt.gui.views.lighttable.set_image_visible(image)
   else
-    dt.gui.libs.image.set_sensitive(MODULE, false)
+    log.msg(log.screen, _("no image supplied"))
   end
 end
+
+-- - - - - - - - - - - - - - - - - - - - - - - - 
+-- M A I N
+-- - - - - - - - - - - - - - - - - - - - - - - - 
+
+-- check if we are starting with a group already displayed and 
+-- configure appropriately
+
+if not dt.preferences.read("darktable", "plugins/lighttable/act_on", "bool") then
+  hover_active = false
+end
+
+is_group_displayed()
+ 
+-- - - - - - - - - - - - - - - - - - - - - - - - 
+-- U S E R  I N T E R F A C E
+-- - - - - - - - - - - - - - - - - - - - - - - - 
+
+dt.gui.libs.image.register_action(
+  MODULE, "toggle group view",
+  function(event, images) 
+    if group_active then
+      reset(dt.gui.action_images[1])
+      group_active = false
+    else
+      show_group(dt.gui.action_images[1])
+      group_active = true
+    end
+  end,
+  "toggle group view for selected image"
+)
+
+set_button_sensitive(nil)
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- D A R K T A B L E  I N T E G R A T I O N 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
 local function destroy()
-  dt.gui.libs.image.destroy_action(MODULE, "toggle group view")
+  if hover_active then
+    dt.destroy_event(MODULE, "mouse-over-image-changed")
+  end
   dt.destroy_event(MODULE, "selection_changed")
+  dt.gui.libs.image.destroy_action(MODULE, "toggle group view")
   -- leave the shortcut so it doesn't need to be reassigned
   -- the next time this module starts
 end
@@ -184,49 +252,36 @@ script_data.destroy = destroy
 -- E V E N T S
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
-dt.gui.libs.image.register_action(
-  MODULE, "toggle group view",
-  function(event, images) 
-    if group_active then
-      reset()
-      group_active = false
-    else
-      show_group()
-      group_active = true
-    end
-  end,
-  "toggle group view for selected image"
-)
-
 dt.register_event(
   MODULE, "shortcut",
   function(event, shortcut) 
-    if group_active then
-      reset()
-      group_active = false
-    else
-      show_group()
-      group_active = true
+    if #dt.gui.action_images > 0 then
+      if group_active then
+        reset(dt.gui.action_images[1])
+        group_active = false
+      else
+        show_group(dt.gui.action_images[1])
+        group_active = true
+      end
     end
   end,
-  "toggle group view for selected image"
+  _("toggle group view for selected image")
 )
 
--- check the number of groups and ...
+if hover_active then
+  dt.register_event(MODULE, "mouse-over-image-changed",
+    function(event, image)
+      if hover_active then
+        set_button_sensitive(image)
+      end
+    end
+  )
+end
+
 dt.register_event(MODULE, "selection-changed",
   function(event)
-    set_button_sensitive(dt.gui.selection())
+    set_button_sensitive(dt.gui.action_images[1])
   end
 )
 
--- it's a delete event just countdown instead of trying to keep track of
--- the selection and once I reach 0 do the set sensitive
-dt.register_event(MODULE, "image-group-information-changed",
-  function(event, reason, image, other_image)
-    local images = dt.gui.selection()
-    if images then
-      set_button_sensitive(images)
-    end
-  end
-)
 return script_data
