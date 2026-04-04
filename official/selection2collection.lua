@@ -312,8 +312,8 @@ set_button_sensitive(dt.gui.selection())
 local function destroy()
   dt.destroy_event(MODULE, "inter-script-communication")
   dt.destroy_event(MODULE, "exit")
-  dt.destroy_event(MODULE, "selection_changed")
-  dt.gui.libs.destroy_action(MODULE, "create_collection")
+  dt.destroy_event(MODULE, "selection-changed")
+  dt.gui.libs.image.destroy_action(MODULE, "create_collection")
 end
 
 script_data.destroy = destroy
