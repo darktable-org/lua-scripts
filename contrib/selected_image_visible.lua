@@ -127,6 +127,22 @@ local namespace = selected_image_visible
 -- F U N C T I O N S
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
+local function set_image_visible()
+  if dt.gui.current_view().name == "lighttable" and #dt.gui.action_images > 0 then
+    dt.gui.views.lighttable.set_image_visible(dt.gui.action_images()[1])
+  end
+end
+
+local function set_button_sensitive()
+  if dt.gui.current_view().name == "lighttable" 
+    and #dt.gui.selection() > 0 
+    and not dt.gui.views.lighttable.is_image_visible(dt.gui.selection()[1]) then
+    dt.gui.libs.image.set_sensitive(MODULE, true)
+  else
+    dt.gui.libs.image.set_sensitive(MODULE, false)
+  end
+end
+
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- M A I N  P R O G R A M
 -- - - - - - - - - - - - - - - - - - - - - - - - 
@@ -135,12 +151,23 @@ local namespace = selected_image_visible
 -- U S E R  I N T E R F A C E
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
+dt.gui.libs.image.register_action(
+  MODULE, _("selected image visible"),
+  function(event, images) clear_GPS(images) end,
+  _("make selected image visible in lighttable")
+)
+
+set_button_sensitive()
+
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- D A R K T A B L E  I N T E G R A T I O N 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
 local function destroy()
   -- put things to destroy (events, storages, etc) here
+  dt.destroy_event(MODULE, "selection-changed")
+  dt.destroy_event(MODULE, "mouse-over-image-changed")
+  dt.gui.libs.image.destroy_action(MODULE)
 end
 
 script_data.destroy = destroy
@@ -152,11 +179,21 @@ script_data.destroy = destroy
 if not dt.query_event(MODULE, "shortcut") then
   dt.register_event(MODULE, "shortcut",
     function(event, shortcut)
-      if dt.gui.current_view().name == "lighttable" and #dt.gui.action_images > 0 then
-        dt.gui.views.lighttable.set_image_visible(dt.gui.action_images()[1])
-      end
+      set_image_visible()
     end, _("make selected image visible in lighttable")
   )
 end
+
+dt.register_event(MODULE, "selection-changed",
+  function(event)
+    set_button_sensitive()
+  end
+)
+
+dt.register_event(MODULE, "mouse-over-image-changed",
+  function(event, image)
+    set_button_sensitive()
+  end
+)
 
 return script_data
