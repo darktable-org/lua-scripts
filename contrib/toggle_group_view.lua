@@ -240,7 +240,7 @@ local function destroy()
   if hover_active then
     dt.destroy_event(MODULE, "mouse-over-image-changed")
   end
-  dt.destroy_event(MODULE, "selection_changed")
+  dt.destroy_event(MODULE, "selection-changed")
   dt.gui.libs.image.destroy_action(MODULE, "toggle group view")
   -- leave the shortcut so it doesn't need to be reassigned
   -- the next time this module starts
