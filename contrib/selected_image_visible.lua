@@ -153,7 +153,7 @@ end
 
 dt.gui.libs.image.register_action(
   MODULE, _("selected image visible"),
-  function(event, images) clear_GPS(images) end,
+  function(event, images) set_image_visible() end,
   _("make selected image visible in lighttable")
 )
 
