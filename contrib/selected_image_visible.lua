@@ -129,7 +129,7 @@ local namespace = selected_image_visible
 
 local function set_image_visible()
   if dt.gui.current_view().name == "lighttable" and #dt.gui.action_images > 0 then
-    dt.gui.views.lighttable.set_image_visible(dt.gui.action_images()[1])
+    dt.gui.views.lighttable.set_image_visible(dt.gui.action_images[1])
   end
 end
 
