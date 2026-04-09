@@ -270,7 +270,7 @@ local function doTransfer(transferFunc)
     local sourceBase = sourceTextBox.text
     local destBase = destinationTextBox.text
     local destFilms = {}
-    for film, _ in pairs(films) do
+    for film, i in pairs(films) do
        films[film] = destBase .. string.sub(film.path, #sourceBase+1)
        if not pathExists(films[film]) then
            if createDirectory(films[film]) == nil then
