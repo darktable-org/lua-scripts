@@ -785,11 +785,11 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
     emon_short = os.date("%b", exiftime2systime(image.exif_datetime_taken))
     if use_millisecs then
       eyear, emon, eday, ehour, emin, esec, emsec = 
-        string.match(datetime_taken, "(%d+):(%d+):(%d+) (%d+):(%d+):(%d+)%.(%d+)$")
+        string.match(image.exif_datetime_taken, "(%d+):(%d+):(%d+) (%d+):(%d+):(%d+)%.(%d+)$")
     else
       emsec = "0"
       eyear, emon, eday, ehour, emin, esec = 
-        string.match(datetime_taken, "(%d+):(%d+):(%d+) (%d+):(%d+):(%d+)$")
+        string.match(image.exif_datetime_taken, "(%d+):(%d+):(%d+) (%d+):(%d+):(%d+)$")
     end    
   else
     log.msg(log.warn, "no capture date and time found in EXIF data")
