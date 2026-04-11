@@ -793,7 +793,7 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
     end    
   else
     log.msg(log.warn, "no capture date and time found in EXIF data")
-    emon_long, emon_short, eyear, emon, eday, ehour, emin, esec, emsec = ""
+    emon_long, emon_short, eyear, emon, eday, ehour, emin, esec, emsec = "", "", "", "", "", "", "", "", ""
   end
 
   local version_multi = #image:get_group_members() > 1 and image.duplicate_index or ""
