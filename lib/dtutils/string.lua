@@ -785,15 +785,15 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
     emon_short = os.date("%b", exiftime2systime(image.exif_datetime_taken))
     if use_millisecs then
       eyear, emon, eday, ehour, emin, esec, emsec = 
-        string.match(datetime_taken, "(%d+):(%d+):(%d+) (%d+):(%d+):(%d+)%.(%d+)$")
+        string.match(image.exif_datetime_taken, "(%d+):(%d+):(%d+) (%d+):(%d+):(%d+)%.(%d+)$")
     else
       emsec = "0"
       eyear, emon, eday, ehour, emin, esec = 
-        string.match(datetime_taken, "(%d+):(%d+):(%d+) (%d+):(%d+):(%d+)$")
+        string.match(image.exif_datetime_taken, "(%d+):(%d+):(%d+) (%d+):(%d+):(%d+)$")
     end    
   else
     log.msg(log.warn, "no capture date and time found in EXIF data")
-    emon_long, emon_short, eyear, emon, eday, ehour, emin, esec, emsec = ""
+    emon_long, emon_short, eyear, emon, eday, ehour, emin, esec, emsec = "", "", "", "", "", "", "", "", ""
   end
 
   local version_multi = #image:get_group_members() > 1 and image.duplicate_index or ""
@@ -890,7 +890,7 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
                         home_folder,                           -- FOLDER.HOME
                         desktop_folder,                        -- FOLDER.DESKTOP
                         "",                                    -- OPENCL.ACTIVATED - wont be implemented
-                        user_name,                             -- USERNAME
+                        (user_name ~= nil) and user_name or "",-- USERNAME
                         "",                                    -- NL - wont be implemented
                         ""                                     -- JOBCODE - wont be implemented
   }
