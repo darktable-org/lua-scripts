@@ -890,7 +890,7 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
                         home_folder,                           -- FOLDER.HOME
                         desktop_folder,                        -- FOLDER.DESKTOP
                         "",                                    -- OPENCL.ACTIVATED - wont be implemented
-                        user_name,                             -- USERNAME
+                        (user_name ~= nil) and user_name or "",-- USERNAME
                         "",                                    -- NL - wont be implemented
                         ""                                     -- JOBCODE - wont be implemented
   }
