@@ -71,10 +71,10 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 local function get_stdout(cmd)
   -- Open the command, for reading
   local fd = assert(io.popen(cmd, 'r'))
-  darktable.control.read(fd)
+  -- darktable.control.read(fd)
   -- slurp the whole file
   local data = assert(fd:read('*a'))
-
+  -- darktable.print(string.format(_("data is %s"), data))
   fd:close()
   -- Replace carriage returns and linefeeds with spaces
   data = string.gsub(data, '[\n\r]+', ' ')
@@ -87,7 +87,7 @@ end
 
 -- Retrieve the attribute through exiftool
 local function exiftool_attribute(path, attr)
-  local cmd = "exiftool -" .. attr .. " '" .. path .. "'";
+  local cmd = "exiftool -" .. attr .. ' "' .. path .. '"';
   local exifresult = get_stdout(cmd)
   local attribute = string.match(exifresult, ": (.*)")
   if (attribute == nil) then
@@ -165,7 +165,10 @@ end
 
 -- Receive the event triggered
 local function autostyle_apply_one_image_event(event,image)
-  autostyle_apply_one_image(image)
+  darktable.control.dispatch(function()
+    darktable.control.sleep(500)
+    autostyle_apply_one_image(image)
+  end)
 end
 
 local function autostyle_apply(shortcut)
