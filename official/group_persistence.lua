@@ -446,7 +446,7 @@ local function build_group(leader)
 
   for _, image in ipairs(leader:get_group_members()) do
     if not has_group_tag(image) then
-      add_to_group(image)
+      add_to_group(image, leader)
     end
   end
 end
