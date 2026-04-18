@@ -356,38 +356,6 @@ local function has_group_leader_tag(image)
   return result
 end
 
-local function build_group(leader)
-  
-  if not has_group_leader_tag(leader) then
-    add_group_leader(leader)
-  end
-
-  for _, image in ipairs(leader:get_group_members()) do
-    if not has_group_tag(image) then
-      add_to_group(image)
-    end
-  end
-end
-
-local function process(image_set)
-  local images
-
-  if image_set == "collection" then
-    images = dt.collection
-  else
-    images = dt.gui.selection()
-    if #images == 0 then
-      images = dt.gui.action_images
-    end
-  end
-
-  for _, image in ipairs(images) do
-    if is_group_leader(image) then
-      build_group(image)
-    end
-  end
-end
-
 -- handle grouping changes in the UI
 
 local function group_exists(group_leader)
@@ -467,6 +435,38 @@ local function add_to_group(image, group_leader)
 
     image:attach_tag(group_tag)
     log.msg(log.info, "group tag attached to image " .. image.id)
+  end
+end
+
+local function build_group(leader)
+
+  if not has_group_leader_tag(leader) then
+    add_group_leader(leader)
+  end
+
+  for _, image in ipairs(leader:get_group_members()) do
+    if not has_group_tag(image) then
+      add_to_group(image)
+    end
+  end
+end
+
+local function process(image_set)
+  local images
+
+  if image_set == "collection" then
+    images = dt.collection
+  else
+    images = dt.gui.selection()
+    if #images == 0 then
+      images = dt.gui.action_images
+    end
+  end
+
+  for _, image in ipairs(images) do
+    if is_group_leader(image) then
+      build_group(image)
+    end
   end
 end
 
