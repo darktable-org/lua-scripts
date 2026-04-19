@@ -1376,7 +1376,7 @@ if (check_for_updates or SM_API_VER_REQD > dt.configuration.api_version_string) 
 end
 
 scan_scripts(LUA_DIR)
-log.msg(log.debug, "finished processing scripts")
+log.msg(log.info, "finished processing scripts")
 
 if system_based then
   -- exec user luarc file if it exists
