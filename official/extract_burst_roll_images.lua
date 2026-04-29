@@ -296,7 +296,7 @@ local function group_extracted_dngs(image)
   local p = io.popen(cmd)
   if p then
     for line in p:lines() do
-      if line:length() > 5 then -- skip blank lines created by forfiles
+      if line:len() > 5 then -- skip blank lines created by forfiles
         local dng_image = dt.database.import(line)
         dng_image:group_with(image)
         count = count + 1
