@@ -88,7 +88,7 @@ script_data.restart = nil           -- how to restart the (lib) script after it'
 script_data.show = nil              -- only required for libs since the destroy_method only hides them
 
 script_data.metadata = {
-  name = "select_raw_non_raw",            -- name of script
+  name = _("select raw/non-raw"),            -- name of script
   purpose = _("select raw or non raw files from collection"),   -- purpose of script
   author = "Bill Ferguson <wpferguson@gmail.com>",          -- your name and optionally e-mail address
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/select_raw_non_raw" -- URL to help/documentation
@@ -126,27 +126,27 @@ local namespace = select_group_followers
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
 local function select_raw_files(event, images)
-    local raws = {}
+  local raws = {}
 
-    for _, img in ipairs(images) do
-        if img.is_raw then
-            table.insert(raws, img)
-        end
+  for _, img in ipairs(images) do
+    if img.is_raw then
+      table.insert(raws, img)
     end
+  end
 
-    return raws
+  return raws
 end
 
 local function select_non_raw_files(event, images)
-    local non_raws = {}
+  local non_raws = {}
 
-    for _, img in ipairs(images) do
-        if not img.is_raw then
-            table.insert(non_raws, img)
-        end
+  for _, img in ipairs(images) do
+    if not img.is_raw then
+      table.insert(non_raws, img)
     end
+  end
 
-    return non_raws
+  return non_raws
 end
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
@@ -158,8 +158,8 @@ end
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 dt.gui.libs.select.register_selection(MODULE .. "_raws", _("select raw"), select_raw_files,  
                                       _("select raw files"))
-dt.gui.libs.select.register_selection(MODULE .. "_non_raws", _("select non raw"), select_non_raw_files,  
-                                      _("select non raw files"))
+dt.gui.libs.select.register_selection(MODULE .. "_non_raws", _("select non-raw"), select_non_raw_files,  
+                                      _("select non-raw files"))
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- D A R K T A B L E  I N T E G R A T I O N 

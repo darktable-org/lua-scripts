@@ -76,10 +76,10 @@ script_data.restart = nil           -- how to restart the (lib) script after it'
 script_data.show = nil              -- only required for libs since the destroy_method only hides them
 
 script_data.metadata = {
-  name = _("regenerate_thumbnails"),         -- visible name of script
+  name = _("regenerate thumbnails"),         -- visible name of script
   purpose = _("regenerate mipmap cache for selected images"),   -- purpose of script
   author = "Bill Ferguson <wpferguson@gmail.com>",   -- your name and optionally e-mail address
-  help = "https://docs.darktable.org/lua/development/lua.scripts.manual/scripts/official/regenerate_thumbnails"  -- URL to help/documentation
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/regenerate_thumbnails"  -- URL to help/documentation
 }
 
 
@@ -173,7 +173,7 @@ local function generate_thumbnails(images)
   local has_job = false
 
   if #images > 50 then
-    rt.job = dt.gui.create_job("regenerating thumbnails", true, stop_job)
+    rt.job = dt.gui.create_job(_("regenerating thumbnails"), true, stop_job)
     has_job = true
   end
 
@@ -243,7 +243,7 @@ dt.register_event(MODULE, "shortcut",
     if images then
       generate_thumbnails(images)
     end
-  end, "regenerate thumbnails"
+  end, _("regenerate thumbnails")
 )
 
 dt.register_event(MODULE, "selection-changed",

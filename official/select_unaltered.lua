@@ -75,7 +75,7 @@ script_data.restart = nil           -- how to restart the (lib) script after it'
 script_data.show = nil              -- only required for libs since the destroy_method only hides them
 
 script_data.metadata = {
-  name = _("select_unaltered"),         -- visible name of script
+  name = _("select unaltered"),         -- visible name of script
   purpose = _("select images that have not been altered in any way"),   -- purpose of script
   author = "Bill Ferguson <wpferguson@gmail.com>",   -- your name and optionally e-mail address
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/select_unaltered/"  -- URL to help/documentation
