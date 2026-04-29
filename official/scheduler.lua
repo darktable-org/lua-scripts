@@ -95,7 +95,7 @@ script_data.restart = nil           -- how to restart the (lib) script after it'
 script_data.show = nil              -- only required for libs since the destroy_method only hides them
 
 script_data.metadata = {
-  name = "scheduler",            -- name of script
+  name = _("scheduler"),            -- name of script
   purpose = _("provide scheduler services for multitasking"),   -- purpose of script
   author = "Bill Ferguson <wpferguson@gmail.com>",          -- your name and optionally e-mail address
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/scheduler/" -- URL to help/documentation
@@ -126,7 +126,8 @@ scheduler.log_level = log.debug
 -- P R E F E R E N C E S
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
-dt.preferences.register(MODULE, "target_time_slice_seconds", "float", "scheduler preferred time slice", "target time slice before interrupt", 1.0, 0.1, 1.0, 0.1)
+dt.preferences.register(MODULE, "target_time_slice_seconds", "float", 
+  _("scheduler preferred time slice"), _("target time slice before interrupt"), 1.0, 0.1, 1.0, 0.1)
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- A L I A S E S

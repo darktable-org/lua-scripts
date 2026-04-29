@@ -54,7 +54,7 @@ local script_data = {}
 
 script_data.metadata = {
   name = _("selection to PDF"),
-  purpose = _("generate a pdf file of selected images"),
+  purpose = _("generate a PDF file of selected images"),
   author = "Jérémy Rosen & Pascal Obry",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/selection_to_pdf"
 }
@@ -66,8 +66,8 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 
 dt.preferences.register
    ("selection_to_pdf","Open with","string",
-    _("a pdf viewer"),
-    _("can be an absolute pathname or the tool may be in the PATH\nif not specified the system default will be used to open the pdf"),
+    _("a PDF viewer"),
+    _("can be an absolute pathname or the tool may be in the PATH\nif not specified the system default will be used to open the PDF"),
     "")
 
 local title_widget = dt.new_widget("entry") {
@@ -134,7 +134,7 @@ local function destroy()
   dt.print_log("done destroying")
 end
 
-dt.register_storage("export_pdf", _("export thumbnails to pdf"),
+dt.register_storage("export_pdf", _("export thumbnails to PDF"),
     nil,
     function(storage,image_table)
       local my_title = title_widget.text
@@ -200,7 +200,7 @@ dt.register_storage("export_pdf", _("export thumbnails to pdf"),
       command = command .. " " .. pdffile
       local result = dt.control.execute(command)
       if result ~= 0 then
-        dt.print(_("problem running pdf viewer")) -- this one is probably usefull to the user
+        dt.print(_("problem running PDF viewer")) -- this one is probably usefull to the user
         error("Problem running "..command)
       end
 

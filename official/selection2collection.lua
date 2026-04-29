@@ -91,7 +91,7 @@ script_data.restart = nil           -- how to restart the (lib) script after it'
 script_data.show = nil              -- only required for libs since the destroy_method only hides them
 
 script_data.metadata = {
-  name = _("selection2collection"),         -- visible name of script
+  name = _("selection to collection"),         -- visible name of script
   purpose = _("create a temporary collection from a selection"),   -- purpose of script
   author = "Bill Ferguson <wpferguson@gmail.com>",   -- your name and optionally e-mail address
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/selection2collection/" -- URL to help/documentation

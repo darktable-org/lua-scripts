@@ -117,10 +117,10 @@ script_data.restart = nil           -- how to restart the (lib) script after it'
 script_data.show = nil              -- only required for libs since the destroy_method only hides them
 
 script_data.metadata = {
-  name = "group_persistence",            -- name of script
+  name = _("group persistence"),            -- name of script
   purpose = _("preserve groups between darktable instances"),   -- purpose of script
   author = "Bill Ferguson <wpferguson@gmail.com>",          -- your name and optionally e-mail address
-  help = ""  -- URL to help/documentation
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/official/group_persistence"  -- URL to help/documentation
 }
 
 
