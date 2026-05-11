@@ -70,7 +70,7 @@ local scripts_path = info.source:sub(2)
 -- assume user based
 local system_based = false
 
-if string.match(scripts_path, dt.configuration.data_dir) then
+if string.match(scripts_path, ds.sanitize_lua(dt.configuration.data_dir)) then
   log.msg(log.info, "script_manager using system based scripts")
   system_based = true
 end
