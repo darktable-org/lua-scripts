@@ -312,9 +312,9 @@ dt.register_lib(
 local script_data = {}
 
 script_data.metadata = {
-  name = "ai_denoise",
+  name = "AI denoise",
   purpose = "tile-based AI denoise using the darktable.ai Lua API",
-  author = "Andrii Ryzhkov <andrii.ryzhkov@pm.me>",
+  author = "Andrii Ryzhkov",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/ai_denoise"
 }
 

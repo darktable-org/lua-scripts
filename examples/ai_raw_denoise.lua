@@ -91,6 +91,37 @@ local OVERLAP = 32
 -- F U N C T I O N S
 -- - - - - - - - - - - - - - - - - - - - - - - -
 
+-- Bayer-only CFA channel lookup. Returns 0/1/2 (R/G/B) for the cell
+-- at sensor position (r, c) given the 32-bit `filters` mask from
+-- load_raw's meta table. Used to find the R-cell origin so bayer_pack's
+-- plane 0 always holds R. X-Trans (filters == 9) uses meta.xtrans
+-- instead and is not handled here.
+local function fc(r, c, filters)
+  local shift = ((r % 2) * 4) + ((c % 2) * 2)
+  return math.floor(filters / (2 ^ shift)) % 4
+end
+
+-- daylight WB multipliers (R, G=1, B) derived from the camera's
+-- XYZ->camRGB color matrix and the D65 white point. mirrors the C
+-- path's _bayer_wb_daylight in restore_raw_bayer.c — the rawdenoise
+-- bayer model is trained on daylight-WB'd input, so feeding it
+-- un-WB'd camRGB produces wrong colors. Falls back to {1, 1, 1} if
+-- the matrix is missing or degenerate.
+local function daylight_wb(color_matrix)
+  local d65 = {0.95047, 1.0, 1.08883}
+  if not color_matrix then return 1.0, 1.0, 1.0 end
+  local resp = {0, 0, 0}
+  for c = 1, 3 do
+    resp[c] = color_matrix[c][1] * d65[1]
+            + color_matrix[c][2] * d65[2]
+            + color_matrix[c][3] * d65[3]
+  end
+  if resp[1] <= 0 or resp[2] <= 0 or resp[3] <= 0 then
+    return 1.0, 1.0, 1.0
+  end
+  return resp[2] / resp[1], 1.0, resp[2] / resp[3]
+end
+
 -- Surround the input with `pad` pixels on every side, replicating the
 -- outermost rows/columns ("edge clamp" padding). Boundary tiles then
 -- see plausible context instead of a literal image edge, so the
@@ -221,22 +252,47 @@ local function denoise_one(ctx, img, tile_size, job, base_pct, span_pct)
   local cfa, meta = dt.ai.load_raw(img)
   if not cfa then return false, "load_raw failed" end
 
-  -- crop off optical-black / masked pixels (Canon and others ship
-  -- the full sensor buffer including non-light-sensing strips on
-  -- the top/left). visible_* and crop_* come from the image
-  -- metadata; we snap crop offsets down to an even pixel so the
-  -- 2x2 CFA phase at the visible-region origin matches the buffer
-  -- (otherwise bayer_pack would group the wrong colours)
-  if meta.crop_x and meta.crop_y
-     and (meta.crop_x > 0 or meta.crop_y > 0)
+  -- this script is Bayer-only: filters == 9 is X-Trans (handled by a
+  -- different preprocessing pipeline + model_linear.onnx); filters == 0
+  -- means monochrome / non-CFA, which bayer_pack can't handle either
+  if not meta.filters or meta.filters == 0 or meta.filters == 9 then
+    return false, "unsupported CFA pattern (Bayer-only script)"
+  end
+
+  -- Crop to the visible region and shift the origin onto the R cell
+  -- of the CFA pattern. bayer_pack splits by position only, so to make
+  -- plane 0 always hold R (which the model expects) the cropped CFA's
+  -- (0, 0) must sit at an R site. Mirrors the C path's _bayer_origin
+  -- + RGGB shift in restore_raw_bayer.c.
+  local cy = 0
+  local cx = 0
+  local cw = cfa:shape()[4]
+  local ch = cfa:shape()[3]
+  if meta.crop_x and meta.crop_y then
+    cy = meta.crop_y - (meta.crop_y % 2)
+    cx = meta.crop_x - (meta.crop_x % 2)
+    cw = (meta.visible_width  or cw) + (meta.crop_x - cx)
+    ch = (meta.visible_height or ch) + (meta.crop_y - cy)
+  end
+  -- find R cell within the 2x2 starting at (cy, cx)
+  local sy, sx = 0, 0
+  for ty = 0, 1 do
+    for tx = 0, 1 do
+      if fc(cy + ty, cx + tx, meta.filters) == 0 then
+        sy, sx = ty, tx
+      end
+    end
+  end
+  cy = cy + sy
+  cx = cx + sx
+  ch = ch - sy
+  cw = cw - sx
+  -- ensure even dims for bayer_pack
+  ch = ch - (ch % 2)
+  cw = cw - (cw % 2)
+  if cy > 0 or cx > 0
+     or cw < cfa:shape()[4] or ch < cfa:shape()[3]
   then
-    local cx = meta.crop_x - (meta.crop_x % 2)
-    local cy = meta.crop_y - (meta.crop_y % 2)
-    local cw = meta.visible_width  + (meta.crop_x - cx)
-    local ch = meta.visible_height + (meta.crop_y - cy)
-    -- ensure even dims for bayer_pack
-    cw = cw - (cw % 2)
-    ch = ch - (ch % 2)
     cfa = cfa:crop(cy, cx, ch, cw)
   end
 
@@ -244,15 +300,23 @@ local function denoise_one(ctx, img, tile_size, job, base_pct, span_pct)
   -- levels across the 4 CFA sites, in which case a single scalar
   -- (val - black) / (white - black) normalisation is exact. cameras
   -- with non-uniform per-site black levels (e.g. some PDAF sensors)
-  -- would need per-plane scaling -- left as an exercise
+  -- would need per-plane scaling via scale_add_planes -- left as an
+  -- exercise
   local black = meta.black_level
   local range = meta.white_level - black
   if range <= 0 then range = 65535 end
 
   -- pack the 1-channel CFA into 4 phase planes so each channel holds
-  -- one Bayer site type; the model expects [1,4,H/2,W/2] input
+  -- one Bayer site type. After the RGGB shift above:
+  --   plane 0 = R, planes 1,2 = G, plane 3 = B
   local packed = cfa:bayer_pack()
   packed:scale_add(1.0 / range, -black / range)
+
+  -- apply daylight WB so the four planes sit in the same range the
+  -- model was trained on (R, G, G, B → R*wb_R, G, G, B*wb_B). without
+  -- this, the model sees unbalanced channels and produces wrong colors
+  local wb_R, wb_G, wb_B = daylight_wb(meta.color_matrix)
+  packed:scale_add_planes({wb_R, wb_G, wb_G, wb_B})
   local pH = packed:shape()[3]
   local pW = packed:shape()[4]
 
@@ -285,6 +349,11 @@ local function denoise_one(ctx, img, tile_size, job, base_pct, span_pct)
   if out_mean > 1e-8 then
     out_rgb:scale_add(in_mean / out_mean)
   end
+
+  -- invert the daylight WB so the saved tensor is un-WB'd camRGB
+  -- (save_dng_linear's contract — the consumer applies AsShotNeutral
+  -- on import)
+  out_rgb:scale_add_planes({1.0 / wb_R, 1.0 / wb_G, 1.0 / wb_B})
 
   local base = img.filename:match("(.+)%..+$") or img.filename
   local out_path = img.path .. "/" .. base .. "_rawdenoised.dng"
@@ -401,9 +470,9 @@ dt.register_lib(
 local script_data = {}
 
 script_data.metadata = {
-  name = "ai_raw_denoise",
+  name = "AI raw denoise",
   purpose = "tile-based AI raw denoise using the darktable.ai Lua API",
-  author = "Andrii Ryzhkov <andrii.ryzhkov@pm.me>",
+  author = "Andrii Ryzhkov",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/ai_raw_denoise"
 }
 
