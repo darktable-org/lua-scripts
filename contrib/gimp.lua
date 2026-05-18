@@ -142,8 +142,8 @@ local function gimp_edit(storage, image_table, extra_data) --finalize
   img_list = ""
 
   for _,exp_img in pairs(image_table) do
-    exp_img = df.sanitize_filename(exp_img)
-    img_list = img_list ..exp_img.. " "
+    local sanitized = df.sanitize_filename(exp_img)
+    img_list = img_list ..sanitized.. " "
   end
 
   dt.print(_("launching GIMP..."))

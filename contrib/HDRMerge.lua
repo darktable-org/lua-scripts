@@ -277,9 +277,9 @@ local function main()
     local set_tag = GUI.Target.add_tags.text
     if set_tag ~= nil then -- add additional user-specified tags
       for tag in string.gmatch(set_tag, '[^,]+') do
-        tag = CleanSpaces(tag)
-        tag = dt.tags.create(tag)
-        dt.tags.attach(tag, imported) 
+        local cleaned_tag = CleanSpaces(tag)
+        cleaned_tag = dt.tags.create(cleaned_tag)
+        dt.tags.attach(cleaned_tag, imported)
       end
     end
     dt.print(_('HDRMerge completed successfully'))
