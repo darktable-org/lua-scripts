@@ -211,9 +211,14 @@ local function straighten_image(image)
     for line in pipe:lines() do
       local pr, val = string.match(line, "(.).+: (.+)")
       if pr == "R" then 
+        local sign = 1.0
         dt.print_log("roll angle is " .. val)
         log.msg(log.debug, "roll angle is " .. val)
-        roll = determine_correction(tonumber(val))
+        -- check for Nidon and change the sign
+        if string.match(string.upper(image.exif_maker), "NIKON") then
+          sign = -1.0
+        end
+        roll = determine_correction(tonumber(val) * sign)
         dt.print_log("corrected roll angle is " .. roll)
         log.msg(log.debug, "corrected roll angle is " .. roll)
       elseif pr == "P" then
