@@ -127,6 +127,9 @@ local CS <const> = dt.configuration.running_os == "windows" and "&" or ";"
 local EXIFTOOL <const> = df.check_if_bin_exists("exiftool")
 local EXIV2 <const> = df.check_if_bin_exists("exiv2")
 local DNGLAB <const> = df.check_if_bin_exists("dnglab")
+local EXIV2TAG <const> = "Exif.Canon.RawBurstModeRoll"
+
+local HAS_INTERNAL_METADATA <const> = dt.metadata.exists(EXIV2TAG)
 
 local DNGLAB_ARGS <const> = " convert --image-index all --embed-raw false "
 local EXIV2_ARGS <const> = " -K Exif.Canon.RawBurstModeRoll -pt "
@@ -150,6 +153,7 @@ local extract_burst_roll_images = {}
 
 extract_burst_roll_images.preferred_tag_reader = nil
 extract_burst_roll_images.on_import = true
+extract_burst_roll_images.select_button = true
 extract_burst_roll_images.imported_images = {}
 extract_burst_roll_images.log_level = DEFAULT_LOG_LEVEL
 
@@ -172,7 +176,16 @@ dt.preferences.register(MODULE,        -- script: This is a string used to avoid
                         "bool",                       -- type
                         _("extract burst roll images on import"),           -- label
                         _("extract burst roll images on import"),   -- tooltip
+                        false)                         -- default
+
+-- display selection button
+dt.preferences.register(MODULE,        -- script: This is a string used to avoid name collision in preferences (i.e namespace). Set it to something unique, usually the name of the script handling the preference. 
+                        "select_button",  -- name
+                        "bool",                       -- type
+                        _("display select burst roll images button"),           -- label
+                        _("add a button to the select module to select burst roll images"),   -- tooltip
                         true)                         -- default
+
 
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
@@ -256,27 +269,40 @@ end
 local function is_burst_roll_image(image)
   local old_log_level = set_log_level()
   local result = false
-  local cmd = EXIFTOOL .. EXIFTOOL_ARGS
 
-  if ebri.preferred_tag_reader == "exiv2" then
-    cmd = EXIV2 .. EXIV2_ARGS
-  end
-
-  local p = io.popen(cmd .. ds.sanitize(image.path) .. PS .. ds.sanitize(image.filename))
-  if p then
-    for line in p:lines() do
-      if ebri.preferred_tag_reader == "exiv2" then
-        line = get_last_value(line)
-      end
-      line = tonumber(line)
-      if type(line) == "number" then
-        if tonumber(line) > 0 then
-          log.msg(log.info, image.filename .. " is a burst roll container image")
+  if HAS_INTERNAL_METADATA then
+    if image.RawBurstModeRoll then
+      local val = get_last_value(image.RawBurstModeRoll)
+      val = tonumber(val)
+      if type(val) == "number" then
+        if val > 0 then
           result = true
         end
       end
     end
-    p:close()
+  else
+    local cmd = EXIFTOOL .. EXIFTOOL_ARGS
+
+    if ebri.preferred_tag_reader == "exiv2" then
+      cmd = EXIV2 .. EXIV2_ARGS
+    end
+
+    local p = io.popen(cmd .. ds.sanitize(image.path) .. PS .. ds.sanitize(image.filename))
+    if p then
+      for line in p:lines() do
+        if ebri.preferred_tag_reader == "exiv2" then
+          line = get_last_value(line)
+        end
+        line = tonumber(line)
+        if type(line) == "number" then
+          if line > 0 then
+            log.msg(log.info, image.filename .. " is a burst roll container image")
+            result = true
+          end
+        end
+      end
+      p:close()
+    end
   end
 
   restore_log_level(old_log_level)
@@ -319,6 +345,14 @@ local function extract_burst(image)
     group_extracted_dngs(image)
   end
   restore_log_level(old_log_level)
+end
+
+local function extract_burst_images(images)
+  for _, image in ipairs(images) do
+    if is_burst_roll_image(image) then
+      extract_burst(image)
+    end
+  end
 end
 
 local function process_image(image)
@@ -384,35 +418,85 @@ local function process_import(images)
   restore_log_level(old_log_level)
 end
 
+local function select_burst_roll_images(event, images)
+  local old_log_level = set_log_level()
+  local selected = {}
+
+  for _, image in ipairs(images) do
+    if is_burst_roll_image(image) then
+      table.insert(selected, image)
+    end
+  end
+
+  restore_log_level(old_log_level)
+  return selected
+end
+
+local function set_select_sensitive()
+  if #dt.collection > 0 then
+    dt.gui.libs.select.set_sensitive(MODULE, true)
+  else
+    dt.gui.libs.select.set_sensitive(MODULE, false)
+  end
+end
+
+local function set_action_sensitive()
+  local sensitive = false
+  if #dt.gui.action_images > 0 then
+    if is_burst_roll_image(dt.gui.action_images[1]) then
+      sensitive = true
+    end
+  end
+  dt.gui.libs.image.set_sensitive(MODULE, sensitive)
+end
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- M A I N  P R O G R A M
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
-if not DNGLAB then
-  log.msg(log.error, MODULE .. _("dnglab executable not found"))
-  log.msg(log.screen, script_data.metadata.name .. _(": dnglab executable not found, exiting..."))
-  return
+  if not DNGLAB then
+    log.msg(log.error, MODULE .. _("dnglab executable not found"))
+    log.msg(log.screen, script_data.metadata.name .. _(": dnglab executable not found, exiting..."))
+    return
+  end
+
+if HAS_INTERNAL_METADATA then
+  log.msg(log.info, "Exif.Canon.RawBurstModeRoll detected, using internal metadata")
+else
+  if not EXIFTOOL and not EXIV2 then
+    log.msg(log.error, MODULE .. _("no exif tag reader available"))
+    log.msg(log.screen, script_data.metadata.name .. _(" no exif tag reader available, exiting..."))
+    return
+  end
+
+  ebri.preferred_tag_reader = pref_read("tag_reader", "enum")
+
+  if not string.match(EXIFTOOL, ebri.preferred_tag_reader) and not string.match(EXIV2, ebri.preferred_tag_reader) then
+    log.msg(log.error, MODULE .. " selected tag " .. ebri.preferred_tag_reader .." not available")
+    log.msg(log.screen, script_data.metadata.name .. string.format(_(" selected tag reader %s not available"), ebri.preferred_tag_reader))
+    return
+  end
 end
 
-if not EXIFTOOL and not EXIV2 then
-  log.msg(log.error, MODULE .. _("no exif tag reader available"))
-  log.msg(log.screen, script_data.metadata.name .. _(" no exif tag reader available, exiting..."))
-  return
-end
-
-ebri.preferred_tag_reader = pref_read("tag_reader", "enum")
-
-if not string.match(EXIFTOOL, ebri.preferred_tag_reader) and not string.match(EXIV2, ebri.preferred_tag_reader) then
-  log.msg(log.error, MODULE .. " selected tag " .. ebri.preferred_tag_reader .." not available")
-  log.msg(log.screen, script_data.metadata.name .. string.format(_(" selected tag reader %s not available"), ebri.preferred_tag_reader))
-  return
-end
-
-ebri.on_import = dt.preferences.read(MODULE, "on_import", "bool")
+ebri.on_import = pref_read("on_import", "bool")
+ebri.select_button = pref_read("select_button", "bool")
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- U S E R  I N T E R F A C E
 -- - - - - - - - - - - - - - - - - - - - - - - - 
+
+if ebri.select_button then
+  dt.gui.libs.select.register_selection(MODULE, _("select burst roll images"), select_burst_roll_images,  
+                                        _("select burst roll image containers"))
+end
+
+dt.gui.libs.image.register_action(
+  MODULE, 
+  _("extract burst roll images"),
+  function(event, images)
+    extract_burst_images(images)
+  end,
+  _("extract and group burst roll images with container")
+)
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- D A R K T A B L E  I N T E G R A T I O N 
@@ -421,6 +505,10 @@ ebri.on_import = dt.preferences.read(MODULE, "on_import", "bool")
 local function destroy()
   dt.destroy_event(MODULE, "post-import-film")
   dt.destroy_event(MODULE, "post-import-image")
+  if ebri.select_button then
+    dt.gui.libs.select.destroy_selection(MODULE)
+  end
+  dt.gui.libs.image.action.destroy_action(MODULE)
 end
 
 script_data.destroy = destroy
@@ -441,6 +529,27 @@ dt.register_event(MODULE, "post-import-image",
     if ebri.on_import then
       table.insert(ebri.imported_images, image)
     end
+  end
+)
+
+dt.register_event(MODULE, "selection-changed",
+  function(event)
+    set_action_sensitive()
+  end
+)
+
+if dt.preferences.read("darktable", "plugins/lighttable/act_on", "bool") then
+  dt.print_log("adding mouse-over-image-changed event")
+  dt.register_event(MODULE, "mouse-over-image-changed",
+    function(event, image)
+      set_action_sensitive()
+    end
+  )
+end
+
+dt.register_event(MODULE, "collection-changed", 
+  function(event)
+    set_select_sensitive()
   end
 )
 
