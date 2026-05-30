@@ -138,8 +138,9 @@ script_data.show = nil -- only required for libs since the destroy_method only h
 
 
 
-local PS = dt.configuration.runnin_os == "windows" and "\\" or "/"
-local ERROR = -1
+local PS <const> = dt.configuration.runnin_os == "windows" and "\\" or "/"
+local ERROR <const> = -1
+local HAS_INTERNAL_METADATA = dt.metadata.exists("Exif.Image.DataTime")
 
 -- function to convert from exif time to system time
 local function exiftime2systime(exiftime)
@@ -241,21 +242,30 @@ end
 
 local function _get_windows_image_file_creation_time(image)
   local datetime = nil
-  local p = io.popen("dir " .. image.path .. PS .. image.filename)
-  if p then
-    for line in p:lines() do
-      if string.match(line, ds.sanitize_lua(image.filename)) then
-        local mo, day, yr, hr, min, apm = string.match(line, "(%d+)/(%d+)/(%d+)  (%d-):(%d+) (%S+)")
-        if apm == "PM" then
-          hr = hr + 12
-        end
-        datetime = vars2exiftime(yr, mo, day, hr, min, 0)
-      end
-    end
-    p:close()
+  local datestring = nil
+
+  if HAS_INTERNAL_METADATA then
+    datestring = image.DateString
   else
-    dt.print(string.format(_("unable to get information for %s"), image.filename))
-    datetime = ERROR
+    local p = io.popen("dir " .. image.path .. PS .. image.filename)
+    if p then
+      for line in p:lines() do
+        if string.match(line, ds.sanitize_lua(image.filename)) then
+          datestring = line
+        end
+      end
+      p:close()
+    else
+      dt.print(string.format(_("unable to get information for %s"), image.filename))
+      datetime = ERROR
+    end
+  end
+  if datestring then
+    local mo, day, yr, hr, min, apm = string.match(datestring, "(%d+)/(%d+)/(%d+)  (%d-):(%d+) (%S+)")
+    if apm == "PM" then
+      hr = hr + 12
+    end
+    datetime = vars2exiftime(yr, mo, day, hr, min, 0)
   end
   return datetime
 end
