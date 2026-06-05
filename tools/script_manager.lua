@@ -748,7 +748,7 @@ local function scan_scripts(script_dir)
   local find_cmd = "find -L " .. script_dir .. " -name \\*.lua -print | sort"
 
   if dt.configuration.running_os == "windows" then
-    find_cmd = "dir /b/s \"" .. script_dir .. "\\*.lua\" | sort"
+    find_cmd = "dir /b/s \"" .. script_dir .. "\\*.lua\" 2>nul | sort"
   end
 
   log.msg(log.debug, "find command is " .. find_cmd)
@@ -842,7 +842,7 @@ local function scan_repositories()
   local find_cmd = "find -L " .. LUA_DIR .. " -name \\*.git -print | sort"
 
   if dt.configuration.running_os == "windows" then
-    find_cmd = "dir /b/s /a:d " .. LUA_DIR .. PS .. "*.git | sort"
+    find_cmd = "dir /b/s /a:d " .. LUA_DIR .. PS .. "*.git 2>nul | sort"
   end
 
   log.msg(log.debug, "find command is " .. find_cmd)
