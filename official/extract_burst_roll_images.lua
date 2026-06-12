@@ -505,10 +505,15 @@ dt.gui.libs.image.register_action(
 local function destroy()
   dt.destroy_event(MODULE, "post-import-film")
   dt.destroy_event(MODULE, "post-import-image")
+  dt.destroy_event(MODULE, "selection-changed")
+  dt.destroy_event(MODULE, "collection-changed")
+  if dt.preferences.read("darktable", "plugins/lighttable/act_on", "bool") then
+    dt.destroy_event(MODULE, "mouse-over-image-changed")
+  end
   if ebri.select_button then
     dt.gui.libs.select.destroy_selection(MODULE)
   end
-  dt.gui.libs.image.action.destroy_action(MODULE)
+  dt.gui.libs.image.destroy_action(MODULE)
 end
 
 script_data.destroy = destroy
