@@ -508,7 +508,7 @@ local function destroy()
   if ebri.select_button then
     dt.gui.libs.select.destroy_selection(MODULE)
   end
-  dt.gui.libs.image.action.destroy_action(MODULE)
+  dt.gui.libs.image.destroy_action(MODULE)
 end
 
 script_data.destroy = destroy
