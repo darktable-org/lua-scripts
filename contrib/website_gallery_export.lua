@@ -183,7 +183,13 @@ end
 
 local function copy_static_files(dest_dir)
 
-    gfsrc = dt.configuration.config_dir .. PS .. "lua" .. PS .. "data" .. PS .. "website_gallery"
+    datafiles_dir = "data" .. PS .. "website_gallery"
+    if df.test_file(dt.configuration.config_dir .. PS .. "lua" .. PS .. datafiles_dir, "d") then
+        gfsrc = dt.configuration.config_dir .. PS .. "lua" .. PS .. datafiles_dir
+    else
+        gfsrc = dt.configuration.data_dir .. PS .. "lua-scripts" .. PS .. datafiles_dir
+    end
+
     local gfiles = {
         "index.html",
         "css" .. PS .. "gallery.css",
