@@ -946,7 +946,9 @@ local function install_scripts()
           sm.widgets.folder_selector.selected = i
           break
         end
-        i = i + 1
+        -- Lua 5.5: for loop control variables are read-only. This increment
+        -- was always a no-op since numeric for loops use an internal counter.
+        -- i = i + 1
       end
 
       log.msg(log.debug, "clearing text fields")
