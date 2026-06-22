@@ -2,7 +2,7 @@
 
     auto_snapshot.lua - automatically take a snapshot when an image is loaded in darkroom
 
-    Copyright (C) 2024 Bill Ferguson <wpferguson@gamil.com>.
+    Copyright (C) 2024 Bill Ferguson <wpferguson@gmail.com>.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@
     * open an image in darkroom
 
     BUGS, COMMENTS, SUGGESTIONS
-    Bill Ferguson <wpferguson@gamil.com>
+    Bill Ferguson <wpferguson@gmail.com>
 
     CHANGES
 ]]
@@ -78,7 +78,7 @@ script_data.show = nil              -- only required for libs since the destroy_
 script_data.metadata = {
   name = _("auto snapshot"),            -- name of script
   purpose = _("automatically take a snapshot when an image is loaded in darkroom"),   -- purpose of script
-  author = "Bill Ferguson <wpferguson@gamil.com>",          -- your name and optionally e-mail address
+  author = "Bill Ferguson <wpferguson@gmail.com>",          -- your name and optionally e-mail address
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/auto_snapshot/"                   -- URL to help/documentation
 }
 

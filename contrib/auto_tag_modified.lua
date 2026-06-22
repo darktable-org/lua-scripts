@@ -2,7 +2,7 @@
 
     auto_tag_modified.lua - automatically tag an image when it has been manually modified in darkroom
 
-    Copyright (C) 2025 Michael Reiger <michael@rauschpfeife.net>, modeled after auto_snapshot.lua by Bill Ferguson <wpferguson@gamil.com>.
+    Copyright (C) 2025 Michael Reiger <michael@rauschpfeife.net>, modeled after auto_snapshot.lua by Bill Ferguson <wpferguson@gmail.com>.
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
