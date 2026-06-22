@@ -47,6 +47,16 @@
 
 ]]
 
+-- re-entrancy guard
+--
+-- when script_manager runs from the system (bundled) lua-scripts directory it
+-- re-runs the user's luarc near the end of this file.  if that luarc contains
+-- `require "tools/script_manager"` (the standard bootstrap line) we would
+-- recurse infinitely, eventually overflowing the C stack.  bail out if we are
+-- already in the middle of loading.
+if _G.script_manager_loading then
+  return
+end
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
@@ -1382,7 +1392,10 @@ if system_based then
   -- exec user luarc file if it exists
   local luarc = loadfile(USER_LUA_DIR .. "rc")
   if luarc then
+    -- guard against the luarc re-requiring script_manager (see top of file)
+    _G.script_manager_loading = true
     luarc()
+    _G.script_manager_loading = false
   end
 
   if df.test_file(USER_LUA_DIR, "d") then
