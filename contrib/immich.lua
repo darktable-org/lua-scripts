@@ -30,24 +30,90 @@ In the lua options you must specify:
 * a unique id identiphing the Darktable instance; this id is used as the device id uploading photos to Immich
 
 USAGE
-* install luasec and cjson for Lua 5.4 on your system
+* install luasec, cjson, and luasocket for darktable's Lua version (currently 5.4) on your system
+* if darktable can't find them (common on macOS/Windows, where it bundles its own
+  Lua), set the "immich: Lua module install prefix" preference in the lua options
+  to the folder containing share/lua/<ver> and lib/lua/<ver>, then restart
 
 ]]
 local dt = require "darktable"
 local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
-local cjson = require "cjson.safe"
-local https = require "ssl.https"
-local http = require "socket.http"
-local ltn12 = require "ltn12"
 
 local gettext = dt.gettext.gettext
-
-dt.gettext.bindtextdomain("immich", dt.configuration.config_dir .."/lua/locale/")
 
 local function _(msgid)
     return gettext(msgid)
 end
+
+-- forward declaration so store_image() (defined above its widget) resolves this
+-- as an upvalue rather than a nil global
+local title_widget
+
+-- The version (e.g. "5.4") of the Lua interpreter darktable is running -- bundled
+-- on macOS/Windows, the system Lua on Linux. Derived from _VERSION rather than
+-- hardcoded, so the search paths and user-facing messages keep working if
+-- darktable's Lua changes.
+local lua_version = _VERSION:match("(%d+%.%d+)") or "5.4"
+
+-- darktable can't always find where luasocket/luasec/lua-cjson were installed: on
+-- macOS and Windows it bundles its own Lua whose search paths point into the app
+-- bundle, so Homebrew/luarocks dirs are invisible. The "immich_lua_root" pref
+-- below lets the user name the install prefix -- the folder that contains
+-- share/lua/<ver> and lib/lua/<ver> -- and we add it to package.path/cpath before
+-- requiring. It is pre-populated with an OS-appropriate guess; on Linux the system
+-- Lua already covers the standard locations, so the guess is empty (no-op).
+local function default_lua_root()
+  local os_name = dt.configuration.running_os
+  local candidates = {}
+  if os_name == "macos" then
+    local home = os.getenv("HOME")
+    if home then candidates[#candidates + 1] = home .. "/.luarocks" end  -- user tree (luarocks default)
+    candidates[#candidates + 1] = "/opt/homebrew"   -- Homebrew (Apple Silicon)
+    candidates[#candidates + 1] = "/usr/local"      -- Homebrew (Intel)
+  elseif os_name == "windows" then
+    candidates[#candidates + 1] = "C:\\luarocks"    -- typical luarocks install prefix
+  else
+    return ""                                       -- Linux: system Lua already finds them
+  end
+  -- prefer a candidate that actually holds the C modules for this Lua version
+  for _, c in ipairs(candidates) do
+    if df.test_file(c .. "/lib/lua/" .. lua_version, "d") then
+      return c
+    end
+  end
+  return candidates[1] or ""                        -- fall back to the most likely root
+end
+
+dt.preferences.register("immich", "immich_lua_root", "string",
+  _("immich: Lua module install prefix"),
+  _("RESTART REQUIRED: changes take effect only after darktable is restarted. Folder containing share/lua/<ver> and lib/lua/<ver> for luasocket, luasec and lua-cjson. Leave blank if darktable's Lua already finds them."),
+  default_lua_root())
+
+local lua_root = dt.preferences.read("immich", "immich_lua_root", "string")
+if lua_root == nil or lua_root == "" then
+  lua_root = default_lua_root()
+end
+if lua_root ~= "" then
+  local ext = dt.configuration.running_os == "windows" and "dll" or "so"
+  package.path  = package.path
+    .. ";" .. lua_root .. "/share/lua/" .. lua_version .. "/?.lua"
+    .. ";" .. lua_root .. "/share/lua/" .. lua_version .. "/?/init.lua"
+  package.cpath = package.cpath .. ";" .. lua_root .. "/lib/lua/" .. lua_version .. "/?." .. ext
+end
+
+-- Load optional deps defensively so a missing one yields an actionable message.
+local missing = {}
+local function need(modname, rock)
+  local ok, mod = pcall(require, modname)
+  if not ok then missing[#missing + 1] = string.format("'%s' (%s)", modname, rock) end
+  return ok and mod or nil
+end
+
+local cjson = need("cjson.safe",  "lua-cjson")
+local https = need("ssl.https",   "luasec")
+local http  = need("socket.http", "luasocket")
+local ltn12 = need("ltn12",       "luasocket")
 
 du.check_min_api_version("7.0.0", "immich") 
 
@@ -119,6 +185,12 @@ local function call_immich_api(method,api,body,content_type)
 end
 
 local function initialize(storage,format,images,high_quality,extra_data)
+  if #missing > 0 then
+    -- Stash the message for finalize: a dt.print here would be overwritten by
+    -- darktable's own "no image to export" that follows the empty return.
+    extra_data.error = string.format(_("immich: missing Lua libraries (luasocket, luasec, lua-cjson) for Lua %s — install them, set the 'Lua module install prefix' preference if needed, then restart"), lua_version)
+    return {}   -- cancels the export
+  end
   extra_data.device_id = dt.preferences.read("immich","immich_device_id","string")
   if extra_data.device_id == nil then 
     extra_data.device_id = "darktable"
@@ -301,7 +373,7 @@ dt.preferences.register
     _("A unique ID identifying this local Darktable installation"),
     device_id)
 
-local title_widget = dt.new_widget("entry") {
+title_widget = dt.new_widget("entry") {
     placeholder=_("Use roll name")
 }
 local widget = dt.new_widget("box") {
