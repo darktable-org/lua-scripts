@@ -1,6 +1,7 @@
 --[[
   This file is part of darktable,
   copyright (c) 2024 Giorgio Massussi
+  copyright (c) 2026 Colin Holzman
 
   darktable is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
