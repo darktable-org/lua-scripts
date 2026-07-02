@@ -1,0 +1,66 @@
+body {
+    font-family: system-ui, Arial, Helvetica, sans-serif;
+    background-color: rgb(238, 240, 242);
+}
+
+.heading h1 {
+    background-color: #cdd;
+    color: black;
+}
+
+.heading h1:after {
+    content: " ";
+    border-bottom: 1px solid #888888;
+    height: 1px;
+}
+
+.gallery {
+    gap: 3vw;
+    margin: 3vw auto;
+    padding: 1.5vw;
+}
+
+.gallery img {
+    background: none;
+    border: 1px outset #737780;
+
+}
+
+.gallery img:hover {
+    transform: scale(1.08);
+}
+
+.thumb-box {
+    background: none;
+    box-shadow: 0 1vw 4vw 1vw rgba(0,0,0,0.6);
+}
+
+.viewer {
+    --navigation-bar-height: 5vh;
+}
+
+.nav {
+  background-color: rgba(60,60,60, 0.4);
+  color: #ccc;
+}
+
+.navgrid {
+  grid-template-columns: 4em 1fr 1.5em 1.5em 1fr 1.5em 1.5em;
+  font-size: 3.5vh;
+  grid-column-gap: 1vw;
+  background-color: black;
+}
+
+.button {
+  cursor: pointer;
+}
+
+.button:hover {
+  cursor: pointer;
+  color: white;
+  text-shadow: 0px 0px 10px #ccc;
+}
+
+.counter {
+    font-size: 2.5vh;
+}

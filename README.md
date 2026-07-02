@@ -36,6 +36,7 @@ Name|Standalone|OS   |Purpose
 ----|:--------:|:---:|-------
 [AutoGrouper](https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/autogrouper)|Yes|LMW|Group images together by time
 [autostyle](https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/autostyle)|Yes|LMW|Automatically apply styles on import
+[auto_tag_modified](https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/auto_tag_modified)|Yes|LMW|Automatically tag images which have been manually modified in the darkroom
 change_group_leader|Yes|LMW|Change which image leads group
 [clear_GPS](https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/clear_gps)|Yes|LMW|Reset GPS information for selected images
 [CollectHelper](https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/collecthelper)|Yes|LMW|Add buttons to selected images module to manipulate the collection
@@ -78,6 +79,7 @@ passport_guide_germany|Yes|LMW|Add passport cropping guide for German passports 
 [slideshowMusic](https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/slideshowMusic)|No|L|Play music during a slideshow
 [transfer_hierarchy](https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/transfer_hierarchy)|Yes|LMW|Image move/copy preserving directory hierarchy
 [video_ffmpeg](https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/video_ffmpeg)|No|LMW|Export video from darktable
+website_gallery_export|No|LMW|Export a website gallery for selected images
 
 ### Example Scripts
 
@@ -178,7 +180,7 @@ If you don't have %LOCALAPPDATA%\darktable you have to start dartable at least o
 
 When darktable starts it looks for a file name `~/.config/darktable/luarc` (`%LOCALAPPDATA%\darktable\luarc` for windows) and reads it to see which scripts to include. The file is a plain text file with entries of the form `require "<directory>/<name>"` where directory is the directory containing the scripts, from the above list, and name is the name from the above list. To include GIMP the line would be `require "contrib/gimp"`.
 
-The recommended way to enable and disable specific scripts is using the script manager module.  To use script manager do the following:
+The recommended way to enable and disable specific scripts is using the [script manager](https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/tools/script_manager/) module.  To use script manager do the following:
 
 ### Linux or MacOS
 

@@ -47,6 +47,16 @@
 
 ]]
 
+-- re-entrancy guard
+--
+-- when script_manager runs from the system (bundled) lua-scripts directory it
+-- re-runs the user's luarc near the end of this file.  if that luarc contains
+-- `require "tools/script_manager"` (the standard bootstrap line) we would
+-- recurse infinitely, eventually overflowing the C stack.  bail out if we are
+-- already in the middle of loading.
+if _G.script_manager_loading then
+  return
+end
 
 local dt = require "darktable"
 local du = require "lib/dtutils"
@@ -54,12 +64,25 @@ local df = require "lib/dtutils.file"
 local ds = require "lib/dtutils.string"
 local dtsys = require "lib/dtutils.system"
 local log = require "lib/dtutils.log"
-local debug = require "darktable.debug"
+local dtdebug = require "darktable.debug"
 
 local gettext = dt.gettext.gettext
 
 local function _(msgid)
     return gettext(msgid)
+end
+
+-- figure out where we are running from
+
+local info = debug.getinfo(1, "S")
+local scripts_path = info.source:sub(2)
+
+-- assume user based
+local system_based = false
+
+if string.match(scripts_path, ds.sanitize_lua(dt.configuration.data_dir)) then
+  log.msg(log.info, "script_manager using system based scripts")
+  system_based = true
 end
 
 -- api check
@@ -71,7 +94,7 @@ end
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
 -- script_manager required API version
-local SM_API_VER_REQD <const> = "9.3.0"
+local SM_API_VER_REQD <const> = "9.7.0"
 
 -- path separator
 local PS <const> = dt.configuration.running_os == "windows" and "\\" or "/"
@@ -85,20 +108,43 @@ local MIN_BUTTONS_PER_PAGE <const> = 5
 local MAX_BUTTONS_PER_PAGE <const> = 20
 local DEFAULT_BUTTONS_PER_PAGE <const> = 10
 
-local DEFAULT_LOG_LEVEL <const> = log.warn
+local DEFAULT_LOG_LEVEL <const> = log.info
 
-local LUA_DIR <const> = dt.configuration.config_dir .. PS .. "lua"
+local USER_LUA_DIR <const> = dt.configuration.config_dir .. PS .. "lua"
+local SYSTEM_LUA_DIR <const> = dt.configuration.data_dir .. PS .. "lua-scripts"
+
 local LUA_SCRIPT_REPO <const> = "https://github.com/darktable-org/lua-scripts.git"
 
 local LUA_API_VER <const> = "API-" .. dt.configuration.api_version_string
 
 -- local POWER_ICON = dt.configuration.config_dir .. "/lua/data/data/icons/power.png"
-local POWER_ICON <const> = dt.configuration.config_dir .. "/lua/data/icons/path20.png"
-local BLANK_ICON <const> = dt.configuration.config_dir .. "/lua/data/icons/blank20.png"
+local USER_POWER_ICON <const> = dt.configuration.config_dir .. "/lua/data/icons/path20.png"
+local USER_BLANK_ICON <const> = dt.configuration.config_dir .. "/lua/data/icons/blank20.png"
 
+local SYSTEM_POWER_ICON <const> = dt.configuration.data_dir .. "/lua-scripts/data/icons/path20.png"
+local SYSTEM_BLANK_ICON <const> = dt.configuration.data_dir .. "/lua-scripts/data/icons/blank20.png"
+
+local LUA_DIR = USER_LUA_DIR
+local POWER_ICON = USER_POWER_ICON
+local BLANK_ICON = USER_BLANK_ICON
+
+if system_based then
+  LUA_DIR = SYSTEM_LUA_DIR
+  POWER_ICON = SYSTEM_POWER_ICON
+  BLANK_ICON = SYSTEM_BLANK_ICON
+end
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 -- P R E F E R E N C E S
 -- - - - - - - - - - - - - - - - - - - - - - - - 
+
+dt.preferences.register(MODULE, "disable_scripts", "bool",
+  _("disable Lua scripts"),
+  _("do not run the Lua scripts"),
+    false)
+
+  if dt.preferences.read(MODULE, "disable_scripts", "bool") then
+    return
+  end
 
 dt.preferences.register(MODULE, "check_update", "bool",
   _("check for updated scripts on start up"), 
@@ -712,7 +758,7 @@ local function scan_scripts(script_dir)
   local find_cmd = "find -L " .. script_dir .. " -name \\*.lua -print | sort"
 
   if dt.configuration.running_os == "windows" then
-    find_cmd = "dir /b/s \"" .. script_dir .. "\\*.lua\" | sort"
+    find_cmd = "dir /b/s \"" .. script_dir .. "\\*.lua\" 2>nul | sort"
   end
 
   log.msg(log.debug, "find command is " .. find_cmd)
@@ -721,7 +767,12 @@ local function scan_scripts(script_dir)
   local output = io.popen(find_cmd)
   for line in output:lines() do
     log.msg(log.debug, "line is " .. line)
-    local l = string.gsub(line, ds.sanitize_lua(LUA_DIR) .. PS, "")   -- strip the lua dir off
+    local script_dir = SYSTEM_LUA_DIR
+    if string.match(line, ds.sanitize_lua(USER_LUA_DIR)) then
+      script_dir = USER_LUA_DIR
+    end
+    -- add a string.match to figure out which lua dir to use
+    local l = string.gsub(line, ds.sanitize_lua(script_dir) .. PS, "")   -- strip the lua dir off
     local script_file = l:sub(1,-5)                                   -- strip off .lua\n
     if not string.match(script_file, "script_manager") then           -- let's not include ourself
       if not string.match(script_file, "plugins") then                -- skip plugins
@@ -781,7 +832,9 @@ local function update_script_update_choices()
 
   for i, repo in ipairs(sm.installed_repositories) do
     table.insert(installs, repo.name)
-    pref_string = pref_string .. i .. "," .. repo.name .. "," .. repo.directory .. ","
+    if not string.match(pref_string, ds.sanitize_lua(repo.name)) then
+      pref_string = pref_string .. i .. "," .. repo.name .. "," .. repo.directory .. ","
+    end
   end
 
   update_combobox_choices(sm.widgets.update_script_choices, installs, 1)
@@ -799,7 +852,7 @@ local function scan_repositories()
   local find_cmd = "find -L " .. LUA_DIR .. " -name \\*.git -print | sort"
 
   if dt.configuration.running_os == "windows" then
-    find_cmd = "dir /b/s /a:d " .. LUA_DIR .. PS .. "*.git | sort"
+    find_cmd = "dir /b/s /a:d " .. LUA_DIR .. PS .. "*.git 2>nul | sort"
   end
 
   log.msg(log.debug, "find command is " .. find_cmd)
@@ -851,8 +904,17 @@ local function install_scripts()
   local url = sm.widgets.script_url.text
   local folder = sm.widgets.new_folder.text
 
+  if not df.test_file(USER_LUA_DIR, "d") then
+    df.mkdir(USER_LUA_DIR)
+    if not df.test_file(USER_LUA_DIR, "d") then
+      log.msg(log.error, "unable to create user lua directory")
+      log.msg(log.screen, _("unable to create user lua directory, installing additional scripts failed"))
+      return
+    end
+  end
+
   if string.match(du.join(sm.folders, " "), ds.sanitize_lua(folder)) then
-    log.msg(log.screen, _(string.format("folder %s is already in use. Please specify a different folder name.", folder)))
+    log.msg(log.screen, string.format(_("folder %s is already in use. Please specify a different folder name."), folder))
     log.msg(log.error, "folder " .. folder .. " already exists, returning...")
     restore_log_level(old_log_level)
     return
@@ -868,7 +930,7 @@ local function install_scripts()
     return
   end
 
-  local git_command = "cd " .. LUA_DIR .. " " .. CS .. " " .. git .. " clone " .. url .. " " .. folder
+  local git_command = "cd " .. USER_LUA_DIR .. " " .. CS .. " " .. git .. " clone " .. url .. " " .. folder
   log.msg(log.debug, "update git command is " .. git_command)
 
   if dt.configuration.running_os == "windows" then
@@ -880,12 +942,12 @@ local function install_scripts()
   log.msg(log.info, "result from import is " .. result)
 
   if result == 0 then
-    local count = scan_scripts(LUA_DIR .. PS .. folder)
+    local count = scan_scripts(USER_LUA_DIR)
 
     if count > 0 then
       update_combobox_choices(sm.widgets.folder_selector, sm.folders, sm.widgets.folder_selector.selected)
-      dt.print(_(string.format("scripts successfully installed into folder %s"), folder))
-      table.insert(sm.installed_repositories, {name = folder, directory = LUA_DIR .. PS .. folder})
+      dt.print(string.format(_("scripts successfully installed into folder %s"), folder))
+      table.insert(sm.installed_repositories, {name = folder, directory = USER_LUA_DIR .. PS .. folder})
       update_script_update_choices()
 
       for i = 1, #sm.widgets.folder_selector do
@@ -991,6 +1053,7 @@ local function populate_buttons(folder, first, last)
     button_num = button_num + 1
   end
 
+  log.msg(log.debug, "button num is " .. button_num .. " and num_buttons is " .. sm.page_status.num_buttons)
   if button_num <= sm.page_status.num_buttons then
     for i = button_num, sm.page_status.num_buttons do
       clear_button(i)
@@ -1243,7 +1306,7 @@ end
 
 script_manager_running_script = "script_manager"
 
-if check_for_updates or SM_API_VER_REQD > dt.configuration.api_version_string then
+if (check_for_updates or SM_API_VER_REQD > dt.configuration.api_version_string) and not system_based then
   local repo_data = get_repo_status(LUA_DIR)
   local current_branch = get_current_repo_branch(LUA_DIR)
   local clean = is_repo_clean(repo_data)
@@ -1323,7 +1386,29 @@ if check_for_updates or SM_API_VER_REQD > dt.configuration.api_version_string th
 end
 
 scan_scripts(LUA_DIR)
-log.msg(log.debug, "finished processing scripts")
+log.msg(log.info, "finished processing scripts")
+
+if system_based then
+  -- exec user luarc file if it exists
+  local luarc = loadfile(USER_LUA_DIR .. "rc")
+  if luarc then
+    -- guard against the luarc re-requiring script_manager (see top of file)
+    _G.script_manager_loading = true
+    luarc()
+    _G.script_manager_loading = false
+  end
+
+  if df.test_file(USER_LUA_DIR, "d") then
+    LUA_DIR = USER_LUA_DIR
+    scan_scripts(LUA_DIR)
+    LUA_DIR = SYSTEM_LUA_DIR
+  end
+
+  dt.configuration["lua_dir"] = LUA_DIR
+
+  dt.print_log("lua dir is " .. dt.configuration.lua_dir)
+  -- scan_script(USER_LUA_DIR)
+end
 
 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
@@ -1564,7 +1649,7 @@ script_manager_running_script = nil
 -- D A R K T A B L E  I N T E G R A T I O N 
 -- - - - - - - - - - - - - - - - - - - - - - - - 
 
-if dt.gui.current_view().id == "lighttable" then
+if (dt.gui.current_view().id == "lighttable") and darktable_gui_safe then
   install_module()
 else
   if not sm.event_registered then

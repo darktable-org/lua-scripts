@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
+    <link rel="stylesheet" href="css/modal.css">
+    <link rel="stylesheet" href="css/gallery.css">
+    <link rel="stylesheet" href="css/style.css">
+    <title id="page-title">Image Gallery</title>
+
+
+</head>
+
+<body>
+    <div id="heading1" class="heading">
+        <h1 id="gallery-title">Image Gallery</h1>
+    </div>
+    <div id="gallery" class="gallery"></div>
+    <div class="viewer" id="viewer">
+        <div class="navgrid">
+            <div id="counter" class="nav"></div>
+            <div class="spacer"></div>
+            <div class="button nav nav-arrow" id="prevArrow">&#9664;</div>
+            <div class="button nav nav-arrow" id="nextArrow">&#9654;</div>
+            <div class="spacer"></div>
+            <div id="fullscreen" class="button nav">&#x26F6;</div>
+            <div id="close" class="nav button">&times;</div>
+        </div>
+        <div class="slider" id="slider1">
+            <div class="slide-container">
+                <div class="slide" id="prev"></div>
+                <div class="slide" id="current"></div>
+                <div class="slide" id="next"></div>
+            </div>
+        </div>
+    </div>
+    <script type='text/javascript' >
+        var currentIndex = 1;
+    </script>
+    <script src="js/images.js"></script>
+    <script src="js/fullscreen.js"></script>
+    <script src="js/modal.js"></script>
+    <script src="js/gallery.js"></script>
+</body>
+</html>

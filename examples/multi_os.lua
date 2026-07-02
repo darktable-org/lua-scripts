@@ -29,8 +29,7 @@
     by hovering over the image and pressing the key combination.
 
     ADDITIONAL SOFTWARE NEEDED FOR THIS SCRIPT
-    * ufraw-batch - https://ufraw.sourceforge.net
-                    MacOS - install with homebrew
+    * exiftool - https://exiftool.org
 
     USAGE
     * require this script from your main lua file
@@ -44,6 +43,7 @@
     * Send to Bill Ferguson, wpferguson@gmail.com
 
     CHANGES
+    20251205 - replaced ufraw-batch with exiftool
 ]]
 
 --[[
@@ -139,6 +139,36 @@ local function copy_image_attributes(from, to, ...)
   end
 end
 
+local function check_file_size(img_name)
+  local result = 0
+
+  if dt.configuration.running_os == "windows" then
+    local path = df.get_path(img_name)
+    local fname = df.get_filename(img_name)
+
+    local p = io.open("forfiles /P " .. path .. " /M " .. fname .. " /C \"cmd /c echo $fsize\"")
+
+    if p then
+      for line in p:lines() do
+        if line:length() > 5 then
+          result = tonumber(line)
+        end
+      end
+      p:close()
+    end
+  else
+    local p = io.popen("ls -s " .. img_name)
+
+    if p then
+      local line = p:read("*a")
+      result = tonumber(du.split(line, " ")[1])
+      p:close()
+    end
+  end
+
+  return result
+end
+
 --[[
     The main function called from the button or the shortcut.  It takes one or more raw files, passed
     in a table and extracts the embedded jpeg images
@@ -152,11 +182,12 @@ local function extract_embedded_jpeg(images)
       in the user's path.  When it finds the executable, it returns the command to run it.
   ]]
 
-  local ufraw_executable = df.check_if_bin_exists("ufraw-batch")
-  if ufraw_executable then
+  local exiftool_executable = df.check_if_bin_exists("exiftool")
+  if exiftool_executable then
     for _, image in ipairs(images) do
       if image.is_raw then
-        local img_file = du.join({image.path, image.filename}, "/")
+        local img_file = tostring(image)
+        local jpg_img_file = string.gsub(img_file, "%....$", ".jpg")
 
         --[[
             dtsys.external_command() is operating system aware and formats the command as necessary.  
@@ -164,8 +195,12 @@ local function extract_embedded_jpeg(images)
             operating system aware and uses the corresponding quotes.
         ]]
 
-        if dtsys.external_command(ufraw_executable .. " --silent --embedded-image " .. df.sanitize_filename(img_file)) then
-          local jpg_img_file = df.chop_filetype(img_file) .. ".embedded.jpg"
+        if dtsys.external_command(exiftool_executable .. " -b -JpgFromRaw " .. df.sanitize_filename(img_file) .. " > " .. df.sanitize_filename(jpg_img_file)) then
+          dt.print_log("created jpg from raw")
+          if check_file_size(df.sanitize_filename(jpg_img_file)) == 0 then
+            dt.print_log("using preview")
+            dtsys.external_command(exiftool_executable .. " -b -PreviewImage " .. df.sanitize_filename(img_file) .. " > " .. df.sanitize_filename(jpg_img_file))
+          end
           dt.print_log("jpg_img_file set to ", jpg_img_file) -- print a debugging message
           local myimage = dt.database.import(jpg_img_file)
           myimage:group_with(image.group_leader)
@@ -188,8 +223,8 @@ local function extract_embedded_jpeg(images)
       end
     end
   else
-    dt.print_error("ufraw-batch not found.  Exiting...") -- print debugging error message
-    dt.print("ufraw-batch not found, exiting...") -- print the error to the screen
+    dt.print_error("exiftool not found.  Exiting...") -- print debugging error message
+    dt.print("exiftool not found, exiting...") -- print the error to the screen
   end
 end
 
