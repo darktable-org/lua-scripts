@@ -1470,18 +1470,6 @@ sm.widgets.add_scripts = dt.new_widget("box"){
   }
 }
 
-sm.widgets.allow_disable = dt.new_widget("check_button"){
-  label = _('enable "disable scripts" button'),
-  value = false,
-  clicked_callback = function(this)
-    if this.value == true then
-      sm.widgets.disable_scripts.sensitive = true
-    else
-      sm.widgets.disable_scripts.sensitive = false
-    end
-  end,
-}
-
 sm.widgets.disable_scripts = dt.new_widget("button"){
   label = _("disable scripts"),
   sensitive = false,
@@ -1506,12 +1494,6 @@ sm.widgets.install_update = dt.new_widget("box"){
   dt.new_widget("label"){label = _("add more scripts")},
   dt.new_widget("label"){label = " "},
   sm.widgets.add_scripts,
-  dt.new_widget("section_label"){label = " "},
-  dt.new_widget("label"){label = " "},
-  dt.new_widget("label"){label = _("disable scripts")},
-  dt.new_widget("label"){label = " "},
-  sm.widgets.allow_disable,
-  sm.widgets.disable_scripts,
   dt.new_widget("label"){label = " "},
 }
 
