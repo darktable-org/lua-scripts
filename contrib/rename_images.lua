@@ -96,6 +96,18 @@ local function stop_job(job)
   job.valid = false
 end
 
+-- make sure filename ends with the image's original extension
+local function ensure_extension(filename, image)
+  local original_extension = df.get_filetype(image.filename)
+  if original_extension ~= "" then
+    local suffix = "." .. original_extension
+    if string.lower(string.sub(filename, -string.len(suffix))) ~= string.lower(suffix) then
+      filename = filename .. suffix
+    end
+  end
+  return filename
+end
+
 local function install_module()
   if not rename.module_installed then
     dt.register_lib(
@@ -154,7 +166,7 @@ local function do_rename(images)
           if string.len(path) == 0 then
             path = image.path
           end
-          local filename = df.get_filename(new_name)
+          local filename = ensure_extension(df.get_filename(new_name), image)
           local filmname = image.path
           if path ~= image.path then
             if not df.check_if_file_exists(df.sanitize_filename(path)) then
