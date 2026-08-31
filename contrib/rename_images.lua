@@ -115,6 +115,8 @@ local function install_module()
       dt.new_widget("box"){
         orientation = "vertical",
         rename.widgets.pattern,
+        rename.widgets.preview_button,
+        rename.widgets.preview_label,
         rename.widgets.button,
       },
       nil,
@@ -136,6 +138,16 @@ end
 -- M A I N
 -- - - - - - - - - - - - - - - - - - - - - - - -
 
+-- runs variable substitution for one image and returns the result,
+-- or -1 if the substitution failed (see ds.substitute_list)
+local function substitute_pattern(image, sequence, pattern)
+  ds.build_substitute_list(image, sequence, pattern, USER, PICTURES, HOME, DESKTOP)
+  local new_name = ds.substitute_list(pattern)
+  ds.clear_substitute_list()
+  return new_name
+end
+
+-- renaming
 local function do_rename(images)
   if #images > 0 then
     local first_image = images[1]
@@ -149,14 +161,12 @@ local function do_rename(images)
       for i, image in ipairs(images) do
         if job.valid then
           job.percent = i / #images
-          ds.build_substitute_list(image, i, pattern, USER, PICTURES, HOME, DESKTOP)
-          local new_name = ds.substitute_list(pattern)
+          local new_name = substitute_pattern(image, i, pattern)
           if new_name == -1 then
             dt.print(_("unable to do variable substitution, exiting..."))
             stop_job(job)
             return
           end
-          ds.clear_substitute_list()
           local args = {}
           local path = string.sub(df.get_path(new_name), 1, -2)
           if string.len(path) == 0 then
@@ -194,6 +204,28 @@ local function do_rename(images)
 end
 
 
+-- preview
+local function do_preview(images)
+  if #images > 0 then
+    local image = images[1]
+    local pattern = rename.widgets.pattern.text
+    if string.len(pattern) > 0 then
+      local new_name = substitute_pattern(image, 1, pattern)
+      if new_name == -1 then
+        rename.widgets.preview_label.label = _("unable to do variable substitution")
+      else
+        local filename = ensure_extension(df.get_filename(new_name), image)
+        rename.widgets.preview_label.label = filename
+      end
+    else -- pattern length
+      rename.widgets.preview_label.label = _("please enter the new name or pattern")
+    end
+  else -- image count
+    rename.widgets.preview_label.label = _("please select an image first")
+  end
+end
+
+
 -- - - - - - - - - - - - - - - - - - - - - - - -
 -- W I D G E T S
 -- - - - - - - - - - - - - - - - - - - - - - - -
@@ -212,6 +244,18 @@ local pattern_pref = dt.preferences.read(MODULE_NAME, "pattern", "string")
 if pattern_pref then
   rename.widgets.pattern.text = pattern_pref
 end
+
+rename.widgets.preview_button = dt.new_widget("button"){
+  label = _("preview filename"),
+  clicked_callback = function(this)
+    do_preview(dt.gui.action_images)
+  end
+}
+
+rename.widgets.preview_label = dt.new_widget("label"){
+  label = "",
+  selectable = true,
+}
 
 rename.widgets.button = dt.new_widget("button"){
   label = _("rename"),
