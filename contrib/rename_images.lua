@@ -20,10 +20,6 @@
 --[[
     rename - rename an image file or files
 
-    This shortcut resets the GPS information to that contained within
-    the image file.  If no GPS info is in the image file, the GPS data
-    is cleared.
-
     USAGE
     * require this script from your luarc file or start it from script_manager
     * select an image or images
