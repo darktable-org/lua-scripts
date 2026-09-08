@@ -194,6 +194,11 @@ local function determine_extension(image, sequence)
     end
   end
 
+  -- collapse runs of consecutive dots into a single dot, so that e.g.
+  -- "......." is treated the same as a single "." (falls through to the
+  -- empty-extension check below, which falls back to the original extension)
+  extension = string.gsub(extension, "%.+", ".")
+
   if string.sub(extension, 1, 1) == "." then
     extension = string.sub(extension, 2)
   end
