@@ -119,6 +119,7 @@ local function install_module()
       dt.new_widget("box"){
         orientation = "vertical",
         rename.widgets.pattern,
+        rename.widgets.allow_moving_files,
         rename.widgets.use_existing_extension,
         rename.widgets.extension_pattern,
         rename.widgets.preview_button,
@@ -144,12 +145,36 @@ end
 -- M A I N
 -- - - - - - - - - - - - - - - - - - - - - - - -
 
+-- characters that are forbidden (or at least highly problematic) in
+-- filenames across common operating systems; always replaced, regardless
+-- of the "allow moving files" setting
+local function sanitize_forbidden_characters(name)
+  return (name:gsub('[<>:"|?*%c]', "-"))
+end
+
+-- replace path separators with "-" unless the user explicitly opted in to
+-- allow the rename pattern to move files into different folders; the
+-- underlying split_filepath() (used by df.get_path/df.get_filename) treats
+-- both "/" and "\" as separators regardless of the current OS, so both are
+-- always allowed together here too, rather than just the OS's native one
+local function sanitize_path_separators(name)
+  if rename.widgets.allow_moving_files.value then
+    return name
+  end
+  return (name:gsub("[/\\]", "-"))
+end
+
 -- runs variable substitution for one image and returns the result,
 -- or -1 if the substitution failed (see ds.substitute_list)
 local function substitute_pattern(image, sequence, pattern)
   ds.build_substitute_list(image, sequence, pattern, USER, PICTURES, HOME, DESKTOP)
   local new_name = ds.substitute_list(pattern)
   ds.clear_substitute_list()
+  if new_name == -1 then
+    return -1
+  end
+  new_name = sanitize_path_separators(new_name)
+  new_name = sanitize_forbidden_characters(new_name)
   return new_name
 end
 
@@ -180,6 +205,25 @@ local function determine_extension(image, sequence)
   return extension
 end
 
+-- returns the pattern's folder component with any leading separators
+-- stripped, so a leading "/" or "\" can never point to the filesystem
+-- root (or, for an AppImage, the process's working directory) - the
+-- folder is always resolved relative to the image's current location
+local function resolve_relative_path(new_name)
+  local path = string.sub(df.get_path(new_name), 1, -2)
+  return (string.gsub(path, "^[/\\]+", ""))
+end
+
+-- work out the destination folder for a renamed image, always relative
+-- to the image's current folder (see resolve_relative_path)
+local function resolve_path(new_name, image)
+  local relative_path = resolve_relative_path(new_name)
+  if string.len(relative_path) == 0 then
+    return image.path
+  end
+  return image.path .. PS .. relative_path
+end
+
 -- save the pattern and extension-pattern fields so they survive a restart;
 -- the checkbox persists itself immediately on click (see its clicked_callback)
 local function persist_pattern_prefs()
@@ -207,10 +251,7 @@ local function do_rename(images)
             return
           end
           local args = {}
-          local path = string.sub(df.get_path(new_name), 1, -2)
-          if string.len(path) == 0 then
-            path = image.path
-          end
+          local path = resolve_path(new_name, image)
           local filename = ensure_extension(df.get_filename(new_name), determine_extension(image, i))
           local filmname = image.path
           if path ~= image.path then
@@ -252,7 +293,13 @@ local function do_preview(images)
       if new_name == -1 then
         rename.widgets.preview_label.label = _("unable to do variable substitution")
       else
-        rename.widgets.preview_label.label = ensure_extension(df.get_filename(new_name), determine_extension(image, 1))
+        local relative_path = resolve_relative_path(new_name)
+        local filename = ensure_extension(df.get_filename(new_name), determine_extension(image, 1))
+        if string.len(relative_path) > 0 then
+          rename.widgets.preview_label.label = relative_path .. PS .. filename
+        else
+          rename.widgets.preview_label.label = filename
+        end
       end
     else -- pattern length
       rename.widgets.preview_label.label = _("please enter the new name or pattern")
@@ -280,6 +327,22 @@ rename.widgets.pattern = dt.new_widget("entry"){
 local pattern_pref = dt.preferences.read(MODULE_NAME, "pattern", "string")
 if pattern_pref then
   rename.widgets.pattern.text = pattern_pref
+end
+
+rename.widgets.allow_moving_files = dt.new_widget("check_button"){
+  label = _("allow moving files"),
+  value = false,
+  tooltip = _("allows for moving files during renaming by using slash/backslash to construct a filepath") .. "\n" ..
+            _("useful for e.g. sorting files by their date") .. "\n" ..
+            _("caution: use with extra care"),
+  clicked_callback = function(self)
+    dt.preferences.write(MODULE_NAME, "allow_moving_files", "bool", self.value)
+    dt.preferences.write(MODULE_NAME, "allow_moving_files_saved", "bool", true)
+  end
+}
+
+if dt.preferences.read(MODULE_NAME, "allow_moving_files_saved", "bool") then
+  rename.widgets.allow_moving_files.value = dt.preferences.read(MODULE_NAME, "allow_moving_files", "bool")
 end
 
 rename.widgets.extension_pattern = dt.new_widget("entry"){
