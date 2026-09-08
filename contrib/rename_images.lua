@@ -1,43 +1,39 @@
 --[[
 
-    rename.lua - rename image file(s)
+rename.lua - rename image file(s)
 
-    Copyright (C) 2020, 2021 Bill Ferguson <wpferguson@gmail.com>.
+Copyright (C) 2020, 2021 Bill Ferguson <wpferguson@gmail.com>.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ]]
 --[[
-    rename - rename an image file or files
+rename - rename an image file or files
 
-    This shortcut resets the GPS information to that contained within
-    the image file.  If no GPS info is in the image file, the GPS data
-    is cleared.
+USAGE
+* enable the script in the script manager
+* select an image or images
+* enter a renaming pattern
+* test the pattern by clicking "preview filename"
+* click "rename" to rename the files
 
-    USAGE
-    * require this script from your luarc file or start it from script_manager
-    * select an image or images
-    * enter a renaming pattern
-    * click the button to rename the files
+BUGS, COMMENTS, SUGGESTIONS
+* Report to https://github.com/darktable-org/lua-scripts/issues
 
-    BUGS, COMMENTS, SUGGESTIONS
-    * Send to Bill Ferguson, wpferguson@gmail.com
+CHANGES
 
-    CHANGES
-
-    TODO 
-    * Add pattern builder
-    * Add new name preview
+TODO
+* Add pattern builder
 ]]
 
 local dt = require "darktable"
@@ -45,12 +41,12 @@ local du = require "lib/dtutils"
 local df = require "lib/dtutils.file"
 local ds = require "lib/dtutils.string"
 
-du.check_min_api_version("7.0.0", "rename_images") 
+du.check_min_api_version("7.0.0", "rename_images")
 
 local gettext = dt.gettext.gettext
 
 local function _(msgid)
-    return gettext(msgid)
+return gettext(msgid)
 end
 
 -- namespace variable
@@ -67,7 +63,7 @@ local script_data = {}
 script_data.metadata = {
   name = _("rename images"),
   purpose = _("rename an image file or files"),
-  author = "Bill Ferguson <wpferguson@gmail.com>",
+  author = "Bill Ferguson <wpferguson@gmail.com>, Yannic Meyer",
   help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/contrib/rename_images"
 }
 
@@ -119,9 +115,9 @@ local function install_module()
       dt.new_widget("box"){
         orientation = "vertical",
         rename.widgets.pattern,
-        rename.widgets.allow_moving_files,
-        rename.widgets.use_existing_extension,
+        rename.widgets.change_file_extension,
         rename.widgets.extension_pattern,
+        rename.widgets.allow_moving_files,
         rename.widgets.preview_button,
         rename.widgets.preview_label,
         rename.widgets.button,
@@ -152,36 +148,41 @@ local function sanitize_forbidden_characters(name)
   return (name:gsub('[<>:"|?*%c]', "-"))
 end
 
--- replace path separators with "-" unless the user explicitly opted in to
--- allow the rename pattern to move files into different folders; the
+-- replace path separators with "-" unless allow_separators is true; the
 -- underlying split_filepath() (used by df.get_path/df.get_filename) treats
 -- both "/" and "\" as separators regardless of the current OS, so both are
 -- always allowed together here too, rather than just the OS's native one
-local function sanitize_path_separators(name)
-  if rename.widgets.allow_moving_files.value then
+local function sanitize_path_separators(name, allow_separators)
+  if allow_separators then
     return name
   end
   return (name:gsub("[/\\]", "-"))
 end
 
--- runs variable substitution for one image and returns the result,
--- or -1 if the substitution failed (see ds.substitute_list)
-local function substitute_pattern(image, sequence, pattern)
+-- runs variable substitution for one image and returns the result, or -1
+-- if the substitution failed (see ds.substitute_list). The result always
+-- has forbidden filename characters replaced (sanitize_forbidden_characters),
+-- and has path separators replaced too unless allow_separators is true.
+-- allow_separators is only ever passed for the main rename pattern, gated
+-- behind the "allow moving files" checkbox - never for the extension
+-- pattern, where a stray separator could never be useful and would just
+-- corrupt the final filename
+local function substitute_pattern(image, sequence, pattern, allow_separators)
   ds.build_substitute_list(image, sequence, pattern, USER, PICTURES, HOME, DESKTOP)
   local new_name = ds.substitute_list(pattern)
   ds.clear_substitute_list()
   if new_name == -1 then
     return -1
   end
-  new_name = sanitize_path_separators(new_name)
+  new_name = sanitize_path_separators(new_name, allow_separators)
   new_name = sanitize_forbidden_characters(new_name)
   return new_name
 end
 
 -- work out which extension to use for a given image, based on the
--- "use existing extension" checkbox and (if unchecked) the extension pattern
+-- "change file extension" checkbox and (if checked) the extension pattern
 local function determine_extension(image, sequence)
-  if rename.widgets.use_existing_extension.value then
+  if not rename.widgets.change_file_extension.value then
     return df.get_filetype(image.filename)
   end
 
@@ -236,6 +237,9 @@ local function persist_pattern_prefs()
   dt.preferences.write(MODULE_NAME, "extension_pattern", "string", rename.widgets.extension_pattern.text)
 end
 
+-- renames/moves every image in `images` according to the current pattern,
+-- extension, and "allow moving files" settings; runs as a cancellable job
+-- and updates the lighttable selection to the renamed images once done
 local function do_rename(images)
   if #images > 0 then
     local first_image = images[1]
@@ -249,7 +253,7 @@ local function do_rename(images)
       for i, image in ipairs(images) do
         if job.valid then
           job.percent = i / #images
-          local new_name = substitute_pattern(image, i, pattern)
+          local new_name = substitute_pattern(image, i, pattern, rename.widgets.allow_moving_files.value)
           if new_name == -1 then
             dt.print(_("unable to do variable substitution, exiting..."))
             stop_job(job)
@@ -288,13 +292,16 @@ local function do_rename(images)
   end
 end
 
+-- mirrors do_rename's computation for the first selected image, but only
+-- updates the preview label instead of actually touching any files - keep
+-- this in sync with do_rename whenever that function's logic changes
 local function do_preview(images)
   if #images > 0 then
     local image = images[1]
     local pattern = rename.widgets.pattern.text
     persist_pattern_prefs()
     if string.len(pattern) > 0 then
-      local new_name = substitute_pattern(image, 1, pattern)
+      local new_name = substitute_pattern(image, 1, pattern, rename.widgets.allow_moving_files.value)
       if new_name == -1 then
         rename.widgets.preview_label.label = _("unable to do variable substitution")
       else
@@ -362,16 +369,17 @@ rename.widgets.extension_pattern = dt.new_widget("entry"){
   end
 }
 
--- defined AFTER extension_pattern: setting "value" below fires
--- clicked_callback immediately during construction, which references
--- rename.widgets.extension_pattern
-rename.widgets.use_existing_extension = dt.new_widget("check_button"){
-  label = _("use existing extension"),
-  value = true,
+-- defined AFTER extension_pattern: setting "value" to something other than
+-- its GTK default fires clicked_callback immediately during construction,
+-- which references rename.widgets.extension_pattern; kept for safety even
+-- though the default here is now "false" (matching GTK's own default)
+rename.widgets.change_file_extension = dt.new_widget("check_button"){
+  label = _("change file extension"),
+  value = false,
   clicked_callback = function(self)
-    rename.widgets.extension_pattern.visible = not self.value
-    dt.preferences.write(MODULE_NAME, "use_existing_extension", "bool", self.value)
-    dt.preferences.write(MODULE_NAME, "use_existing_extension_saved", "bool", true)
+    rename.widgets.extension_pattern.visible = self.value
+    dt.preferences.write(MODULE_NAME, "change_file_extension", "bool", self.value)
+    dt.preferences.write(MODULE_NAME, "change_file_extension_saved", "bool", true)
   end
 }
 
@@ -379,9 +387,9 @@ rename.widgets.use_existing_extension = dt.new_widget("check_button"){
 -- saved before; dt.preferences.read(..., "bool") returns false rather
 -- than nil for a preference that was never set, so a sentinel flag is
 -- needed to tell "never saved" apart from "saved as false"
-if dt.preferences.read(MODULE_NAME, "use_existing_extension_saved", "bool") then
-  rename.widgets.use_existing_extension.value = dt.preferences.read(MODULE_NAME, "use_existing_extension", "bool")
-  rename.widgets.extension_pattern.visible = not rename.widgets.use_existing_extension.value
+if dt.preferences.read(MODULE_NAME, "change_file_extension_saved", "bool") then
+  rename.widgets.change_file_extension.value = dt.preferences.read(MODULE_NAME, "change_file_extension", "bool")
+  rename.widgets.extension_pattern.visible = rename.widgets.change_file_extension.value
 end
 
 local extension_pattern_pref = dt.preferences.read(MODULE_NAME, "extension_pattern", "string")
@@ -399,6 +407,8 @@ rename.widgets.preview_button = dt.new_widget("button"){
 rename.widgets.preview_label = dt.new_widget("label"){
   label = "",
   selectable = true,
+  halign = "center",
+  tooltip = _("shows the filename (and destination subfolder, if any) the rename button would produce"),
 }
 
 rename.widgets.button = dt.new_widget("button"){
