@@ -169,22 +169,29 @@ local function determine_extension(image, sequence)
     end
   end
 
-  if extension == "" then
-    return df.get_filetype(image.filename)
-  end
-
   if string.sub(extension, 1, 1) == "." then
     extension = string.sub(extension, 2)
   end
 
+  if extension == "" then
+    return df.get_filetype(image.filename)
+  end
+
   return extension
+end
+
+-- save the pattern and extension-pattern fields so they survive a restart;
+-- the checkbox persists itself immediately on click (see its clicked_callback)
+local function persist_pattern_prefs()
+  dt.preferences.write(MODULE_NAME, "pattern", "string", rename.widgets.pattern.text)
+  dt.preferences.write(MODULE_NAME, "extension_pattern", "string", rename.widgets.extension_pattern.text)
 end
 
 local function do_rename(images)
   if #images > 0 then
     local first_image = images[1]
     local pattern = rename.widgets.pattern.text
-    dt.preferences.write(MODULE_NAME, "pattern", "string", pattern)
+    persist_pattern_prefs()
     dt.print_log("pattern is " .. pattern)
     if string.len(pattern) > 0 then
       local datetime = os.date("*t")
@@ -239,6 +246,7 @@ local function do_preview(images)
   if #images > 0 then
     local image = images[1]
     local pattern = rename.widgets.pattern.text
+    persist_pattern_prefs()
     if string.len(pattern) > 0 then
       local new_name = substitute_pattern(image, 1, pattern)
       if new_name == -1 then
@@ -274,20 +282,44 @@ if pattern_pref then
   rename.widgets.pattern.text = pattern_pref
 end
 
-rename.widgets.use_existing_extension = dt.new_widget("check_button"){
-  label = _("use existing extension"),
-  value = true,
-  clicked_callback = function(self)
-    rename.widgets.extension_pattern.visible = not self.value
-  end
-}
-
 rename.widgets.extension_pattern = dt.new_widget("entry"){
   tooltip = _("pattern or literal text for the new extension") .. "\n" ..
             _("leave empty to keep the existing extension"),
   text = "$(FILE.EXTENSION)",
   visible = false,
+  reset_callback = function(self)
+    self.text = "$(FILE.EXTENSION)"
+    self.visible = false
+    dt.preferences.write(MODULE_NAME, "extension_pattern", "string", self.text)
+  end
 }
+
+-- defined AFTER extension_pattern: setting "value" below fires
+-- clicked_callback immediately during construction, which references
+-- rename.widgets.extension_pattern
+rename.widgets.use_existing_extension = dt.new_widget("check_button"){
+  label = _("use existing extension"),
+  value = true,
+  clicked_callback = function(self)
+    rename.widgets.extension_pattern.visible = not self.value
+    dt.preferences.write(MODULE_NAME, "use_existing_extension", "bool", self.value)
+    dt.preferences.write(MODULE_NAME, "use_existing_extension_saved", "bool", true)
+  end
+}
+
+-- only override the widget defaults if the checkbox was explicitly
+-- saved before; dt.preferences.read(..., "bool") returns false rather
+-- than nil for a preference that was never set, so a sentinel flag is
+-- needed to tell "never saved" apart from "saved as false"
+if dt.preferences.read(MODULE_NAME, "use_existing_extension_saved", "bool") then
+  rename.widgets.use_existing_extension.value = dt.preferences.read(MODULE_NAME, "use_existing_extension", "bool")
+  rename.widgets.extension_pattern.visible = not rename.widgets.use_existing_extension.value
+end
+
+local extension_pattern_pref = dt.preferences.read(MODULE_NAME, "extension_pattern", "string")
+if extension_pattern_pref and extension_pattern_pref ~= "" then
+  rename.widgets.extension_pattern.text = extension_pattern_pref
+end
 
 rename.widgets.preview_button = dt.new_widget("button"){
   label = _("preview filename"),
