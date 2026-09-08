@@ -37,6 +37,7 @@
 
     TODO 
     * Add pattern builder
+    * Add new name preview
 ]]
 
 local dt = require "darktable"
@@ -95,6 +96,18 @@ local function stop_job(job)
   job.valid = false
 end
 
+-- make sure filename ends with the given extension (without leading dot);
+-- does nothing if extension is empty
+local function ensure_extension(filename, extension)
+  if extension ~= "" then
+    local suffix = "." .. extension
+    if string.lower(string.sub(filename, -string.len(suffix))) ~= string.lower(suffix) then
+      filename = filename .. suffix
+    end
+  end
+  return filename
+end
+
 local function install_module()
   if not rename.module_installed then
     dt.register_lib(
@@ -106,6 +119,8 @@ local function install_module()
       dt.new_widget("box"){
         orientation = "vertical",
         rename.widgets.pattern,
+        rename.widgets.use_existing_extension,
+        rename.widgets.extension_pattern,
         rename.widgets.preview_button,
         rename.widgets.preview_label,
         rename.widgets.button,
@@ -138,6 +153,33 @@ local function substitute_pattern(image, sequence, pattern)
   return new_name
 end
 
+-- work out which extension to use for a given image, based on the
+-- "use existing extension" checkbox and (if unchecked) the extension pattern
+local function determine_extension(image, sequence)
+  if rename.widgets.use_existing_extension.value then
+    return df.get_filetype(image.filename)
+  end
+
+  local extension_pattern = rename.widgets.extension_pattern.text
+  local extension = ""
+  if string.len(extension_pattern) > 0 then
+    local substituted = substitute_pattern(image, sequence, extension_pattern)
+    if substituted ~= -1 then
+      extension = substituted
+    end
+  end
+
+  if extension == "" then
+    return df.get_filetype(image.filename)
+  end
+
+  if string.sub(extension, 1, 1) == "." then
+    extension = string.sub(extension, 2)
+  end
+
+  return extension
+end
+
 local function do_rename(images)
   if #images > 0 then
     local first_image = images[1]
@@ -162,7 +204,7 @@ local function do_rename(images)
           if string.len(path) == 0 then
             path = image.path
           end
-          local filename = df.get_filename(new_name)
+          local filename = ensure_extension(df.get_filename(new_name), determine_extension(image, i))
           local filmname = image.path
           if path ~= image.path then
             if not df.check_if_file_exists(df.sanitize_filename(path)) then
@@ -202,7 +244,7 @@ local function do_preview(images)
       if new_name == -1 then
         rename.widgets.preview_label.label = _("unable to do variable substitution")
       else
-        rename.widgets.preview_label.label = df.get_filename(new_name)
+        rename.widgets.preview_label.label = ensure_extension(df.get_filename(new_name), determine_extension(image, 1))
       end
     else -- pattern length
       rename.widgets.preview_label.label = _("please enter the new name or pattern")
@@ -231,6 +273,21 @@ local pattern_pref = dt.preferences.read(MODULE_NAME, "pattern", "string")
 if pattern_pref then
   rename.widgets.pattern.text = pattern_pref
 end
+
+rename.widgets.use_existing_extension = dt.new_widget("check_button"){
+  label = _("use existing extension"),
+  value = true,
+  clicked_callback = function(self)
+    rename.widgets.extension_pattern.visible = not self.value
+  end
+}
+
+rename.widgets.extension_pattern = dt.new_widget("entry"){
+  tooltip = _("pattern or literal text for the new extension") .. "\n" ..
+            _("leave empty to keep the existing extension"),
+  text = "$(FILE.EXTENSION)",
+  visible = false,
+}
 
 rename.widgets.preview_button = dt.new_widget("button"){
   label = _("preview filename"),
