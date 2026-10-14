@@ -934,7 +934,9 @@ function dtutils_string.get_substitution_tooltip()
           _("$(FILE.EXTENSION) - extension of the input image"),
           _("$(ID) - image ID"),
           _("$(IMAGE.ID) - image ID"),
+          _("$(IMAGE.ID[n]) - image ID, zero-padded to n digits"),
           _("$(IMAGE.ID.NEXT) - next image ID to be assigned on import"),
+          _("$(IMAGE.ID.NEXT[n]) - next image ID to be assigned on import, zero-padded to n digits"),
           _("$(VERSION) - duplicate version"),
           _("$(VERSION.IF_MULTI) - same as $(VERSION) but null string if only one version exists"),
           _("$(VERSION.NAME) - version name from metadata"),
@@ -1066,6 +1068,12 @@ local function treat(var_string)
     ret_val = substitutes[var_string]
     if not ret_val then ret_val = "" end
     log.msg(log.info, "ret_val is " .. ret_val)
+
+  elseif (var == "IMAGE.ID" or var == "IMAGE.ID.NEXT") and string.match(var_string, "%[%d+%]$") then
+    local width = string.match(var_string, "%[(%d+)%]$")
+    local pat = "%0" .. width .. "d"
+    substitutes[var_string] = string.format(pat, substitutes[var])
+    ret_val = substitutes[var_string]
 
   elseif string.match(var_string, "SEQUENCE%[") then
     local width, start = string.match(var_string, "(%d+),(%d+)")
