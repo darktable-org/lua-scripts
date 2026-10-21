@@ -25,9 +25,9 @@ require "examples/moduleExample"
 * it creates a new example lighttable module
 
 More informations about building user interface elements:
-https://www.darktable.org/usermanual/ch09.html.php#lua_gui_example
+https://www.darktable.org/usermanual/ch09.html.php#lua_gui_example <--- INVALID LINK
 And about new_widget here:
-https://www.darktable.org/lua-api/index.html.php#darktable_new_widget
+https://docs.darktable.org/lua/stable/lua.api.manual/darktable/darktable.new_widget/
 ]]
 
 local dt = require "darktable"
@@ -35,7 +35,7 @@ local du = require "lib/dtutils"
 
 du.check_min_api_version("7.0.0", "moduleExample") 
 
--- https://www.darktable.org/lua-api/index.html#darktable_gettext
+-- https://docs.darktable.org/lua/stable/lua.api.manual/darktable/darktable.gettext/
 local gettext = dt.gettext.gettext
 
 local function _(msgid)
@@ -50,11 +50,11 @@ script_data.metadata = {
   name = ("module example"),
   purpose = _("example of how to create a lighttable module"),
   author = "Tobias Jakobs",
-  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/moduleExample"
+  help = "https://docs.darktable.org/lua/stable/lua.scripts.manual/scripts/examples/moduleexample/"
 }
 
-script_data.destroy = nil -- function to destory the script
-script_data.destroy_method = nil -- set to hide for libs since we can't destroy them commpletely yet, otherwise leave as nil
+script_data.destroy = nil -- function to destroy the script
+script_data.destroy_method = nil -- set to hide for libs since we can't destroy them completely yet, otherwise leave as nil
 script_data.restart = nil -- how to restart the (lib) script after it's been hidden - i.e. make it visible again
 script_data.show = nil -- only required for libs since the destroy_method only hides them
 
@@ -67,19 +67,19 @@ mE.event_registered = false  -- keep track of whether we've added an event callb
 mE.module_installed = false  -- keep track of whether the module is module_installed
 
 --[[ We have to create the module in one of two ways depending on which view darktable starts
-     in.  In orker to not repeat code, we wrap the darktable.register_lib in a local function.
+     in.  In order to not repeat code, we wrap the darktable.register_lib in a local function.
   ]]
 
 local function install_module()
   if not mE.module_installed then
-    -- https://www.darktable.org/lua-api/index.html#darktable_register_lib
+    -- https://docs.darktable.org/lua/stable/lua.api.manual/darktable/darktable.register_lib/
     dt.register_lib(
       "exampleModule",     -- Module name
       _("example module"),     -- name
       true,                -- expandable
       false,               -- resetable
       {[dt.gui.views.lighttable] = {"DT_UI_CONTAINER_PANEL_RIGHT_CENTER", 100}},   -- containers
-      -- https://www.darktable.org/lua-api/types_lua_box.html
+      -- https://docs.darktable.org/lua/stable/lua.api.manual/types/lua_box/
       dt.new_widget("box") -- widget
       {
         orientation = "vertical",
@@ -109,13 +109,13 @@ local function restart()
     dt.gui.libs["exampleModule"].visible = true -- the user wants to use it again, so we just make it visible and it shows up in the UI
 end
 
--- https://www.darktable.org/lua-api/types_lua_check_button.html
+-- https://docs.darktable.org/lua/stable/lua.api.manual/types/lua_check_button/
 local check_button = dt.new_widget("check_button"){label = _("my ") .. "check_button", value = true}
 
--- https://www.darktable.org/lua-api/types_lua_combobox.html
+-- https://docs.darktable.org/lua/stable/lua.api.manual/types/lua_combobox/
 local combobox = dt.new_widget("combobox"){label = _("my ") .. "combobox", value = 2, "8", "16", "32"}
 
--- https://www.darktable.org/lua-api/types_lua_entry.html
+-- https://docs.darktable.org/lua/stable/lua.api.manual/types/lua_entry/
 local entry = dt.new_widget("entry")
 {
     text = "test", 
@@ -126,7 +126,7 @@ local entry = dt.new_widget("entry")
     reset_callback = function(self) self.text = "text" end
 }
 
--- https://www.darktable.org/lua-api/types_lua_file_chooser_button.html
+-- https://docs.darktable.org/lua/stable/lua.api.manual/types/lua_file_chooser_button/
 local file_chooser_button = dt.new_widget("file_chooser_button")
 {
     title = _("my ") .. "file_chooser_button",  -- The title of the window when choosing a file
@@ -134,14 +134,14 @@ local file_chooser_button = dt.new_widget("file_chooser_button")
     is_directory = false              -- True if the file chooser button only allows directories to be selecte
 }
 
--- https://www.darktable.org/lua-api/types_lua_label.html
+-- https://docs.darktable.org/lua/stable/lua.api.manual/types/lua_label/
 local label = dt.new_widget("label")
 label.label = _("my ") .. "label" -- This is an alternative way to the "{}" syntax to set a property 
 
--- https://www.darktable.org/lua-api/types_lua_separator.html
+-- https://docs.darktable.org/lua/stable/lua.api.manual/types/lua_separator/
 local separator = dt.new_widget("separator"){}
 
--- https://www.darktable.org/lua-api/types_lua_slider.html
+-- https://docs.darktable.org/lua/stable/lua.api.manual/types/lua_slider/
 local slider = dt.new_widget("slider")
 {
   label = _("my ") .. "slider", 
@@ -169,7 +169,7 @@ if dt.gui.current_view().id == "lighttable" then -- make sure we are in lighttab
   install_module()  -- register the lib
 else
   if not mE.event_registered then -- if we are not in lighttable view then register an event to signal when we might be
-    -- https://www.darktable.org/lua-api/index.html#darktable_register_event
+    -- https://docs.darktable.org/lua/stable/lua.api.manual/darktable/darktable.register_event/
     dt.register_event(
       "mdouleExample", "view-changed",  -- we want to be informed when the view changes
       function(event, old_view, new_view)
