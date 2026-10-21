@@ -117,12 +117,12 @@ local LUA_SCRIPT_REPO <const> = "https://github.com/darktable-org/lua-scripts.gi
 
 local LUA_API_VER <const> = "API-" .. dt.configuration.api_version_string
 
--- local POWER_ICON = dt.configuration.config_dir .. "/lua/data/data/icons/power.png"
-local USER_POWER_ICON <const> = dt.configuration.config_dir .. "/lua/data/icons/path20.png"
-local USER_BLANK_ICON <const> = dt.configuration.config_dir .. "/lua/data/icons/blank20.png"
+-- local POWER_ICON = dt.configuration.config_dir .. "/lua/data/data/icons/power.svg"
+local USER_POWER_ICON <const> = dt.configuration.config_dir .. "/lua/data/icons/power.svg"
+local USER_BLANK_ICON <const> = dt.configuration.config_dir .. "/lua/data/icons/blank.svg"
 
-local SYSTEM_POWER_ICON <const> = dt.configuration.data_dir .. "/lua-scripts/data/icons/path20.png"
-local SYSTEM_BLANK_ICON <const> = dt.configuration.data_dir .. "/lua-scripts/data/icons/blank20.png"
+local SYSTEM_POWER_ICON <const> = dt.configuration.data_dir .. "/lua-scripts/data/icons/power.svg"
+local SYSTEM_BLANK_ICON <const> = dt.configuration.data_dir .. "/lua-scripts/data/icons/blank.svg"
 
 local LUA_DIR = USER_LUA_DIR
 local POWER_ICON = USER_POWER_ICON
