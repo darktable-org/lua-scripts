@@ -63,8 +63,8 @@ local output = io.popen("cd "..dt.configuration.config_dir.."/lua/lib ;find . -n
 -- loop through the libraries
 
 for line in output:lines() do
-  line = string.gsub(line, "/", ".")
-  local lib_name = line:sub(3,-5)
+  local cleaned_line = string.gsub(line, "/", ".")
+  local lib_name = cleaned_line:sub(3,-5)
   if lib_name:len() > 2 then
     lib_name = "lib/" .. lib_name
     local lib = require(lib_name)

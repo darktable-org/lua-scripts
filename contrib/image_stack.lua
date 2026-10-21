@@ -323,8 +323,8 @@ local function cleanup(img_list)
   dt.print_log("image list is " .. img_list)
   files = du.split(img_list, " ")
   for _,f in ipairs(files) do
-    f = string.gsub(f, '[\'\"]', "")
-    os.remove(f)
+    local cleaned = string.gsub(f, '[\'\"]', "")
+    os.remove(cleaned)
   end
 end
 
