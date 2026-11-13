@@ -798,6 +798,13 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
 
   local version_multi = #image:get_group_members() > 1 and image.duplicate_index or ""
 
+  -- version_name only exists on the image when the version name metadata
+  -- field is configured; reading an unregistered field raises an error
+  local ok, version_name = pcall(function() return image.version_name end)
+  if not ok or not version_name then
+    version_name = ""
+  end
+
   local replacements = {dtutils_string.get_basename(image.film.path),-- ROLL.NAME
                         image.path,                            -- FILE.FOLDER
                         dtutils_string.get_basename(image.filename),-- FILE.NAME
@@ -807,7 +814,7 @@ function dtutils_string.build_substitute_list(image, sequence, variable_string, 
                         dt.database[#dt.database].id + 1,      -- IMAGE.ID.NEXT
                         image.duplicate_index,                 -- VERSION
                         version_multi,                         -- VERSION.IF_MULTI
-                        image.version_name and image.version_name or "", -- VERSION.NAME
+                        version_name,                          -- VERSION.NAME
                         dt.configuration.version,              -- DARKTABLE.VERSION
                         dt.configuration.version,              -- Xmp.darktable.version
                         "",                                    -- DARKTABLE.NAME
