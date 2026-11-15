@@ -755,7 +755,7 @@ local function scan_scripts(script_dir)
   local old_log_level = set_log_level(sm.log_level)
 
   local script_count = 0
-  local find_cmd = "find -L " .. script_dir .. " -name \\*.lua -print | sort"
+  local find_cmd = "find -L \"" .. script_dir .. "\" -name \\*.lua -print | sort"
 
   if dt.configuration.running_os == "windows" then
     find_cmd = "dir /b/s \"" .. script_dir .. "\\*.lua\" 2>nul | sort"
