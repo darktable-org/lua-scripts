@@ -311,25 +311,26 @@ local function face_recognition ()
             if ignoreByTag (img, ignoreTags) then
               dt.print_log("Face recognition: Ignoring image with ID " .. img.id)
             else
+              local tag_name = t
               -- Check of unrecognized unknown_person
-              if t == "unknown_person" then
-                t = unknownTag
+              if tag_name == "unknown_person" then
+                tag_name = unknownTag
               end
               -- Check of unrecognized no_persons_found
-              if t == "no_persons_found" then
-                t = nonpersonsfoundTag
+              if tag_name == "no_persons_found" then
+                tag_name = nonpersonsfoundTag
               end
-              if t ~= "" and t ~= nil then
-                if categoryTagString ~= "" and t ~= nonpersonsfoundTag then
-                  t = categoryTagString .. "|" .. t
+              if tag_name ~= "" and tag_name ~= nil then
+                if categoryTagString ~= "" and tag_name ~= nonpersonsfoundTag then
+                  tag_name = categoryTagString .. "|" .. tag_name
                 end                  
-                dt.print_log ("ImgId:" .. img.id .. " Tag:".. t)
+                dt.print_log ("ImgId:" .. img.id .. " Tag:".. tag_name)
                 -- Create tag if it does not exist
-                if tags_list[t] == nil then
-                  tag = dt.tags.create (t)
-                  tags_list[t] = tag
+                if tags_list[tag_name] == nil then
+                  tag = dt.tags.create (tag_name)
+                  tags_list[tag_name] = tag
                 else
-                  tag = tags_list[t]
+                  tag = tags_list[tag_name]
                 end
                 img:attach_tag (tag)
               end
