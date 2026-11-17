@@ -1,0 +1,22 @@
+{
+    "github.copilot.chat.copilotDebugCommand.enabled": false,
+    "github.copilot.chat.tools.viewImage.enabled": false,
+    "github.copilot.chat.gemini35FlashReducedToolUsePrompt.enabled": false,
+    "github.copilot.chat.gpt55GetChangedFilesTool.enabled": false,
+    "github.copilot.chat.gpt55ReadFileTool.enabled": false,
+    "github.copilot.chat.gpt56Verbosity.enabled": false,
+    "github.copilot.chat.languageContext.typescript.enabled": false,
+    "github.copilot.chat.newWorkspaceCreation.enabled": false,
+    "github.copilot.chat.updated53CodexPrompt.enabled": false,
+    "github.copilot.chat.agent.currentEditorContext.enabled": false,
+    "github.copilot.chat.backgroundAgent.enabled": false,
+    "github.copilot.chat.cloudAgent.enabled": false,
+    "github.copilot.chat.imageUpload.enabled": false,
+    "github.copilot.chat.localIndex.enabled": false,
+    "github.copilot.chat.organizationCustomAgents.enabled": false,
+    "github.copilot.chat.organizationInstructions.enabled": false,
+    "github.copilot.chat.reviewAgent.enabled": false,
+    "github.copilot.chat.reviewSelection.enabled": false,
+    "github.copilot.editor.enableCodeActions": false,
+    "github.copilot.nextEditSuggestions.enabled": false
+}
