@@ -262,7 +262,7 @@ end
 ]]
 
 local function _check_path_for_wine_bin(path)
-  local result = false
+ local result = false
 
   if string.len(path) > 0 then
     -- check for windows executable to run under wine
@@ -291,7 +291,7 @@ local function _check_path_for_bin(bin)
     path = bin
   else
     path = dtutils_file.get_executable_path_preference(bin)
-    -- reset path preference is the returned preference is a directory
+    -- reset path preference if the returned preference is a directory
     if dtutils_file.test_file(path, "d") then
       dtutils_file.set_executable_path_preference(bin, "")
       path = nil
@@ -314,6 +314,19 @@ local function _check_path_for_bin(bin)
 
   return result
 end
+
+local function _check_preferences_for_bin(bin)
+
+  local result = dtutils_file.get_executable_path_preference(bin)
+
+  if result:len() == 0 then
+    result = false
+  end
+
+  return result
+end
+
+
 
 --[[
   local function to the old check_if_bin_exists functionality
@@ -382,12 +395,22 @@ function dtutils_file.check_if_bin_exists(bin)
     result = _old_check_if_bin_exists(bin)
   else
 
-    result = _check_path_for_bin(bin)
+    result = _check_preferences_for_bin(bin)
+
+    if not result then
+      result = _check_path_for_bin(bin)
+    end
 
     if not result then
       result = _search_for_bin(bin)
     end
   end
+
+  if not result then
+    -- make an entry so that executable_manager can be used to fix it
+    dtutils_file.set_executable_path_preference(bin, "")
+  end
+
   return result
 end
 
@@ -671,6 +694,62 @@ function dtutils_file.create_unique_filename(filepath)
   return filepath
 end
 
+-- sorted list of executable names
+dtutils_file.known_executables = {}
+
+-- executable name/path pairs
+dtutils_file.executable_paths = {}
+
+-- initialized flag
+dtutils_file.executables_initialized = false
+
+local function _find_known_executable(name)
+  local found = false
+  for _, bin in ipairs(dtutils_file.known_executables) do
+    if name == bin then
+      found = true
+    end
+  end
+
+  return found
+end
+
+local function _get_known_executables()
+  -- read the known executables preference and populate the tables
+
+  local executables = dt.preferences.read("executable_manager", "known_executables", "string")
+
+  if executables then
+    local names = du.split(executables, ",")
+
+    for _, name in ipairs(names) do
+      table.insert(dtutils_file.known_executables, name)
+      dtutils_file.executable_paths[name] = dtutils_file.get_executable_path_preference(name)
+    end
+
+    table.sort(dtutils_file.known_executables)
+
+    dtutils_file.executables_initialized = true
+  end
+end
+
+local function _save_known_executables()
+  -- write the preference with the known executable names
+  local pref = du.join(dtutils_file.known_executables, ",")
+  dt.preferences.write("executable_manager", "known_executables", "string", pref)
+end
+
+local function _add_known_executable(name)
+  -- add a known executable to the table
+  if not dtutils_file.executables_initialized then
+    _get_known_executables()
+  end
+
+  table.insert(dtutils_file.known_executables, name)
+  table.sort(dtutils_file.known_executables)
+  _save_known_executables()
+end
+
 
 dtutils_file.libdoc.functions["set_executable_path_preference"] = {
   Name = [[set_executable_path_preference]],
@@ -693,6 +772,10 @@ dtutils_file.libdoc.functions["set_executable_path_preference"] = {
 
 function dtutils_file.set_executable_path_preference(executable, path)
   dt.preferences.write("executable_paths", executable, "string", path)
+  dtutils_file.executable_paths[executable] = path
+  if not _find_known_executable(executable) then
+    _add_known_executable(executable)
+  end
 end
 
 
@@ -715,7 +798,11 @@ dtutils_file.libdoc.functions["get_executable_path_preference"] = {
 }
 
 function dtutils_file.get_executable_path_preference(executable)
-  return dt.preferences.read("executable_paths", executable, "string")
+  if dtutils_file.executables_initialized then
+    return dtutils_file.executable_paths(executable)
+  else
+    return dt.preferences.read("executable_paths", executable, "string")
+  end
 end
 
 
