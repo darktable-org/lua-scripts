@@ -987,13 +987,13 @@ function dtutils_string.get_substitution_tooltip()
           _("$(EXIF.FOCAL.LENGTH) - EXIF focal length"),
           _("$(EXIF.FOCAL.LENGTH.EQUIV) - EXIF 35 mm equivalent focal length"),
           _("$(EXIF.FOCUS.DISTANCE) - EXIF focal distance"),
-          _("$(EXIF.MAKER) - camera maker") ..
-          _("$(EXIF.MODEL) - camera model") ..
-          _("$(EXIF.WHITEBALANCE) - EXIF selected white balance") ..  -- not implemented
-          _("$(EXIF.METERING) - EXIF exposure metering mode") ..  -- not implemented
-          _("$(EXIF.LENS) - lens") ..
+          _("$(EXIF.MAKER) - camera maker"),
+          _("$(EXIF.MODEL) - camera model"),
+          _("$(EXIF.WHITEBALANCE) - EXIF selected white balance"),  -- not implemented
+          _("$(EXIF.METERING) - EXIF exposure metering mode"),  -- not implemented
+          _("$(EXIF.LENS) - lens"),
           -- _("$(EXIF.FLASH.ICON) - icon indicating whether flash was used") ..  -- not implemented
-          _("$(EXIF.FLASH) - was flash used (yes/no/--)") ..  -- not implemented
+          _("$(EXIF.FLASH) - was flash used (yes/no/--)"),  -- not implemented
           -- _("$(GPS.LONGITUDE) - longitude"),-- not implemented
           -- _("$(GPS.LATITUDE) - latitude"),-- not implemented
           -- _("$(GPS.ELEVATION) - elevation"),-- not implemented
